@@ -58,110 +58,94 @@ class MergePipelineResult:
 MergeExecutor = Callable[[MergeOperation], MergeExecutionResult]
 
 
-class MergePipeline:
+@dataclass(frozen=True)
+class MergeSessionState:
+    request: MergePipelineRequest
+    precision_mode: PrecisionMode
+    lock_token: str | None
+    lock_validated: bool
+
+
+class MergeSession:
     def __init__(
         self,
         *,
         flag_state: FlagState,
         coordinator: ProjectLockCoordinator,
-        telemetry: TelemetrySink,
-        logger: StructuredLogger,
-        executor: MergeExecutor,
     ) -> None:
         self._flag_state = flag_state
         self._coordinator = coordinator
+
+    def create_state(self, request: MergePipelineRequest) -> MergeSessionState:
+        mode = self._resolve_mode(
+            request.precision_mode_override or self._flag_state.merge_precision_mode()
+        )
+        lock_token = request.lock_token
+        lock_validated = False
+        if lock_token:
+            lock_validated = self._coordinator.validate_token(request.project_id, lock_token)
+        return MergeSessionState(
+            request=request,
+            precision_mode=mode,
+            lock_token=lock_token,
+            lock_validated=lock_validated,
+        )
+
+    def release_lock(self, state: MergeSessionState) -> bool:
+        if state.lock_token and (state.lock_validated or state.precision_mode == "baseline"):
+            self._coordinator.lock_release(state.request.project_id, state.lock_token)
+            return True
+        return False
+
+    @staticmethod
+    def _resolve_mode(candidate: str | None) -> PrecisionMode:
+        if candidate == "strict":
+            return "strict"
+        return "baseline"
+
+
+class MergeMetricsTracker:
+    def __init__(
+        self,
+        *,
+        telemetry: TelemetrySink,
+        logger: StructuredLogger,
+    ) -> None:
         self._telemetry = telemetry
         self._logger = logger
-        self._executor = executor
         self._totals: Dict[str, int] = {}
         self._successes: Dict[str, int] = {}
         self._conflicts: Dict[str, int] = {}
         self._lag_ms: Dict[str, float] = {}
         self._mode_gauges: Dict[str, float] = {"baseline": 0.0, "strict": 0.0}
 
-    def run(self, request: MergePipelineRequest) -> MergePipelineResult:
-        mode = (request.precision_mode_override or self._flag_state.merge_precision_mode()) or "baseline"
-        lock_token = request.lock_token
-        validated = False
-        if lock_token:
-            validated = self._coordinator.validate_token(request.project_id, lock_token)
-        if mode == "strict" and not validated:
-            self._record_outcome(
-                mode,
-                "conflicted",
-                request,
-                lock_validated=False,
-                resolved_snapshot_id=None,
-            )
-            raise LockTokenInvalidError("Merge requires a valid lock_token in strict precision mode")
-
-        operation = MergeOperation(
-            project_id=request.project_id,
-            merged_snapshot=request.merged_snapshot,
-            last_applied_snapshot_id=request.last_applied_snapshot_id,
-            lock_token=lock_token,
-            precision_mode=mode,
-        )
-        execution = self._executor(operation)
-        status = execution.status
-        if status not in {"merged", "conflicted", "rolled_back"}:
-            status = "conflicted"
-        lock_released = False
-        if lock_token and (validated or mode == "baseline"):
-            self._coordinator.lock_release(request.project_id, lock_token)
-            lock_released = True
-        self._record_outcome(
-            mode,
-            status,
-            request,
-            lock_validated=validated,
-            resolved_snapshot_id=execution.resolved_snapshot_id,
-        )
-        return MergePipelineResult(
-            status=status,
-            precision_mode=mode,
-            resolved_snapshot_id=execution.resolved_snapshot_id,
-            lock_released=lock_released,
-        )
-
-    def metrics_snapshot(self) -> Mapping[str, float]:
-        success_rates, conflict_rates, lag = self._compose_metrics()
-        snapshot: Dict[str, float] = {}
-        for mode, value in success_rates.items():
-            snapshot[f"merge.success.rate|precision_mode={mode}"] = value
-        for mode, value in conflict_rates.items():
-            snapshot[f"merge.conflict.rate|precision_mode={mode}"] = value
-        for mode, value in lag.items():
-            snapshot[f"merge.autosave.lag_ms|precision_mode={mode}"] = value
-        for mode, gauge in self._mode_gauges.items():
-            snapshot[f"merge.precision_mode|precision_mode={mode}"] = gauge
-        return snapshot
-
-    def _record_outcome(
+    def record_outcome(
         self,
-        mode: PrecisionMode,
+        *,
+        precision_mode: PrecisionMode,
         status: Literal["merged", "conflicted", "rolled_back"],
         request: MergePipelineRequest,
-        *,
         lock_validated: bool,
         resolved_snapshot_id: int | None,
     ) -> None:
-        totals = self._totals.get(mode, 0) + 1
-        self._totals[mode] = totals
+        totals = self._totals.get(precision_mode, 0) + 1
+        self._totals[precision_mode] = totals
         if status == "merged":
-            self._successes[mode] = self._successes.get(mode, 0) + 1
+            self._successes[precision_mode] = self._successes.get(precision_mode, 0) + 1
         else:
-            self._conflicts[mode] = self._conflicts.get(mode, 0) + 1
+            self._conflicts[precision_mode] = self._conflicts.get(precision_mode, 0) + 1
         if request.autosave_lag_ms is not None:
-            self._lag_ms[mode] = request.autosave_lag_ms
-        self._mode_gauges = {key: 1.0 if key == mode else 0.0 for key in self._mode_gauges}
+            self._lag_ms[precision_mode] = request.autosave_lag_ms
+        self._mode_gauges = {
+            key: 1.0 if key == precision_mode else 0.0 for key in self._mode_gauges
+        }
         success_rates, conflict_rates, lag = self._compose_metrics()
         payload: Dict[str, object] = {
-            "precision_mode": mode,
+            "precision_mode": precision_mode,
             "status": status,
-            "merge.success.rate": success_rates.get(mode, 0.0),
-            "merge.conflict.rate": conflict_rates.get(mode, 0.0),
-            "merge.autosave.lag_ms": lag.get(mode),
+            "merge.success.rate": success_rates.get(precision_mode, 0.0),
+            "merge.conflict.rate": conflict_rates.get(precision_mode, 0.0),
+            "merge.autosave.lag_ms": lag.get(precision_mode),
             "lock_validated": lock_validated,
             "resolved_snapshot_id": resolved_snapshot_id,
         }
@@ -172,7 +156,7 @@ class MergePipeline:
         self._telemetry.emit("merge.pipeline.metrics", payload)
 
         metrics_payload: Dict[str, Mapping[str, float] | str] = {
-            "merge.precision_mode": mode,
+            "merge.precision_mode": precision_mode,
             "merge.success.rate": success_rates,
             "merge.conflict.rate": conflict_rates,
             "merge.autosave.lag_ms": lag,
@@ -189,6 +173,19 @@ class MergePipeline:
             extra=extra,
         )
 
+    def snapshot(self) -> Mapping[str, float]:
+        success_rates, conflict_rates, lag = self._compose_metrics()
+        snapshot: Dict[str, float] = {}
+        for mode, value in success_rates.items():
+            snapshot[f"merge.success.rate|precision_mode={mode}"] = value
+        for mode, value in conflict_rates.items():
+            snapshot[f"merge.conflict.rate|precision_mode={mode}"] = value
+        for mode, value in lag.items():
+            snapshot[f"merge.autosave.lag_ms|precision_mode={mode}"] = value
+        for mode, gauge in self._mode_gauges.items():
+            snapshot[f"merge.precision_mode|precision_mode={mode}"] = gauge
+        return snapshot
+
     def _compose_metrics(self) -> tuple[Dict[str, float], Dict[str, float], Dict[str, float]]:
         success_rates: Dict[str, float] = {}
         conflict_rates: Dict[str, float] = {}
@@ -202,10 +199,68 @@ class MergePipeline:
         return success_rates, conflict_rates, dict(self._lag_ms)
 
 
+class MergePipeline:
+    def __init__(
+        self,
+        *,
+        flag_state: FlagState,
+        coordinator: ProjectLockCoordinator,
+        telemetry: TelemetrySink,
+        logger: StructuredLogger,
+        executor: MergeExecutor,
+    ) -> None:
+        self._session = MergeSession(flag_state=flag_state, coordinator=coordinator)
+        self._tracker = MergeMetricsTracker(telemetry=telemetry, logger=logger)
+        self._executor = executor
+
+    def run(self, request: MergePipelineRequest) -> MergePipelineResult:
+        state = self._session.create_state(request)
+        if state.precision_mode == "strict" and not state.lock_validated:
+            self._tracker.record_outcome(
+                precision_mode=state.precision_mode,
+                status="conflicted",
+                request=request,
+                lock_validated=False,
+                resolved_snapshot_id=None,
+            )
+            raise LockTokenInvalidError("Merge requires a valid lock_token in strict precision mode")
+        operation = MergeOperation(
+            project_id=request.project_id,
+            merged_snapshot=request.merged_snapshot,
+            last_applied_snapshot_id=request.last_applied_snapshot_id,
+            lock_token=state.lock_token,
+            precision_mode=state.precision_mode,
+        )
+        execution = self._executor(operation)
+        status = execution.status
+        if status not in {"merged", "conflicted", "rolled_back"}:
+            status = "conflicted"
+        lock_released = self._session.release_lock(state)
+        self._tracker.record_outcome(
+            precision_mode=state.precision_mode,
+            status=status,
+            request=request,
+            lock_validated=state.lock_validated,
+            resolved_snapshot_id=execution.resolved_snapshot_id,
+        )
+        return MergePipelineResult(
+            status=status,
+            precision_mode=state.precision_mode,
+            resolved_snapshot_id=execution.resolved_snapshot_id,
+            lock_released=lock_released,
+        )
+
+    def metrics_snapshot(self) -> Mapping[str, float]:
+        return self._tracker.snapshot()
+
+
 __all__ = [
     "MergeExecutionResult",
     "MergeOperation",
     "MergePipeline",
     "MergePipelineRequest",
     "MergePipelineResult",
+    "MergeMetricsTracker",
+    "MergeSession",
+    "MergeSessionState",
 ]
