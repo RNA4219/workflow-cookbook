@@ -18,6 +18,8 @@ from tools.context.pack import (
     SectionSelector,
     assemble_sections,
     build_graph_view,
+    GraphViewBuilder,
+    ContextPackPlanner,
     load_config,
     pack_graph,
     score_candidates,
@@ -106,6 +108,98 @@ def test_context_pack_plan_candidates_and_budget(sample_graph: Path) -> None:
         "docs/a.md#root",
     ]
     assert plan.budget_remaining == 20
+
+
+def test_graph_view_builder_normalises_graph_inputs() -> None:
+    builder = GraphViewBuilder(
+        graph={"nodes": {"unexpected": True}, "edges": "oops"},
+        intent="INT-1 sample",
+        diff_paths=[],
+        config=DEFAULT_CONFIG,
+    )
+
+    nodes = builder.normalize_nodes()
+    edges = builder.normalize_edges()
+
+    assert nodes == []
+    assert edges == []
+
+
+def test_graph_view_builder_hits_and_weights(sample_graph: Path) -> None:
+    graph = json.loads(sample_graph.read_text())
+    config = json.loads(json.dumps(DEFAULT_CONFIG))
+    config["weights"] = {
+        "intent": 1.0,
+        "diff": 0.5,
+        "recency": 0.0,
+        "hub": 0.0,
+        "role": 0.0,
+    }
+    builder = GraphViewBuilder(
+        graph=graph,
+        intent="INT-9 implement rollout",
+        diff_paths=["docs/b.md"],
+        config=config,
+    )
+
+    nodes = builder.normalize_nodes()
+    edges = builder.normalize_edges()
+    profile = builder.build_intent_profile()
+    base_signals, base_scores, hits = builder.compute_base_signals(nodes, edges, profile)
+
+    assert hits == [
+        "docs/a.md#root",
+        "docs/a.md#impl",
+        "docs/b.md#ops",
+    ]
+
+    impl_signals = base_signals["docs/a.md#impl"]
+    ops_signals = base_signals["docs/b.md#ops"]
+
+    assert base_scores["docs/a.md#impl"] == pytest.approx(
+        impl_signals.intent * 1.0 + impl_signals.diff * 0.5
+    )
+    assert base_scores["docs/b.md#ops"] == pytest.approx(
+        ops_signals.intent * 1.0 + ops_signals.diff * 0.5
+    )
+
+
+def test_graph_view_builder_limits_candidates_to_two_hops() -> None:
+    graph = {
+        "nodes": [
+            {
+                "id": f"n{i}",
+                "path": f"docs/n{i}.md",
+                "heading": "target" if i == 0 else "other",
+                "mtime": _recent(1),
+            }
+            for i in range(5)
+        ],
+        "edges": [
+            {"src": f"n{i}", "dst": f"n{i + 1}", "type": "link"}
+            for i in range(4)
+        ],
+    }
+    config = json.loads(json.dumps(DEFAULT_CONFIG))
+    config["weights"] = {
+        "intent": 1.0,
+        "diff": 0.0,
+        "recency": 0.0,
+        "hub": 0.0,
+        "role": 0.0,
+    }
+    builder = GraphViewBuilder(
+        graph=graph,
+        intent="INT-2 target",
+        diff_paths=[],
+        config=config,
+    )
+
+    view = builder.build()
+    ranking = score_candidates(view=view, config=config)
+    candidate_ids = [node["id"] for node in ranking.candidate_nodes]
+
+    assert candidate_ids == ["n0", "n1", "n2"]
 
 
 def test_load_config_overrides_defaults(tmp_path: Path, sample_graph: Path) -> None:

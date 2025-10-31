@@ -107,6 +107,129 @@ class GraphView:
     hits: List[str]
 
 
+class GraphViewBuilder:
+    def __init__(
+        self,
+        *,
+        graph: Mapping[str, object],
+        intent: str,
+        diff_paths: Sequence[str],
+        config: Mapping[str, object],
+    ) -> None:
+        self._graph = graph
+        self._intent = intent
+        self._diff_paths = [str(path) for path in diff_paths]
+        self._config = _as_mapping(config)
+
+    def normalize_nodes(self) -> List[GraphNode]:
+        nodes_raw = self._graph.get("nodes", [])
+        if not isinstance(nodes_raw, list):
+            return []
+        return [cast(GraphNode, node) for node in nodes_raw]
+
+    def normalize_edges(self) -> List[GraphEdge]:
+        edges_raw = self._graph.get("edges", [])
+        if not isinstance(edges_raw, list):
+            return []
+        return [cast(GraphEdge, edge) for edge in edges_raw]
+
+    def build_intent_profile(self) -> IntentProfile:
+        halflife = _config_int(self._config, "recency_halflife_days", 45)
+        raw_intent = _intent_profile(self._intent, halflife)
+        keywords_value = raw_intent.get("keywords", [])
+        keywords = (
+            [str(item) for item in keywords_value]
+            if isinstance(keywords_value, list)
+            else []
+        )
+        role_value = raw_intent.get("role")
+        role = role_value if isinstance(role_value, str) else None
+        return IntentProfile(keywords=keywords, role=role, halflife=halflife)
+
+    def build_adjacency(
+        self, edges: Sequence[GraphEdge]
+    ) -> tuple[Dict[str, List[str]], Dict[str, List[str]]]:
+        adjacency: Dict[str, List[str]] = {}
+        reverse_adj: Dict[str, List[str]] = {}
+        for edge in edges:
+            src = edge.get("src")
+            dst = edge.get("dst")
+            if isinstance(src, str) and isinstance(dst, str):
+                adjacency.setdefault(src, []).append(dst)
+                reverse_adj.setdefault(dst, []).append(src)
+        return adjacency, reverse_adj
+
+    def compute_base_signals(
+        self,
+        nodes: Sequence[GraphNode],
+        edges: Sequence[GraphEdge],
+        intent_profile: IntentProfile,
+    ) -> tuple[Dict[str, BaseSignals], Dict[str, float], List[str]]:
+        hub_scores = _hub_scores(nodes, edges)
+        weights_map = _as_mapping(self._config.get("weights"))
+        weight_intent = _config_float(weights_map, "intent", 0.0)
+        weight_diff = _config_float(weights_map, "diff", 0.0)
+        weight_recency = _config_float(weights_map, "recency", 0.0)
+        weight_hub = _config_float(weights_map, "hub", 0.0)
+        weight_role = _config_float(weights_map, "role", 0.0)
+        base_signals: Dict[str, BaseSignals] = {}
+        base_scores: Dict[str, float] = {}
+        hits: List[str] = []
+        for node in nodes:
+            node_id = node.get("id")
+            if not isinstance(node_id, str):
+                continue
+            heading = node.get("heading") or ""
+            path = node.get("path") or ""
+            tokens = _token_set(str(heading), str(path))
+            intent_hit = _intent_hit(intent_profile.keywords, tokens)
+            diff_hit = _diff_hit(str(path), self._diff_paths)
+            mtime_value = node.get("mtime")
+            mtime = (
+                mtime_value
+                if isinstance(mtime_value, str)
+                else datetime.now(timezone.utc).isoformat()
+            )
+            recency = _recency_score(mtime, intent_profile.halflife)
+            hub = hub_scores.get(node_id, 0.0)
+            role_value_node = node.get("role")
+            role_score = _role_weight(
+                role_value_node if isinstance(role_value_node, str) else None,
+                intent_profile.role,
+            )
+            signals = BaseSignals(intent_hit, diff_hit, recency, hub, role_score)
+            base_signals[node_id] = signals
+            if intent_hit > 0 or diff_hit > 0:
+                hits.append(node_id)
+            base_scores[node_id] = (
+                signals.intent * weight_intent
+                + signals.diff * weight_diff
+                + signals.recency * weight_recency
+                + signals.hub * weight_hub
+                + signals.role * weight_role
+            )
+        return base_signals, base_scores, hits
+
+    def build(self) -> GraphView:
+        nodes = self.normalize_nodes()
+        edges = self.normalize_edges()
+        intent_profile = self.build_intent_profile()
+        adjacency, reverse_adj = self.build_adjacency(edges)
+        base_signals, base_scores, hits = self.compute_base_signals(
+            nodes, edges, intent_profile
+        )
+        return GraphView(
+            nodes=nodes,
+            edges=edges,
+            intent_profile=intent_profile,
+            adjacency=adjacency,
+            reverse_adjacency=reverse_adj,
+            base_signals=base_signals,
+            base_scores=base_scores,
+            hits=hits,
+        )
+
+
 @dataclass
 class CandidateRanking:
     candidate_nodes: List[GraphNode]
@@ -563,80 +686,13 @@ def build_graph_view(
     diff_paths: Sequence[str],
     config: Mapping[str, object],
 ) -> GraphView:
-    nodes_raw = graph.get("nodes", [])
-    if not isinstance(nodes_raw, list):
-        nodes_raw = []
-    nodes: List[GraphNode] = [cast(GraphNode, node) for node in nodes_raw]
-    edges_raw = graph.get("edges", [])
-    if not isinstance(edges_raw, list):
-        edges_raw = []
-    edges: List[GraphEdge] = [cast(GraphEdge, edge) for edge in edges_raw]
-    halflife = _config_int(config, "recency_halflife_days", 45)
-    raw_intent = _intent_profile(intent, halflife)
-    keywords_value = raw_intent.get("keywords", [])
-    keywords = (
-        [str(item) for item in keywords_value]
-        if isinstance(keywords_value, list)
-        else []
+    builder = GraphViewBuilder(
+        graph=graph,
+        intent=intent,
+        diff_paths=diff_paths,
+        config=config,
     )
-    role_value = raw_intent.get("role")
-    role = role_value if isinstance(role_value, str) else None
-    intent_profile = IntentProfile(keywords=keywords, role=role, halflife=halflife)
-    adjacency: Dict[str, List[str]] = {}
-    reverse_adj: Dict[str, List[str]] = {}
-    for edge in edges:
-        src = edge.get("src")
-        dst = edge.get("dst")
-        if isinstance(src, str) and isinstance(dst, str):
-            adjacency.setdefault(src, []).append(dst)
-            reverse_adj.setdefault(dst, []).append(src)
-    hub_scores = _hub_scores(nodes, edges)
-    base_signals: Dict[str, BaseSignals] = {}
-    base_scores: Dict[str, float] = {}
-    hits: List[str] = []
-    weights_map = _as_mapping(config.get("weights"))
-    weight_intent = _config_float(weights_map, "intent", 0.0)
-    weight_diff = _config_float(weights_map, "diff", 0.0)
-    weight_recency = _config_float(weights_map, "recency", 0.0)
-    weight_hub = _config_float(weights_map, "hub", 0.0)
-    weight_role = _config_float(weights_map, "role", 0.0)
-    diff_paths_list = [str(path) for path in diff_paths]
-    for node in nodes:
-        node_id = node.get("id")
-        if not isinstance(node_id, str):
-            continue
-        heading = node.get("heading") or ""
-        path = node.get("path") or ""
-        tokens = _token_set(str(heading), str(path))
-        intent_hit = _intent_hit(intent_profile.keywords, tokens)
-        diff_hit = _diff_hit(str(path), diff_paths_list)
-        mtime_value = node.get("mtime")
-        mtime = mtime_value if isinstance(mtime_value, str) else datetime.now(timezone.utc).isoformat()
-        recency = _recency_score(mtime, intent_profile.halflife)
-        hub = hub_scores.get(node_id, 0.0)
-        role_value_node = node.get("role")
-        role_score = _role_weight(role_value_node if isinstance(role_value_node, str) else None, intent_profile.role)
-        signals = BaseSignals(intent_hit, diff_hit, recency, hub, role_score)
-        base_signals[node_id] = signals
-        if intent_hit > 0 or diff_hit > 0:
-            hits.append(node_id)
-        base_scores[node_id] = (
-            signals.intent * weight_intent
-            + signals.diff * weight_diff
-            + signals.recency * weight_recency
-            + signals.hub * weight_hub
-            + signals.role * weight_role
-        )
-    return GraphView(
-        nodes=nodes,
-        edges=edges,
-        intent_profile=intent_profile,
-        adjacency=adjacency,
-        reverse_adjacency=reverse_adj,
-        base_signals=base_signals,
-        base_scores=base_scores,
-        hits=hits,
-    )
+    return builder.build()
 
 
 def score_candidates(
