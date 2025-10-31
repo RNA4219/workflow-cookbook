@@ -11,9 +11,13 @@ import pytest
 
 from tools.context.pack import (
     DEFAULT_CONFIG,
+    CandidateRanking,
+    ContextPackPlanner,
+    PackMetricsBuilder,
+    SectionSelection,
+    SectionSelector,
     assemble_sections,
     build_graph_view,
-    ContextPackPlanner,
     load_config,
     pack_graph,
     score_candidates,
@@ -157,6 +161,64 @@ def test_build_graph_view_base_signals(sample_graph: Path) -> None:
     assert signals_root.hub == pytest.approx(1.0)
     assert signals_ops.hub == pytest.approx(0.0)
     assert signals_ops.role == pytest.approx(0.4)
+
+
+def test_section_selector_respects_budget(sample_graph: Path) -> None:
+    graph = json.loads(sample_graph.read_text())
+    view = build_graph_view(
+        graph=graph,
+        intent="INT-budget",
+        diff_paths=["docs/a.md"],
+        config=DEFAULT_CONFIG,
+    )
+    ranking = score_candidates(view, DEFAULT_CONFIG)
+    selector = SectionSelector(
+        view=view,
+        ranking=ranking,
+        budget_tokens=200,
+        config=DEFAULT_CONFIG,
+    )
+    selection = selector.select()
+
+    assert isinstance(selection, SectionSelection)
+    assert selection.token_in <= 200
+    assert sum(section["tok"] for section in selection.sections) == selection.token_in
+
+
+def test_pack_metrics_builder_penalties() -> None:
+    node_a = {"id": "docs/a.md#root", "path": "docs/a.md", "token_estimate": 120}
+    node_b = {"id": "docs/a.md#impl", "path": "docs/a.md", "token_estimate": 80}
+    ranking = CandidateRanking(
+        candidate_nodes=[node_a, node_b],
+        ppr_scores={"docs/a.md#root": 0.6, "docs/a.md#impl": 0.4},
+        scores={"docs/a.md#root": 0.6, "docs/a.md#impl": 0.4},
+        ranked_nodes=[node_a, node_b],
+    )
+    why = {
+        "intent": 0.0,
+        "diff": 0.0,
+        "recency": 0.0,
+        "hub": 0.0,
+        "role": 0.0,
+        "ppr": 0.0,
+        "score": 0.0,
+    }
+    selection = SectionSelection(
+        sections=[
+            {"id": "docs/a.md#root", "tok": 120, "filters": [], "why": why},
+            {"id": "docs/a.md#impl", "tok": 80, "filters": [], "why": why},
+        ],
+        token_in=200,
+        penalties=[1.0, 0.7],
+    )
+
+    builder = PackMetricsBuilder(ranking=ranking, selection=selection)
+    metrics = builder.build()
+
+    assert metrics["token_in"] == 200
+    assert metrics["token_src"] == 200
+    assert metrics["dup_rate"] == pytest.approx(0.5)
+    assert metrics["diversity_penalty"] == pytest.approx(0.15, rel=1e-6)
 
 
 def test_score_candidates_respects_existing_ordering(sample_graph: Path) -> None:
