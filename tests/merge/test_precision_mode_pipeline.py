@@ -13,6 +13,7 @@ from tools.merge.precision_mode_pipeline import (
     MergeOperation,
     MergePipeline,
     MergePipelineRequest,
+    MergeMetricsTracker,
 )
 from tools.perf.structured_logger import StructuredLogger
 
@@ -66,6 +67,90 @@ class StubExecutor:
 
 def _log_lines(stream: io.StringIO) -> List[dict[str, Any]]:
     return [json.loads(line) for line in stream.getvalue().splitlines() if line]
+
+
+def _tracker(logger: StructuredLogger, telemetry: StubTelemetry) -> MergeMetricsTracker:
+    return MergeMetricsTracker(logger=logger, telemetry=telemetry)
+
+
+def test_metrics_tracker_records_success_rate() -> None:
+    stream = io.StringIO()
+    logger = StructuredLogger(name="workflow.merge", stream=stream)
+    telemetry = StubTelemetry()
+    tracker = _tracker(logger, telemetry)
+
+    request = MergePipelineRequest(
+        project_id="project-1",
+        request_id="req-success",
+        merged_snapshot={"id": 1},
+        last_applied_snapshot_id=0,
+        lock_token=None,
+    )
+    tracker.record_outcome(
+        precision_mode="baseline",
+        status="merged",
+        request=request,
+        lock_validated=False,
+        resolved_snapshot_id=1,
+    )
+
+    snapshot = tracker.snapshot()
+    assert snapshot["merge.success.rate|precision_mode=baseline"] == pytest.approx(1.0)
+    assert snapshot["merge.precision_mode|precision_mode=baseline"] == pytest.approx(1.0)
+    assert telemetry.events[-1][1]["status"] == "merged"
+
+
+def test_metrics_tracker_records_conflict_rate() -> None:
+    stream = io.StringIO()
+    logger = StructuredLogger(name="workflow.merge", stream=stream)
+    telemetry = StubTelemetry()
+    tracker = _tracker(logger, telemetry)
+
+    request = MergePipelineRequest(
+        project_id="project-1",
+        request_id="req-conflict",
+        merged_snapshot={"id": 1},
+        last_applied_snapshot_id=0,
+        lock_token=None,
+    )
+    tracker.record_outcome(
+        precision_mode="strict",
+        status="conflicted",
+        request=request,
+        lock_validated=False,
+        resolved_snapshot_id=None,
+    )
+
+    snapshot = tracker.snapshot()
+    assert snapshot["merge.conflict.rate|precision_mode=strict"] == pytest.approx(1.0)
+    assert telemetry.events[-1][1]["status"] == "conflicted"
+
+
+def test_metrics_tracker_updates_lag_independently() -> None:
+    stream = io.StringIO()
+    logger = StructuredLogger(name="workflow.merge", stream=stream)
+    telemetry = StubTelemetry()
+    tracker = _tracker(logger, telemetry)
+
+    request = MergePipelineRequest(
+        project_id="project-1",
+        request_id="req-lag",
+        merged_snapshot={"id": 1},
+        last_applied_snapshot_id=0,
+        lock_token=None,
+        autosave_lag_ms=42.0,
+    )
+    tracker.record_outcome(
+        precision_mode="strict",
+        status="merged",
+        request=request,
+        lock_validated=True,
+        resolved_snapshot_id=1,
+    )
+
+    snapshot = tracker.snapshot()
+    assert snapshot["merge.autosave.lag_ms|precision_mode=strict"] == pytest.approx(42.0)
+    assert telemetry.events[-1][1]["merge.autosave.lag_ms"] == pytest.approx(42.0)
 
 
 def test_precision_pipeline_handles_mode_transitions() -> None:
