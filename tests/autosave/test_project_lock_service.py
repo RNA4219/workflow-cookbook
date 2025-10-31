@@ -15,6 +15,8 @@ import pytest
 
 from tools.autosave.project_lock_service import (
     AutoSaveRequest,
+    AutoSaveSnapshotSession,
+    AutoSaveSnapshotValidator,
     LockTokenInvalidError,
     SnapshotOrderViolation,
     StaticFlagState,
@@ -121,6 +123,69 @@ def test_lock_token_validation_requires_merge_token(service_components: tuple[Pr
     with pytest.raises(LockTokenInvalidError):
         service.apply_snapshot(_request(token="lock-mismatch"))
     assert telemetry.events == []
+
+
+def test_snapshot_session_plan_handles_disabled_flag(
+    service_components: tuple[ProjectLockService, StubCoordinator, StubTelemetry, MutableFlagState]
+) -> None:
+    service, coordinator, telemetry, flags = service_components
+    flags.set_autosave(False)
+    session = AutoSaveSnapshotSession(
+        request=_request(),
+        flag_state=flags,
+        validator=AutoSaveSnapshotValidator(
+            coordinator=coordinator,
+            telemetry=telemetry,
+            snapshots=service._last_snapshot_id,  # type: ignore[attr-defined]
+        ),
+        audit=service._audit,  # type: ignore[attr-defined]
+    )
+    plan_result = session.plan()
+    assert plan_result is not None
+    assert plan_result.status == "skipped"
+    assert telemetry.events == []
+
+
+def test_snapshot_session_plan_handles_incomplete_checklist(
+    service_components: tuple[ProjectLockService, StubCoordinator, StubTelemetry, MutableFlagState]
+) -> None:
+    service, coordinator, telemetry, flags = service_components
+    flags.set_checklist(False)
+    session = AutoSaveSnapshotSession(
+        request=_request(),
+        flag_state=flags,
+        validator=AutoSaveSnapshotValidator(
+            coordinator=coordinator,
+            telemetry=telemetry,
+            snapshots=service._last_snapshot_id,  # type: ignore[attr-defined]
+        ),
+        audit=service._audit,  # type: ignore[attr-defined]
+    )
+    plan_result = session.plan()
+    assert plan_result is not None
+    assert plan_result.status == "skipped"
+    assert telemetry.events == []
+
+
+def test_snapshot_validator_detects_monotonicity_violation(
+    service_components: tuple[ProjectLockService, StubCoordinator, StubTelemetry, MutableFlagState]
+) -> None:
+    service, coordinator, telemetry, flags = service_components
+    coordinator.set_token("project-1", "lock-1")
+    service._last_snapshot_id["project-1"] = 10  # type: ignore[attr-defined]
+    session = AutoSaveSnapshotSession(
+        request=_request(snapshot_id=9),
+        flag_state=flags,
+        validator=AutoSaveSnapshotValidator(
+            coordinator=coordinator,
+            telemetry=telemetry,
+            snapshots=service._last_snapshot_id,  # type: ignore[attr-defined]
+        ),
+        audit=service._audit,  # type: ignore[attr-defined]
+    )
+    validation_error = session.validate_snapshot_order()
+    assert isinstance(validation_error, SnapshotOrderViolation)
+    assert any(event == "autosave.rollback.triggered" for event, _ in telemetry.events)
 
 
 def test_snapshot_monotonicity_triggers_rollback_telemetry(service_components: tuple[ProjectLockService, StubCoordinator, StubTelemetry, MutableFlagState]) -> None:
