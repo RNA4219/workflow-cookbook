@@ -134,25 +134,13 @@ def _format_diff_reference(reference: str) -> str:
     return f"{stripped}...HEAD"
 
 
-class GitDiffResolver:
-    def resolve(self, reference: str) -> tuple[Path, ...]:
-        diff_reference = _format_diff_reference(reference)
-        result = subprocess.run(
-            [
-                "git",
-                "diff",
-                "--name-status",
-                "--find-renames",
-                "--find-copies",
-                diff_reference,
-            ],
-            capture_output=True,
-            text=True,
-            check=True,
-            cwd=_REPO_ROOT,
-        )
+class GitDiffParser:
+    def __init__(self, *, repo_root: Path | None = None) -> None:
+        self._repo_root = repo_root or _REPO_ROOT
+
+    def parse(self, payload: str) -> tuple[Path, ...]:
         diff_entries: list[str] = []
-        for raw_line in result.stdout.splitlines():
+        for raw_line in payload.splitlines():
             stripped = raw_line.strip()
             if not stripped:
                 continue
@@ -175,12 +163,51 @@ class GitDiffResolver:
                 if not candidate:
                     continue
                 diff_entries.append(candidate)
-        derived = _derive_targets_from_since(diff_entries)
+        derived = _derive_targets_from_since(diff_entries, repo_root=self._repo_root)
         return tuple(
             path
             for path in derived
             if len(path.parts) >= 2 and path.parts[0] == "docs" and path.parts[1] == "birdseye"
         )
+
+
+class _GitDiffRunner(Protocol):
+    def __call__(self, args: Sequence[str]) -> subprocess.CompletedProcess[str]:
+        ...
+
+
+def _run_git_diff(args: Sequence[str]) -> subprocess.CompletedProcess[str]:
+    return subprocess.run(
+        args,
+        capture_output=True,
+        text=True,
+        check=True,
+        cwd=_REPO_ROOT,
+    )
+
+
+class GitDiffResolver:
+    def __init__(
+        self,
+        *,
+        parser: GitDiffParser | None = None,
+        runner: _GitDiffRunner | None = None,
+    ) -> None:
+        self._parser = parser or GitDiffParser()
+        self._runner = runner or _run_git_diff
+
+    def resolve(self, reference: str) -> tuple[Path, ...]:
+        diff_reference = _format_diff_reference(reference)
+        command = [
+            "git",
+            "diff",
+            "--name-status",
+            "--find-renames",
+            "--find-copies",
+            diff_reference,
+        ]
+        result = self._runner(command)
+        return self._parser.parse(result.stdout)
 
 
 def _derive_targets_from_since(

@@ -65,117 +65,67 @@ def test_since_command_falls_back_to_default_targets(monkeypatch):
     assert resolved == (expected_index, expected_hot, expected_caps)
 
 
-def test_git_diff_resolver_parses_rename_status(monkeypatch):
-    captured = {}
+def test_git_diff_parser_handles_complex_statuses(tmp_path: Path):
+    repo_root = tmp_path / "repo"
+    caps_dir = repo_root / "docs" / "birdseye" / "caps"
+    caps_dir.mkdir(parents=True, exist_ok=True)
+    for slug in ("README.md", "RUNBOOK.md", "GUIDE.md", "GUIDE_COPY.md"):
+        (caps_dir / f"{slug}.json").write_text("{}", encoding="utf-8")
 
-    def fake_run(args, capture_output, text, check, cwd):
-        captured["args"] = args
-        assert capture_output is True
-        assert text is True
-        assert check is True
-        captured["cwd"] = cwd
-        return SimpleNamespace(stdout="R100\tREADME.md\tRUNBOOK.md\n")
+    parser = update.GitDiffParser(repo_root=repo_root)
 
-    monkeypatch.setattr(update.subprocess, "run", fake_run)
-
-    resolver = update.GitDiffResolver()
-    resolved = resolver.resolve("main")
-
-    assert captured["args"] == [
-        "git",
-        "diff",
-        "--name-status",
-        "--find-renames",
-        "--find-copies",
-        "main...HEAD",
-    ]
-    assert captured["cwd"] == update._REPO_ROOT
-    assert resolved == (
-        Path("docs/birdseye/caps/README.md.json"),
-        Path("docs/birdseye/caps/RUNBOOK.md.json"),
+    payload = "\n".join(
+        (
+            "R100\tREADME.md\tRUNBOOK.md",
+            "C100\tGUIDE.md\tGUIDE_COPY.md",
+            "D\tdocs/birdseye/index.json",
+        )
     )
 
+    resolved = parser.parse(payload)
 
-def test_git_diff_resolver_parses_copy_status(monkeypatch):
-    captured = {}
-
-    def fake_run(args, capture_output, text, check, cwd):
-        captured.update(
-            {
-                "args": args,
-                "capture_output": capture_output,
-                "text": text,
-                "check": check,
-                "cwd": cwd,
-            }
-        )
-        return SimpleNamespace(stdout="C100\tREADME.md\tRUNBOOK.md\n")
-
-    monkeypatch.setattr(update.subprocess, "run", fake_run)
-
-    resolver = update.GitDiffResolver()
-    resolved = resolver.resolve("main")
-
-    assert captured["args"] == [
-        "git",
-        "diff",
-        "--name-status",
-        "--find-renames",
-        "--find-copies",
-        "main...HEAD",
-    ]
-    assert captured["capture_output"] is True
-    assert captured["text"] is True
-    assert captured["check"] is True
-    assert captured["cwd"] == update._REPO_ROOT
     assert resolved == (
         Path("docs/birdseye/caps/README.md.json"),
         Path("docs/birdseye/caps/RUNBOOK.md.json"),
+        Path("docs/birdseye/caps/GUIDE.md.json"),
+        Path("docs/birdseye/caps/GUIDE_COPY.md.json"),
+        Path("docs/birdseye/index.json"),
     )
 
 
 def test_git_diff_resolver_parses_type_change(monkeypatch):
-    def fake_run(args, capture_output, text, check, cwd):
+    parser = update.GitDiffParser()
+
+    def fake_runner(args):
+        assert args[-1] == "main...HEAD"
         return SimpleNamespace(stdout="T\tREADME.md\n")
 
-    monkeypatch.setattr(update.subprocess, "run", fake_run)
-
-    resolver = update.GitDiffResolver()
+    resolver = update.GitDiffResolver(parser=parser, runner=fake_runner)
     resolved = resolver.resolve("main")
 
     assert resolved == (Path("docs/birdseye/caps/README.md.json"),)
 
 
 def test_git_diff_resolver_parses_unmerged_status(monkeypatch):
-    def fake_run(args, capture_output, text, check, cwd):
+    parser = update.GitDiffParser()
+
+    def fake_runner(args):
         return SimpleNamespace(stdout="U\tREADME.md\n")
 
-    monkeypatch.setattr(update.subprocess, "run", fake_run)
-
-    resolver = update.GitDiffResolver()
+    resolver = update.GitDiffResolver(parser=parser, runner=fake_runner)
     resolved = resolver.resolve("main")
 
     assert resolved == (Path("docs/birdseye/caps/README.md.json"),)
 
 
-def test_git_diff_resolver_uses_repo_root(monkeypatch):
-    captured = {}
+def test_git_diff_resolver_uses_repo_root():
+    captured: dict[str, object] = {}
 
-    def fake_run(args, capture_output, text, check, cwd):
-        captured.update(
-            {
-                "args": args,
-                "capture_output": capture_output,
-                "text": text,
-                "check": check,
-                "cwd": cwd,
-            }
-        )
+    def fake_runner(args):
+        captured["args"] = args
         return SimpleNamespace(stdout="")
 
-    monkeypatch.setattr(update.subprocess, "run", fake_run)
-
-    resolver = update.GitDiffResolver()
+    resolver = update.GitDiffResolver(parser=update.GitDiffParser(), runner=fake_runner)
     resolver.resolve("feature")
 
     assert captured["args"] == [
@@ -186,22 +136,16 @@ def test_git_diff_resolver_uses_repo_root(monkeypatch):
         "--find-copies",
         "feature...HEAD",
     ]
-    assert captured["capture_output"] is True
-    assert captured["text"] is True
-    assert captured["check"] is True
-    assert captured["cwd"] == update._REPO_ROOT
 
 
-def test_git_diff_resolver_uses_user_provided_range(monkeypatch):
+def test_git_diff_resolver_uses_user_provided_range():
     captured: list[list[str]] = []
 
-    def fake_run(args, capture_output, text, check, cwd):
+    def fake_runner(args):
         captured.append(args)
         return SimpleNamespace(stdout="")
 
-    monkeypatch.setattr(update.subprocess, "run", fake_run)
-
-    resolver = update.GitDiffResolver()
+    resolver = update.GitDiffResolver(parser=update.GitDiffParser(), runner=fake_runner)
     resolver.resolve("origin/main..HEAD")
     resolver.resolve("feature...staging")
 
