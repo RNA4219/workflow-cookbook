@@ -31,6 +31,58 @@ CapsuleState = dict[str, CapsuleEntry]
 Graph = dict[str, list[str]]
 
 
+def _resolve_focus_nodes_for_targets(
+    root_targets: Sequence[Path],
+    root: Path,
+    graph_out: Mapping[str, Sequence[str]],
+    graph_in: Mapping[str, Sequence[str]],
+    caps_state: CapsuleState,
+    cap_path_lookup: Mapping[Path, str],
+    available_caps: Mapping[str, Path],
+) -> set[str]:
+    combined_caps: dict[str, Path] = dict(available_caps)
+    for cap_id, (cap_path, _cap_data, _cap_original) in caps_state.items():
+        combined_caps.setdefault(cap_id, cap_path)
+    if not combined_caps:
+        return set()
+
+    focus_nodes: set[str] = set()
+    root_resolved = root.resolve()
+    index_resolved = (root / "index.json").resolve()
+    caps_dir_resolved = (root / "caps").resolve()
+    hot_resolved = (root / "hot.json").resolve()
+    special_roots = {root_resolved, index_resolved, caps_dir_resolved, hot_resolved}
+
+    for candidate in root_targets:
+        resolved = candidate.resolve()
+        if resolved in special_roots:
+            return set(combined_caps)
+        cap_id = cap_path_lookup.get(resolved)
+        if cap_id:
+            focus_nodes.add(cap_id)
+
+    if not focus_nodes:
+        focus_nodes = set(caps_state) or set(combined_caps)
+
+    seen: set[str] = set()
+    queue: deque[tuple[str, int]] = deque((node, 0) for node in focus_nodes)
+    while queue:
+        node, distance = queue.popleft()
+        if node in seen or distance > 2:
+            continue
+        seen.add(node)
+        if distance == 2:
+            continue
+        for neighbour in graph_out.get(node, ()):
+            if neighbour not in seen:
+                queue.append((neighbour, distance + 1))
+        for neighbour in graph_in.get(node, ()):
+            if neighbour not in seen:
+                queue.append((neighbour, distance + 1))
+
+    return {node for node in seen if node in combined_caps}
+
+
 class TargetResolutionError(RuntimeError):
     """Raised when Birdseye targets cannot be resolved."""
 
@@ -614,51 +666,15 @@ class BirdseyeRootBuilder:
         cap_path_lookup: Mapping[Path, str],
         available_caps: Mapping[str, Path],
     ) -> set[str]:
-        return self._focus_resolver.resolve(
-            root_targets=root_targets,
-            root=root,
-            graph_out=graph_out,
-            graph_in=graph_in,
-            caps_state=caps_state,
-            cap_path_lookup=cap_path_lookup,
-            available_caps=available_caps,
+        return _resolve_focus_nodes_for_targets(
+            self.root_targets,
+            self.root,
+            graph_out,
+            graph_in,
+            caps_state,
+            cap_path_lookup,
+            available_caps,
         )
-        combined_caps: dict[str, Path] = dict(available_caps)
-        for cap_id, (cap_path, _cap_data, _cap_original) in caps_state.items():
-            combined_caps.setdefault(cap_id, cap_path)
-        if not combined_caps:
-            return set()
-        focus_nodes: set[str] = set()
-        root_resolved = self.root.resolve()
-        index_resolved = self.index_path.resolve()
-        caps_dir_resolved = self.caps_dir.resolve()
-        hot_resolved = self.hot_path.resolve()
-        special_roots = {root_resolved, index_resolved, caps_dir_resolved, hot_resolved}
-        for candidate in self.root_targets:
-            resolved = candidate.resolve()
-            if resolved in special_roots:
-                return set(combined_caps)
-            cap_id = cap_path_lookup.get(resolved)
-            if cap_id:
-                focus_nodes.add(cap_id)
-        if not focus_nodes:
-            focus_nodes = set(caps_state) or set(combined_caps)
-        seen: set[str] = set()
-        queue: deque[tuple[str, int]] = deque((node, 0) for node in focus_nodes)
-        while queue:
-            node, distance = queue.popleft()
-            if node in seen or distance > 2:
-                continue
-            seen.add(node)
-            if distance == 2:
-                continue
-            for neighbour in graph_out.get(node, ()): 
-                if neighbour not in seen:
-                    queue.append((neighbour, distance + 1))
-            for neighbour in graph_in.get(node, ()): 
-                if neighbour not in seen:
-                    queue.append((neighbour, distance + 1))
-        return {node for node in seen if node in combined_caps}
 
     def _ensure_placeholders(
         self,
@@ -803,6 +819,79 @@ class BirdseyeUpdateSession:
         )
         plan = builder.build()
         plan.apply(self)
+
+    def _resolve_focus_nodes(
+        self,
+        root_targets: Sequence[Path],
+        root: Path,
+        graph_out: Mapping[str, Sequence[str]],
+        graph_in: Mapping[str, Sequence[str]],
+        caps_state: CapsuleState,
+        cap_path_lookup: Mapping[Path, str],
+        available_caps: Mapping[str, Path],
+    ) -> set[str]:
+        return _resolve_focus_nodes_for_targets(
+            root_targets,
+            root,
+            graph_out,
+            graph_in,
+            caps_state,
+            cap_path_lookup,
+            available_caps,
+        )
+
+    def _plan_hot(
+        self,
+        hot_path: Path,
+        hot_data: dict[str, Any],
+        hot_original: str,
+    ) -> None:
+        new_generated = _next_generated_at(
+            hot_data.get("generated_at"),
+            self.timestamp,
+            allocator=self.serial_allocator,
+        )
+        if hot_data.get("generated_at") != new_generated:
+            hot_data["generated_at"] = new_generated
+            self._remember_generated(new_generated)
+        serialized = _dump_json(hot_data)
+        if serialized != hot_original:
+            self._writes.append(
+                PlannedWrite(path=hot_path, content=serialized, original=hot_original)
+            )
+
+    def _plan_capsule(
+        self,
+        cap_id: str,
+        capsule: CapsuleEntry,
+        graph_out: Mapping[str, Sequence[str]],
+        graph_in: Mapping[str, Sequence[str]],
+    ) -> None:
+        cap_path, cap_data, cap_original = capsule
+        expected_out = _sorted_unique(graph_out.get(cap_id, []))
+        expected_in = _sorted_unique(graph_in.get(cap_id, []))
+        updated = False
+        if cap_data.get("deps_out") != expected_out:
+            cap_data["deps_out"] = expected_out
+            updated = True
+        if cap_data.get("deps_in") != expected_in:
+            cap_data["deps_in"] = expected_in
+            updated = True
+        new_generated = _next_generated_at(
+            cap_data.get("generated_at"),
+            self.timestamp,
+            allocator=self.serial_allocator,
+        )
+        if cap_data.get("generated_at") != new_generated:
+            cap_data["generated_at"] = new_generated
+            updated = True
+            self._remember_generated(new_generated)
+        if updated:
+            serialized = _dump_json(cap_data)
+            if serialized != cap_original:
+                self._writes.append(
+                    PlannedWrite(path=cap_path, content=serialized, original=cap_original)
+                )
 
     def _remember_generated(self, value: str) -> None:
         if self._generated_at is None:
