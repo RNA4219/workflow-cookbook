@@ -1400,3 +1400,78 @@ def test_refresh_capsule_updates_dependencies_and_serial(tmp_path):
     assert refreshed["deps_out"] == ["beta"]
     assert refreshed["deps_in"] == ["gamma"]
     assert refreshed["generated_at"] == "00011"
+
+
+def test_focus_resolver_returns_all_capsules_for_root_target():
+    resolver = update.BirdseyeFocusResolver(radius=2)
+    root = Path("/repo/docs/birdseye")
+    root_targets = [root / "index.json"]
+    graph_out: Mapping[str, Sequence[str]] = {}
+    graph_in: Mapping[str, Sequence[str]] = {}
+    caps_state: update.CapsuleState = {
+        "alpha": ((root / "caps" / "alpha.json").resolve(), {}, ""),
+        "beta": ((root / "caps" / "beta.json").resolve(), {}, ""),
+    }
+    cap_path_lookup: Mapping[Path, str] = {
+        (root / "caps" / "alpha.json").resolve(): "alpha",
+        (root / "caps" / "beta.json").resolve(): "beta",
+        (root / "caps" / "gamma.json").resolve(): "gamma",
+    }
+    available_caps: Mapping[str, Path] = {
+        "gamma": (root / "caps" / "gamma.json").resolve(),
+    }
+
+    focus = resolver.resolve(
+        root_targets=root_targets,
+        root=root,
+        graph_out=graph_out,
+        graph_in=graph_in,
+        caps_state=caps_state,
+        cap_path_lookup=cap_path_lookup,
+        available_caps=available_caps,
+    )
+
+    assert focus == {"alpha", "beta", "gamma"}
+
+
+def test_focus_resolver_includes_two_hop_neighbours():
+    resolver = update.BirdseyeFocusResolver(radius=2)
+    root = Path("/repo/docs/birdseye")
+    root_targets = [(root / "caps" / "b.json").resolve()]
+    graph_out: Mapping[str, Sequence[str]] = {
+        "a": ["b"],
+        "b": ["c"],
+        "c": ["d"],
+    }
+    graph_in: Mapping[str, Sequence[str]] = {
+        "b": ["a"],
+        "a": ["x"],
+    }
+    caps_state: update.CapsuleState = {
+        "a": ((root / "caps" / "a.json").resolve(), {}, ""),
+        "b": ((root / "caps" / "b.json").resolve(), {}, ""),
+    }
+    cap_path_lookup: Mapping[Path, str] = {
+        (root / "caps" / "a.json").resolve(): "a",
+        (root / "caps" / "b.json").resolve(): "b",
+        (root / "caps" / "c.json").resolve(): "c",
+        (root / "caps" / "d.json").resolve(): "d",
+        (root / "caps" / "x.json").resolve(): "x",
+    }
+    available_caps: Mapping[str, Path] = {
+        "c": (root / "caps" / "c.json").resolve(),
+        "d": (root / "caps" / "d.json").resolve(),
+        "x": (root / "caps" / "x.json").resolve(),
+    }
+
+    focus = resolver.resolve(
+        root_targets=root_targets,
+        root=root,
+        graph_out=graph_out,
+        graph_in=graph_in,
+        caps_state=caps_state,
+        cap_path_lookup=cap_path_lookup,
+        available_caps=available_caps,
+    )
+
+    assert focus == {"a", "b", "c", "d", "x"}
