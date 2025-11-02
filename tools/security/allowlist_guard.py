@@ -76,6 +76,90 @@ class AllowlistDocument:
         return {entry.domain: entry for entry in self.entries}
 
 
+class AllowlistLoader:
+    def __init__(self, yaml_module: Any | None) -> None:
+        self._yaml_module = yaml_module
+        self._allowlist: list[dict[str, Any]] = []
+        self._version: int | None = None
+        self._current_entry: dict[str, Any] | None = None
+        self._current_purpose: dict[str, Any] | None = None
+
+    def load(self, content: str) -> AllowlistDocument:
+        if self._yaml_module is not None:
+            loaded = self._yaml_module.safe_load(content)  # type: ignore[attr-defined]
+            mapping = loaded if isinstance(loaded, Mapping) else {}
+            return _document_from_raw(mapping)
+        return self._load_with_fallback(content)
+
+    def _reset_state(self) -> None:
+        self._allowlist = []
+        self._version = None
+        self._current_entry = None
+        self._current_purpose = None
+
+    def _load_with_fallback(self, content: str) -> AllowlistDocument:
+        self._reset_state()
+        for raw in content.splitlines():
+            line = raw.split("#", 1)[0].rstrip()
+            if not line.strip():
+                continue
+            indent = len(raw) - len(raw.lstrip(" "))
+            if indent == 0:
+                key, _, rest = line.partition(":")
+                key = key.strip()
+                value = rest.strip()
+                if key == "version" and value:
+                    self._version = int(value)
+                continue
+            if indent == 2:
+                if line.strip().startswith("- "):
+                    key, _, rest = line.strip()[2:].partition(":")
+                    if key.strip() != "domain":
+                        raise ValueError("expected domain entry")
+                    self._current_entry = {"domain": _strip_quotes(rest.strip()), "purposes": []}
+                    self._allowlist.append(self._current_entry)
+                    self._current_purpose = None
+                    continue
+            if indent == 4 and self._current_entry is not None:
+                key, _, rest = line.partition(":")
+                key = key.strip()
+                value = rest.strip()
+                if key == "owner":
+                    self._current_entry["owner"] = _strip_quotes(value)
+                elif key == "purposes":
+                    continue
+                else:
+                    self._current_entry[key] = _strip_quotes(value)
+                continue
+            if indent == 6 and self._current_entry is not None:
+                if line.strip().startswith("- "):
+                    key, _, rest = line.strip()[2:].partition(":")
+                    if key.strip() != "id":
+                        raise ValueError("expected purpose id")
+                    self._current_purpose = {"id": _strip_quotes(rest.strip())}
+                    self._current_entry.setdefault("purposes", []).append(self._current_purpose)
+                    continue
+                key, _, rest = line.partition(":")
+                if self._current_purpose is None:
+                    continue
+                key = key.strip()
+                value = rest.strip()
+                self._current_purpose[key] = _strip_quotes(value)
+                continue
+            if indent == 8 and self._current_purpose is not None:
+                key, _, rest = line.partition(":")
+                key = key.strip()
+                value = rest.strip()
+                if key == "runtime":
+                    self._current_purpose[key] = _parse_inline_list(value)
+                else:
+                    self._current_purpose[key] = _strip_quotes(value)
+        raw_document: dict[str, Any] = {"allowlist": self._allowlist}
+        if self._version is not None:
+            raw_document["version"] = self._version
+        return _document_from_raw(raw_document)
+
+
 def _strip_quotes(value: str) -> str:
     if (value.startswith("\"") and value.endswith("\"")) or (
         value.startswith("'") and value.endswith("'")
@@ -121,79 +205,6 @@ def _diff_fields(base: Mapping[str, Any], current: Mapping[str, Any]) -> list[st
     return sorted(key for key in keys if base.get(key) != current.get(key))
 
 
-def _fallback_safe_load(content: str) -> AllowlistDocument:
-    version: int | None = None
-    allowlist: list[dict[str, Any]] = []
-    current_entry: dict[str, Any] | None = None
-    current_purpose: dict[str, Any] | None = None
-    for raw in content.splitlines():
-        line = raw.split("#", 1)[0].rstrip()
-        if not line.strip():
-            continue
-        indent = len(raw) - len(raw.lstrip(" "))
-        if indent == 0:
-            key, _, rest = line.partition(":")
-            key = key.strip()
-            value = rest.strip()
-            if key == "version" and value:
-                version = int(value)
-            continue
-        if indent == 2:
-            if line.strip().startswith("- "):
-                key, _, rest = line.strip()[2:].partition(":")
-                if key.strip() != "domain":
-                    raise ValueError("expected domain entry")
-                current_entry = {"domain": _strip_quotes(rest.strip()), "purposes": []}
-                allowlist.append(current_entry)
-                current_purpose = None
-                continue
-        if indent == 4 and current_entry is not None:
-            key, _, rest = line.partition(":")
-            key = key.strip()
-            value = rest.strip()
-            if key == "owner":
-                current_entry["owner"] = _strip_quotes(value)
-            elif key == "purposes":
-                continue
-            else:
-                current_entry[key] = _strip_quotes(value)
-            continue
-        if indent == 6 and current_entry is not None:
-            if line.strip().startswith("- "):
-                key, _, rest = line.strip()[2:].partition(":")
-                if key.strip() != "id":
-                    raise ValueError("expected purpose id")
-                current_purpose = {"id": _strip_quotes(rest.strip())}
-                current_entry.setdefault("purposes", []).append(current_purpose)
-                continue
-            key, _, rest = line.partition(":")
-            if current_purpose is None:
-                continue
-            key = key.strip()
-            value = rest.strip()
-            current_purpose[key] = _strip_quotes(value)
-            continue
-        if indent == 8 and current_purpose is not None:
-            key, _, rest = line.partition(":")
-            key = key.strip()
-            value = rest.strip()
-            if key == "runtime":
-                current_purpose[key] = _parse_inline_list(value)
-            else:
-                current_purpose[key] = _strip_quotes(value)
-    raw: dict[str, Any] = {"allowlist": allowlist}
-    if version is not None:
-        raw["version"] = version
-    return _document_from_raw(raw)
-
-
-def _safe_load(content: str) -> AllowlistDocument:
-    if yaml is not None:
-        loaded = yaml.safe_load(content)  # type: ignore[attr-defined]
-        return _document_from_raw(loaded if isinstance(loaded, Mapping) else {})
-    return _fallback_safe_load(content)
-
-
 def _document_from_raw(raw: Mapping[str, Any] | None) -> AllowlistDocument:
     if raw is None:
         return AllowlistDocument(entries=())
@@ -208,19 +219,15 @@ def _document_from_raw(raw: Mapping[str, Any] | None) -> AllowlistDocument:
     version_value = raw.get("version")
     version = int(version_value) if isinstance(version_value, int) else None
     return AllowlistDocument(entries=tuple(sorted(entries, key=lambda item: item.domain)), version=version)
-
-
-def _load_document(content: str) -> AllowlistDocument:
-    return _safe_load(content)
-
-
 def _load_document_for_testing(content: str) -> AllowlistDocument:
-    return _load_document(content)
+    loader = AllowlistLoader(yaml)
+    return loader.load(content)
 
 
 def detect_violations(*, base_content: str, current_content: str) -> list[str]:
-    base_doc = _load_document(base_content)
-    current_doc = _load_document(current_content)
+    loader = AllowlistLoader(yaml)
+    base_doc = loader.load(base_content)
+    current_doc = loader.load(current_content)
     violations: list[str] = []
     base_entries = base_doc.entries_by_domain()
     current_entries = current_doc.entries_by_domain()
