@@ -1,4 +1,5 @@
 import io
+import subprocess
 import sys
 from pathlib import Path
 
@@ -8,6 +9,7 @@ sys.path.append(str(Path(__file__).resolve().parents[1]))
 
 from tools.ci import check_governance_gate
 from tools.ci.check_governance_gate import (
+    CategoryHintResolver,
     EvaluationReferenceRule,
     IntentCategoryRule,
     IntentPresenceRule,
@@ -312,6 +314,64 @@ Priority Score: 4
     assert outcome.errors == []
     assert outcome.warnings == [expected_warning[1]]
     assert outcome.is_success is True
+
+
+def test_category_hint_resolver_prefers_explicit_base_ref():
+    requested: list[str] = []
+
+    def _fake_changed(refspec: str) -> list[str]:
+        requested.append(refspec)
+        if refspec == "origin/develop...HEAD":
+            return ["ops/runbook.md", "docs/guide.md"]
+        return []
+
+    resolver = CategoryHintResolver(
+        env_getter=lambda key: {"GITHUB_BASE_REF": "main"}.get(key),
+        changed_paths_provider=_fake_changed,
+    )
+
+    hints = resolver.resolve(base_ref="develop")
+
+    assert hints == ["OPS", "DOCS"]
+    assert requested == ["origin/develop...HEAD"]
+
+
+def test_category_hint_resolver_uses_fallback_when_git_diff_fails():
+    requested: list[str] = []
+
+    def _fake_changed(refspec: str) -> list[str]:
+        requested.append(refspec)
+        if refspec == "origin/main...HEAD":
+            raise subprocess.CalledProcessError(returncode=1, cmd=["git", "diff"])
+        return ["security/audit.md"]
+
+    resolver = CategoryHintResolver(
+        env_getter=lambda key: {"GITHUB_BASE_REF": "main"}.get(key),
+        changed_paths_provider=_fake_changed,
+    )
+
+    hints = resolver.resolve()
+
+    assert hints == ["SEC"]
+    assert requested == ["origin/main...HEAD", "HEAD^..HEAD"]
+
+
+def test_category_hint_resolver_returns_empty_on_failures():
+    requested: list[str] = []
+
+    def _fake_changed(refspec: str) -> list[str]:
+        requested.append(refspec)
+        raise subprocess.CalledProcessError(returncode=1, cmd=["git", "diff"])
+
+    resolver = CategoryHintResolver(
+        env_getter=lambda key: {"GITHUB_BASE_REF": "main"}.get(key),
+        changed_paths_provider=_fake_changed,
+    )
+
+    hints = resolver.resolve()
+
+    assert hints == []
+    assert requested == ["origin/main...HEAD", "HEAD^..HEAD"]
 
 
 def test_collect_recent_category_hints_uses_base_ref(monkeypatch):
