@@ -266,10 +266,106 @@ def _caps_payload(cap_id: str, *, deps_out=None, deps_in=None) -> dict[str, obje
     }
 
 
+def _prepare_birdseye_root(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, *, include_hot: bool = True
+) -> dict[str, Path]:
+    repo_root = tmp_path / "repo"
+    repo_root.mkdir(parents=True, exist_ok=True)
+    monkeypatch.setattr(update, "_REPO_ROOT", repo_root)
+
+    root = repo_root / "docs" / "birdseye"
+    caps_dir = root / "caps"
+    caps_dir.mkdir(parents=True, exist_ok=True)
+
+    index_path = root / "index.json"
+    hot_path = root / "hot.json"
+    capsule_path = caps_dir / "README.md.json"
+
+    index_payload = {
+        "generated_at": "00001",
+        "nodes": {
+            "README.md": {
+                "caps": "docs/birdseye/caps/README.md.json",
+            }
+        },
+        "edges": [],
+    }
+    _write_json(index_path, index_payload)
+
+    if include_hot:
+        _write_json(hot_path, {"generated_at": "00001"})
+    elif hot_path.exists():
+        hot_path.unlink()
+
+    capsule_payload = _caps_payload("README.md")
+    capsule_payload["generated_at"] = "00001"
+    _write_json(capsule_path, capsule_payload)
+
+    return {
+        "root": root,
+        "index": index_path,
+        "hot": hot_path,
+        "capsule": capsule_path,
+    }
+
+
 def _next_serial(serial: str) -> str:
     match = re.fullmatch(r"\d{5}", serial)
     assert match, f"serial must be 5 digits, got {serial!r}"
     return f"{int(serial) + 1:05d}"
+
+
+@pytest.mark.parametrize(
+    ("emit", "expected_loads", "expected_writes"),
+    (
+        (
+            "index+caps",
+            ("index", "hot", "caps"),
+            {"index.json", "hot.json", "README.md.json"},
+        ),
+        ("index", ("index", "hot"), {"index.json", "hot.json"}),
+        ("caps", ("index", "hot", "caps"), {"README.md.json"}),
+    ),
+)
+def test_birdseye_root_plan_records_loads_and_writes(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    emit: str,
+    expected_loads: tuple[str, ...],
+    expected_writes: set[str],
+) -> None:
+    fixture = _prepare_birdseye_root(tmp_path, monkeypatch)
+    emit_index = emit in {"index", "index+caps"}
+    emit_caps = emit in {"caps", "index+caps"}
+    builder = update.BirdseyeRootBuilder(
+        root=fixture["root"],
+        root_targets=(fixture["index"],),
+        emit_index=emit_index,
+        emit_caps=emit_caps,
+        timestamp="2025-01-01T00:00:00Z",
+        serial_allocator=update._SerialAllocator(),
+    )
+    plan = builder.build()
+
+    assert plan.loads == expected_loads
+    assert {write.path.name for write in plan.writes} == expected_writes
+
+
+def test_birdseye_root_plan_requires_hot_when_emitting_index(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    fixture = _prepare_birdseye_root(tmp_path, monkeypatch, include_hot=False)
+    builder = update.BirdseyeRootBuilder(
+        root=fixture["root"],
+        root_targets=(fixture["index"],),
+        emit_index=True,
+        emit_caps=False,
+        timestamp="2025-01-01T00:00:00Z",
+        serial_allocator=update._SerialAllocator(),
+    )
+
+    with pytest.raises(FileNotFoundError):
+        builder.build()
 
 
 def test_next_generated_at_handles_non_serial_inputs():
