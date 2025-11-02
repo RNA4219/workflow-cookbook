@@ -324,7 +324,7 @@ def _next_serial(serial: str) -> str:
             {"index.json", "hot.json", "README.md.json"},
         ),
         ("index", ("index", "hot"), {"index.json", "hot.json"}),
-        ("caps", ("index", "caps"), {"README.md.json"}),
+        ("caps", ("index", "hot", "caps"), {"README.md.json"}),
     ),
 )
 def test_birdseye_root_plan_records_loads_and_writes(

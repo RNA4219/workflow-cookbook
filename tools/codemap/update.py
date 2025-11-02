@@ -385,7 +385,7 @@ class BirdseyeRootBuilder:
 
         hot_data: dict[str, Any] | None = None
         hot_original: str | None = None
-        if self.emit_index:
+        if self.emit_index or self.emit_caps:
             hot_data, hot_original = self._load_hot()
 
         caps_state: CapsuleState = {}
