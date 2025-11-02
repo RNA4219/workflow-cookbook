@@ -14,7 +14,9 @@ import pytest
 
 from tools.security import allowlist_guard
 from tools.security.allowlist_guard import (
+    AllowlistDocument,
     AllowlistEntry,
+    AllowlistLoader,
     Purpose,
     _load_document_for_testing,
     detect_violations,
@@ -33,6 +35,77 @@ BASE_ALLOWLIST = textwrap.dedent(
           - id: 'deploy'
     """
 )
+
+
+def _expected_base_document() -> AllowlistDocument:
+    return AllowlistDocument(
+        entries=(
+            AllowlistEntry(
+                domain="kept.example.com",
+                fields=(("owner", "SecOps"),),
+                purposes=(Purpose(id="ci", fields=()),),
+            ),
+            AllowlistEntry(
+                domain="removed.example.com",
+                fields=(),
+                purposes=(Purpose(id="deploy", fields=()),),
+            ),
+        )
+    )
+
+
+def test_allowlist_loader_uses_yaml_when_available(monkeypatch: pytest.MonkeyPatch) -> None:
+    fake_yaml = SimpleNamespace(safe_load=lambda _: {
+        "allowlist": [
+            {
+                "domain": "kept.example.com",
+                "owner": "SecOps",
+                "purposes": [
+                    {
+                        "id": "ci",
+                    }
+                ],
+            },
+            {
+                "domain": "removed.example.com",
+                "purposes": [
+                    {
+                        "id": "deploy",
+                    }
+                ],
+            },
+        ]
+    })
+
+    loader = AllowlistLoader(fake_yaml)
+
+    document = loader.load(BASE_ALLOWLIST)
+
+    assert document == _expected_base_document()
+
+
+def test_allowlist_loader_falls_back_without_yaml(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(allowlist_guard, "yaml", None, raising=False)
+
+    loader = AllowlistLoader(None)
+
+    document = loader.load(BASE_ALLOWLIST)
+
+    assert document == _expected_base_document()
+
+
+def test_allowlist_loader_raises_for_invalid_fallback(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(allowlist_guard, "yaml", None, raising=False)
+    loader = AllowlistLoader(None)
+    invalid_content = textwrap.dedent(
+        """
+        allowlist:
+          - owner: 'SecOps'
+        """
+    )
+
+    with pytest.raises(ValueError, match="expected domain entry"):
+        loader.load(invalid_content)
 
 
 def test_data_model_is_consistent_between_yaml_and_fallback(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -196,6 +269,36 @@ def test_detects_domain_field_changes() -> None:
     )
 
     assert violations == ["domain 'kept.example.com' field 'owner' changed"]
+
+
+def test_detects_purpose_field_change() -> None:
+    base_content = textwrap.dedent(
+        """
+        allowlist:
+          - domain: 'kept.example.com'
+            purposes:
+              - id: 'ci'
+                runtime: ['ci']
+        """
+    )
+    current_content = textwrap.dedent(
+        """
+        allowlist:
+          - domain: 'kept.example.com'
+            purposes:
+              - id: 'ci'
+                runtime: ['deploy']
+        """
+    )
+
+    violations = detect_violations(
+        base_content=base_content,
+        current_content=current_content,
+    )
+
+    assert violations == [
+        "domain 'kept.example.com' purpose 'ci' changed fields: runtime"
+    ]
 
 
 @pytest.mark.parametrize(
