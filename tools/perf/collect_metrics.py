@@ -289,6 +289,25 @@ class MetricDefinition:
     required: bool = True
 
 
+class MetricDefinitionRegistry:
+    def __init__(self) -> None:
+        self._definitions: dict[str, MetricDefinition] = {}
+        self._order: list[str] = []
+
+    def register(self, definition: MetricDefinition) -> None:
+        if definition.key in self._definitions:
+            self._definitions[definition.key] = definition
+            return
+        self._order.append(definition.key)
+        self._definitions[definition.key] = definition
+
+    def get(self, key: str) -> MetricDefinition | None:
+        return self._definitions.get(key)
+
+    def definitions(self) -> tuple[MetricDefinition, ...]:
+        return tuple(self._definitions[key] for key in self._order)
+
+
 class MetricExtractor:
     def __init__(
         self,
@@ -927,9 +946,18 @@ _BASE_METRIC_DEFINITIONS: tuple[MetricDefinition, ...] = (
     ),
 )
 
-_KNOWN_METRIC_DEFINITIONS: Mapping[str, MetricDefinition] = {
-    definition.key: definition for definition in _BASE_METRIC_DEFINITIONS
-}
+def build_default_metric_registry() -> MetricDefinitionRegistry:
+    registry = MetricDefinitionRegistry()
+    for definition in _BASE_METRIC_DEFINITIONS:
+        registry.register(definition)
+    return registry
+
+
+_DEFAULT_METRIC_REGISTRY = build_default_metric_registry()
+
+
+def _metric_registry() -> MetricDefinitionRegistry:
+    return _DEFAULT_METRIC_REGISTRY
 
 
 @dataclass(frozen=True)
@@ -940,6 +968,7 @@ class _LoadedMetrics:
 
 @functools.lru_cache(maxsize=1)
 def _load_metric_config() -> _LoadedMetrics:
+    registry = _metric_registry()
     override = os.environ.get(_METRICS_PATH_ENV)
     if override:
         candidate = Path(override)
@@ -968,7 +997,7 @@ def _load_metric_config() -> _LoadedMetrics:
         description = "" if raw_description is None else str(raw_description)
         if "(%)" in description:
             percentage_keys.append(key)
-        definition = _KNOWN_METRIC_DEFINITIONS.get(key)
+        definition = registry.get(key)
         if definition is None:
             missing.append(key)
         else:

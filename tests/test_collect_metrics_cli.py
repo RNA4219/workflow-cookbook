@@ -13,6 +13,14 @@ from pathlib import Path
 
 import pytest
 
+from tools.perf.collect_metrics import (
+    MetricDefinition,
+    MetricDefinitionRegistry,
+    MetricExtractor,
+    NumericCallableRule,
+    build_default_metric_registry,
+)
+
 ROOT = Path(__file__).resolve().parents[1]
 
 
@@ -398,6 +406,60 @@ def test_cli_uses_yaml_scale_annotations(monkeypatch: pytest.MonkeyPatch, tmp_pa
     assert payload["checklist_compliance_rate"] == pytest.approx(96.0)
     assert payload["reopen_rate"] == pytest.approx(0.2)
     assert payload["spec_completeness"] == pytest.approx(95.0)
+
+
+def test_metric_definition_registry_allows_targeted_override() -> None:
+    registry = build_default_metric_registry()
+    registry.register(
+        MetricDefinition(
+            key="review_latency",
+            structured_rules=(),
+            numeric_rules=(NumericCallableRule(lambda raw: raw.get("custom_review")),),
+        )
+    )
+    review_definition = registry.get("review_latency")
+    birdseye_definition = registry.get("birdseye_refresh_delay_minutes")
+    assert review_definition is not None
+    assert birdseye_definition is not None
+    extractor = MetricExtractor((review_definition, birdseye_definition), percentage_keys=())
+    metrics: dict[str, float] = {}
+    extractor.capture_numeric(
+        {
+            "custom_review": 2.0,
+            "birdseye_refresh_delay_seconds_sum": 180.0,
+            "birdseye_refresh_delay_seconds_count": 3.0,
+        },
+        metrics,
+    )
+    assert metrics["review_latency"] == pytest.approx(2.0)
+    assert metrics["birdseye_refresh_delay_minutes"] == pytest.approx(1.0)
+
+
+def test_metric_definition_registry_preserves_order_on_replace() -> None:
+    registry = MetricDefinitionRegistry()
+    registry.register(
+        MetricDefinition(
+            key="birdseye_refresh_delay_minutes",
+            structured_rules=(),
+            numeric_rules=(NumericCallableRule(lambda raw: raw.get("birdseye")),),
+        )
+    )
+    registry.register(
+        MetricDefinition(
+            key="review_latency",
+            structured_rules=(),
+            numeric_rules=(NumericCallableRule(lambda raw: raw.get("review")),),
+        )
+    )
+    registry.register(
+        MetricDefinition(
+            key="review_latency",
+            structured_rules=(),
+            numeric_rules=(NumericCallableRule(lambda raw: raw.get("custom_review")),),
+        )
+    )
+    keys = [definition.key for definition in registry.definitions()]
+    assert keys == ["birdseye_refresh_delay_minutes", "review_latency"]
 
 
 def test_pushgateway_receives_metrics_payload(tmp_path: Path) -> None:
