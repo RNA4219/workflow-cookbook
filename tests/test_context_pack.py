@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
+from typing import cast
 import sys
 
 sys.path.append(str(Path(__file__).resolve().parents[1]))
@@ -11,14 +12,20 @@ import pytest
 
 from tools.context.pack import (
     DEFAULT_CONFIG,
+    BaseSignals,
     CandidateRanking,
+    CandidateSelector,
     ContextPackPlanner,
+    GraphNode,
+    GraphEdge,
+    GraphView,
+    GraphViewBuilder,
+    IntentProfile,
     PackMetricsBuilder,
     SectionSelection,
     SectionSelector,
     assemble_sections,
     build_graph_view,
-    GraphViewBuilder,
     ContextPackPlanner,
     load_config,
     pack_graph,
@@ -29,6 +36,35 @@ from tools.context.pack import _recency_score
 
 def _recent(days: int) -> str:
     return (datetime.now(timezone.utc) - timedelta(days=days)).isoformat()
+
+
+def _simple_view(
+    *,
+    nodes: list[GraphNode],
+    edges: list[GraphEdge],
+    base_scores: dict[str, float],
+    hits: list[str],
+    adjacency: dict[str, list[str]] | None = None,
+    reverse_adjacency: dict[str, list[str]] | None = None,
+) -> GraphView:
+    intent_profile = IntentProfile(keywords=[], role=None, halflife=30)
+    adjacency_map = adjacency or {}
+    reverse_map = reverse_adjacency or {}
+    base_signals = {
+        cast(str, node["id"]): BaseSignals(0.0, 0.0, 0.0, 0.0, 0.0)
+        for node in nodes
+        if isinstance(node.get("id"), str)
+    }
+    return GraphView(
+        nodes=nodes,
+        edges=edges,
+        intent_profile=intent_profile,
+        adjacency=adjacency_map,
+        reverse_adjacency=reverse_map,
+        base_signals=base_signals,
+        base_scores=base_scores,
+        hits=hits,
+    )
 
 
 @pytest.fixture()
@@ -200,6 +236,53 @@ def test_graph_view_builder_limits_candidates_to_two_hops() -> None:
     candidate_ids = [node["id"] for node in ranking.candidate_nodes]
 
     assert candidate_ids == ["n0", "n1", "n2"]
+
+
+def test_candidate_selector_expands_two_hops() -> None:
+    nodes = [{"id": f"n{i}", "token_estimate": 10} for i in range(4)]
+    adjacency = {"n0": ["n1"], "n1": ["n2"], "n2": ["n3"]}
+    reverse_adj = {"n1": ["n0"], "n2": ["n1"], "n3": ["n2"]}
+    base_scores = {f"n{i}": float(4 - i) for i in range(4)}
+    view = _simple_view(
+        nodes=nodes,
+        edges=[],
+        base_scores=base_scores,
+        hits=["n0"],
+        adjacency=adjacency,
+        reverse_adjacency=reverse_adj,
+    )
+
+    selector = CandidateSelector(view=view, config={})
+    selected_ids = [node["id"] for node in selector.select()]
+
+    assert selected_ids == ["n0", "n1", "n2"]
+
+
+def test_candidate_selector_falls_back_when_empty() -> None:
+    nodes = [{"id": f"n{i}", "token_estimate": 5} for i in range(3)]
+    base_scores = {f"n{i}": 1.0 for i in range(3)}
+    view = _simple_view(
+        nodes=nodes,
+        edges=[],
+        base_scores=base_scores,
+        hits=["ghost"],
+    )
+
+    selector = CandidateSelector(view=view, config={})
+    selected_ids = [node["id"] for node in selector.select()]
+
+    assert selected_ids == ["n0", "n1", "n2"]
+
+
+def test_candidate_selector_enforces_ncand_limit() -> None:
+    nodes = [{"id": f"n{i}", "token_estimate": 5} for i in range(4)]
+    base_scores = {f"n{i}": 0.1 * (i + 1) for i in range(4)}
+    view = _simple_view(nodes=nodes, edges=[], base_scores=base_scores, hits=[])
+
+    selector = CandidateSelector(view=view, config={"limits": {"ncand": 2}})
+    selected_ids = [node["id"] for node in selector.select()]
+
+    assert selected_ids == ["n2", "n3"]
 
 
 def test_load_config_overrides_defaults(tmp_path: Path, sample_graph: Path) -> None:
