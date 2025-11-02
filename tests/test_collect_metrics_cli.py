@@ -7,6 +7,7 @@ import subprocess
 import sys
 import threading
 import textwrap
+from types import SimpleNamespace
 from collections.abc import Iterator
 from contextlib import contextmanager
 from pathlib import Path
@@ -17,8 +18,13 @@ from tools.perf.collect_metrics import (
     MetricDefinition,
     MetricDefinitionRegistry,
     MetricExtractor,
+    MetricsCollectionError,
+    MetricsCollectionPlan,
+    SUITES,
+    SuiteConfig,
     NumericCallableRule,
     build_default_metric_registry,
+    MISSING_SOURCE_ERROR,
 )
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -64,6 +70,75 @@ def _mock_pushgateway(status_code: int = 202) -> Iterator[tuple[str, dict[str, o
         server.shutdown()
         thread.join()
         server.server_close()
+
+
+def _plan(
+    *,
+    metrics_url: str | None = None,
+    log_path: str | Path | None = None,
+    pushgateway_url: str | None = None,
+    suite: str | None = None,
+    env: dict[str, str] | None = None,
+    suites: dict[str, SuiteConfig] | None = None,
+) -> MetricsCollectionPlan:
+    args = SimpleNamespace(
+        metrics_url=metrics_url,
+        log_path=log_path,
+        pushgateway_url=pushgateway_url,
+        suite=suite,
+    )
+    return MetricsCollectionPlan.from_namespace(args, env=env or {}, suites=suites or SUITES)
+
+
+def test_plan_resolves_precedence(tmp_path: Path) -> None:
+    suites = {
+        "qa": SuiteConfig(
+            metrics_url="https://suite.example/metrics",
+            log_path="suite.log",
+            pushgateway_url="https://suite.example/push",
+            output=".ga/suite.json",
+        )
+    }
+    env = {
+        "GOVERNANCE_METRICS_URL": "https://env.example/metrics",
+        "GOVERNANCE_METRICS_LOG_PATH": str(tmp_path / "env.log"),
+        "GOVERNANCE_PUSHGATEWAY_URL": "https://env.example/push",
+    }
+    plan = _plan(
+        metrics_url="https://cli.example/metrics",
+        log_path=tmp_path / "cli.log",
+        pushgateway_url="https://cli.example/push",
+        suite="qa",
+        env=env,
+        suites=suites,
+    )
+    expectations = {
+        "cli": ("https://cli.example/metrics", tmp_path / "cli.log", "https://cli.example/push"),
+        "env": ("https://env.example/metrics", tmp_path / "env.log", "https://env.example/push"),
+        "suite": ("https://suite.example/metrics", Path("suite.log"), "https://suite.example/push"),
+    }
+    for name, subject in {
+        "cli": plan,
+        "env": _plan(env=env),
+        "suite": _plan(suite="qa", suites=suites),
+    }.items():
+        assert (
+            subject.metrics_url,
+            subject.log_path,
+            subject.pushgateway_url,
+        ) == expectations[name]
+
+
+def test_plan_requires_metrics_sources() -> None:
+    with pytest.raises(MetricsCollectionError) as excinfo:
+        _plan()
+    assert str(excinfo.value) == MISSING_SOURCE_ERROR
+
+
+def test_cli_requires_source_configuration() -> None:
+    result = _run_cli()
+    assert result.returncode != 0
+    assert MISSING_SOURCE_ERROR in result.stderr
 
 
 def test_collects_metrics_from_prometheus_and_logs(tmp_path: Path) -> None:

@@ -12,7 +12,7 @@ import sys
 import urllib.request
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Callable, Iterable, Mapping, MutableMapping, Protocol, Sequence
+from typing import Callable, Iterable, Mapping, MutableMapping, Protocol, Sequence, cast
 
 try:
     import yaml
@@ -34,6 +34,10 @@ except ModuleNotFoundError:  # pragma: no cover - fallback for minimal env
 LOGGER = logging.getLogger(__name__)
 _METRICS_PATH_ENV = "GOVERNANCE_METRICS_PATH"
 _DEFAULT_METRICS_PATH = Path(__file__).resolve().parents[2] / "governance/metrics.yaml"
+_METRICS_URL_ENV = "GOVERNANCE_METRICS_URL"
+_LOG_PATH_ENV = "GOVERNANCE_METRICS_LOG_PATH"
+_PUSHGATEWAY_URL_ENV = "GOVERNANCE_PUSHGATEWAY_URL"
+MISSING_SOURCE_ERROR = "No metrics input configured: provide --metrics-url or --log-path"
 
 _TRIM_COMPRESS_PREFIXES: Sequence[tuple[str, float]] = (
     ("trim_compress_ratio", 1.0),
@@ -92,6 +96,7 @@ class SuiteConfig:
     metrics_url: str | None = None
     log_path: str | None = None
     output: str | None = None
+    pushgateway_url: str | None = None
 
 
 SUITES: dict[str, SuiteConfig] = {
@@ -101,6 +106,83 @@ SUITES: dict[str, SuiteConfig] = {
 
 class MetricsCollectionError(RuntimeError):
     """Raised when metrics could not be collected."""
+def _coerce_optional_path(value: object | None) -> Path | None:
+    if value is None:
+        return None
+    if isinstance(value, Path):
+        return value
+    text = str(value)
+    if not text:
+        return None
+    return Path(text)
+
+
+@dataclass(frozen=True)
+class MetricsCollectionPlan:
+    metrics_url: str | None
+    log_path: Path | None
+    pushgateway_url: str | None
+
+    @classmethod
+    def from_namespace(
+        cls,
+        args: object,
+        *,
+        env: Mapping[str, str] | None = None,
+        suites: Mapping[str, SuiteConfig] | None = None,
+    ) -> "MetricsCollectionPlan":
+        env = env or {}
+        suites = suites or SUITES
+        suite_name = getattr(args, "suite", None)
+        suite = suites.get(suite_name) if suite_name else None
+        metrics_url = cast(
+            str | None,
+            getattr(args, "metrics_url", None)
+            or env.get(_METRICS_URL_ENV)
+            or (suite.metrics_url if suite else None),
+        )
+        log_path = _coerce_optional_path(
+            getattr(args, "log_path", None)
+            or env.get(_LOG_PATH_ENV)
+            or (suite.log_path if suite else None)
+        )
+        pushgateway_url = cast(
+            str | None,
+            getattr(args, "pushgateway_url", None)
+            or env.get(_PUSHGATEWAY_URL_ENV)
+            or (suite.pushgateway_url if suite else None),
+        )
+        plan = cls(
+            metrics_url=metrics_url,
+            log_path=log_path,
+            pushgateway_url=pushgateway_url,
+        )
+        if not plan.metrics_url and plan.log_path is None:
+            raise MetricsCollectionError(MISSING_SOURCE_ERROR)
+        return plan
+
+
+@dataclass(frozen=True)
+class MetricsRunner:
+    plan: MetricsCollectionPlan
+    output_path: Path | None
+
+    def resolve_sources(self) -> list[Mapping[str, float]]:
+        sources: list[Mapping[str, float]] = []
+        if self.plan.metrics_url:
+            sources.append(_load_prometheus(self.plan.metrics_url))
+        if self.plan.log_path:
+            sources.append(_load_structured_log(self.plan.log_path))
+        return sources
+
+    def finalize(self, metrics: Mapping[str, float]) -> None:
+        if self.plan.pushgateway_url:
+            _push_to_gateway(self.plan.pushgateway_url, metrics)
+        payload = json.dumps(metrics, ensure_ascii=False)
+        sys.stdout.write(payload + "\n")
+        if self.output_path:
+            self.output_path.parent.mkdir(parents=True, exist_ok=True)
+            self.output_path.write_text(payload + "\n", encoding="utf-8")
 
 
 class StructuredRule(Protocol):
@@ -1105,14 +1187,9 @@ def _push_to_gateway(pushgateway_url: str, metrics: Mapping[str, float]) -> None
         ) from exc
 
 
-def collect_metrics(metrics_url: str | None, log_path: Path | None) -> dict[str, float]:
-    sources: list[Mapping[str, float]] = []
-    if metrics_url:
-        sources.append(_load_prometheus(metrics_url))
-    if log_path:
-        sources.append(_load_structured_log(log_path))
+def collect_metrics(sources: Sequence[Mapping[str, float]]) -> dict[str, float]:
     if not sources:
-        raise MetricsCollectionError("At least one of --metrics-url or --log-path is required")
+        raise MetricsCollectionError(MISSING_SOURCE_ERROR)
     return _merge(sources)
 
 
@@ -1130,28 +1207,21 @@ def main(argv: Sequence[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     suite = SUITES.get(args.suite) if args.suite else None
-
-    metrics_url = args.metrics_url or (suite.metrics_url if suite else None)
-    log_path = args.log_path if args.log_path is not None else (
-        Path(suite.log_path) if suite and suite.log_path else None
+    output_path = args.output if args.output is not None else (
+        Path(suite.output) if suite and suite.output else None
     )
-    output_path = args.output or (Path(suite.output) if suite and suite.output else None)
-
-    if not metrics_url and log_path is None:
-        parser.error("At least one of --metrics-url or --log-path must be provided")
-
     try:
-        metrics = collect_metrics(metrics_url, log_path)
-        if args.pushgateway_url:
-            _push_to_gateway(args.pushgateway_url, metrics)
+        plan = MetricsCollectionPlan.from_namespace(args, env=os.environ, suites=SUITES)
     except MetricsCollectionError as exc:
         print(str(exc), file=sys.stderr)
         return 1
-    payload = json.dumps(metrics, ensure_ascii=False)
-    sys.stdout.write(payload + "\n")
-    if output_path:
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-        output_path.write_text(payload + "\n", encoding="utf-8")
+    runner = MetricsRunner(plan, output_path)
+    try:
+        metrics = collect_metrics(runner.resolve_sources())
+        runner.finalize(metrics)
+    except MetricsCollectionError as exc:
+        print(str(exc), file=sys.stderr)
+        return 1
     return 0
 
 
