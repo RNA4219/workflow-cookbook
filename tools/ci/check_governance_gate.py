@@ -188,33 +188,61 @@ def infer_categories_from_paths(paths: Iterable[str]) -> List[str]:
     return suggestions
 
 
+class CategoryHintResolver:
+    def __init__(
+        self,
+        *,
+        env_getter: Callable[[str], str | None] | None = None,
+        changed_paths_provider: Callable[[str], Sequence[str]] | None = None,
+        fallback_refspec: str = "HEAD^..HEAD",
+    ) -> None:
+        self._env_getter = env_getter or os.environ.get
+        self._changed_paths_provider = changed_paths_provider or get_changed_paths
+        self._fallback_refspec = fallback_refspec
+
+    def resolve(
+        self,
+        *,
+        base_ref: str | None = None,
+        head_ref: str = "HEAD",
+        fallback_refspec: str | None = None,
+    ) -> List[str]:
+        resolved_base = (base_ref or self._env_getter("GITHUB_BASE_REF") or "").strip()
+        effective_fallback = fallback_refspec or self._fallback_refspec
+
+        refspec_candidates: list[str] = []
+        if resolved_base:
+            base_spec = resolved_base
+            if not base_spec.startswith("origin/"):
+                base_spec = f"origin/{base_spec}"
+            refspec_candidates.append(f"{base_spec}...{head_ref}")
+        refspec_candidates.append(effective_fallback)
+
+        last_index = len(refspec_candidates) - 1
+        for index, refspec in enumerate(refspec_candidates):
+            try:
+                changed_paths = self._changed_paths_provider(refspec)
+            except subprocess.CalledProcessError:
+                continue
+            hints = infer_categories_from_paths(changed_paths)
+            if hints or index == last_index:
+                return hints
+
+        return []
+
+
 def collect_recent_category_hints(
     *,
     base_ref: str | None = None,
     head_ref: str = "HEAD",
     fallback_refspec: str = "HEAD^..HEAD",
 ) -> List[str]:
-    resolved_base = (base_ref or os.environ.get("GITHUB_BASE_REF") or "").strip()
-
-    refspec_candidates: list[str] = []
-    if resolved_base:
-        base_spec = resolved_base
-        if not base_spec.startswith("origin/"):
-            base_spec = f"origin/{base_spec}"
-        refspec_candidates.append(f"{base_spec}...{head_ref}")
-    refspec_candidates.append(fallback_refspec)
-
-    last_index = len(refspec_candidates) - 1
-    for index, refspec in enumerate(refspec_candidates):
-        try:
-            changed_paths = get_changed_paths(refspec)
-        except subprocess.CalledProcessError:
-            continue
-        hints = infer_categories_from_paths(changed_paths)
-        if hints or index == last_index:
-            return hints
-
-    return []
+    resolver = CategoryHintResolver()
+    return resolver.resolve(
+        base_ref=base_ref,
+        head_ref=head_ref,
+        fallback_refspec=fallback_refspec,
+    )
 
 
 @dataclass
