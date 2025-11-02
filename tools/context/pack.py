@@ -238,6 +238,92 @@ class CandidateRanking:
     ranked_nodes: List[GraphNode]
 
 
+@dataclass
+class CandidateSelector:
+    view: GraphView
+    config: Mapping[str, object]
+
+    def select(self) -> List[GraphNode]:
+        candidate_ids = self._collect_candidate_ids()
+        sorted_candidates = sorted(
+            candidate_ids,
+            key=lambda node_id: self.view.base_scores.get(node_id, 0.0),
+            reverse=True,
+        )
+        limits = _as_mapping(self.config.get("limits"))
+        ncand = _config_int(limits, "ncand", 2000)
+        selected_ids = set(sorted_candidates[:ncand])
+        candidate_nodes = self._filter_nodes(selected_ids if selected_ids else None)
+        if not candidate_nodes:
+            candidate_nodes = self._filter_nodes(None)
+        return candidate_nodes
+
+    def _collect_candidate_ids(self) -> set[str]:
+        if self.view.hits:
+            return _candidate_ids(
+                self.view.hits,
+                self.view.adjacency,
+                self.view.reverse_adjacency,
+                2,
+            )
+        return set(self.view.base_scores.keys())
+
+    def _filter_nodes(self, allowed: set[str] | None) -> List[GraphNode]:
+        result: List[GraphNode] = []
+        for node in self.view.nodes:
+            node_id = node.get("id")
+            if not isinstance(node_id, str):
+                continue
+            if allowed is None or node_id in allowed:
+                result.append(node)
+        return result
+
+
+@dataclass
+class PPRRanker:
+    view: GraphView
+    config: Mapping[str, object]
+    candidate_nodes: Sequence[GraphNode]
+
+    def rank(self) -> CandidateRanking:
+        candidates = list(self.candidate_nodes)
+        pagerank_cfg = _as_mapping(self.config.get("pagerank"))
+        limits = _as_mapping(self.config.get("limits"))
+        ppr_scores = personalize_scores(
+            candidates,
+            self.view.edges,
+            self.view.base_scores,
+            _config_float(pagerank_cfg, "lambda", 0.85),
+            _config_int(limits, "iters", 50),
+            _config_float(limits, "tol", 1e-6),
+        )
+        theta = _config_float(pagerank_cfg, "theta", 0.6)
+        scores: Dict[str, float] = {}
+        for node in candidates:
+            node_id = node.get("id")
+            if not isinstance(node_id, str):
+                continue
+            base_score = self.view.base_scores.get(node_id, 0.0)
+            ppr_score = ppr_scores.get(node_id, 0.0)
+            scores[node_id] = theta * ppr_score + (1 - theta) * base_score
+
+        def node_score(node: GraphNode) -> float:
+            node_id = node.get("id")
+            if isinstance(node_id, str):
+                return scores.get(node_id, 0.0)
+            return 0.0
+
+        ranked_nodes = sorted(candidates, key=node_score, reverse=True)
+        if not ranked_nodes:
+            ranked_nodes = candidates
+        return CandidateRanking(
+            candidate_nodes=candidates,
+            ppr_scores=ppr_scores,
+            scores=scores,
+            ranked_nodes=ranked_nodes,
+        )
+
+
 @dataclass(frozen=True)
 class SectionSelection:
     sections: List[SectionEntry]
@@ -699,61 +785,12 @@ def score_candidates(
     view: GraphView,
     config: Mapping[str, object],
 ) -> CandidateRanking:
-    limits = _as_mapping(config.get("limits"))
-    if view.hits:
-        candidate_ids = _candidate_ids(view.hits, view.adjacency, view.reverse_adjacency, 2)
-    else:
-        candidate_ids = set(view.base_scores.keys())
-    sorted_candidates = sorted(
-        candidate_ids, key=lambda nid: view.base_scores.get(nid, 0.0), reverse=True
-    )
-    ncand = _config_int(limits, "ncand", 2000)
-    selected = {candidate for candidate in sorted_candidates[:ncand]}
-    candidate_nodes: List[GraphNode] = []
-    for node in view.nodes:
-        node_id = node.get("id")
-        if isinstance(node_id, str) and node_id in selected:
-            candidate_nodes.append(node)
-    if not candidate_nodes:
-        candidate_nodes = [node for node in view.nodes if isinstance(node.get("id"), str)]
-    else:
-        candidate_nodes = [node for node in candidate_nodes if isinstance(node.get("id"), str)]
-        if not candidate_nodes:
-            candidate_nodes = [node for node in view.nodes if isinstance(node.get("id"), str)]
-    pagerank_cfg = _as_mapping(config.get("pagerank"))
-    ppr_scores = personalize_scores(
-        candidate_nodes,
-        view.edges,
-        view.base_scores,
-        _config_float(pagerank_cfg, "lambda", 0.85),
-        _config_int(limits, "iters", 50),
-        _config_float(limits, "tol", 1e-6),
-    )
-    theta = _config_float(pagerank_cfg, "theta", 0.6)
-    scores: Dict[str, float] = {}
-    for node in candidate_nodes:
-        node_id = node.get("id")
-        if not isinstance(node_id, str):
-            continue
-        base_score = view.base_scores.get(node_id, 0.0)
-        ppr_score = ppr_scores.get(node_id, 0.0)
-        scores[node_id] = theta * ppr_score + (1 - theta) * base_score
-
-    def _node_score(node: GraphNode) -> float:
-        node_id = node.get("id")
-        if isinstance(node_id, str):
-            return scores.get(node_id, 0.0)
-        return 0.0
-
-    ranked_nodes = sorted(candidate_nodes, key=_node_score, reverse=True)
-    if not ranked_nodes:
-        ranked_nodes = candidate_nodes
-    return CandidateRanking(
+    candidate_nodes = CandidateSelector(view=view, config=config).select()
+    return PPRRanker(
+        view=view,
+        config=config,
         candidate_nodes=candidate_nodes,
-        ppr_scores=ppr_scores,
-        scores=scores,
-        ranked_nodes=ranked_nodes,
-    )
+    ).rank()
 
 
 def assemble_sections(
