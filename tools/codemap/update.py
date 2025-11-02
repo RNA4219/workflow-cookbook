@@ -342,41 +342,16 @@ class BirdseyePlan:
     writes: tuple[PlannedWrite, ...]
 
 
-def _finalise(paths: set[Path]) -> tuple[Path, ...]:
-    return tuple(sorted(paths, key=lambda candidate: candidate.as_posix()))
+@dataclass(frozen=True)
+class BirdseyeRootPlan:
+    loads: tuple[str, ...]
+    writes: tuple[PlannedWrite, ...]
+    remembered: str | None = None
 
-
-def _group_targets(targets: Iterable[Path]) -> dict[Path, list[Path]]:
-    grouped: dict[Path, list[Path]] = {}
-    for target in targets:
-        normalised = _normalise_target(target)
-        root = _resolve_root(normalised)
-        grouped.setdefault(root, []).append(normalised)
-    return grouped
-
-
-def _build_graph(index_data: Mapping[str, Any]) -> tuple[Graph, Graph]:
-    raw_nodes = index_data.get("nodes", {})
-    if not isinstance(raw_nodes, Mapping):
-        raw_nodes = {}
-    graph_out: Graph = {node: [] for node in raw_nodes if isinstance(node, str)}
-    graph_in: Graph = {node: [] for node in raw_nodes if isinstance(node, str)}
-    for raw_edge in index_data.get("edges", []):
-        if not isinstance(raw_edge, Sequence) or len(raw_edge) != 2:
-            continue
-        source, destination = raw_edge
-        if not isinstance(source, str) or not isinstance(destination, str):
-            continue
-        graph_out.setdefault(source, []).append(destination)
-        graph_in.setdefault(destination, []).append(source)
-        graph_out.setdefault(destination, graph_out.get(destination, []))
-        graph_in.setdefault(source, graph_in.get(source, []))
-    for values in graph_out.values():
-        values.sort()
-    for values in graph_in.values():
-        values.sort()
-    return graph_out, graph_in
-
+    def apply(self, session: "BirdseyeUpdateSession") -> None:
+        session._writes.extend(self.writes)
+        if self.remembered is not None:
+            session._remember_generated(self.remembered)
 
 class BirdseyeFocusResolver:
     def __init__(self, *, radius: int = 2) -> None:
@@ -472,6 +447,317 @@ class BirdseyeFocusResolver:
         return seen
 
 
+class BirdseyeRootBuilder:
+    def __init__(
+        self,
+        *,
+        root: Path,
+        root_targets: Sequence[Path],
+        emit_index: bool,
+        emit_caps: bool,
+        timestamp: str,
+        serial_allocator: _SerialAllocator,
+    ) -> None:
+        self.root = root
+        self.root_targets = root_targets
+        self.emit_index = emit_index
+        self.emit_caps = emit_caps
+        self.timestamp = timestamp
+        self.serial_allocator = serial_allocator
+        self.index_path = root / "index.json"
+        self.hot_path = root / "hot.json"
+        self.caps_dir = root / "caps"
+        self._loads: list[str] = []
+        self._writes: list[PlannedWrite] = []
+        self._focus_resolver = BirdseyeFocusResolver(radius=2)
+        self._first_generated: str | None = None
+
+    def build(self) -> BirdseyeRootPlan:
+        self._validate()
+        index_data, index_original = self._load_index()
+        graph_out, graph_in = _build_graph(index_data)
+
+        hot_data: dict[str, Any] | None = None
+        hot_original: str | None = None
+        if self.emit_index or self.emit_caps:
+            hot_data, hot_original = self._load_hot()
+
+        caps_state: CapsuleState = {}
+        cap_path_lookup: dict[Path, str] = {}
+        available_caps: dict[str, Path] = {}
+        if self.emit_caps:
+            caps_state, cap_path_lookup, available_caps = self._load_capsules(index_data)
+
+        if self.emit_index:
+            self._plan_index(index_data, index_original)
+            if hot_data is not None and hot_original is not None:
+                self._plan_hot(hot_data, hot_original)
+
+        if self.emit_caps and available_caps:
+            focus_nodes = self._resolve_focus_nodes(
+                graph_out,
+                graph_in,
+                caps_state,
+                cap_path_lookup,
+                available_caps,
+            )
+            self._ensure_placeholders(focus_nodes, caps_state, available_caps)
+            for cap_id in sorted(focus_nodes):
+                self._plan_capsule(cap_id, caps_state[cap_id], graph_out, graph_in)
+
+        return BirdseyeRootPlan(
+            loads=tuple(self._loads),
+            writes=tuple(self._writes),
+            remembered=self._first_generated,
+        )
+
+    def _validate(self) -> None:
+        if not self.index_path.is_file():
+            raise FileNotFoundError(self.index_path)
+        if self.emit_index and not self.hot_path.exists():
+            raise FileNotFoundError(
+                f"{self.hot_path} is missing. Regenerate via: {_BIRDSEYE_REGENERATE_COMMAND}"
+            )
+        if self.emit_caps and not self.caps_dir.is_dir():
+            raise FileNotFoundError(self.caps_dir)
+
+    def _load_index(self) -> tuple[dict[str, Any], str]:
+        self._loads.append("index")
+        loaded_index, index_original = _load_json(self.index_path)
+        index_data = loaded_index if isinstance(loaded_index, dict) else {}
+        self.serial_allocator.observe(index_data.get("generated_at"))
+        return index_data, index_original
+
+    def _load_hot(self) -> tuple[dict[str, Any] | None, str | None]:
+        self._loads.append("hot")
+        if not self.hot_path.exists():
+            return None, None
+        loaded_hot, hot_original = _load_json(self.hot_path)
+        if not isinstance(loaded_hot, dict):
+            return None, None
+        self.serial_allocator.observe(loaded_hot.get("generated_at"))
+        return loaded_hot, hot_original
+
+    def _load_capsules(
+        self, index_data: Mapping[str, Any]
+    ) -> tuple[CapsuleState, dict[Path, str], dict[str, Path]]:
+        self._loads.append("caps")
+        caps_state: CapsuleState = {}
+        cap_path_lookup: dict[Path, str] = {}
+        available_caps: dict[str, Path] = {}
+        raw_nodes = index_data.get("nodes", {})
+        if isinstance(raw_nodes, Mapping):
+            for node_id, node_payload in raw_nodes.items():
+                if not isinstance(node_id, str) or not isinstance(node_payload, Mapping):
+                    continue
+                caps_ref = node_payload.get("caps")
+                if not isinstance(caps_ref, str) or not caps_ref:
+                    continue
+                candidate_path = Path(caps_ref)
+                if candidate_path.is_absolute():
+                    resolved_candidate = candidate_path.resolve()
+                else:
+                    resolved_candidate = (_REPO_ROOT / candidate_path).resolve()
+                available_caps.setdefault(node_id, resolved_candidate)
+                cap_path_lookup.setdefault(resolved_candidate, node_id)
+        for cap_path in sorted(self.caps_dir.glob("*.json")):
+            if not cap_path.is_file():
+                continue
+            cap_data, cap_original = _load_json(cap_path)
+            if not isinstance(cap_data, dict):
+                continue
+            cap_id = cap_data.get("id")
+            if not isinstance(cap_id, str):
+                continue
+            cap_path_resolved = cap_path.resolve()
+            caps_state[cap_id] = (cap_path_resolved, cap_data, cap_original)
+            cap_path_lookup[cap_path_resolved] = cap_id
+            available_caps.setdefault(cap_id, cap_path_resolved)
+            self.serial_allocator.observe(cap_data.get("generated_at"))
+        return caps_state, cap_path_lookup, available_caps
+
+    def _plan_index(self, index_data: dict[str, Any], index_original: str) -> None:
+        new_generated = _next_generated_at(
+            index_data.get("generated_at"),
+            self.timestamp,
+            allocator=self.serial_allocator,
+        )
+        if index_data.get("generated_at") != new_generated:
+            index_data["generated_at"] = new_generated
+            self._remember_generated(new_generated)
+        serialized = _dump_json(index_data)
+        if serialized != index_original:
+            self._writes.append(
+                PlannedWrite(path=self.index_path, content=serialized, original=index_original)
+            )
+
+    def _plan_hot(self, hot_data: dict[str, Any], hot_original: str) -> None:
+        new_generated = _next_generated_at(
+            hot_data.get("generated_at"),
+            self.timestamp,
+            allocator=self.serial_allocator,
+        )
+        if hot_data.get("generated_at") != new_generated:
+            hot_data["generated_at"] = new_generated
+            self._remember_generated(new_generated)
+        serialized = _dump_json(hot_data)
+        if serialized != hot_original:
+            self._writes.append(
+                PlannedWrite(path=self.hot_path, content=serialized, original=hot_original)
+            )
+
+    def _resolve_focus_nodes(
+        self,
+        graph_out: Mapping[str, Sequence[str]],
+        graph_in: Mapping[str, Sequence[str]],
+        caps_state: CapsuleState,
+        cap_path_lookup: Mapping[Path, str],
+        available_caps: Mapping[str, Path],
+    ) -> set[str]:
+        return self._focus_resolver.resolve(
+            root_targets=root_targets,
+            root=root,
+            graph_out=graph_out,
+            graph_in=graph_in,
+            caps_state=caps_state,
+            cap_path_lookup=cap_path_lookup,
+            available_caps=available_caps,
+        )
+        combined_caps: dict[str, Path] = dict(available_caps)
+        for cap_id, (cap_path, _cap_data, _cap_original) in caps_state.items():
+            combined_caps.setdefault(cap_id, cap_path)
+        if not combined_caps:
+            return set()
+        focus_nodes: set[str] = set()
+        root_resolved = self.root.resolve()
+        index_resolved = self.index_path.resolve()
+        caps_dir_resolved = self.caps_dir.resolve()
+        hot_resolved = self.hot_path.resolve()
+        special_roots = {root_resolved, index_resolved, caps_dir_resolved, hot_resolved}
+        for candidate in self.root_targets:
+            resolved = candidate.resolve()
+            if resolved in special_roots:
+                return set(combined_caps)
+            cap_id = cap_path_lookup.get(resolved)
+            if cap_id:
+                focus_nodes.add(cap_id)
+        if not focus_nodes:
+            focus_nodes = set(caps_state) or set(combined_caps)
+        seen: set[str] = set()
+        queue: deque[tuple[str, int]] = deque((node, 0) for node in focus_nodes)
+        while queue:
+            node, distance = queue.popleft()
+            if node in seen or distance > 2:
+                continue
+            seen.add(node)
+            if distance == 2:
+                continue
+            for neighbour in graph_out.get(node, ()): 
+                if neighbour not in seen:
+                    queue.append((neighbour, distance + 1))
+            for neighbour in graph_in.get(node, ()): 
+                if neighbour not in seen:
+                    queue.append((neighbour, distance + 1))
+        return {node for node in seen if node in combined_caps}
+
+    def _ensure_placeholders(
+        self,
+        focus_nodes: Iterable[str],
+        caps_state: CapsuleState,
+        available_caps: Mapping[str, Path],
+    ) -> None:
+        for cap_id in focus_nodes:
+            if cap_id in caps_state:
+                continue
+            cap_path = available_caps.get(cap_id)
+            if cap_path is None:
+                continue
+            placeholder_data: dict[str, Any] = {
+                "id": cap_id,
+                "role": "doc",
+                "public_api": [],
+                "summary": cap_id,
+                "deps_out": [],
+                "deps_in": [],
+                "risks": [],
+                "tests": [],
+            }
+            caps_state[cap_id] = (cap_path, placeholder_data, "")
+
+    def _plan_capsule(
+        self,
+        cap_id: str,
+        capsule: CapsuleEntry,
+        graph_out: Mapping[str, Sequence[str]],
+        graph_in: Mapping[str, Sequence[str]],
+    ) -> None:
+        cap_path, cap_data, cap_original = capsule
+        expected_out = _sorted_unique(graph_out.get(cap_id, []))
+        expected_in = _sorted_unique(graph_in.get(cap_id, []))
+        updated = False
+        if cap_data.get("deps_out") != expected_out:
+            cap_data["deps_out"] = expected_out
+            updated = True
+        if cap_data.get("deps_in") != expected_in:
+            cap_data["deps_in"] = expected_in
+            updated = True
+        new_generated = _next_generated_at(
+            cap_data.get("generated_at"),
+            self.timestamp,
+            allocator=self.serial_allocator,
+        )
+        if cap_data.get("generated_at") != new_generated:
+            cap_data["generated_at"] = new_generated
+            updated = True
+            self._remember_generated(new_generated)
+        if updated:
+            serialized = _dump_json(cap_data)
+            if serialized != cap_original:
+                self._writes.append(
+                    PlannedWrite(path=cap_path, content=serialized, original=cap_original)
+                )
+
+    def _remember_generated(self, value: str) -> None:
+        if self._first_generated is None:
+            self._first_generated = value
+
+def _finalise(paths: set[Path]) -> tuple[Path, ...]:
+    return tuple(sorted(paths, key=lambda candidate: candidate.as_posix()))
+
+
+def _group_targets(targets: Iterable[Path]) -> dict[Path, list[Path]]:
+    grouped: dict[Path, list[Path]] = {}
+    for target in targets:
+        normalised = _normalise_target(target)
+        root = _resolve_root(normalised)
+        grouped.setdefault(root, []).append(normalised)
+    return grouped
+
+
+def _build_graph(index_data: Mapping[str, Any]) -> tuple[Graph, Graph]:
+    raw_nodes = index_data.get("nodes", {})
+    if not isinstance(raw_nodes, Mapping):
+        raw_nodes = {}
+    graph_out: Graph = {node: [] for node in raw_nodes if isinstance(node, str)}
+    graph_in: Graph = {node: [] for node in raw_nodes if isinstance(node, str)}
+    for raw_edge in index_data.get("edges", []):
+        if not isinstance(raw_edge, Sequence) or len(raw_edge) != 2:
+            continue
+        source, destination = raw_edge
+        if not isinstance(source, str) or not isinstance(destination, str):
+            continue
+        graph_out.setdefault(source, []).append(destination)
+        graph_in.setdefault(destination, []).append(source)
+        graph_out.setdefault(destination, graph_out.get(destination, []))
+        graph_in.setdefault(source, graph_in.get(source, []))
+    for values in graph_out.values():
+        values.sort()
+    for values in graph_in.values():
+        values.sort()
+    return graph_out, graph_in
+
+
+
 class BirdseyeUpdateSession:
     def __init__(self, *, options: UpdateOptions, timestamp: str | None = None) -> None:
         self.options = options
@@ -481,7 +767,6 @@ class BirdseyeUpdateSession:
         self.serial_allocator = _SerialAllocator()
         self._generated_at: str | None = None
         self._writes: list[PlannedWrite] = []
-        self._focus_resolver = BirdseyeFocusResolver(radius=2)
 
     def plan(self) -> BirdseyePlan:
         resolved_targets = self.options.resolve_targets()
@@ -508,211 +793,16 @@ class BirdseyeUpdateSession:
         )
 
     def _plan_for_root(self, root: Path, root_targets: Sequence[Path]) -> None:
-        index_path = root / 'index.json'
-        caps_dir = root / 'caps'
-        hot_path = root / 'hot.json'
-
-        if not index_path.is_file():
-            raise FileNotFoundError(index_path)
-        if self.emit_index and not hot_path.exists():
-            raise FileNotFoundError(
-                f"{hot_path} is missing. Regenerate via: {_BIRDSEYE_REGENERATE_COMMAND}"
-            )
-        if self.emit_caps and not caps_dir.is_dir():
-            raise FileNotFoundError(caps_dir)
-
-        index_data, index_original = self._load_index(index_path)
-        graph_out, graph_in = _build_graph(index_data)
-
-        hot_data, hot_original = self._load_hot(hot_path)
-
-        caps_state: CapsuleState = {}
-        cap_path_lookup: dict[Path, str] = {}
-        available_caps: dict[str, Path] = {}
-        if self.emit_caps:
-            caps_state, cap_path_lookup, available_caps = self._load_capsules(
-                caps_dir, index_data
-            )
-
-        if self.emit_index:
-            self._plan_index(index_path, index_data, index_original)
-            self._plan_hot(hot_path, hot_data, hot_original)
-
-        if self.emit_caps and available_caps:
-            focus_nodes = self._resolve_focus_nodes(
-                root_targets,
-                root,
-                graph_out,
-                graph_in,
-                caps_state,
-                cap_path_lookup,
-                available_caps,
-            )
-            self._ensure_placeholders(focus_nodes, caps_state, available_caps)
-            for cap_id in sorted(focus_nodes):
-                self._plan_capsule(cap_id, caps_state[cap_id], graph_out, graph_in)
-
-    def _load_index(self, index_path: Path) -> tuple[dict[str, Any], str]:
-        loaded_index, index_original = _load_json(index_path)
-        index_data = loaded_index if isinstance(loaded_index, dict) else {}
-        self.serial_allocator.observe(index_data.get('generated_at'))
-        return index_data, index_original
-
-    def _load_hot(self, hot_path: Path) -> tuple[dict[str, Any] | None, str | None]:
-        if not hot_path.exists():
-            return None, None
-        loaded_hot, hot_original = _load_json(hot_path)
-        if not isinstance(loaded_hot, dict):
-            return None, None
-        self.serial_allocator.observe(loaded_hot.get('generated_at'))
-        return loaded_hot, hot_original
-
-    def _load_capsules(
-        self, caps_dir: Path, index_data: Mapping[str, Any]
-    ) -> tuple[CapsuleState, dict[Path, str], dict[str, Path]]:
-        caps_state: CapsuleState = {}
-        cap_path_lookup: dict[Path, str] = {}
-        available_caps: dict[str, Path] = {}
-        raw_nodes = index_data.get('nodes', {})
-        if isinstance(raw_nodes, Mapping):
-            for node_id, node_payload in raw_nodes.items():
-                if not isinstance(node_id, str) or not isinstance(node_payload, Mapping):
-                    continue
-                caps_ref = node_payload.get('caps')
-                if not isinstance(caps_ref, str) or not caps_ref:
-                    continue
-                candidate_path = Path(caps_ref)
-                if candidate_path.is_absolute():
-                    resolved_candidate = candidate_path.resolve()
-                else:
-                    resolved_candidate = (_REPO_ROOT / candidate_path).resolve()
-                available_caps.setdefault(node_id, resolved_candidate)
-                cap_path_lookup.setdefault(resolved_candidate, node_id)
-        for cap_path in sorted(caps_dir.glob('*.json')):
-            if not cap_path.is_file():
-                continue
-            cap_data, cap_original = _load_json(cap_path)
-            if not isinstance(cap_data, dict):
-                continue
-            cap_id = cap_data.get('id')
-            if not isinstance(cap_id, str):
-                continue
-            cap_path_resolved = cap_path.resolve()
-            caps_state[cap_id] = (cap_path_resolved, cap_data, cap_original)
-            cap_path_lookup[cap_path_resolved] = cap_id
-            available_caps.setdefault(cap_id, cap_path_resolved)
-            self.serial_allocator.observe(cap_data.get('generated_at'))
-        return caps_state, cap_path_lookup, available_caps
-
-    def _plan_index(
-        self, index_path: Path, index_data: dict[str, Any], index_original: str
-    ) -> None:
-        new_generated = _next_generated_at(
-            index_data.get('generated_at'),
-            self.timestamp,
-            allocator=self.serial_allocator,
-        )
-        if index_data.get('generated_at') != new_generated:
-            index_data['generated_at'] = new_generated
-            self._remember_generated(new_generated)
-        self._plan_json_write(index_path, index_data, index_original)
-
-    def _plan_hot(
-        self,
-        hot_path: Path,
-        hot_data: dict[str, Any] | None,
-        hot_original: str | None,
-    ) -> None:
-        if hot_data is None or hot_original is None:
-            return
-        new_generated = _next_generated_at(
-            hot_data.get('generated_at'),
-            self.timestamp,
-            allocator=self.serial_allocator,
-        )
-        if hot_data.get('generated_at') != new_generated:
-            hot_data['generated_at'] = new_generated
-            self._remember_generated(new_generated)
-        self._plan_json_write(hot_path, hot_data, hot_original)
-
-    def _plan_capsule(
-        self,
-        cap_id: str,
-        capsule: CapsuleEntry,
-        graph_out: Mapping[str, Sequence[str]],
-        graph_in: Mapping[str, Sequence[str]],
-    ) -> None:
-        cap_path, cap_data, cap_original = capsule
-        expected_out = _sorted_unique(graph_out.get(cap_id, []))
-        expected_in = _sorted_unique(graph_in.get(cap_id, []))
-        updated = False
-        if cap_data.get('deps_out') != expected_out:
-            cap_data['deps_out'] = expected_out
-            updated = True
-        if cap_data.get('deps_in') != expected_in:
-            cap_data['deps_in'] = expected_in
-            updated = True
-        new_generated = _next_generated_at(
-            cap_data.get('generated_at'),
-            self.timestamp,
-            allocator=self.serial_allocator,
-        )
-        if cap_data.get('generated_at') != new_generated:
-            cap_data['generated_at'] = new_generated
-            updated = True
-            self._remember_generated(new_generated)
-        if updated:
-            self._plan_json_write(cap_path, cap_data, cap_original)
-
-    def _resolve_focus_nodes(
-        self,
-        root_targets: Sequence[Path],
-        root: Path,
-        graph_out: Mapping[str, Sequence[str]],
-        graph_in: Mapping[str, Sequence[str]],
-        caps_state: CapsuleState,
-        cap_path_lookup: Mapping[Path, str],
-        available_caps: Mapping[str, Path],
-    ) -> set[str]:
-        return self._focus_resolver.resolve(
-            root_targets=root_targets,
+        builder = BirdseyeRootBuilder(
             root=root,
-            graph_out=graph_out,
-            graph_in=graph_in,
-            caps_state=caps_state,
-            cap_path_lookup=cap_path_lookup,
-            available_caps=available_caps,
+            root_targets=root_targets,
+            emit_index=self.emit_index,
+            emit_caps=self.emit_caps,
+            timestamp=self.timestamp,
+            serial_allocator=self.serial_allocator,
         )
-
-    def _ensure_placeholders(
-        self,
-        focus_nodes: Iterable[str],
-        caps_state: CapsuleState,
-        available_caps: Mapping[str, Path],
-    ) -> None:
-        for cap_id in focus_nodes:
-            if cap_id in caps_state:
-                continue
-            cap_path = available_caps.get(cap_id)
-            if cap_path is None:
-                continue
-            placeholder_data: dict[str, Any] = {
-                'id': cap_id,
-                'role': 'doc',
-                'public_api': [],
-                'summary': cap_id,
-                'deps_out': [],
-                'deps_in': [],
-                'risks': [],
-                'tests': [],
-            }
-            caps_state[cap_id] = (cap_path, placeholder_data, '')
-
-    def _plan_json_write(self, path: Path, data: Any, original: str) -> None:
-        serialized = _dump_json(data)
-        if serialized == original:
-            return
-        self._writes.append(PlannedWrite(path=path, content=serialized, original=original))
+        plan = builder.build()
+        plan.apply(self)
 
     def _remember_generated(self, value: str) -> None:
         if self._generated_at is None:
