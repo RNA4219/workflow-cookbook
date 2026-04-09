@@ -11,6 +11,11 @@ next_review_due: 2026-05-10
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![CI](https://github.com/RNA4219/workflow-cookbook/actions/workflows/test.yml/badge.svg)](https://github.com/RNA4219/workflow-cookbook/actions/workflows/test.yml)
 
+<!-- SLO-BADGES -->
+[![SLO: lead_time](https://img.shields.io/badge/Lead%20Time%20P95-1d-brightgreen)](https://img.shields.io/badge/Lead%20Time%20P95-1d-brightgreen)
+[![SLO: mttr](https://img.shields.io/badge/MTTR%20P95-30m-brightgreen)](https://img.shields.io/badge/MTTR%20P95-30m-brightgreen)
+<!-- /SLO-BADGES -->
+
 Language: [English](README.md) | 日本語 | [简体中文](README.zh-CN.md)
 
 エージェント運用と context engineering のための docs / runtime kit。
@@ -150,6 +155,28 @@ python tools/ci/check_release_evidence.py --check --github-repo owner/name
 
 # Branch protection 検証
 python tools/ci/check_branch_protection.py --protection-json <json>
+
+# セキュリティ docs 鮮度確認
+python tools/ci/check_security_docs_freshness.py --check
+
+# sample/docs 同期確認
+python tools/ci/check_sample_docs_sync.py --check
+```
+
+### Evidence / Report
+
+```sh
+# Evidence レポート生成
+python tools/ci/generate_evidence_report.py --output docs/evidence_report.md
+
+# 検収 index 生成
+python tools/ci/generate_acceptance_index_standalone.py --output docs/acceptance_index.md
+
+# Upstream 差分抽出
+python tools/ci/extract_upstream_changes.py --upstream-md docs/UPSTREAM.md --weekly-log docs/WEEKLY.md
+
+# Task state エクスポート
+python tools/ci/export_task_state.py --output task_state.json
 ```
 
 ---
@@ -160,14 +187,14 @@ python tools/ci/check_branch_protection.py --protection-json <json>
 |----------|------|
 | [`.github/workflows/test.yml`](.github/workflows/test.yml) | テスト + coverage |
 | [`.github/workflows/governance-gate.yml`](.github/workflows/governance-gate.yml) | policy 検証 |
-| [`.github/workflows/security.yml`](.github/workflows/security.yml) | セキュリティ確認 |
+| [`.github/workflows/security.yml`](.github/workflows/security.yml) | セキュリティ確認 (Bandit, Semgrep, Gitleaks, Dependency Audit) |
 | [`.github/workflows/release-evidence.yml`](.github/workflows/release-evidence.yml) | リリース証跡 |
 | [`.github/workflows/cross-repo-integration.yml`](.github/workflows/cross-repo-integration.yml) | cross-repo 連携 |
+| [`.github/workflows/docs-resolve-pr-gate.yml`](.github/workflows/docs-resolve-pr-gate.yml) | docs resolve 検証 |
 
 再利用可能 workflow:
 
 - [`.github/workflows/reusable/python-ci.yml`](.github/workflows/reusable/python-ci.yml)
-- [`.github/workflows/reusable/security-ci.yml`](.github/workflows/reusable/security-ci.yml)
 
 ---
 
