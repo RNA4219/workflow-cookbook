@@ -28,4 +28,6 @@ jobs:
   security-ci:
     uses: ./.github/workflows/reusable/security-ci.yml
     needs: security-posture
+    with:
+      python-version: "3.11"
     secrets: inherit
