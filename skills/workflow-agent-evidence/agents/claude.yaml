@@ -1,0 +1,4 @@
+interface:
+  display_name: "Workflow Agent Evidence"
+  short_description: "Connect workflow-cookbook with agent-protocols Evidence"
+  default_prompt: "Use workflow-agent-evidence to connect workflow-cookbook logging with agent-protocols Evidence records."

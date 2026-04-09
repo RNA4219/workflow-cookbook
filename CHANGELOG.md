@@ -12,6 +12,10 @@ next_review_due: 2025-11-14
 
 ### Changed
 
+- 0054: `workflow-agent-evidence` Skill に Claude 向け metadata を追加し、
+  README の Skills 節から agent metadata へ辿れるようにした
+- 0053: `README.md` を圧縮して導線を整理し、repo 同梱 Skill と
+  protocol plugin の入口を明示した
 - 0051: CodeQL workflow の解析対象を repo 実態に合わせて `python` のみに絞り、
   JavaScript source 不在による失敗を解消した
 - 0050: `labels-sync` workflow のラベル同期 action を現行の
