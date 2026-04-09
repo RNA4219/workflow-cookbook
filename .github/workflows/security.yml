@@ -5,13 +5,13 @@ on:
   push:
   pull_request:
 
-concurrency:
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
-  cancel-in-progress: true
-
 permissions:
   contents: read
   security-events: write
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 jobs:
   security-posture:
@@ -25,9 +25,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: python tools/ci/check_security_posture.py --check --github-repo "${{ github.repository }}"
+
   security-ci:
-    uses: ./.github/workflows/reusable/security-ci.yml
     needs: security-posture
-    with:
-      python-version: "3.11"
+    uses: ./.github/workflows/reusable/security-ci.yml
     secrets: inherit
