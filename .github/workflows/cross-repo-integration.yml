@@ -50,4 +50,4 @@ jobs:
         run: pytest tests/test_workflow_plugin.py -q
       - name: Run memx-resolver workflow plugin tests
         working-directory: memx-resolver
-        run: pytest tests/test_workflow_plugin.py -q
+        run: PYTHONPATH=. pytest tests/test_workflow_plugin.py -q
