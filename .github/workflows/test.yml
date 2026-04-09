@@ -221,15 +221,23 @@ jobs:
       - name: Playwright E2E (if exists)
         run: |
           set -Eeuo pipefail
-          if [ -f package.json ] && node -e "p=require('./package.json');process.exit(!(p.scripts&&p.scripts['test:e2e']))"; then
+          if [ ! -f package.json ]; then
             echo "{\"name\":\"e2e\",\"status\":\"skip\",\"duration_ms\":0}" >> workflow-cookbook/logs/test.jsonl
-          else
-            start=$(date +%s%3N)
-            npm ci
-            npx playwright install --with-deps
-            if npm run -s test:e2e; then s=pass; else s=fail; fi
-            echo "{\"name\":\"e2e\",\"status\":\"$s\",\"duration_ms\":$(( $(date +%s%3N)-start ))}" >> workflow-cookbook/logs/test.jsonl
+            exit 0
           fi
+          if [ ! -f package-lock.json ]; then
+            echo "{\"name\":\"e2e\",\"status\":\"skip\",\"duration_ms\":0}" >> workflow-cookbook/logs/test.jsonl
+            exit 0
+          fi
+          if ! node -e "p=require('./package.json');process.exit(p.scripts&&p.scripts['test:e2e']?0:1)"; then
+            echo "{\"name\":\"e2e\",\"status\":\"skip\",\"duration_ms\":0}" >> workflow-cookbook/logs/test.jsonl
+            exit 0
+          fi
+          start=$(date +%s%3N)
+          npm ci
+          npx playwright install --with-deps
+          if npm run -s test:e2e; then s=pass; else s=fail; fi
+          echo "{\"name\":\"e2e\",\"status\":\"$s\",\"duration_ms\":$(( $(date +%s%3N)-start ))}" >> workflow-cookbook/logs/test.jsonl
       - uses: actions/upload-artifact@v4
         if: ${{ always() }}
         with:
