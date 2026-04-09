@@ -1,194 +1,205 @@
-# Workflow Cookbook / Workflow Operations Kit
+# Workflow Cookbook
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![CI](https://github.com/RNA4219/workflow-cookbook/actions/workflows/test.yml/badge.svg)](https://github.com/RNA4219/workflow-cookbook/actions/workflows/test.yml)
 
 语言：[English](README.md) | [日本語](README.ja.md) | 简体中文
 
-Workflow Cookbook 是一个面向工作流运维与 context engineering 的文档与运行时工具包。
-它整合了 Birdseye / Codemap、Task Seed、验收运维、可复用 CI，
-基于插件的 Evidence 追踪能力，以及面向下游软件的、
-与具体 repo 无关的自我改进闭环 blueprint。
+面向工作流运维与 context engineering 的文档与运行时工具包。
+整合 Birdseye/Codemap、Task Seed、验收运维、可复用 CI、Evidence 追踪。
+
+---
+
+## 概览
+
+| 功能 | 说明 |
+|------|------|
+| **Birdseye / Codemap** | 自动同步 Markdown hub 与依赖关系 |
+| **Task Seed** | 任务定义模板与运维流程 |
+| **Acceptance** | 验收记录与质量门禁 |
+| **CI / Governance** | 可复用 workflow 与 policy 校验 |
+| **Evidence** | LLM 行为追踪与 `agent-protocols` 集成 |
+| **Plugins** | 跨仓库集成与 docs resolve |
 
 <!-- LLM-BOOTSTRAP v1 -->
 建议阅读顺序：
 
-1. `docs/birdseye/index.json`，用于查看轻量级节点图
-2. `docs/birdseye/caps/<path>.json`，用于按需进行局部读取
+1. `docs/birdseye/index.json` —— 节点一览（轻量）
+2. `docs/birdseye/caps/<path>.json` —— 按需局部读取
 
 聚焦步骤：
-
-- 从 `index.json` 找出最近变更文件在 +/-2 hop 范围内的节点 ID
-- 只读取对应的 `caps/*.json` 文件
-
+- 从 index.json 找出最近变更文件在 +/-2 hop 范围内的节点 ID
+- 只读取对应的 caps/*.json 文件
 <!-- /LLM-BOOTSTRAP -->
 
-## 包含内容
-
-- 使用 Birdseye / Codemap 同步 Markdown hub 与依赖关系
-- 以 `BLUEPRINT`、`RUNBOOK`、`EVALUATION`、`CHECKLISTS` 为核心的运维文档链路
-- 基于 `StructuredLogger` 插件的 LLM 行为追踪
-- 面向 `agent-protocols` `Evidence` 契约的 sample config 与 consumer sample
-- 可将 `agent-taskstate` 与 `memx-resolver` 作为可选插件接入的 workflow host
-- 可在发布后按需启用的、面向 reflection、recall、skill evolution、
-  user/workspace model 的自我改进闭环补充设计
-- 可复用的 CI / governance workflow 与校验脚本
+---
 
 ## 快速开始
 
-1. 先阅读核心文档：
-   [`BLUEPRINT.md`](BLUEPRINT.md),
-   [`RUNBOOK.md`](RUNBOOK.md),
-   [`EVALUATION.md`](EVALUATION.md)
-2. 刷新 Birdseye：
+```sh
+# 1. 更新 Birdseye
+python tools/codemap/update.py --since --emit index+caps
 
-   ```sh
-   python tools/codemap/update.py --since --emit index+caps
-   ```
+# 2. 运行测试
+uv run pytest tests/ -q
 
-3. 记录验收结果：
-   [`docs/acceptance/README.md`](docs/acceptance/README.md),
-   [`docs/acceptance/ACCEPTANCE_TEMPLATE.md`](docs/acceptance/ACCEPTANCE_TEMPLATE.md)
-4. 查看测试质量基线：
-   [`docs/addenda/J_Test_Engineering.md`](docs/addenda/J_Test_Engineering.md)
-5. 对已收集 KPI 执行阈值判定：
-   [`tools/ci/check_metrics_thresholds.py`](tools/ci/check_metrics_thresholds.py),
-   [`governance/metrics_thresholds.yaml`](governance/metrics_thresholds.yaml)
-6. 检查 Birdseye 新鲜度：
-   [`tools/ci/check_birdseye_freshness.py`](tools/ci/check_birdseye_freshness.py)
-7. 试用 Evidence 追踪：
-   [`tools/protocols/README.md`](tools/protocols/README.md),
-   [`examples/inference_plugins.agent_protocol.sample.json`](examples/inference_plugins.agent_protocol.sample.json)
-8. 试用跨仓库插件：
-   [`tools/workflow_plugins/README.md`](tools/workflow_plugins/README.md),
-   [`examples/workflow_plugins.cross_repo.sample.json`](examples/workflow_plugins.cross_repo.sample.json)
-9. 校验插件配置：
-   [`tools/workflow_plugins/validate_workflow_plugin_config.py`](tools/workflow_plugins/validate_workflow_plugin_config.py)
+# 3. 校验 CI gates
+python tools/ci/check_ci_gate_matrix.py
 
-## 导航
+# 4. 检查 Birdseye 新鲜度
+python tools/ci/check_birdseye_freshness.py --check
+```
 
-- 首先阅读：
-  [`BLUEPRINT.md`](BLUEPRINT.md),
-  [`RUNBOOK.md`](RUNBOOK.md),
-  [`EVALUATION.md`](EVALUATION.md)
-- Birdseye / Codemap：
-  [`docs/BIRDSEYE.md`](docs/BIRDSEYE.md),
-  [`tools/codemap/README.md`](tools/codemap/README.md),
-  [`HUB.codex.md`](HUB.codex.md)
-- CI / Governance：
-  [`CHECKLISTS.md`](CHECKLISTS.md),
-  [`docs/ci-config.md`](docs/ci-config.md),
-  [`docs/ci_phased_rollout_requirements.md`](docs/ci_phased_rollout_requirements.md)
-- 质量基线：
-  [`docs/addenda/J_Test_Engineering.md`](docs/addenda/J_Test_Engineering.md),
-  [`docs/acceptance/README.md`](docs/acceptance/README.md),
-  [`governance/metrics_thresholds.yaml`](governance/metrics_thresholds.yaml)
+---
+
+## 文档导航
+
+### 首先阅读
+
+| 文件 | 说明 |
+|------|------|
+| [`BLUEPRINT.md`](BLUEPRINT.md) | 需求、约束、背景 |
+| [`RUNBOOK.md`](RUNBOOK.md) | 执行步骤、命令 |
+| [`EVALUATION.md`](EVALUATION.md) | 验收标准、质量指标 |
+| [`HUB.codex.md`](HUB.codex.md) | Agent 导向 hub |
+
+### CI / Governance
+
+| 文件 | 说明 |
+|------|------|
+| [`CHECKLISTS.md`](CHECKLISTS.md) | 发布确认项 |
+| [`docs/ci-config.md`](docs/ci-config.md) | CI gate 与 job mapping |
+| [`governance/policy.yaml`](governance/policy.yaml) | 自改边界、SLO |
+
+### 运维补充
+
+| 文件 | 说明 |
+|------|------|
+| [`docs/acceptance/README.md`](docs/acceptance/README.md) | 验收记录运维 |
+| [`docs/addenda/J_Test_Engineering.md`](docs/addenda/J_Test_Engineering.md) | 测试质量基线 |
+| [`docs/addenda/O_Adaptive_Improvement_Loop.md`](docs/addenda/O_Adaptive_Improvement_Loop.md) | 自适应改进闭环 |
+
+---
 
 ## Skills
 
-- Evidence 集成 Skill：
-  [`skills/workflow-agent-evidence/SKILL.md`](skills/workflow-agent-evidence/SKILL.md)
-- Agent metadata：
-  [`skills/workflow-agent-evidence/agents/openai.yaml`](skills/workflow-agent-evidence/agents/openai.yaml),
-  [`skills/workflow-agent-evidence/agents/claude.yaml`](skills/workflow-agent-evidence/agents/claude.yaml)
-- Skill 参考资料：
-  [`skills/workflow-agent-evidence/references/workflow-cookbook.md`](skills/workflow-agent-evidence/references/workflow-cookbook.md),
-  [`skills/workflow-agent-evidence/references/agent-protocols.md`](skills/workflow-agent-evidence/references/agent-protocols.md)
-- Protocol 插件指南：
-  [`tools/protocols/README.md`](tools/protocols/README.md)
+| Skill | 说明 |
+|-------|------|
+| [`skills/workflow-agent-evidence/SKILL.md`](skills/workflow-agent-evidence/SKILL.md) | Evidence 集成 |
+| [`skills/workflow-agent-evidence/agents/claude.yaml`](skills/workflow-agent-evidence/agents/claude.yaml) | Claude metadata |
+| [`skills/workflow-agent-evidence/agents/openai.yaml`](skills/workflow-agent-evidence/agents/openai.yaml) | OpenAI metadata |
 
-## 常用入口
+---
+
+## 主要命令
 
 ### Birdseye / Codemap
 
 ```sh
-python tools/codemap/update.py --since --emit index+caps
-python tools/codemap/update.py --since --radius 1 --emit caps
+# 全量更新
 python tools/codemap/update.py --targets docs/birdseye/index.json,docs/birdseye/hot.json --emit index+caps
-python tools/ci/check_birdseye_freshness.py --check
+
+# 局部更新（radius 1）
+python tools/codemap/update.py --since --radius 1 --emit caps
+
+# 新鲜度检查
+python tools/ci/check_birdseye_freshness.py --check --max-verified-age-days 90
 ```
 
-### Metrics / KPI 判定
+### Metrics / KPI
 
 ```sh
+# QA 指标采集
 python -m tools.perf.collect_metrics --suite qa --metrics-url <url> --log-path <path>
+
+# 阈值判定
 python tools/ci/check_metrics_thresholds.py --check --metrics-json .ga/qa-metrics.json
 ```
 
-### LLM Evidence 追踪
+### Acceptance / Task
 
-- 插件 API：
-  [`tools/protocols/README.md`](tools/protocols/README.md)
-- sample config：
-  [`examples/inference_plugins.agent_protocol.sample.json`](examples/inference_plugins.agent_protocol.sample.json)
-- consumer sample：
-  [`examples/agent_protocol_evidence_consumer.sample.py`](examples/agent_protocol_evidence_consumer.sample.py)
+```sh
+# 验收记录校验
+python tools/ci/check_acceptance.py --check
 
-### 任务运维
+# Task/Acceptance 同步检查
+python tools/ci/check_task_acceptance_sync.py --plugin-config examples/workflow_plugins.cross_repo.sample.json
 
-- Task Seed sample：
-  [`examples/TASK.sample.md`](examples/TASK.sample.md)
-- 执行前提：
-  [`GUARDRAILS.md`](GUARDRAILS.md),
-  [`RUNBOOK.md`](RUNBOOK.md)
-- 发布侧文档：
-  [`CHECKLISTS.md`](CHECKLISTS.md),
-  [`CHANGELOG.md`](CHANGELOG.md),
-  [`docs/acceptance/README.md`](docs/acceptance/README.md)
+# 生成验收 index
+python tools/ci/generate_acceptance_index.py --plugin-config examples/workflow_plugins.cross_repo.sample.json
+```
 
-### Advanced: Cross-Repo Plugins
+### Security / Release
 
-- Host / config：
-  [`tools/workflow_plugins/README.md`](tools/workflow_plugins/README.md),
-  [`examples/workflow_plugins.cross_repo.sample.json`](examples/workflow_plugins.cross_repo.sample.json),
-  [`schemas/workflow-plugin-config.schema.json`](schemas/workflow-plugin-config.schema.json)
-- 配置校验：
-  [`tools/workflow_plugins/validate_workflow_plugin_config.py`](tools/workflow_plugins/validate_workflow_plugin_config.py)
-- Dispatcher / interfaces：
-  [`tools/workflow_plugins/runtime.py`](tools/workflow_plugins/runtime.py),
-  [`tools/workflow_plugins/interfaces.py`](tools/workflow_plugins/interfaces.py)
-- task / acceptance sync：
-  [`tools/ci/check_task_acceptance_sync.py`](tools/ci/check_task_acceptance_sync.py),
-  [`tools/ci/generate_acceptance_index.py`](tools/ci/generate_acceptance_index.py)
-- docs resolve / ack / stale：
-  [`tools/context/workflow_docs.py`](tools/context/workflow_docs.py)
+```sh
+# 安全 posture 检查
+python tools/ci/check_security_posture.py --check --github-repo owner/name
 
-## 可复用 CI
+# 发布证迹检查
+python tools/ci/check_release_evidence.py --check --github-repo owner/name
 
-- Python CI：
-  [`.github/workflows/reusable/python-ci.yml`](.github/workflows/reusable/python-ci.yml)
-- Security CI：
-  [`.github/workflows/reusable/security-ci.yml`](.github/workflows/reusable/security-ci.yml)
-- Security posture：
-  [`.github/workflows/security.yml`](.github/workflows/security.yml),
-  [`tools/ci/check_security_posture.py`](tools/ci/check_security_posture.py)
-- Release evidence：
-  [`.github/workflows/release-evidence.yml`](.github/workflows/release-evidence.yml),
-  [`tools/ci/check_release_evidence.py`](tools/ci/check_release_evidence.py)
-- Cross-repo integration：
-  [`.github/workflows/cross-repo-integration.yml`](.github/workflows/cross-repo-integration.yml)
-- Governance gate：
-  [`.github/workflows/governance-gate.yml`](.github/workflows/governance-gate.yml)
+# Branch protection 校验
+python tools/ci/check_branch_protection.py --protection-json <json>
+```
 
-关于下游仓库如何调用以及 required jobs 的语义，请参见
-[`docs/ci-config.md`](docs/ci-config.md)。本仓库中的 gate 对齐可通过
-[`tools/ci/check_ci_gate_matrix.py`](tools/ci/check_ci_gate_matrix.py) 进行校验。
+---
+
+## CI Workflows
+
+| Workflow | 说明 |
+|----------|------|
+| [`.github/workflows/test.yml`](.github/workflows/test.yml) | 测试 + coverage |
+| [`.github/workflows/governance-gate.yml`](.github/workflows/governance-gate.yml) | policy 校验 |
+| [`.github/workflows/security.yml`](.github/workflows/security.yml) | 安全检查 |
+| [`.github/workflows/release-evidence.yml`](.github/workflows/release-evidence.yml) | 发布证迹 |
+| [`.github/workflows/cross-repo-integration.yml`](.github/workflows/cross-repo-integration.yml) | 跨仓库集成 |
+
+可复用 workflow：
+- [`.github/workflows/reusable/python-ci.yml`](.github/workflows/reusable/python-ci.yml)
+- [`.github/workflows/reusable/security-ci.yml`](.github/workflows/reusable/security-ci.yml)
+
+---
+
+## Plugin 集成
+
+### Evidence Plugin
+
+```sh
+# 配置示例
+examples/inference_plugins.agent_protocol.sample.json
+
+# 消费示例
+examples/agent_protocol_evidence_consumer.sample.py
+
+# 详情
+tools/protocols/README.md
+```
+
+### Cross-Repo Plugin
+
+```sh
+# 配置示例
+examples/workflow_plugins.cross_repo.sample.json
+
+# Schema
+schemas/workflow-plugin-config.schema.json
+
+# 校验
+python tools/workflow_plugins/validate_workflow_plugin_config.py --config examples/workflow_plugins.cross_repo.sample.json
+```
+
+---
 
 ## 支撑文档
 
-- Requirements / spec / design：
-  [`docs/requirements.md`](docs/requirements.md),
-  [`docs/spec.md`](docs/spec.md),
-  [`docs/design.md`](docs/design.md)
-- 运维补充：
-  [`docs/ROADMAP_AND_SPECS.md`](docs/ROADMAP_AND_SPECS.md),
-  [`docs/addenda/J_Test_Engineering.md`](docs/addenda/J_Test_Engineering.md),
-  [`docs/addenda/O_Adaptive_Improvement_Loop.md`](docs/addenda/O_Adaptive_Improvement_Loop.md),
-  [`docs/addenda/N_Improvement_Backlog.md`](docs/addenda/N_Improvement_Backlog.md),
-  [`docs/addenda/P_Expansion_Candidates.md`](docs/addenda/P_Expansion_Candidates.md),
-  [`docs/addenda/M_Versioning_Release.md`](docs/addenda/M_Versioning_Release.md)
-- 安全文档：
-  [`docs/security/SAC.md`](docs/security/SAC.md),
-  [`docs/security/Security_Review_Checklist.md`](docs/security/Security_Review_Checklist.md)
+| 分类 | 文件 |
+|------|------|
+| 规格 | [`docs/requirements.md`](docs/requirements.md), [`docs/spec.md`](docs/spec.md), [`docs/design.md`](docs/design.md) |
+| 运维 | [`docs/ROADMAP_AND_SPECS.md`](docs/ROADMAP_AND_SPECS.md), [`CHANGELOG.md`](CHANGELOG.md) |
+| 安全 | [`docs/security/SAC.md`](docs/security/SAC.md), [`docs/security/Security_Review_Checklist.md`](docs/security/Security_Review_Checklist.md) |
+| 扩展 | [`docs/addenda/N_Improvement_Backlog.md`](docs/addenda/N_Improvement_Backlog.md), [`docs/addenda/P_Expansion_Candidates.md`](docs/addenda/P_Expansion_Candidates.md) |
+
+---
 
 ## License
 

@@ -1,196 +1,205 @@
-# Workflow Cookbook / Workflow Operations Kit
+# Workflow Cookbook
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![CI](https://github.com/RNA4219/workflow-cookbook/actions/workflows/test.yml/badge.svg)](https://github.com/RNA4219/workflow-cookbook/actions/workflows/test.yml)
 
 Language: English | [日本語](README.ja.md) | [简体中文](README.zh-CN.md)
 
-Workflow Cookbook is a docs and runtime kit for workflow operations and
-context engineering.
-It bundles Birdseye/Codemap, Task Seeds, acceptance operations, reusable CI,
-plugin-based Evidence tracking, and a repo-agnostic adaptive improvement loop
-blueprint for downstream software.
+A docs and runtime kit for workflow operations and context engineering.
+Integrates Birdseye/Codemap, Task Seeds, acceptance operations, reusable CI, and Evidence tracking.
+
+---
+
+## Overview
+
+| Feature | Description |
+|---------|-------------|
+| **Birdseye / Codemap** | Auto-sync Markdown hubs and dependencies |
+| **Task Seed** | Task definition templates and operational workflows |
+| **Acceptance** | Acceptance records and quality gates |
+| **CI / Governance** | Reusable workflows and policy validation |
+| **Evidence** | LLM behavior tracking and `agent-protocols` integration |
+| **Plugins** | Cross-repo integration and docs resolve |
 
 <!-- LLM-BOOTSTRAP v1 -->
 Recommended read order:
 
-1. `docs/birdseye/index.json` for the lightweight node graph
-2. `docs/birdseye/caps/<path>.json` for focused point reads
+1. `docs/birdseye/index.json` — Node graph (lightweight)
+2. `docs/birdseye/caps/<path>.json` — Point reads for needed nodes
 
 Focus procedure:
-
 - Find node IDs for recently changed files within +/-2 hops from `index.json`
 - Read only the matching `caps/*.json` files
-
 <!-- /LLM-BOOTSTRAP -->
 
-## What's Included
-
-- Birdseye / Codemap for Markdown hub synchronization and dependency mapping
-- Operational docs centered on `BLUEPRINT`, `RUNBOOK`, `EVALUATION`, and `CHECKLISTS`
-- LLM behavior tracking through `StructuredLogger` plugins
-- Sample config and consumer sample for the `agent-protocols` `Evidence` contract
-- A workflow host that can connect `agent-taskstate` and `memx-resolver` as optional plugins
-- An optional, downstream-facing adaptive improvement loop blueprint for
-  post-release reflection, recall, skill evolution, and reviewed
-  user/workspace models
-- Reusable CI / governance workflows and validation scripts
+---
 
 ## Quick Start
 
-1. Read the core docs:
-   [`BLUEPRINT.md`](BLUEPRINT.md),
-   [`RUNBOOK.md`](RUNBOOK.md),
-   [`EVALUATION.md`](EVALUATION.md)
-2. Refresh Birdseye:
+```sh
+# 1. Update Birdseye
+python tools/codemap/update.py --since --emit index+caps
 
-   ```sh
-   python tools/codemap/update.py --since --emit index+caps
-   ```
+# 2. Run tests
+uv run pytest tests/ -q
 
-3. Record an acceptance result:
-   [`docs/acceptance/README.md`](docs/acceptance/README.md),
-   [`docs/acceptance/ACCEPTANCE_TEMPLATE.md`](docs/acceptance/ACCEPTANCE_TEMPLATE.md)
-4. Review the test quality baseline:
-   [`docs/addenda/J_Test_Engineering.md`](docs/addenda/J_Test_Engineering.md)
-5. Check collected metrics against KPI thresholds:
-   [`tools/ci/check_metrics_thresholds.py`](tools/ci/check_metrics_thresholds.py),
-   [`governance/metrics_thresholds.yaml`](governance/metrics_thresholds.yaml)
-6. Validate Birdseye freshness:
-   [`tools/ci/check_birdseye_freshness.py`](tools/ci/check_birdseye_freshness.py)
-7. Try Evidence tracking:
-   [`tools/protocols/README.md`](tools/protocols/README.md),
-   [`examples/inference_plugins.agent_protocol.sample.json`](examples/inference_plugins.agent_protocol.sample.json)
-8. Try cross-repo plugins:
-   [`tools/workflow_plugins/README.md`](tools/workflow_plugins/README.md),
-   [`examples/workflow_plugins.cross_repo.sample.json`](examples/workflow_plugins.cross_repo.sample.json)
-9. Validate plugin config:
-   [`tools/workflow_plugins/validate_workflow_plugin_config.py`](tools/workflow_plugins/validate_workflow_plugin_config.py)
+# 3. Validate CI gates
+python tools/ci/check_ci_gate_matrix.py
 
-## Navigation
+# 4. Check Birdseye freshness
+python tools/ci/check_birdseye_freshness.py --check
+```
 
-- Start here:
-  [`BLUEPRINT.md`](BLUEPRINT.md),
-  [`RUNBOOK.md`](RUNBOOK.md),
-  [`EVALUATION.md`](EVALUATION.md)
-- Birdseye / Codemap:
-  [`docs/BIRDSEYE.md`](docs/BIRDSEYE.md),
-  [`tools/codemap/README.md`](tools/codemap/README.md),
-  [`HUB.codex.md`](HUB.codex.md)
-- CI / Governance:
-  [`CHECKLISTS.md`](CHECKLISTS.md),
-  [`docs/ci-config.md`](docs/ci-config.md),
-  [`docs/ci_phased_rollout_requirements.md`](docs/ci_phased_rollout_requirements.md)
-- Quality baseline:
-  [`docs/addenda/J_Test_Engineering.md`](docs/addenda/J_Test_Engineering.md),
-  [`docs/acceptance/README.md`](docs/acceptance/README.md),
-  [`governance/metrics_thresholds.yaml`](governance/metrics_thresholds.yaml)
+---
+
+## Documentation Guide
+
+### Start Here
+
+| File | Description |
+|------|-------------|
+| [`BLUEPRINT.md`](BLUEPRINT.md) | Requirements, constraints, background |
+| [`RUNBOOK.md`](RUNBOOK.md) | Execution procedures, commands |
+| [`EVALUATION.md`](EVALUATION.md) | Acceptance criteria, quality metrics |
+| [`HUB.codex.md`](HUB.codex.md) | Agent-oriented hub |
+
+### CI / Governance
+
+| File | Description |
+|------|-------------|
+| [`CHECKLISTS.md`](CHECKLISTS.md) | Release checklist items |
+| [`docs/ci-config.md`](docs/ci-config.md) | CI gates and job mapping |
+| [`governance/policy.yaml`](governance/policy.yaml) | Self-modification bounds, SLOs |
+
+### Operations
+
+| File | Description |
+|------|-------------|
+| [`docs/acceptance/README.md`](docs/acceptance/README.md) | Acceptance record workflow |
+| [`docs/addenda/J_Test_Engineering.md`](docs/addenda/J_Test_Engineering.md) | Test quality baseline |
+| [`docs/addenda/O_Adaptive_Improvement_Loop.md`](docs/addenda/O_Adaptive_Improvement_Loop.md) | Adaptive improvement loop |
+
+---
 
 ## Skills
 
-- Evidence integration skill:
-  [`skills/workflow-agent-evidence/SKILL.md`](skills/workflow-agent-evidence/SKILL.md)
-- Agent metadata:
-  [`skills/workflow-agent-evidence/agents/openai.yaml`](skills/workflow-agent-evidence/agents/openai.yaml),
-  [`skills/workflow-agent-evidence/agents/claude.yaml`](skills/workflow-agent-evidence/agents/claude.yaml)
-- Skill references:
-  [`skills/workflow-agent-evidence/references/workflow-cookbook.md`](skills/workflow-agent-evidence/references/workflow-cookbook.md),
-  [`skills/workflow-agent-evidence/references/agent-protocols.md`](skills/workflow-agent-evidence/references/agent-protocols.md)
-- Protocol plugin guide:
-  [`tools/protocols/README.md`](tools/protocols/README.md)
+| Skill | Description |
+|-------|-------------|
+| [`skills/workflow-agent-evidence/SKILL.md`](skills/workflow-agent-evidence/SKILL.md) | Evidence integration |
+| [`skills/workflow-agent-evidence/agents/claude.yaml`](skills/workflow-agent-evidence/agents/claude.yaml) | Claude metadata |
+| [`skills/workflow-agent-evidence/agents/openai.yaml`](skills/workflow-agent-evidence/agents/openai.yaml) | OpenAI metadata |
 
-## Common Entry Points
+---
+
+## Key Commands
 
 ### Birdseye / Codemap
 
 ```sh
-python tools/codemap/update.py --since --emit index+caps
-python tools/codemap/update.py --since --radius 1 --emit caps
+# Full update
 python tools/codemap/update.py --targets docs/birdseye/index.json,docs/birdseye/hot.json --emit index+caps
-python tools/ci/check_birdseye_freshness.py --check
+
+# Local update (radius 1)
+python tools/codemap/update.py --since --radius 1 --emit caps
+
+# Freshness check
+python tools/ci/check_birdseye_freshness.py --check --max-verified-age-days 90
 ```
 
-### Metrics Thresholds
+### Metrics / KPI
 
 ```sh
+# QA metrics collection
 python -m tools.perf.collect_metrics --suite qa --metrics-url <url> --log-path <path>
+
+# Threshold validation
 python tools/ci/check_metrics_thresholds.py --check --metrics-json .ga/qa-metrics.json
 ```
 
-### LLM Evidence Tracking
+### Acceptance / Task
 
-- Plugin API:
-  [`tools/protocols/README.md`](tools/protocols/README.md)
-- Sample config:
-  [`examples/inference_plugins.agent_protocol.sample.json`](examples/inference_plugins.agent_protocol.sample.json)
-- Consumer sample:
-  [`examples/agent_protocol_evidence_consumer.sample.py`](examples/agent_protocol_evidence_consumer.sample.py)
+```sh
+# Acceptance record validation
+python tools/ci/check_acceptance.py --check
 
-### Task Operations
+# Task/Acceptance sync check
+python tools/ci/check_task_acceptance_sync.py --plugin-config examples/workflow_plugins.cross_repo.sample.json
 
-- Task Seed sample:
-  [`examples/TASK.sample.md`](examples/TASK.sample.md)
-- Operating constraints:
-  [`GUARDRAILS.md`](GUARDRAILS.md),
-  [`RUNBOOK.md`](RUNBOOK.md)
-- Release-side docs:
-  [`CHECKLISTS.md`](CHECKLISTS.md),
-  [`CHANGELOG.md`](CHANGELOG.md),
-  [`docs/acceptance/README.md`](docs/acceptance/README.md)
+# Generate acceptance index
+python tools/ci/generate_acceptance_index.py --plugin-config examples/workflow_plugins.cross_repo.sample.json
+```
 
-### Advanced: Cross-Repo Plugins
+### Security / Release
 
-- Host / config:
-  [`tools/workflow_plugins/README.md`](tools/workflow_plugins/README.md),
-  [`examples/workflow_plugins.cross_repo.sample.json`](examples/workflow_plugins.cross_repo.sample.json),
-  [`schemas/workflow-plugin-config.schema.json`](schemas/workflow-plugin-config.schema.json)
-- Config validation:
-  [`tools/workflow_plugins/validate_workflow_plugin_config.py`](tools/workflow_plugins/validate_workflow_plugin_config.py)
-- Dispatcher / interfaces:
-  [`tools/workflow_plugins/runtime.py`](tools/workflow_plugins/runtime.py),
-  [`tools/workflow_plugins/interfaces.py`](tools/workflow_plugins/interfaces.py)
-- Task / acceptance sync:
-  [`tools/ci/check_task_acceptance_sync.py`](tools/ci/check_task_acceptance_sync.py),
-  [`tools/ci/generate_acceptance_index.py`](tools/ci/generate_acceptance_index.py)
-- Docs resolve / ack / stale:
-  [`tools/context/workflow_docs.py`](tools/context/workflow_docs.py)
+```sh
+# Security posture check
+python tools/ci/check_security_posture.py --check --github-repo owner/name
 
-## Reusable CI
+# Release evidence check
+python tools/ci/check_release_evidence.py --check --github-repo owner/name
 
-- Python CI:
-  [`.github/workflows/reusable/python-ci.yml`](.github/workflows/reusable/python-ci.yml)
-- Security CI:
-  [`.github/workflows/reusable/security-ci.yml`](.github/workflows/reusable/security-ci.yml)
-- Security posture:
-  [`.github/workflows/security.yml`](.github/workflows/security.yml),
-  [`tools/ci/check_security_posture.py`](tools/ci/check_security_posture.py)
-- Release evidence:
-  [`.github/workflows/release-evidence.yml`](.github/workflows/release-evidence.yml),
-  [`tools/ci/check_release_evidence.py`](tools/ci/check_release_evidence.py)
-- Cross-repo integration:
-  [`.github/workflows/cross-repo-integration.yml`](.github/workflows/cross-repo-integration.yml)
-- Governance gate:
-  [`.github/workflows/governance-gate.yml`](.github/workflows/governance-gate.yml)
+# Branch protection validation
+python tools/ci/check_branch_protection.py --protection-json <json>
+```
 
-See [`docs/ci-config.md`](docs/ci-config.md) for downstream usage and required job
-semantics. Use [`tools/ci/check_ci_gate_matrix.py`](tools/ci/check_ci_gate_matrix.py)
-to validate gate alignment in this repo.
+---
+
+## CI Workflows
+
+| Workflow | Description |
+|----------|-------------|
+| [`.github/workflows/test.yml`](.github/workflows/test.yml) | Tests + coverage |
+| [`.github/workflows/governance-gate.yml`](.github/workflows/governance-gate.yml) | Policy validation |
+| [`.github/workflows/security.yml`](.github/workflows/security.yml) | Security checks |
+| [`.github/workflows/release-evidence.yml`](.github/workflows/release-evidence.yml) | Release evidence |
+| [`.github/workflows/cross-repo-integration.yml`](.github/workflows/cross-repo-integration.yml) | Cross-repo integration |
+
+Reusable workflows:
+- [`.github/workflows/reusable/python-ci.yml`](.github/workflows/reusable/python-ci.yml)
+- [`.github/workflows/reusable/security-ci.yml`](.github/workflows/reusable/security-ci.yml)
+
+---
+
+## Plugin Integration
+
+### Evidence Plugin
+
+```sh
+# Config sample
+examples/inference_plugins.agent_protocol.sample.json
+
+# Consumer sample
+examples/agent_protocol_evidence_consumer.sample.py
+
+# Details
+tools/protocols/README.md
+```
+
+### Cross-Repo Plugin
+
+```sh
+# Config sample
+examples/workflow_plugins.cross_repo.sample.json
+
+# Schema
+schemas/workflow-plugin-config.schema.json
+
+# Validation
+python tools/workflow_plugins/validate_workflow_plugin_config.py --config examples/workflow_plugins.cross_repo.sample.json
+```
+
+---
 
 ## Supporting Docs
 
-- Requirements / spec / design:
-  [`docs/requirements.md`](docs/requirements.md),
-  [`docs/spec.md`](docs/spec.md),
-  [`docs/design.md`](docs/design.md)
-- Operational addenda:
-  [`docs/ROADMAP_AND_SPECS.md`](docs/ROADMAP_AND_SPECS.md),
-  [`docs/addenda/J_Test_Engineering.md`](docs/addenda/J_Test_Engineering.md),
-  [`docs/addenda/O_Adaptive_Improvement_Loop.md`](docs/addenda/O_Adaptive_Improvement_Loop.md),
-  [`docs/addenda/N_Improvement_Backlog.md`](docs/addenda/N_Improvement_Backlog.md),
-  [`docs/addenda/P_Expansion_Candidates.md`](docs/addenda/P_Expansion_Candidates.md),
-  [`docs/addenda/M_Versioning_Release.md`](docs/addenda/M_Versioning_Release.md)
-- Security:
-  [`docs/security/SAC.md`](docs/security/SAC.md),
-  [`docs/security/Security_Review_Checklist.md`](docs/security/Security_Review_Checklist.md)
+| Category | Files |
+|----------|-------|
+| Spec | [`docs/requirements.md`](docs/requirements.md), [`docs/spec.md`](docs/spec.md), [`docs/design.md`](docs/design.md) |
+| Ops | [`docs/ROADMAP_AND_SPECS.md`](docs/ROADMAP_AND_SPECS.md), [`CHANGELOG.md`](CHANGELOG.md) |
+| Security | [`docs/security/SAC.md`](docs/security/SAC.md), [`docs/security/Security_Review_Checklist.md`](docs/security/Security_Review_Checklist.md) |
+| Extension | [`docs/addenda/N_Improvement_Backlog.md`](docs/addenda/N_Improvement_Backlog.md), [`docs/addenda/P_Expansion_Candidates.md`](docs/addenda/P_Expansion_Candidates.md) |
+
+---
 
 ## License
 
