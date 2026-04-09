@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: Apache-2.0
+# SPDX-License-Identifier: MIT
 # Copyright 2025 RNA4219
 
 from __future__ import annotations

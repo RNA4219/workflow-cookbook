@@ -8,7 +8,7 @@ next_review_due: 2025-11-14
 
 # Workflow Cookbook / Codex Task Kit
 
-[![License: Apache-2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
 This repo defines QA/Governance-first workflows, reusable operational docs,
 and Codex-oriented task orchestration patterns rather than application code.
@@ -64,8 +64,6 @@ handoffs, and plugin-based LLM behavior tracking that can emit
   [`docs/ci_phased_rollout_requirements.md`](docs/ci_phased_rollout_requirements.md)
 
 ## 使い方（最短）
-
-参加前に [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) を読み、連絡窓口と遵守事項を確認してください。
 
 1. リポジトリ直下に本ファイルをコピー
    - フォークで運用する場合は [`docs/FORK_NOTES.md`](docs/FORK_NOTES.md) をテンプレ通りに初期化し、差分管理を開始
@@ -123,7 +121,8 @@ python tools/codemap/update.py --targets docs/birdseye/index.json,docs/birdseye/
 - リリース時は `CHECKLISTS.md` をなぞり、`CHANGELOG.md` と
   リリースノートへ成果を昇格させる
 
-利用時は [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) を確認し、行動規範の遵守を徹底してください。
+利用時は `RUNBOOK.md` と `GUARDRAILS.md` を確認し、運用上の前提と制約を
+そろえてください。
 
 ## 参照ガイド
 
@@ -263,8 +262,8 @@ jobs:
 
 ## License
 
-Apache-2.0. Unless noted otherwise,
-files copied from this repo into other projects remain Apache-2.0 and require retaining NOTICE text in redistributions.
+MIT. Unless noted otherwise, files copied from this repo into other projects
+remain under the MIT License.
 
 ### Commit message guide
 

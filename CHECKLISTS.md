@@ -63,7 +63,7 @@ next_review_due: 2026-05-09
 - 影響範囲の再確認
 - PR に `type:*` および `semver:*` ラベルを付与済み
 - [Security Review Checklist](docs/security/Security_Review_Checklist.md) に沿って準備→実装→レビューの各フェーズを完了し、リリース判定と証跡を残す
-- 配布物へ `LICENSE` / `NOTICE` を同梱済み
+- 配布物へ `LICENSE` を同梱済み
 
 ## Hygiene
 

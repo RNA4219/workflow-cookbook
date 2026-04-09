@@ -11,7 +11,7 @@ next_review_due: 2026-05-09
 <!-- markdownlint-disable MD013 -->
 
 本書は仕様・運用資料を横断的に束ねる更新ハブであり、各ドキュメントの役割と連携経路を即座に確認できます。タスク着手前やレビュー時、リリース判定前など節目の判断で参照し、関係資料の鮮度と整合を維持してください。
-代表ドキュメントは `BLUEPRINT.md`・`RUNBOOK.md`・`CHECKLISTS.md`・`EVALUATION.md` を中心に、`HUB.codex.md` や `SECURITY.md` など運用基盤資料が支えます。いずれかを更新する際は本ハブと相互リンクを再点検し、全資料の記述差異がないよう同期してください。
+代表ドキュメントは `BLUEPRINT.md`・`RUNBOOK.md`・`CHECKLISTS.md`・`EVALUATION.md` を中心に、`HUB.codex.md` や `docs/security/` など運用基盤資料が支えます。いずれかを更新する際は本ハブと相互リンクを再点検し、全資料の記述差異がないよう同期してください。
 
 ## 上位ドキュメント索引
 
@@ -24,7 +24,7 @@ next_review_due: 2026-05-09
 | タスク統制 | [HUB.codex.md](../HUB.codex.md) | 仕様・運用ドキュメントを束ね、タスク化を自動分配。 | `TASK.*` シード生成時に [入力ファイル分類](../HUB.codex.md#2-入力ファイル分類)を参照。 |
 | リリース判定 | [CHECKLISTS.md](../CHECKLISTS.md) | 日次・リリース・衛生のチェック項目。 | リリース前に `EVALUATION.md` の[Verification Checklist](../EVALUATION.md#verification-checklist)と突き合わせ。 |
 | フォーク統制 | [docs/FORK_NOTES.md](FORK_NOTES.md) | 派生リポの独自差分・逆輸入方針・未解決課題を一元管理。 | フォーク更新時およびリリース前に `CHECKLISTS.md` の[Hygiene](../CHECKLISTS.md#hygiene)と突合。 |
-| セキュリティ統制 | [SECURITY.md](../SECURITY.md) / [security/SAC.md](security/SAC.md) | 報告窓口と SAC 原則の適用範囲・是正判断を集約。 | セキュリティレビュー準備で [security/Security_Review_Checklist.md](security/Security_Review_Checklist.md) と `CHECKLISTS.md` の[Release](../CHECKLISTS.md#release)を突合し、対応責務を同期。 |
+| セキュリティ統制 | [security/SAC.md](security/SAC.md) | SAC 原則の適用範囲・是正判断を集約。 | セキュリティレビュー準備で [security/Security_Review_Checklist.md](security/Security_Review_Checklist.md) と `CHECKLISTS.md` の[Release](../CHECKLISTS.md#release)を突合し、対応責務を同期。 |
 | 依存グラフ | [docs/BIRDSEYE.md](BIRDSEYE.md) / [docs/birdseye/index.json](birdseye/index.json) / [caps/*](birdseye/caps/) | ノード一覧とカプセルで Birdseye トポロジを提供し、Guardrails からの参照起点を集約。 | `codemap.update` で再生成し、`GUARDRAILS.md` の[鮮度管理](../GUARDRAILS.md#鮮度管理staleness-handling)に従って鮮度を監視。 |
 | ガバナンス | [governance/policy.yaml](../governance/policy.yaml) / [prioritization.yaml](../governance/prioritization.yaml) / [metrics.yaml](../governance/metrics.yaml) | セルフモディフィケーション制御、優先度算出基準、定常メトリクス。 | `HUB.codex.md` の優先度判定および `CHECKLISTS.md` の衛生チェックで参照。 |
 | 設計判断 | [docs/ADR/README.md](ADR/README.md) | ADR 一覧と作成手順、判断変更時のレビュー連携を統括。 | 設計変更 PR で更新・新規 ADR を提出し、レビューテンプレに添付して承認後にマージ。 |
@@ -33,7 +33,7 @@ next_review_due: 2026-05-09
 | 要件 | [docs/requirements.md](requirements.md) | repo 全体の要件、受入条件、最低限の回帰対象を提示。 | ガバナンス確認で `EVALUATION.md` の[Acceptance Criteria](../EVALUATION.md#acceptance-criteria)とリンクを確認。 |
 | I/O 契約 | [docs/CONTRACTS.md](CONTRACTS.md) | 外部拡張が任意提供する feature detection 契約を定義。 | 拡張実装時に `RUNBOOK.md` の[Execute](../RUNBOOK.md#execute)手順と突き合わせる。 |
 | 境界定義 | [docs/interfaces.md](interfaces.md) | 機能境界・受け渡し契約をテーブル形式で管理。 | 並行開発時に責務衝突を避けるため、機能追加ごとに更新してレビューへ添付。 |
-| セキュリティ審査 | [docs/security/Security_Review_Checklist.md](security/Security_Review_Checklist.md) | リリース前セキュリティチェック項目をフェーズ別に整理。 | 審査会議前に `SECURITY.md` と照合し、`CHECKLISTS.md` の[Release](../CHECKLISTS.md#release)と結果を同期。 |
+| セキュリティ審査 | [docs/security/Security_Review_Checklist.md](security/Security_Review_Checklist.md) | リリース前セキュリティチェック項目をフェーズ別に整理。 | 審査会議前に `docs/security/SAC.md` と照合し、`CHECKLISTS.md` の[Release](../CHECKLISTS.md#release)と結果を同期。 |
 
 ## ADR サマリ
 
@@ -41,14 +41,14 @@ next_review_due: 2026-05-09
 
 - **ADR-001 基盤方針**（[概要](ADR/README.md#adr-core-policy)）：`BLUEPRINT.md` の[Constraints / Assumptions](../BLUEPRINT.md#3-constraints--assumptions)と同期し、アーキテクチャ前提の差異を把握します。更新時は `CHECKLISTS.md` の[Release](../CHECKLISTS.md#release)で証跡を確認し、`docs/ADR/README.md` の[レビューフロー](ADR/README.md#レビューフロー)と [PR テンプレート](../.github/pull_request_template.md)へ ADR 番号と関連資料を記録してからマージします。
 - **ADR-010 マイルストーン DoD**（[概要](ADR/README.md#adr-milestone-dod)）：ロードマップの Done 条件と KPI エビデンスを整理し、進捗レポートと同期します。更新時は `CHECKLISTS.md` の[Release](../CHECKLISTS.md#release)で証跡を整え、`docs/ADR/README.md` の[レビューフロー](ADR/README.md#レビューフロー)と [PR テンプレート](../.github/pull_request_template.md)で共有します。
-- **ADR-020 運用ガバナンス**（[概要](ADR/README.md#adr-operations-governance)）：`SECURITY.md` や `RUNBOOK.md` の差分を通じて統制判断を履歴化します。更新時は `CHECKLISTS.md` の[Release](../CHECKLISTS.md#release)で統制結果を確認し、`docs/ADR/README.md` の[レビューフロー](ADR/README.md#レビューフロー)と [PR テンプレート](../.github/pull_request_template.md)に差分リンクと影響範囲を添付してください。
+- **ADR-020 運用ガバナンス**（[概要](ADR/README.md#adr-operations-governance)）：`docs/security/` や `RUNBOOK.md` の差分を通じて統制判断を履歴化します。更新時は `CHECKLISTS.md` の[Release](../CHECKLISTS.md#release)で統制結果を確認し、`docs/ADR/README.md` の[レビューフロー](ADR/README.md#レビューフロー)と [PR テンプレート](../.github/pull_request_template.md)に差分リンクと影響範囲を添付してください。
 
 ## 実装ディレクトリ↔仕様対応
 
 | ディレクトリ | 紐付く仕様ドキュメント | 備考 |
 | :-- | :-- | :-- |
 | `docs/birdseye/` | [GUARDRAILS.md](../GUARDRAILS.md#birdseye--minimal-context-intake-guardrails鳥観図最小読込) / [tools/codemap/README.md](../tools/codemap/README.md#実行手順) | Birdseye トポロジーを生成し鮮度を保つ[^birdseye] |
-| `docs/security/` | [SECURITY.md](../SECURITY.md) / [security/Security_Review_Checklist.md](security/Security_Review_Checklist.md) | セキュリティレビューと SAC を同期[^security] |
+| `docs/security/` | [security/SAC.md](security/SAC.md) / [security/Security_Review_Checklist.md](security/Security_Review_Checklist.md) | セキュリティレビューと SAC を同期[^security] |
 | `examples/` | [design.md](design.md) / [spec.md](spec.md) | レシピの参照実装と設計・仕様を突き合わせる |
 | `styles/` | [design.md](design.md) / [requirements.md](requirements.md) | QA ルールに基づく表記統一・禁止用語チェック[^styles] |
 | `tools/` | [design.md](design.md) / [../RUNBOOK.md](../RUNBOOK.md#execute) | ドキュメント同期用スクリプトと運用手順を連結 |
@@ -87,8 +87,8 @@ next_review_due: 2026-05-09
 - [examples/inference_plugins.agent_protocol.sample.json](../examples/inference_plugins.agent_protocol.sample.json)：`StructuredLogger.from_plugin_config(...)` で読み込める agent-protocols Evidence plugin の参照設定。**利用シーン**：外部リポジトリへ LLM 行動追跡 plugin を宣言的に差し込む初期設定の複製元として使う。
 - [docs/INCIDENT_TEMPLATE.md](INCIDENT_TEMPLATE.md)：インシデント報告テンプレートとエスカレーション導線を定義。**利用シーン**：インシデント対応の初動で `RUNBOOK.md` の[Confirm](../RUNBOOK.md#confirm)を基点にメトリクス照合・記録更新・運用チャネル報告を完了し、`CHECKLISTS.md` の[Hygiene](../CHECKLISTS.md#hygiene)で未完了項目を洗い出す。
 - [docs/ADR/README.md](ADR/README.md)：設計判断の記録・改訂フローを統括。**利用シーン**：設計変更 PR に更新・新規 ADR を添付し、レビューテンプレと連携。
-- [docs/security/Security_Review_Checklist.md](security/Security_Review_Checklist.md)：セキュリティ審査項目と証跡収集ポイントを整理。**利用シーン**：リリース前審査で `SECURITY.md`・`docs/security/SAC.md`・`CHECKLISTS.md` の[Release](../CHECKLISTS.md#release)を同期。
-- [SECURITY.md](../SECURITY.md) / [docs/security/SAC.md](security/SAC.md)：報告窓口の連絡経路と SAC 拘束事項を統合し、対応判断の前提条件を提示。**利用シーン**：セキュリティ審査で通知窓口と拘束条件を共有し、インシデント初動前の前提確認で運用責務の充足を判定。
+- [docs/security/Security_Review_Checklist.md](security/Security_Review_Checklist.md)：セキュリティ審査項目と証跡収集ポイントを整理。**利用シーン**：リリース前審査で `docs/security/SAC.md`・`CHECKLISTS.md` の[Release](../CHECKLISTS.md#release)を同期。
+- [docs/security/SAC.md](security/SAC.md)：SAC 拘束事項とレビュー判断の前提条件を提示。**利用シーン**：セキュリティ審査とインシデント初動前の前提確認で運用責務の充足を判定。
 - [CHANGELOG.md](../CHANGELOG.md)：リリース差分と意思決定の履歴を集約し、更新ルールを一元管理。**利用シーン**：`CHECKLISTS.md` の[Release](../CHECKLISTS.md#release)完了後に `README.md` の[使い方（最短）](../README.md#使い方最短)手順と照合してガバナンス記録を反映。
 - [LICENSE](../LICENSE) / [CHECKLISTS.md#release](../CHECKLISTS.md#release) / [CHANGELOG.md](../CHANGELOG.md)：Workflow Cookbook 公開版と同様に配布物へ必須ライセンス・変更履歴・監査観点を束ねる。**利用シーン**：リリース成果物へ `LICENSE` を同梱し、`CHECKLISTS.md#release` の配布物チェックを踏まえて `CHANGELOG.md` の公開内容と突合する。
 - [README.md](../README.md#変更履歴の更新ルール)：`CHANGELOG.md` の更新トリガー・書式・`CHECKLISTS.md` の[Release](../CHECKLISTS.md#release)を用いた突合フローを整理。**利用シーン**：リリース確定後にチェックリスト→変更履歴→再確認の流れを短時間でなぞり、記録漏れを防ぐ。

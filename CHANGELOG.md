@@ -12,6 +12,10 @@ next_review_due: 2025-11-14
 
 ### Changed
 
+- 0044: `CODE_OF_CONDUCT.md` と `SECURITY.md` を廃止し、README / Hub /
+  Roadmap / Checklist の参照を `docs/security/` 基準へ整理した
+- 0045: ライセンスを Apache-2.0 から MIT へ切り替え、`LICENSE` 本文、
+  README 表記、配布チェック、SPDX ヘッダを MIT 前提に更新した
 - 0043: `README.md` をクイックナビ・主要導線・参照ガイドの構成へ再整理し、
   Birdseye / LLM 行動追跡 / CI 導線を入口優先で読めるようにした
 - 0042: `README.md` の導入説明を Birdseye / Task Seed /

@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: Apache-2.0
+# SPDX-License-Identifier: MIT
 """Verify audit log chains generated with HMAC signatures."""
 
 from __future__ import annotations

@@ -51,11 +51,6 @@
       "caps": "docs/birdseye/caps/docs.IN-20250115-001.md.json",
       "mtime": "00012"
     },
-    "SECURITY.md": {
-      "role": "security",
-      "caps": "docs/birdseye/caps/SECURITY.md.json",
-      "mtime": "00009"
-    },
     "governance/policy.yaml": {
       "role": "governance",
       "caps": "docs/birdseye/caps/governance.policy.yaml.json",
@@ -194,10 +189,6 @@
     [
       "HUB.codex.md",
       "CHANGELOG.md"
-    ],
-    [
-      "HUB.codex.md",
-      "SECURITY.md"
     ],
     [
       "HUB.codex.md",
