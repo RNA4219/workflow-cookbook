@@ -103,7 +103,10 @@ next_review_due: 2025-11-14
 
 1. **スキャン**: ルートと `orchestration/` 配下を再帰探索し、Markdown front matter
    (`---`) を含むファイルを優先取得。
-2. **Birdseye 同期**: `docs/birdseye/index.json` から対象ファイルのノードIDと役割を取得し、既定では ±2 hop を展開する。局所更新や軽量読込が必要な場合は `codemap.update --radius` と同じ hop 数へ縮小してよい。
+2. **Birdseye 同期**:
+   `docs/birdseye/index.json` から対象ファイルのノードIDと役割を取得し、
+   既定では ±2 hop を展開する。局所更新や軽量読込が必要な場合は
+   `codemap.update --radius` と同じ hop 数へ縮小してよい。
    必要な `docs/birdseye/caps/*.json` を取り込み、各節に `node_id` と `role` を差し込む。
    これにより GUARDRAILS の `plan` 出力要件（ノードID明示）を満たす初期データを確保。
 3. **ノード生成**: 各ファイルから `##` レベルの節をノード化し、`Priority`

@@ -34,7 +34,11 @@ next_review_due: 2026-05-09
 - Birdseye / codemap 更新
   - 全体更新: `python tools/codemap/update.py --targets docs/birdseye/index.json,docs/birdseye/hot.json --emit index+caps`
   - 局所更新: `python tools/codemap/update.py --since --radius 1 --emit caps`
-  - 確認: `docs/birdseye/index.json` / `docs/birdseye/hot.json` / `docs/birdseye/caps/*.json` の差分と `generated_at`（5 桁ゼロ埋め世代番号）を確認し、必要なら `CHECKLISTS.md` の [Hygiene](CHECKLISTS.md#hygiene) を更新する。
+  - 確認:
+    `docs/birdseye/index.json` / `docs/birdseye/hot.json` /
+    `docs/birdseye/caps/*.json` の差分と `generated_at`
+    （5 桁ゼロ埋め世代番号）を確認し、必要なら
+    `CHECKLISTS.md` の [Hygiene](CHECKLISTS.md#hygiene) を更新する。
 
 ## Observability
 
@@ -207,7 +211,10 @@ next_review_due: 2026-05-09
 
 - 失敗兆候と一次対応
   - `.ga/qa-metrics.json` が生成されない / 壊れている: `python -m tools.perf.collect_metrics --help` でオプションを再確認し、一時ファイルやログ出力設定を洗い直してから再実行。
-  - `checklist_compliance_rate` が 95% を下回る: 実行時のチェックリスト完了ログを抽出し、どの項目が未完了かを Birdseye や Git 履歴で確認する。改善作業が必要な場合は Task Seed を追加投入する。
+  - `checklist_compliance_rate` が 95% を下回る:
+    実行時のチェックリスト完了ログを抽出し、どの項目が未完了かを
+    Birdseye や Git 履歴で確認する。改善作業が必要な場合は Task Seed を
+    追加投入する。
   - `task_seed_cycle_time_minutes` が 1440 分を超過: 受付から着手までの待機要因（担当者アサイン、依頼内容不備など）を振り返り、対応 SLA を再共有する。
   - `birdseye_refresh_delay_minutes` が 60 分を超過: Birdseye 更新ジョブの実行ログとスケジューラ状態を確認し、必要に応じて手動更新を実施。
 

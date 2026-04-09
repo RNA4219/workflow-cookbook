@@ -22,11 +22,22 @@ next_review_due: 2025-11-14
 - 0033: `docs/spec.md` を実運用に使える粒度まで詳細化し、`docs/interfaces.md` に codemap / autosave / merge / metrics の責務境界を反映した
 - 0034: `docs/design.md` を実装寄りの設計書へ拡張し、コンポーネント責務・状態所有・主要データフロー・拡張ポイント・障害時の扱いを明文化した
 - 0035: `docs/AUTOSAVE-DESIGN-IMPL.md` と `docs/MERGE-DESIGN-IMPL.md` を実コード準拠で再定義し、古い UI / CRDT / ロールバック前提を整理した
-- 0036: `docs/IMPLEMENTATION-PLAN.md` と `docs/tasks/task-autosave-project-locks.md` を参照実装準拠へ更新し、段階導入・TDD・ロールバック条件を実コードと telemetry 契約に合わせて具体化した
-- 0037: `docs/ci_phased_rollout_requirements.md` と `docs/ci-config.md` を実在する workflow / required jobs 構成へ再定義し、CI フェーズ文書を `policy.yaml` と同期した
-- 0038: `RUNBOOK.md` と `CHECKLISTS.md` の CI 運用手順を required jobs / Phase 正本に同期し、branch protection との同時確認ルールを追加した
-- 0039: `tools/ci/check_branch_protection.py` と対応テストを追加し、branch protection export と `policy.yaml` の論理 gate ID / 実 check 名対応を検証可能にした
-- 0040: `agent-protocols` の `Evidence` 契約へ接続する LLM 行動追跡ブリッジを追加し、`StructuredLogger` から任意 plugin / import 文字列 / config file ベースで Evidence JSON Lines を出力できるようにし、参照設定サンプル・protocols README・plugin config schema を追加した
+- 0036: `docs/IMPLEMENTATION-PLAN.md` と
+  `docs/tasks/task-autosave-project-locks.md` を参照実装準拠へ更新し、
+  段階導入・TDD・ロールバック条件を実コードと telemetry 契約に
+  合わせて具体化した
+- 0037: `docs/ci_phased_rollout_requirements.md` と `docs/ci-config.md` を
+  実在する workflow / required jobs 構成へ再定義し、CI フェーズ文書を
+  `policy.yaml` と同期した
+- 0038: `RUNBOOK.md` と `CHECKLISTS.md` の CI 運用手順を
+  required jobs / Phase 正本に同期し、branch protection との同時確認ルールを追加した
+- 0039: `tools/ci/check_branch_protection.py` と対応テストを追加し、
+  branch protection export と `policy.yaml` の論理 gate ID / 実 check 名対応を
+  検証可能にした
+- 0040: `agent-protocols` の `Evidence` 契約へ接続する LLM 行動追跡ブリッジを追加し、
+  `StructuredLogger` から任意 plugin / import 文字列 / config file ベースで
+  Evidence JSON Lines を出力できるようにし、参照設定サンプル・protocols README・
+  plugin config schema を追加した
 - 0007: `CHECKLISTS.md` に Development / Pull Request / Ops チェックリストを追加し、Release セクションが新設項目と重複しないよう参照構造へ更新
 - 0008: 過去のブランド表現をワークフロー向けの共通名称・リンクへ差し替え、関連チェックリストとメトリクス定義の整合性を再確認
 - 0009: `<旧ブランド名>` 参照を中立表現へ整理
