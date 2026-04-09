@@ -1,11 +1,3 @@
-permissions:
-  contents: read
-  security-events: write
-
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
-
 name: Reusable Security CI
 
 on:
@@ -17,6 +9,14 @@ on:
     secrets:
       GITLEAKS_LICENSE:
         required: false
+
+permissions:
+  contents: read
+  security-events: write
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   allowlist_guard:
