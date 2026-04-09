@@ -156,6 +156,28 @@ python tools/ci/check_release_evidence.py --check --github-repo owner/name
 
 # Branch protection validation
 python tools/ci/check_branch_protection.py --protection-json <json>
+
+# Security docs freshness check
+python tools/ci/check_security_docs_freshness.py --check
+
+# Sample/docs sync check
+python tools/ci/check_sample_docs_sync.py --check
+```
+
+### Evidence / Reporting
+
+```sh
+# Generate evidence report
+python tools/ci/generate_evidence_report.py --output docs/evidence_report.md
+
+# Generate acceptance index
+python tools/ci/generate_acceptance_index_standalone.py --output docs/acceptance_index.md
+
+# Extract upstream changes
+python tools/ci/extract_upstream_changes.py --upstream-md docs/UPSTREAM.md --weekly-log docs/WEEKLY.md
+
+# Export task state
+python tools/ci/export_task_state.py --output task_state.json
 ```
 
 ---
@@ -166,14 +188,14 @@ python tools/ci/check_branch_protection.py --protection-json <json>
 |----------|-------------|
 | [`.github/workflows/test.yml`](.github/workflows/test.yml) | Tests + coverage |
 | [`.github/workflows/governance-gate.yml`](.github/workflows/governance-gate.yml) | Policy validation |
-| [`.github/workflows/security.yml`](.github/workflows/security.yml) | Security checks |
+| [`.github/workflows/security.yml`](.github/workflows/security.yml) | Security checks (Bandit, Semgrep, Gitleaks, Dependency Audit) |
 | [`.github/workflows/release-evidence.yml`](.github/workflows/release-evidence.yml) | Release evidence |
 | [`.github/workflows/cross-repo-integration.yml`](.github/workflows/cross-repo-integration.yml) | Cross-repo integration |
+| [`.github/workflows/docs-resolve-pr-gate.yml`](.github/workflows/docs-resolve-pr-gate.yml) | Docs resolve validation |
 
 Reusable workflows:
 
 - [`.github/workflows/reusable/python-ci.yml`](.github/workflows/reusable/python-ci.yml)
-- [`.github/workflows/reusable/security-ci.yml`](.github/workflows/reusable/security-ci.yml)
 
 ---
 
