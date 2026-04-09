@@ -2,9 +2,6 @@ name: Reusable Security CI
 
 on:
   workflow_call:
-    permissions:
-      contents: read
-      security-events: write
     inputs:
       python-version:
         type: string
@@ -12,6 +9,10 @@ on:
     secrets:
       GITLEAKS_LICENSE:
         required: false
+
+permissions:
+  contents: read
+  security-events: write
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
