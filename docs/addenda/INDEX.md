@@ -19,18 +19,22 @@ Total: 9 documents
 ## Broken Links
 
 ### A_Glossary.md
+
 - `POLICY.md` -> ../../POLICY.md
 - `POLICY.md` -> ../../POLICY.md
 - `POLICY.md` -> ../../POLICY.md
 
 ### D_Context_Trimming.md
+
 - I-04 コンテキストトリミング検証 -> I_Test_Cases.md#i-04-コンテキストトリミング検証
 
 ### G_Security_Privacy.md
+
 - `RUNBOOK.md#outbound-request-approval` -> ../../RUNBOOK.md#outbound-request-approval
 - アウトバウンド通信申請テンプレート -> ../../tickets/outbound-request.md#申請テンプレート
 
 ### I_Test_Cases.md
+
 - `README.md` -> ../../README.md#changelog-update-rules
 - `tools/codemap/README.md` -> ../../tools/codemap/README.md#実行手順
 - `docs/TASKS.md` -> ../TASKS.md#3-検証ログtdd-前提

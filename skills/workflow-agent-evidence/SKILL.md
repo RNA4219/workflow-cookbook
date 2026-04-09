@@ -55,6 +55,7 @@ python tools/workflow_plugins/validate_workflow_plugin_config.py --config exampl
 ### 1. 統合点確認
 
 優先ファイル:
+
 - `tools/perf/structured_logger.py`
 - `tools/protocols/evidence_bridge.py`
 - `tools/protocols/plugin_loader.py`
@@ -72,6 +73,7 @@ python tools/workflow_plugins/validate_workflow_plugin_config.py --config exampl
 ### 3. Evidence契約維持
 
 必須フィールドを削除・変更しない:
+
 - `taskSeedId`, `baseCommit`, `headCommit`
 - `inputHash`, `outputHash`, `diffHash`
 - `model`, `tools`, `environment`
@@ -83,6 +85,7 @@ python tools/workflow_plugins/validate_workflow_plugin_config.py --config exampl
 ### 4. Docs/Test同期
 
 実装変更時に更新:
+
 - `docs/requirements.md`, `docs/spec.md`, `docs/design.md`
 - `RUNBOOK.md`, `CHANGELOG.md`
 

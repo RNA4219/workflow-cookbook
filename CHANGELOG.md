@@ -159,7 +159,7 @@ next_review_due: 2025-11-14
 
 ## 1.0.0 - 2025-10-16
 
-### Added
+### Added (v1.0.0)
 
 - 0002: Stable Template API（主要MDの凍結）
 - 0003: PR運用の明確化（Intent / EVALUATION リンク / semverラベル）

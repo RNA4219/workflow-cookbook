@@ -42,8 +42,10 @@ Recommended read order:
 2. `docs/birdseye/caps/<path>.json` — Point reads for needed nodes
 
 Focus procedure:
+
 - Find node IDs for recently changed files within +/-2 hops from `index.json`
 - Read only the matching `caps/*.json` files
+
 <!-- /LLM-BOOTSTRAP -->
 
 ---
@@ -169,6 +171,7 @@ python tools/ci/check_branch_protection.py --protection-json <json>
 | [`.github/workflows/cross-repo-integration.yml`](.github/workflows/cross-repo-integration.yml) | Cross-repo integration |
 
 Reusable workflows:
+
 - [`.github/workflows/reusable/python-ci.yml`](.github/workflows/reusable/python-ci.yml)
 - [`.github/workflows/reusable/security-ci.yml`](.github/workflows/reusable/security-ci.yml)
 

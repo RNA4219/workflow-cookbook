@@ -48,7 +48,7 @@ python tools/workflow_plugins/validate_workflow_plugin_config.py --config exampl
 
 ## Integration Pattern
 
-```
+```text
 StructuredLogger
     ↓ record
 handle_inference(record)

@@ -36,8 +36,10 @@ next_review_due: 2026-05-10
 2. `docs/birdseye/caps/<path>.json` —— 按需局部读取
 
 聚焦步骤：
+
 - 从 index.json 找出最近变更文件在 +/-2 hop 范围内的节点 ID
 - 只读取对应的 caps/*.json 文件
+
 <!-- /LLM-BOOTSTRAP -->
 
 ---
@@ -163,6 +165,7 @@ python tools/ci/check_branch_protection.py --protection-json <json>
 | [`.github/workflows/cross-repo-integration.yml`](.github/workflows/cross-repo-integration.yml) | 跨仓库集成 |
 
 可复用 workflow：
+
 - [`.github/workflows/reusable/python-ci.yml`](.github/workflows/reusable/python-ci.yml)
 - [`.github/workflows/reusable/security-ci.yml`](.github/workflows/reusable/security-ci.yml)
 

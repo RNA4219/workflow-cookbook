@@ -11,6 +11,7 @@ Total: 1 documents
 ## Broken Links
 
 ### ADR-021-metrics-observability.md
+
 - CHECKLISTS.md の Release 手順 -> ../../CHECKLISTS.md#release
 - RUNBOOK.md の Observability セクション -> ../../RUNBOOK.md#observability
 - EVALUATION.md の KPIs セクション -> ../../EVALUATION.md#kpis
