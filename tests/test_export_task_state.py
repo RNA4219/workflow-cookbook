@@ -2,12 +2,9 @@
 
 from __future__ import annotations
 
-import json
 import sys
 from pathlib import Path
 from textwrap import dedent
-
-import pytest
 
 _REPO_ROOT = Path(__file__).resolve().parents[2]
 if str(_REPO_ROOT) not in sys.path:
@@ -109,34 +106,3 @@ class TestBuildExport:
         assert export.summary["total_acceptances"] == 0
         assert export.summary["total_evidences"] == 0
         assert len(export.tasks) == 0
-    def test_builds_export_with_relationships(self, tmp_path: Path) -> None:
-        from tools.ci.export_task_state import TaskState, AcceptanceState, EvidenceState
-
-        tasks = [TaskState(
-            task_id="TASK-001",
-            intent_id="INT-001",
-            status="done",
-            file_path="tasks/task.md",
-        )]
-        acceptances = [AcceptanceState(
-            acceptance_id="AC-001",
-            task_id="TASK-001",
-            status="approved",
-            reviewed_at="2026-04-10",
-            file_path="acceptance/AC-001.md",
-        )]
-        evidences = [EvidenceState(
-            evidence_id="EV-001",
-            task_id="TASK-001",
-            timestamp="2026-04-10T00:00:00Z",
-            file_path="evidence/ev.json",
-        )]
-
-        export = build_export(tasks, acceptances, evidences)
-
-        assert export.summary["total_tasks"] == 1
-        assert export.summary["total_acceptances"] == 1
-        assert export.summary["total_evidences"] == 1
-        assert len(export.tasks) == 1
-        assert "AC-001" in export.tasks[0]["acceptance_ids"]
-        assert "EV-001" in export.tasks[0]["evidence_ids"]

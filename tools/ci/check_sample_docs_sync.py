@@ -66,7 +66,7 @@ def _extract_doc_refs(content: str, file_path: Path) -> list[str]:
 
         _extract_paths(data, refs)
     except json.JSONDecodeError:
-        pass
+        pass  # Not a JSON file, skip
 
     return refs
 

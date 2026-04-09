@@ -115,7 +115,7 @@ def check_security_docs(
                 if today > due_date:
                     days_overdue = (today - due_date).days
             except ValueError:
-                pass
+                pass  # Invalid date format, skip overdue calculation
 
         releases_since = 0
         if last_reviewed:

@@ -7,20 +7,11 @@ import sys
 from pathlib import Path
 from textwrap import dedent
 
-import pytest
-
 _REPO_ROOT = Path(__file__).resolve().parents[2]
 if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
-from tools.ci.generate_evidence_report import (
-    _parse_front_matter,
-    scan_acceptances,
-    scan_evidences,
-    format_markdown_report,
-    AcceptanceSummary,
-    EvidenceSummary,
-)
+import tools.ci.generate_evidence_report as ev_module
 
 
 class TestParseFrontMatter:
@@ -32,11 +23,11 @@ class TestParseFrontMatter:
             ---
             # Content
             """).strip()
-        result = _parse_front_matter(content)
+        result = ev_module._parse_front_matter(content)
         assert result.get("acceptance_id") == "AC-001"
 
     def test_returns_empty_for_no_front_matter(self) -> None:
-        result = _parse_front_matter("# No front matter")
+        result = ev_module._parse_front_matter("# No front matter")
         assert result == {}
 
 
@@ -53,13 +44,13 @@ class TestScanAcceptances:
             ---
             """).strip())
 
-        acceptances = scan_acceptances(acc_dir)
+        acceptances = ev_module.scan_acceptances(acc_dir)
         assert len(acceptances) == 1
         assert acceptances[0].acceptance_id == "AC-001"
         assert acceptances[0].task_id == "TASK-001"
 
     def test_returns_empty_for_missing_dir(self, tmp_path: Path) -> None:
-        acceptances = scan_acceptances(tmp_path / "nonexistent")
+        acceptances = ev_module.scan_acceptances(tmp_path / "nonexistent")
         assert acceptances == []
 
 
@@ -75,13 +66,13 @@ class TestScanEvidences:
             "model": "test-model",
         }))
 
-        evidences = scan_evidences(ev_dir)
+        evidences = ev_module.scan_evidences(ev_dir)
         assert len(evidences) == 1
         assert evidences[0].evidence_id == "EV-001"
         assert evidences[0].task_id == "TASK-001"
 
     def test_returns_empty_for_missing_dir(self, tmp_path: Path) -> None:
-        evidences = scan_evidences(tmp_path / "nonexistent")
+        evidences = ev_module.scan_evidences(tmp_path / "nonexistent")
         assert evidences == []
 
     def test_skips_invalid_json(self, tmp_path: Path) -> None:
@@ -89,7 +80,7 @@ class TestScanEvidences:
         ev_dir.mkdir()
         (ev_dir / "invalid.json").write_text("not json")
 
-        evidences = scan_evidences(ev_dir)
+        evidences = ev_module.scan_evidences(ev_dir)
         assert evidences == []
 
     def test_uses_file_stem_as_evidence_id_fallback(self, tmp_path: Path) -> None:
@@ -99,7 +90,7 @@ class TestScanEvidences:
             "taskSeedId": "TASK-001",
         }))
 
-        evidences = scan_evidences(ev_dir)
+        evidences = ev_module.scan_evidences(ev_dir)
         assert len(evidences) == 1
         assert evidences[0].evidence_id == "my-evidence"
 
@@ -118,7 +109,7 @@ class TestGenerateReport:
         ev_file.write_text("{}")
 
         acceptances = [
-            AcceptanceSummary(
+            ev_module.AcceptanceSummary(
                 acceptance_id="AC-001",
                 task_id="TASK-001",
                 status="approved",
@@ -126,7 +117,7 @@ class TestGenerateReport:
             ),
         ]
         evidences = [
-            EvidenceSummary(
+            ev_module.EvidenceSummary(
                 evidence_id="EV-001",
                 task_id="TASK-001",
                 timestamp="2026-04-10T00:00:00Z",
@@ -135,7 +126,6 @@ class TestGenerateReport:
             ),
         ]
 
-        import tools.ci.generate_evidence_report as ev_module
         original_repo_root = ev_module._REPO_ROOT
         ev_module._REPO_ROOT = tmp_path
 
@@ -156,7 +146,7 @@ class TestGenerateReport:
         acc_file.write_text("---\n---")
 
         acceptances = [
-            AcceptanceSummary(
+            ev_module.AcceptanceSummary(
                 acceptance_id="AC-001",
                 task_id="TASK-001",
                 status="approved",
@@ -165,7 +155,6 @@ class TestGenerateReport:
         ]
         evidences = []
 
-        import tools.ci.generate_evidence_report as ev_module
         original_repo_root = ev_module._REPO_ROOT
         ev_module._REPO_ROOT = tmp_path
 
@@ -184,7 +173,7 @@ class TestGenerateReport:
 
         acceptances = []
         evidences = [
-            EvidenceSummary(
+            ev_module.EvidenceSummary(
                 evidence_id="EV-001",
                 task_id="TASK-001",
                 timestamp="2026-04-10T00:00:00Z",
@@ -193,7 +182,6 @@ class TestGenerateReport:
             ),
         ]
 
-        import tools.ci.generate_evidence_report as ev_module
         original_repo_root = ev_module._REPO_ROOT
         ev_module._REPO_ROOT = tmp_path
 
@@ -212,7 +200,7 @@ class TestFormatMarkdownReport:
         acc_file.write_text("---\n---")
 
         acceptances = [
-            AcceptanceSummary(
+            ev_module.AcceptanceSummary(
                 acceptance_id="AC-001",
                 task_id="TASK-001",
                 status="approved",
@@ -220,7 +208,6 @@ class TestFormatMarkdownReport:
             ),
         ]
 
-        import tools.ci.generate_evidence_report as ev_module
         original_repo_root = ev_module._REPO_ROOT
         ev_module._REPO_ROOT = tmp_path
 
@@ -228,7 +215,7 @@ class TestFormatMarkdownReport:
 
         ev_module._REPO_ROOT = original_repo_root
 
-        markdown = format_markdown_report(report)
+        markdown = ev_module.format_markdown_report(report)
         assert "# Evidence Report" in markdown
         assert "## Summary" in markdown
         assert "Acceptance Records: 1" in markdown
