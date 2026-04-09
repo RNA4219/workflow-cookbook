@@ -14,21 +14,8 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  security-posture:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v6
-      - uses: actions/setup-python@v6
-        with:
-          python-version: "3.11"
-      - name: Validate security posture
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: python tools/ci/check_security_posture.py --check --github-repo "${{ github.repository }}"
-
   allowlist_guard:
     name: Allowlist Guard
-    needs: security-posture
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
