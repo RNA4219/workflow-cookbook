@@ -44,6 +44,25 @@ handoffs, and plugin-based LLM behavior tracking that can emit
 - `agent-protocols` の `Evidence` 契約へ接続できる設定例と consumer sample
 - reusable CI / Governance workflow と検証スクリプト
 
+## クイックナビ
+
+- まず全体像をつかむ:
+  [`BLUEPRINT.md`](BLUEPRINT.md) /
+  [`RUNBOOK.md`](RUNBOOK.md) /
+  [`EVALUATION.md`](EVALUATION.md)
+- Birdseye を使う:
+  [`docs/BIRDSEYE.md`](docs/BIRDSEYE.md) /
+  [`tools/codemap/README.md`](tools/codemap/README.md) /
+  [`HUB.codex.md`](HUB.codex.md)
+- LLM 行動追跡を使う:
+  [`tools/protocols/README.md`](tools/protocols/README.md) /
+  [`examples/inference_plugins.agent_protocol.sample.json`](examples/inference_plugins.agent_protocol.sample.json) /
+  [`examples/agent_protocol_evidence_consumer.sample.py`](examples/agent_protocol_evidence_consumer.sample.py)
+- CI / Governance を使う:
+  [`CHECKLISTS.md`](CHECKLISTS.md) /
+  [`docs/ci-config.md`](docs/ci-config.md) /
+  [`docs/ci_phased_rollout_requirements.md`](docs/ci_phased_rollout_requirements.md)
+
 ## 使い方（最短）
 
 参加前に [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) を読み、連絡窓口と遵守事項を確認してください。
@@ -51,58 +70,86 @@ handoffs, and plugin-based LLM behavior tracking that can emit
 1. リポジトリ直下に本ファイルをコピー
    - フォークで運用する場合は [`docs/FORK_NOTES.md`](docs/FORK_NOTES.md) をテンプレ通りに初期化し、差分管理を開始
 2. `BLUEPRINT.md` で要件と制約を1ページに集約
-3. 実行手順は `RUNBOOK.md`、評価基準は `EVALUATION.md` に記述し、
-   以下で Birdseye の最小読込とタスク分割の前提を共有
-
-    - [`docs/addenda/A_Glossary.md`](docs/addenda/A_Glossary.md) …… Intent や Task Seed など頻出用語の定義を確認
-
-    - [`GUARDRAILS.md`](GUARDRAILS.md) …… 行動指針と Birdseye の `deps_out`
-      と整合する最小読込ガードレールを確認
-    - [`docs/BIRDSEYE.md`](docs/BIRDSEYE.md) …… Birdseye の Edges / Hot / 更新手順をフォールバック用に把握
-    - [`tools/codemap/README.md`](tools/codemap/README.md) …… Birdseye カプセル
-      再生成前提と `codemap.update` の流れを把握
-    - [`tools/protocols/README.md`](tools/protocols/README.md) …… LLM 行動追跡 plugin、
-      import 文字列 loader、config ベース導入手順を把握
-    - [`tools/codemap/update.py`](tools/codemap/update.py) ……
-      `python tools/codemap/update.py` で `codemap.update` を実行し
-      Birdseye カプセルを再生成する。標準では直近変更ファイルから±2 hop の
-      カプセルのみ更新し、`--radius` で hop 数を調整できる。全カプセルを再生成したい場合は
-      `--targets docs/birdseye/index.json,docs/birdseye/hot.json`
-      を指定する（`GUARDRAILS.md` の
-      [鮮度管理](GUARDRAILS.md#鮮度管理staleness-handling)
-      参照）。
-
-      ```sh
-      # 例: main との差分から対象カプセルを自動抽出
-      python tools/codemap/update.py --since --emit index+caps
-
-      # 例: 1 hop に絞って局所更新
-      python tools/codemap/update.py --since --radius 1 --emit caps
-
-      # 例: Birdseye リソースを明示的に指定（従来挙動）
-      python tools/codemap/update.py --targets docs/birdseye/index.json,docs/birdseye/hot.json --emit index+caps
-      ```
-
-      `docs/birdseye/hot.json` が欠落している場合は上記コマンドの実行時に
-      `FileNotFoundError` が発生し、再生成コマンドがメッセージで提示されます。
-
-    - [`HUB.codex.md`](HUB.codex.md) …… 仕様集約とタスク分割ハブを整備し、Birdseye カプセルの依存関係を維持
-    - [`docs/IN-20250115-001.md`](docs/IN-20250115-001.md) …… インシデントログを参照し
-      Birdseye カプセル要約で指示される `deps_out` を照合
+3. `RUNBOOK.md` で実行手順、`EVALUATION.md` で受入基準を固定
 4. タスクごとに `TASK.codex.md` を複製して内容を埋め、エージェントに渡す
-   - 雛形との差分を確認したい場合は `examples/TASK.sample.md` を参照し、実在の値が埋め込まれたダミーサンプルと比較する
-   - LLM 行動追跡 plugin を宣言的に導入したい場合は
-     [`examples/inference_plugins.agent_protocol.sample.json`](examples/inference_plugins.agent_protocol.sample.json)
-     を起点にし、`StructuredLogger.from_plugin_config(...)` で読み込む
-   - `Evidence` JSON Lines の受け側たたき台が必要な場合は
-     [`examples/agent_protocol_evidence_consumer.sample.py`](examples/agent_protocol_evidence_consumer.sample.py)
-     を起点にする
-   - 完了した `TASK.*` の成果は `[Unreleased](CHANGELOG.md#unreleased)` へ通番付きで転記し、該当 Task Seed から成果差分へのリンクを貼る
-5. リリースは `CHECKLISTS.md` をなぞり、差分は `CHANGELOG.md` に追記しつつ、`[Unreleased](CHANGELOG.md#unreleased)` に集約した Task Seed 成果をリリースノートへ昇格させる
+5. リリース時は `CHECKLISTS.md` と `CHANGELOG.md` を同期する
+
+## 主要導線
+
+### Birdseye / Codemap
+
+- [`docs/addenda/A_Glossary.md`](docs/addenda/A_Glossary.md)
+  …… Intent や Task Seed など頻出用語の定義
+- [`GUARDRAILS.md`](GUARDRAILS.md)
+  …… 行動指針と Birdseye の最小読込ガードレール
+- [`docs/BIRDSEYE.md`](docs/BIRDSEYE.md)
+  …… Edges / Hot / 更新手順の説明
+- [`tools/codemap/README.md`](tools/codemap/README.md)
+  …… Birdseye カプセル再生成と `codemap.update` の使い方
+- [`HUB.codex.md`](HUB.codex.md)
+  …… 仕様集約とタスク分割のハブ
+- [`docs/IN-20250115-001.md`](docs/IN-20250115-001.md)
+  …… インシデントログと `deps_out` 照合例
+
+```sh
+# 例: main との差分から対象カプセルを自動抽出
+python tools/codemap/update.py --since --emit index+caps
+
+# 例: 1 hop に絞って局所更新
+python tools/codemap/update.py --since --radius 1 --emit caps
+
+# 例: Birdseye リソースを明示的に指定（従来挙動）
+python tools/codemap/update.py --targets docs/birdseye/index.json,docs/birdseye/hot.json --emit index+caps
+```
+
+`docs/birdseye/hot.json` が欠落している場合はコマンド実行時に
+`FileNotFoundError` が発生し、再生成コマンドがメッセージで提示されます。
+
+### LLM 行動追跡
+
+- [`tools/protocols/README.md`](tools/protocols/README.md)
+  …… plugin API、import 文字列 loader、config ベース導入手順
+- [`examples/inference_plugins.agent_protocol.sample.json`](examples/inference_plugins.agent_protocol.sample.json)
+  …… `StructuredLogger.from_plugin_config(...)` 用の最小サンプル
+- [`examples/agent_protocol_evidence_consumer.sample.py`](examples/agent_protocol_evidence_consumer.sample.py)
+  …… `Evidence` JSON Lines の受け側たたき台
+
+### タスク運用とリリース
+
+- [`examples/TASK.sample.md`](examples/TASK.sample.md)
+  …… `TASK.codex.md` のダミーサンプル
+- 完了した `TASK.*` の成果は `[Unreleased](CHANGELOG.md#unreleased)` へ
+  通番付きで転記し、Task Seed から成果差分へのリンクを貼る
+- リリース時は `CHECKLISTS.md` をなぞり、`CHANGELOG.md` と
+  リリースノートへ成果を昇格させる
 
 利用時は [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) を確認し、行動規範の遵守を徹底してください。
 
-## 変更履歴の更新ルール {#changelog-update-rules}
+## 参照ガイド
+
+### 最小導入セット
+
+- [`BLUEPRINT.md`](BLUEPRINT.md) …… Intent と仕様全体の骨子を提示
+- [`RUNBOOK.md`](RUNBOOK.md) …… 実装および運用手順を逐次記載
+- [`EVALUATION.md`](EVALUATION.md) …… 受入基準と検証観点を定義
+- [`GUARDRAILS.md`](GUARDRAILS.md) …… 行動指針と Birdseye 連携の制約を明示
+- [`HUB.codex.md`](HUB.codex.md) …… タスク分割と依存グラフの中核ハブ
+- [`CHECKLISTS.md`](CHECKLISTS.md) …… リリースとレビューフローのチェックリスト
+- [`governance-gate.yml`](.github/workflows/governance-gate.yml)
+  …… Intent 検証 CI を常時有効化
+- [`docs/security/SAC.md`](docs/security/SAC.md)
+  …… セキュリティ非機能要件を契約として明文化
+- [`docs/security/Security_Review_Checklist.md`](docs/security/Security_Review_Checklist.md)
+  …… セキュリティ審査手順
+- [`reusable/python-ci.yml`](.github/workflows/reusable/python-ci.yml) /
+  [`reusable/security-ci.yml`](.github/workflows/reusable/security-ci.yml)
+  …… 他リポから `workflow_call` で利用できる最小 CI セット
+
+Intent ゲートは
+[`tools/ci/check_governance_gate.py`](tools/ci/check_governance_gate.py) により
+自動適用されるため、CI の設定だけで運用に組み込めます。
+
+### 変更履歴の更新ルール {#changelog-update-rules}
 
 - **更新タイミング**:
   リリース判定が `CHECKLISTS.md` の [Release](CHECKLISTS.md#release) を通過し、レビュー承認で確定した直後に [`CHANGELOG.md`](CHANGELOG.md)
@@ -118,26 +165,8 @@ handoffs, and plugin-based LLM behavior tracking that can emit
 
 詳細な手順は [`docs/addenda/M_Versioning_Release.md`](docs/addenda/M_Versioning_Release.md) を参照する。
 
-### 最小導入セット
-
-- [`BLUEPRINT.md`](BLUEPRINT.md) …… Intent と仕様全体の骨子を提示
-- [`RUNBOOK.md`](RUNBOOK.md) …… 実装および運用手順を逐次記載
-- [`EVALUATION.md`](EVALUATION.md) …… 受入基準と検証観点を定義（代表シナリオは [付録I](docs/addenda/I_Test_Cases.md) を参照）
-- [`GUARDRAILS.md`](GUARDRAILS.md) …… 行動指針と Birdseye 連携の制約を明示
-- [`HUB.codex.md`](HUB.codex.md) …… タスク分割と依存グラフの中核ハブを維持
-- [`CHECKLISTS.md`](CHECKLISTS.md) …… リリースとレビューフローのチェックリストを提供
-- [`governance-gate.yml`](.github/workflows/governance-gate.yml)
-  …… Intent 検証 CI を常時有効化
-- [`docs/security/SAC.md`](docs/security/SAC.md) …… セキュリティ非機能要件を契約として明文化
-- [`docs/security/Security_Review_Checklist.md`](docs/security/Security_Review_Checklist.md) …… 準備→実装→レビューで実施するセキュリティ審査手順を提供
-- [`reusable/python-ci.yml`](.github/workflows/reusable/python-ci.yml) /
-  [`reusable/security-ci.yml`](.github/workflows/reusable/security-ci.yml)
-  …… 他リポから `workflow_call` で利用できる最小CIセット
-- Intent ゲートは
-  [`tools/ci/check_governance_gate.py`](tools/ci/check_governance_gate.py) により
-  自動適用されるため、CI の設定だけで運用に組み込めます
-- SRC の主要言語に応じて、以下の CI テストセットを組み合わせると、導入直後から
-  最低限の品質・安全・可搬性が確保できます
+SRC の主要言語に応じて、以下の CI テストセットを組み合わせると、
+導入直後から最低限の品質・安全・可搬性が確保できます。
 
 ### 再利用CIの呼び出し例（下流リポ側）
 

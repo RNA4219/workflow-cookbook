@@ -12,6 +12,8 @@ next_review_due: 2025-11-14
 
 ### Changed
 
+- 0043: `README.md` をクイックナビ・主要導線・参照ガイドの構成へ再整理し、
+  Birdseye / LLM 行動追跡 / CI 導線を入口優先で読めるようにした
 - 0042: `README.md` の導入説明を Birdseye / Task Seed /
   `agent-protocols` 連携前提へ更新し、公開用 GitHub Topics を
   リポジトリ実態に合わせて見直した
