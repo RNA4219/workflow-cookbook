@@ -13,8 +13,10 @@ next_review_due: 2026-05-09
 - `TASK.*` を起票・更新し、[docs/TASKS.md](docs/TASKS.md) の運用ルールに沿ってスコープとフォローアップを同期
 - 着手前に [docs/ROADMAP_AND_SPECS.md](docs/ROADMAP_AND_SPECS.md) と [`GUARDRAILS.md`](GUARDRAILS.md) を読み合わせ、最小差分と既存ガードレールへ整合
 - テストを先行させ、[docs/ROADMAP_AND_SPECS.md](docs/ROADMAP_AND_SPECS.md) で定義された TDD フロー（`EVALUATION.md#test-outline` 参照）を完了
+- 単体テストと結合テストの対象を分けて記載し、Python 系では coverage 80% を目標ではなく必須ゲートとして扱う
 - 例外や設定変更は [docs/security/Security_Review_Checklist.md](docs/security/Security_Review_Checklist.md) の該当フェーズで可否を確認
 - Runbook 連携が必要な作業は [`RUNBOOK.md`](RUNBOOK.md) へ手順差分を反映し、参照リンクを Task Seed に追記
+- 検収が必要な作業は `docs/acceptance/AC-YYYYMMDD-xx.md` を作成し、判定・証跡・残課題を記録
 - コンテキストトリミングを変更・追加する場合は [docs/addenda/D_Context_Trimming.md](docs/addenda/D_Context_Trimming.md)
   と [docs/addenda/I_Test_Cases.md#i-04-コンテキストトリミング検証](docs/addenda/I_Test_Cases.md#i-04-コンテキストトリミング検証)
   に沿って検証ログと指標を同期
@@ -22,9 +24,11 @@ next_review_due: 2026-05-09
 ## Pull Request / Review
 
 - 失敗させたテストが緑化する最小コミット単位を維持し、差分を可視化
+- PR / 検収記録から unit / integration / coverage の結果が追跡できるようにする
 - `CHANGELOG.md` の `[Unreleased](CHANGELOG.md#unreleased)` に Task Seed 番号付きで成果を追記
 - PR 説明欄から [docs/TASKS.md](docs/TASKS.md)・[docs/ROADMAP_AND_SPECS.md](docs/ROADMAP_AND_SPECS.md)
   ・[`RUNBOOK.md`](RUNBOOK.md) 等の参照先へ遷移できるようリンクを付す
+- PR 本文の `Acceptance Record` から `docs/acceptance/AC-*.md` へ遷移できるようにする
 - レビュー観点は [docs/security/Security_Review_Checklist.md](docs/security/Security_Review_Checklist.md) の「レビュー」節と
   [`GUARDRAILS.md`](GUARDRAILS.md) を再確認
 - ラベル運用・テンプレ遵守は `HUB.codex.md` と `TASK.codex.md` のタスク分割フローに合わせる
@@ -60,6 +64,8 @@ next_review_due: 2026-05-09
   フォローアップが残っていないか確認する
 - 新規 ADR を含むリリースでは [docs/ADR/README.md](docs/ADR/README.md) の索引更新を完了し、レビューフローで確認する
 - 受け入れ基準に対するエビデンス
+- `docs/acceptance/AC-*.md` の判定を最終確認し、PR / リリースノートと矛盾がないこと
+- coverage 80% 未満の例外が残っていないこと
 - 影響範囲の再確認
 - PR に `type:*` および `semver:*` ラベルを付与済み
 - [Security Review Checklist](docs/security/Security_Review_Checklist.md) に沿って準備→実装→レビューの各フェーズを完了し、リリース判定と証跡を残す
@@ -69,6 +75,9 @@ next_review_due: 2026-05-09
 
 - 命名・ディレクトリ整備
 - ドキュメント差分反映
+- `python tools/ci/check_acceptance.py --check` が通ること
+- `python tools/ci/check_ci_gate_matrix.py` が通ること
+- Python 系変更では coverage ゲートが通っていること
 - CI / Governance を変更した場合は `.github/workflows/`、`governance/policy.yaml`、
   `docs/ci-config.md`、`docs/ci_phased_rollout_requirements.md`、`RUNBOOK.md` の同期を確認
 - `security-ci` は `.github/workflows/security.yml` を Phase 3 正本入口として扱い、

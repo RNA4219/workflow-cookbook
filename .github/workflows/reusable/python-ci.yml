@@ -14,6 +14,9 @@ on:
       python-version:
         type: string
         default: '3.11'
+      coverage-threshold:
+        type: number
+        default: 80
 
 jobs:
   ci:
@@ -34,7 +37,9 @@ jobs:
         if: ${{ hashFiles('requirements.txt') != '' }}
       - run: pip install -r requirements-dev.txt
         if: ${{ hashFiles('requirements-dev.txt') != '' }}
+      - name: Install pytest coverage helpers
+        run: pip install pytest pytest-cov
       - name: Ruff
         run: pipx run ruff check .
       - name: Pytest
-        run: pytest -q
+        run: pytest --cov=. --cov-report=term-missing --cov-fail-under=${{ inputs.coverage-threshold }} -q

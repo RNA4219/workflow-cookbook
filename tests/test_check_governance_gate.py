@@ -9,7 +9,9 @@ sys.path.append(str(Path(__file__).resolve().parents[1]))
 
 from tools.ci import check_governance_gate
 from tools.ci.check_governance_gate import (
+    AcceptanceRecordRule,
     CategoryHintResolver,
+    DocsMatrixRule,
     EvaluationReferenceRule,
     IntentCategoryRule,
     IntentPresenceRule,
@@ -88,10 +90,28 @@ def test_evaluation_reference_rule_requires_anchor():
     assert list(outcome.iter_messages()) == [expected]
 
 
+def test_acceptance_record_rule_requires_link():
+    body = """Intent: INT-999-OPS-Test
+## EVALUATION
+- [Acceptance Criteria](../EVALUATION.md#acceptance-criteria)
+"""
+    rules = [IntentPresenceRule(), EvaluationReferenceRule(), AcceptanceRecordRule()]
+
+    outcome = _run_rules(body, rules)
+
+    expected = (
+        "error",
+        "PR must reference an acceptance record under docs/acceptance/ (AC-YYYYMMDD-xx.md)",
+    )
+    assert outcome.errors == [expected[1]]
+    assert list(outcome.iter_messages()) == [expected]
+
+
 def test_priority_score_rule_warns_when_missing():
     body = """Intent: INT-999-OPS-Test
 ## EVALUATION
 - [Acceptance Criteria](../EVALUATION.md#acceptance-criteria)
+- [Acceptance Record](docs/acceptance/AC-20260410-01.md)
 """
     rules = [IntentPresenceRule(), PriorityScoreRule()]
 
@@ -103,6 +123,38 @@ def test_priority_score_rule_warns_when_missing():
     )
     assert outcome.warnings == [expected[1]]
     assert list(outcome.iter_messages()) == [expected]
+
+
+def test_docs_matrix_rule_requires_explicit_selection():
+    body = """Intent: INT-999-OPS-Test
+## EVALUATION
+- [Acceptance Criteria](../EVALUATION.md#acceptance-criteria)
+- [Acceptance Record](docs/acceptance/AC-20260410-01.md)
+"""
+    rules = [DocsMatrixRule()]
+
+    outcome = _run_rules(body, rules)
+
+    assert outcome.errors == [
+        "PR must include Docs matrix selection for REQUIREMENTS using '[x] yes' or '[x] later'.",
+        "PR must include Docs matrix selection for SPEC using '[x] yes' or '[x] later'.",
+        "PR must include Docs matrix selection for DESIGN using '[x] yes' or '[x] later'.",
+    ]
+
+
+def test_docs_matrix_rule_rejects_double_selection():
+    body = """
+REQUIREMENTS: present?  [x] yes / [x] later
+SPEC:         present?  [x] yes / [ ] later
+DESIGN:       present?  [ ] yes / [x] later
+"""
+    rules = [DocsMatrixRule()]
+
+    outcome = _run_rules(body, rules)
+
+    assert outcome.errors == [
+        "Docs matrix for REQUIREMENTS must select exactly one of yes/later."
+    ]
 
 
 def test_get_changed_paths_uses_repo_root(monkeypatch):
@@ -130,7 +182,11 @@ def test_validate_pr_body_success(capsys):
 Intent: INT-123-OPS-Migrate
 ## EVALUATION
 - [Acceptance Criteria](../EVALUATION.md#acceptance-criteria)
+- [Acceptance Record](docs/acceptance/AC-20260410-01.md)
 Priority Score: 4.5 / 安全性強化
+REQUIREMENTS: present?  [x] yes / [ ] later
+SPEC:         present?  [x] yes / [ ] later
+DESIGN:       present?  [x] yes / [ ] later
 """
 
     assert validate_pr_body(body) is True
@@ -143,7 +199,11 @@ def test_validate_pr_body_accepts_fullwidth_colon(capsys):
 Intent：INT-456-SEC-Audit
 ## EVALUATION
 - [Acceptance Criteria](../EVALUATION.md#acceptance-criteria)
+- [Acceptance Record](docs/acceptance/AC-20260410-01.md)
 Priority Score: 1
+REQUIREMENTS: present?  [x] yes / [ ] later
+SPEC:         present?  [x] yes / [ ] later
+DESIGN:       present?  [x] yes / [ ] later
 """
 
     assert validate_pr_body(body) is True
@@ -156,7 +216,11 @@ def test_validate_pr_body_accepts_local_evaluation_anchor(capsys):
 Intent: INT-900-PLAT-Refactor
 ## EVALUATION
 - [Acceptance Criteria](#acceptance-criteria)
+- [Acceptance Record](docs/acceptance/AC-20260410-01.md)
 Priority Score: 5
+REQUIREMENTS: present?  [x] yes / [ ] later
+SPEC:         present?  [x] yes / [ ] later
+DESIGN:       present?  [x] yes / [ ] later
 """
 
     assert validate_pr_body(body) is True
@@ -168,7 +232,11 @@ def test_validate_pr_body_missing_intent(capsys):
     body = """
 ## EVALUATION
 - [Acceptance Criteria](../EVALUATION.md#acceptance-criteria)
+- [Acceptance Record](docs/acceptance/AC-20260410-01.md)
 Priority Score: 2
+REQUIREMENTS: present?  [x] yes / [ ] later
+SPEC:         present?  [x] yes / [ ] later
+DESIGN:       present?  [x] yes / [ ] later
 """
 
     assert validate_pr_body(body) is False
@@ -179,7 +247,11 @@ Priority Score: 2
 def test_validate_pr_body_missing_evaluation(capsys):
     body = """
 Intent: INT-001-OPS-Rollout
+- [Acceptance Record](docs/acceptance/AC-20260410-01.md)
 Priority Score: 3
+REQUIREMENTS: present?  [x] yes / [ ] later
+SPEC:         present?  [x] yes / [ ] later
+DESIGN:       present?  [x] yes / [ ] later
 """
 
     assert validate_pr_body(body) is False
@@ -191,6 +263,10 @@ def test_validate_pr_body_missing_evaluation_anchor(capsys):
     body = """
 Intent: INT-001-OPS-Rollout
 ## EVALUATION
+- [Acceptance Record](docs/acceptance/AC-20260410-01.md)
+REQUIREMENTS: present?  [x] yes / [ ] later
+SPEC:         present?  [x] yes / [ ] later
+DESIGN:       present?  [x] yes / [ ] later
 """
 
     assert validate_pr_body(body) is True
@@ -202,7 +278,11 @@ def test_validate_pr_body_requires_evaluation_heading(capsys):
     body = """
 Intent: INT-555-OPS-Plan
 - [Acceptance Criteria](../EVALUATION.md#acceptance-criteria)
+- [Acceptance Record](docs/acceptance/AC-20260410-01.md)
 Evaluation anchor is explained here without heading.
+REQUIREMENTS: present?  [x] yes / [ ] later
+SPEC:         present?  [x] yes / [ ] later
+DESIGN:       present?  [x] yes / [ ] later
 """
 
     assert validate_pr_body(body) is True
@@ -215,6 +295,10 @@ def test_validate_pr_body_warns_without_priority_score(capsys):
 Intent: INT-789-OPS-Rollout
 ## EVALUATION
 - [Acceptance Criteria](../EVALUATION.md#acceptance-criteria)
+- [Acceptance Record](docs/acceptance/AC-20260410-01.md)
+REQUIREMENTS: present?  [x] yes / [ ] later
+SPEC:         present?  [x] yes / [ ] later
+DESIGN:       present?  [x] yes / [ ] later
 """
 
     assert validate_pr_body(body) is True
@@ -227,7 +311,11 @@ def test_validate_pr_body_rejects_unknown_intent_category(capsys):
 Intent: INT-777-UNKNOWN-Test
 ## EVALUATION
 - [Acceptance Criteria](../EVALUATION.md#acceptance-criteria)
+- [Acceptance Record](docs/acceptance/AC-20260410-01.md)
 Priority Score: 2
+REQUIREMENTS: present?  [x] yes / [ ] later
+SPEC:         present?  [x] yes / [ ] later
+DESIGN:       present?  [x] yes / [ ] later
 """
 
     assert validate_pr_body(body) is False
@@ -246,7 +334,11 @@ def test_validate_pr_body_warns_when_category_missing(monkeypatch, capsys):
 Intent: INT-4242
 ## EVALUATION
 - [Acceptance Criteria](../EVALUATION.md#acceptance-criteria)
+- [Acceptance Record](docs/acceptance/AC-20260410-01.md)
 Priority Score: 2
+REQUIREMENTS: present?  [x] yes / [ ] later
+SPEC:         present?  [x] yes / [ ] later
+DESIGN:       present?  [x] yes / [ ] later
 """
 
     assert validate_pr_body(body) is True
@@ -268,6 +360,10 @@ def test_collect_validation_outcome_matches_cli(monkeypatch, capsys):
             "No intent category pattern (INT-###-CAT-) detected for INT-4242. Consider categories: OPS.",
         ),
         ("error", "PR must reference EVALUATION (acceptance) anchor"),
+        ("error", "PR must reference an acceptance record under docs/acceptance/ (AC-YYYYMMDD-xx.md)"),
+        ("error", "PR must include Docs matrix selection for REQUIREMENTS using '[x] yes' or '[x] later'."),
+        ("error", "PR must include Docs matrix selection for SPEC using '[x] yes' or '[x] later'."),
+        ("error", "PR must include Docs matrix selection for DESIGN using '[x] yes' or '[x] later'."),
         (
             "warning",
             "Consider adding 'Priority Score: <number>' based on prioritization.yaml",
@@ -275,8 +371,14 @@ def test_collect_validation_outcome_matches_cli(monkeypatch, capsys):
     ]
 
     assert list(outcome.iter_messages()) == expected_messages
-    assert outcome.errors == [expected_messages[1][1]]
-    assert outcome.warnings == [expected_messages[0][1], expected_messages[2][1]]
+    assert outcome.errors == [
+        expected_messages[1][1],
+        expected_messages[2][1],
+        expected_messages[3][1],
+        expected_messages[4][1],
+        expected_messages[5][1],
+    ]
+    assert outcome.warnings == [expected_messages[0][1], expected_messages[6][1]]
     assert outcome.is_success is False
 
     captured = capsys.readouterr()
@@ -297,7 +399,11 @@ def test_collect_validation_outcome_prefers_injected_hints(monkeypatch):
 Intent: INT-1234
 ## EVALUATION
 - [Acceptance Criteria](../EVALUATION.md#acceptance-criteria)
+- [Acceptance Record](docs/acceptance/AC-20260410-01.md)
 Priority Score: 4
+REQUIREMENTS: present?  [x] yes / [ ] later
+SPEC:         present?  [x] yes / [ ] later
+DESIGN:       present?  [x] yes / [ ] later
 """
 
     outcome = check_governance_gate.collect_validation_outcome(
@@ -399,6 +505,7 @@ def test_pr_template_contains_required_sections():
     assert "## Intent Metadata" in template
     assert "| Intent ID | INT-___ |" in template
     assert "| EVALUATION Anchor | [Acceptance Criteria](../EVALUATION.md#acceptance-criteria) |" in template
+    assert "| Acceptance Record | [AC-YYYYMMDD-xx](docs/acceptance/AC-YYYYMMDD-xx.md) |" in template
     assert "| Priority Score |" in template
     assert "## INT Logs" in template
 
@@ -407,7 +514,7 @@ def test_main_accepts_pr_body_env(monkeypatch, capsys):
     monkeypatch.setattr(check_governance_gate, "get_changed_paths", lambda refspec: [])
     monkeypatch.setenv(
         "PR_BODY",
-        """Intent: INT-999-OPS-Migrate\n## EVALUATION\n- [Acceptance Criteria](../EVALUATION.md#acceptance-criteria)\nPriority Score: 2\n""",
+        """Intent: INT-999-OPS-Migrate\n## EVALUATION\n- [Acceptance Criteria](../EVALUATION.md#acceptance-criteria)\n- [Acceptance Record](docs/acceptance/AC-20260410-01.md)\nPriority Score: 2\nREQUIREMENTS: present?  [x] yes / [ ] later\nSPEC:         present?  [x] yes / [ ] later\nDESIGN:       present?  [x] yes / [ ] later\n""",
     )
     monkeypatch.delenv("GITHUB_EVENT_PATH", raising=False)
 
@@ -424,7 +531,7 @@ def test_main_accepts_pr_body_path_argument(monkeypatch, tmp_path, capsys):
     monkeypatch.delenv("GITHUB_EVENT_PATH", raising=False)
     body_path = tmp_path / "body.md"
     body_path.write_text(
-        """Intent: INT-4242-PLAT-Upgrade\n## EVALUATION\n- [Acceptance Criteria](../EVALUATION.md#acceptance-criteria)\nPriority Score: 2\n""",
+        """Intent: INT-4242-PLAT-Upgrade\n## EVALUATION\n- [Acceptance Criteria](../EVALUATION.md#acceptance-criteria)\n- [Acceptance Record](docs/acceptance/AC-20260410-01.md)\nPriority Score: 2\nREQUIREMENTS: present?  [x] yes / [ ] later\nSPEC:         present?  [x] yes / [ ] later\nDESIGN:       present?  [x] yes / [ ] later\n""",
         encoding="utf-8",
     )
 

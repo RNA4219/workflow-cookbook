@@ -147,7 +147,25 @@ EVALUATION_ANCHOR_PATTERN = re.compile(
     r"(?:EVALUATION\.md)?#acceptance-criteria",
     re.IGNORECASE,
 )
+ACCEPTANCE_RECORD_PATTERN = re.compile(
+    r"docs/acceptance/AC-\d{8}-\d{2}\.md|AC-\d{8}-\d{2}\.md",
+    re.IGNORECASE,
+)
 PRIORITY_PATTERN = re.compile(r"Priority\s*Score\s*:\s*\d+(?:\.\d+)?", re.IGNORECASE)
+DOCS_MATRIX_PATTERN = {
+    "REQUIREMENTS": re.compile(
+        r"REQUIREMENTS:\s*present\?\s*\[(?P<yes>[xX ])\]\s*yes\s*/\s*\[(?P<later>[xX ])\]\s*later",
+        re.IGNORECASE,
+    ),
+    "SPEC": re.compile(
+        r"SPEC:\s*present\?\s*\[(?P<yes>[xX ])\]\s*yes\s*/\s*\[(?P<later>[xX ])\]\s*later",
+        re.IGNORECASE,
+    ),
+    "DESIGN": re.compile(
+        r"DESIGN:\s*present\?\s*\[(?P<yes>[xX ])\]\s*yes\s*/\s*\[(?P<later>[xX ])\]\s*later",
+        re.IGNORECASE,
+    ),
+}
 
 ALLOWED_INTENT_CATEGORIES = {
     "OPS",
@@ -362,10 +380,37 @@ class PriorityScoreRule(ValidationRule):
             )
 
 
+class AcceptanceRecordRule(ValidationRule):
+    def evaluate(self, context: ValidationContext, outcome: ValidationOutcome) -> None:
+        if not ACCEPTANCE_RECORD_PATTERN.search(context.normalized_body):
+            outcome.add_error(
+                "PR must reference an acceptance record under docs/acceptance/ (AC-YYYYMMDD-xx.md)"
+            )
+
+
+class DocsMatrixRule(ValidationRule):
+    def evaluate(self, context: ValidationContext, outcome: ValidationOutcome) -> None:
+        for label, pattern in DOCS_MATRIX_PATTERN.items():
+            match = pattern.search(context.normalized_body)
+            if match is None:
+                outcome.add_error(
+                    f"PR must include Docs matrix selection for {label} using '[x] yes' or '[x] later'."
+                )
+                continue
+            yes_marked = match.group("yes").strip().lower() == "x"
+            later_marked = match.group("later").strip().lower() == "x"
+            if yes_marked == later_marked:
+                outcome.add_error(
+                    f"Docs matrix for {label} must select exactly one of yes/later."
+                )
+
+
 DEFAULT_VALIDATION_RULES: tuple[ValidationRule, ...] = (
     IntentPresenceRule(),
     IntentCategoryRule(),
     EvaluationReferenceRule(),
+    AcceptanceRecordRule(),
+    DocsMatrixRule(),
     PriorityScoreRule(),
 )
 

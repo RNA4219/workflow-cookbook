@@ -1,0 +1,23 @@
+{
+  "workflow_plugins": [
+    {
+      "factory": "agent_taskstate_workflow_plugin.plugin:create_plugin",
+      "enabled": true,
+      "python_paths": [
+        "../../agent-taskstate"
+      ],
+      "options": {}
+    },
+    {
+      "factory": "memx_resolver_workflow_plugin.plugin:create_plugin",
+      "enabled": true,
+      "python_paths": [
+        "../../memx-resolver"
+      ],
+      "options": {
+        "receipts_path": ".workflow-cache/memx-doc-receipts.json",
+        "resolve_cache_path": ".workflow-cache/memx-doc-resolve.json"
+      }
+    }
+  ]
+}

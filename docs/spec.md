@@ -346,6 +346,8 @@ Workflow Cookbook は、QA / Governance-first の運用ドキュメント、Bird
 - 論理 gate ID と GitHub 上の実 check 名の対応は `docs/ci-config.md` で管理すること。
 - `docs/ci_phased_rollout_requirements.md` と workflow 群は、Phase 0〜3
   の段階導入方針を追跡できること。
+- Python CI は単体テスト・結合テストの実行と coverage 下限 80% の確認を
+  標準で行えること。
 
 ### 4.8 外部契約
 
@@ -377,6 +379,8 @@ Workflow Cookbook は、QA / Governance-first の運用ドキュメント、Bird
   - `tests/perf/test_collect_metrics_autosave_merge.py`
   - `tests/test_structured_logger.py`
   - `tests/test_agent_protocol_evidence.py`
+- Python 系ゲート
+  - `pytest --cov=. --cov-report=term-missing --cov-fail-under=80`
 
 ## 7. 関連資料
 

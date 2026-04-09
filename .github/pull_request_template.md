@@ -8,6 +8,7 @@
 | --- | --- |
 | Intent ID | INT-___ |
 | EVALUATION Anchor | [Acceptance Criteria](../EVALUATION.md#acceptance-criteria) |
+| Acceptance Record | [AC-YYYYMMDD-xx](docs/acceptance/AC-YYYYMMDD-xx.md) |
 | Priority Score | `number` |
 
 ## 記入項目
@@ -21,6 +22,7 @@
 
 - BLUEPRINT: <!-- path or permalink -->
 - TASK: <!-- path -->
+- Acceptance Record: <!-- docs/acceptance/AC-YYYYMMDD-xx.md -->
 
 ## EVALUATION
 
@@ -49,6 +51,6 @@
 
 ## Docs matrix (FYI)
 
-- REQUIREMENTS: present?  [] yes / [] later
-- SPEC:         present?  [] yes / [] later
-- DESIGN:       present?  [] yes / [] later
+- REQUIREMENTS: present?  [ ] yes / [ ] later
+- SPEC:         present?  [ ] yes / [ ] later
+- DESIGN:       present?  [ ] yes / [ ] later

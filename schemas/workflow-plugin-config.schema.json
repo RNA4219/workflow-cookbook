@@ -1,0 +1,72 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://rna4219.dev/workflow-cookbook/schemas/workflow-plugin-config.schema.json",
+  "title": "Workflow Plugin Config",
+  "description": "Config for loading optional cross-repo workflow plugins.",
+  "type": "object",
+  "required": ["workflow_plugins"],
+  "properties": {
+    "workflow_plugins": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/pluginSpec"
+      }
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "pluginSpec": {
+      "type": "object",
+      "required": ["factory"],
+      "properties": {
+        "factory": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Import path using module:attribute form."
+        },
+        "enabled": {
+          "type": "boolean",
+          "description": "When false, the plugin spec is ignored."
+        },
+        "python_paths": {
+          "type": "array",
+          "description": "Relative or absolute sys.path additions used before import.",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "options": {
+          "type": "object",
+          "description": "Factory kwargs. Common keys include receipts_path, resolve_cache_path, tasks_dir, acceptance_dir."
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "examples": [
+    {
+      "workflow_plugins": [
+        {
+          "factory": "agent_taskstate_workflow_plugin.plugin:create_plugin",
+          "enabled": true,
+          "python_paths": ["../../agent-taskstate"],
+          "options": {
+            "tasks_dir": "docs/tasks",
+            "acceptance_dir": "docs/acceptance"
+          }
+        },
+        {
+          "factory": "memx_resolver_workflow_plugin.plugin:create_plugin",
+          "enabled": true,
+          "python_paths": ["../../memx-resolver"],
+          "options": {
+            "receipts_path": ".workflow-cache/memx-doc-receipts.json",
+            "resolve_cache_path": ".workflow-cache/memx-doc-resolve.json"
+          }
+        }
+      ]
+    }
+  ]
+}

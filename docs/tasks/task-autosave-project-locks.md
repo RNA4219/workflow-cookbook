@@ -1,9 +1,10 @@
 ---
+task_id: 20260410-01
 intent_id: INT-001
 owner: docs-core
-status: planned
-last_reviewed_at: 2026-04-09
-next_review_due: 2026-05-09
+status: done
+last_reviewed_at: 2026-04-10
+next_review_due: 2026-05-10
 ---
 
 # Task Seed: AutoSave Project Locks
@@ -55,6 +56,16 @@ next_review_due: 2026-05-09
 3. [docs/IMPLEMENTATION-PLAN.md#依存関係][plan-dependencies]
    と [docs/MERGE-DESIGN-IMPL.md#テレメトリ要件][merge-telemetry]
    を参照して影響分析を行い、再度 strict を有効化するかを判断する。
+
+## 検収
+
+- Acceptance Record:
+  [docs/acceptance/AC-20260410-01.md](../acceptance/AC-20260410-01.md)
+- 代表テスト:
+  - `tests/autosave/test_project_lock_service.py`
+  - `tests/merge/test_precision_mode_pipeline.py`
+- 判定:
+  - approved
 
 ---
 

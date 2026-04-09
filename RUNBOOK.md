@@ -19,6 +19,17 @@ next_review_due: 2026-05-09
   - 準備: データ投入 / キャッシュ初期化
   - 実行: コマンド/ジョブ名
   - 確認: 出力の存在・件数・整合
+- 検収記録
+  - `docs/acceptance/ACCEPTANCE_TEMPLATE.md` を複製し、
+    `docs/acceptance/AC-YYYYMMDD-xx.md` を作成する。
+  - 実行コマンド、テスト結果、参照ドキュメント、判定を記入する。
+  - PR 本文の `Acceptance Record` から該当ファイルへリンクする。
+- テスト工程
+  - 単体テストと結合テストを分けて `TASK.codex.md` と検収記録へ記載する。
+  - Python 系は `pytest --cov=. --cov-report=term-missing --cov-fail-under=80`
+    を既定ゲートとして実行する。
+  - coverage が 80% 未満なら、検収記録へ理由とフォローアップを残さない限り
+    完了扱いにしない。
 - CI / Governance 確認
   - `governance/policy.yaml` の `ci.required_jobs` を確認し、論理 gate ID
     (`governance-gate` / `python-ci` / `security-ci`) を基準にする。
@@ -31,6 +42,20 @@ next_review_due: 2026-05-09
   - GitHub API の取得権限がある場合は
     `python tools/ci/check_branch_protection.py --protection-json <json>` で
     branch protection export を検証する。
+  - `python tools/ci/check_ci_gate_matrix.py` を実行し、
+    `governance/policy.yaml`、workflow、`docs/ci-config.md` の整合を確認する。
+  - `python tools/ci/check_acceptance.py --check` を実行し、
+    検収記録の front matter と必須見出しを確認する。
+  - `python tools/ci/check_task_acceptance_sync.py --plugin-config examples/workflow_plugins.cross_repo.sample.json`
+    を実行し、Task Seed と Acceptance の対応が plugin 観点でも一致することを確認する。
+  - `python tools/ci/generate_acceptance_index.py --plugin-config examples/workflow_plugins.cross_repo.sample.json`
+    で `docs/acceptance/INDEX.md` を再生成できることを確認する。
+- docs resolve / stale 確認
+  - `python tools/context/workflow_docs.py --plugin-config`
+    `examples/workflow_plugins.cross_repo.sample.json resolve --task-id <task_id>`
+    で読むべき docs を確認する。
+  - 読了後は `... ack --task-id <task_id> --doc-id README.md` を実行する。
+  - 検収前に `... stale --task-id <task_id> --check` を実行し、stale docs が残っていないことを確認する。
 - Birdseye / codemap 更新
   - 全体更新: `python tools/codemap/update.py --targets docs/birdseye/index.json,docs/birdseye/hot.json --emit index+caps`
   - 局所更新: `python tools/codemap/update.py --since --radius 1 --emit caps`
@@ -230,6 +255,8 @@ next_review_due: 2026-05-09
 ## Confirm
 
 - Execute 結果を主要メトリクス・アウトプットと突き合わせ、`CHECKLISTS.md` の [Hygiene](CHECKLISTS.md#hygiene) で整合性と未完了項目を再確認
+- `docs/acceptance/AC-*.md` の判定と証跡が最新の実行結果と一致していることを確認
+- 単体テスト / 結合テスト / coverage 80% の結果が検収記録と一致していることを確認
 - CI / Governance 変更時は `.github/workflows/`、`governance/policy.yaml`、
   `docs/ci-config.md`、`docs/ci_phased_rollout_requirements.md` の記述が一致していることを確認
 - required jobs を変更した場合は branch protection の必須チェック名と

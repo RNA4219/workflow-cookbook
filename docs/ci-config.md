@@ -32,11 +32,14 @@ next_review_due: 2026-05-09
 - GitHub API から branch protection JSON を取得できる環境では、
   `python tools/ci/check_branch_protection.py --protection-json <json>` を実行して、
   `governance/policy.yaml` の論理 gate ID と実 check 名対応を検証する。
+- repo 内の `policy.yaml` / workflow / `docs/ci-config.md` の整合は、
+  `python tools/ci/check_ci_gate_matrix.py` で検証する。
 - 例:
 
 ```sh
 gh api repos/RNA4219/workflow-cookbook/branches/main/protection > branch-protection.json
 python tools/ci/check_branch_protection.py --protection-json branch-protection.json
+python tools/ci/check_ci_gate_matrix.py
 ```
 
 - このスクリプトは `governance-gate -> governance`、

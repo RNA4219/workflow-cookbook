@@ -29,6 +29,13 @@ INCIDENT_REQUIRED_FIELDS: Sequence[str] = (
     "runbook",
 )
 
+TASK_REQUIRED_FIELDS: Sequence[str] = (
+    "task_id",
+    "intent_id",
+    "owner",
+    "status",
+)
+
 
 def _extract_front_matter_lines(path: Path) -> List[str]:
     lines = path.read_text(encoding="utf-8").splitlines()
@@ -82,6 +89,19 @@ def validate_incident_front_matter(root: Path) -> Dict[Path, List[str]]:
     return missing
 
 
+def validate_task_seed_front_matter(root: Path) -> Dict[Path, List[str]]:
+    missing: Dict[Path, List[str]] = {}
+    tasks_dir = root / "docs" / "tasks"
+    if not tasks_dir.is_dir():
+        return missing
+    for md_path in sorted(tasks_dir.glob("*.md")):
+        fields = _parse_fields(_extract_front_matter_lines(md_path))
+        absent = [field for field in TASK_REQUIRED_FIELDS if not fields.get(field)]
+        if absent:
+            missing[md_path] = absent if fields else list(TASK_REQUIRED_FIELDS)
+    return missing
+
+
 def _format_missing(missing: Dict[Path, List[str]]) -> str:
     return "\n".join(f"{path}: missing {', '.join(fields)}" for path, fields in missing.items())
 
@@ -95,6 +115,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     missing: Dict[Path, List[str]] = {}
     missing.update(validate_markdown_front_matter(root))
     missing.update(validate_incident_front_matter(root))
+    missing.update(validate_task_seed_front_matter(root))
     if not missing:
         return 0
     message = _format_missing(missing)

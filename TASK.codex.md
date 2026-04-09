@@ -1,4 +1,5 @@
 ---
+task_id: YYYYMMDD-xx
 intent_id: INT-001
 owner: your-handle
 status: active   # draft|active|deprecated
@@ -39,6 +40,7 @@ langs: [auto]   # auto | python | typescript | go | rust | etc.
 - Constraints:
   - 既存API破壊なし / 不要な依存追加なし
   - Lint/Type/Test はゼロエラー
+  - Python 系変更は coverage 80% 以上
 - Acceptance Criteria:
   - {{検収条件1}}
   - {{検収条件2}}
@@ -51,7 +53,7 @@ langs: [auto]   # auto | python | typescript | go | rust | etc.
 
 ```bash
 ## Python
-ruff check . && black --check . && mypy --strict . && pytest -q
+ruff check . && black --check . && mypy --strict . && pytest --cov=. --cov-report=term-missing --cov-fail-under=80 -q
 
 ## TypeScript/Node
 pnpm lint && pnpm typecheck && pnpm test
@@ -70,8 +72,10 @@ make ci || true
 ## Deliverables
 
 - PR: タイトル/要約/影響/ロールバックに加え、本文へ `Intent: INT-xxx` と `## EVALUATION` アンカーを明記
+  - `Acceptance Record: docs/acceptance/AC-YYYYMMDD-xx.md` を追記
   - 必要なら `Priority Score: <number>` を追記
 - Artifacts: 変更パッチ、テスト、必要ならREADME/CHANGELOG差分
+  - 検収記録: `docs/acceptance/AC-YYYYMMDD-xx.md`
 
 ---
 
@@ -99,6 +103,8 @@ make ci || true
   - {{case-2: エッジ/エラー例}}
 - Integration:
   - {{代表シナリオ1つ}}
+- Coverage:
+  - {{対象モジュールと 80% 基準}}
 
 ## Commands
 

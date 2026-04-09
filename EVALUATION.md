@@ -14,8 +14,12 @@ next_review_due: 2026-05-09
 - Birdseye / Codemap の更新手順が `README.md`、`docs/BIRDSEYE.md`、`docs/birdseye/README.md`、`GUARDRAILS.md`、`RUNBOOK.md` で整合していること。
 - `docs/CONTRACTS.md` に定義された `.ga/qa-metrics.json` と `governance/predictor.yaml` の feature detection 契約が維持されていること。
 - PR本文に Priority Score（値と根拠）が記録されていること。
+- PR本文から `docs/acceptance/AC-YYYYMMDD-xx.md` 形式の検収記録へ遷移できること。
+- `docs/acceptance/` 配下の検収記録が front matter と必須見出しを満たしていること。
 - `governance/policy.yaml` の `forbidden_paths` を無断で変更しないこと。
 - インシデント発生時は `docs/IN-YYYYMMDD-XXX.md` を作成し、該当 PR および `RUNBOOK.md` から相互リンクすること。
+- 単体テストと結合テストの対象が Task Seed または検収記録に記載されていること。
+- Python 系の変更では coverage 80% 以上を確認すること。
 - 最低限の回帰確認として、次のテストが通ること。
   - `tests/test_codemap_update.py`
   - `tests/autosave/test_project_lock_service.py`
@@ -47,6 +51,8 @@ next_review_due: 2026-05-09
 - 結合:
   - `tests/test_collect_metrics_cli.py`
   - `tests/perf/test_collect_metrics_autosave_merge.py`
+- coverage:
+  - `pytest --cov=. --cov-report=term-missing --cov-fail-under=80`
 - 補助シナリオ:
   - [ケース I-01](docs/addenda/I_Test_Cases.md#i-01-チェックリスト突合)
   - [ケース I-02](docs/addenda/I_Test_Cases.md#i-02-birdseye-再生成確認)
@@ -59,4 +65,6 @@ next_review_due: 2026-05-09
 - [ ] `requirements` / `spec` / `design` / `CONTRACTS` の整合を確認した
 - [ ] Birdseye / Codemap の更新導線が関連文書で一致している
 - [ ] 最低限の回帰テスト結果を確認した
+- [ ] 単体テスト / 結合テスト / coverage 80% の結果を確認した
+- [ ] 検収記録を `docs/acceptance/` に作成し、PR から参照できる
 - [ ] エラー時挙動と feature detection 契約が明示されている

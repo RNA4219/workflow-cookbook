@@ -180,6 +180,5 @@ next_review_due: 2026-05-09
 
 ## 10. 今後の具体化候補
 
-- `policy.yaml` の `ci.required_jobs` と実 workflow 名の整合を自動検査する CLI
 - branch protection の exported 設定との差分検証
 - `codeql.yml` を Phase 3 の必須へ昇格するかどうかの判断基準整備

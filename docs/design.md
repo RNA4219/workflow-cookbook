@@ -75,6 +75,8 @@ Workflow Cookbook は、単なる Markdown テンプレート集ではなく、
   - 主要な入出力型と例外は docs に先に現れるようにする。
   - テレメトリ名は docs と tests の両方で追跡可能にする。
   - 外部契約への接続は logger 本体と plugin / 変換ブリッジを分離し、未接続時の既存挙動を維持する。
+  - テストは単体テストと結合テストを分けて考え、CI では coverage 下限 80%
+    を標準ゲートとして扱う。
 
 ### 2.4 CI / Governance 層
 
@@ -278,6 +280,9 @@ Workflow Cookbook は、単なる Markdown テンプレート集ではなく、
   - `tests/merge/test_precision_mode_pipeline.py`
   - `tests/test_collect_metrics_cli.py`
   - `tests/perf/test_collect_metrics_autosave_merge.py`
+- 品質ゲート
+  - Python 系では `pytest --cov=. --cov-report=term-missing --cov-fail-under=80`
+    を標準コマンドとする。
 - docs 対応
   - Birdseye 手順: `README.md` / `docs/BIRDSEYE.md` / `docs/birdseye/README.md` /
     `GUARDRAILS.md` / `RUNBOOK.md`

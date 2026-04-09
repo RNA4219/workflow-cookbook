@@ -17,6 +17,8 @@ REQUIRED_FIELDS = tuple(module.REQUIRED_FIELDS)
 INCIDENT_REQUIRED_FIELDS = tuple(module.INCIDENT_REQUIRED_FIELDS)
 validate_markdown_front_matter = module.validate_markdown_front_matter
 validate_incident_front_matter = module.validate_incident_front_matter
+validate_task_seed_front_matter = module.validate_task_seed_front_matter
+TASK_REQUIRED_FIELDS = tuple(module.TASK_REQUIRED_FIELDS)
 
 FieldPairs = Sequence[Tuple[str, str]]
 
@@ -121,4 +123,38 @@ def test_validate_incident_front_matter_missing_fields(repo_root: Path) -> None:
 
     assert missing == {
         docs_dir / "IN-20250115-002.md": [field for field in INCIDENT_REQUIRED_FIELDS if field == "runbook"]
+    }
+
+
+def test_validate_task_seed_front_matter_pass(repo_root: Path) -> None:
+    tasks_dir = repo_root / "docs" / "tasks"
+    tasks_dir.mkdir(parents=True)
+    _write_markdown(
+        tasks_dir / "task-sample.md",
+        (
+            ("task_id", "20260410-01"),
+            ("intent_id", "INT-001"),
+            ("owner", "docs-core"),
+            ("status", "active"),
+        ),
+    )
+
+    assert validate_task_seed_front_matter(repo_root) == {}
+
+
+def test_validate_task_seed_front_matter_missing_fields(repo_root: Path) -> None:
+    tasks_dir = repo_root / "docs" / "tasks"
+    tasks_dir.mkdir(parents=True)
+    _write_markdown(
+        tasks_dir / "task-sample.md",
+        (
+            ("intent_id", "INT-001"),
+            ("owner", "docs-core"),
+        ),
+    )
+
+    missing = validate_task_seed_front_matter(repo_root)
+
+    assert missing == {
+        tasks_dir / "task-sample.md": [field for field in TASK_REQUIRED_FIELDS if field in {"task_id", "status"}]
     }

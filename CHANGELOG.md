@@ -12,6 +12,24 @@ next_review_due: 2025-11-14
 
 ### Changed
 
+- 0062: workflow plugin dispatcher を `invoke_first` / `invoke_all` へ整理し、
+  sample config の統合テスト、renderer / policy 分離、plugin の dataclass 返却へ寄せた
+- 0061: workflow plugin interface / capability error / config validate CLI を追加し、
+  `agent-taskstate` と `memx-resolver` plugin に store abstraction と resolve cache を導入した
+- 0060: `agent-taskstate` / `memx-resolver` 連携向け workflow plugin host、
+  Task / Acceptance sync、docs resolve / ack / stale CLI を追加した
+- 0058: `tools/ci/check_ci_gate_matrix.py` を追加し、
+  `policy.yaml`・workflow・`docs/ci-config.md` の整合を CI で検証できるようにした
+- 0059: `task-autosave-project-locks` を検収記録付きで `done` へ進め、
+  PR の `Docs matrix` 明示選択を governance gate で検証するようにした
+- 0057: テスト実装工程の標準として単体テスト・結合テスト・coverage 80%
+  基準を requirements / spec / design / evaluation / runbook / task template /
+  Python CI に反映した
+- 0056: `docs/acceptance/` の検収記録テンプレートと
+  `tools/ci/check_acceptance.py` を追加し、PR 本文からの参照と CI 検証を
+  導入した
+- 0055: `README.md` にクイックスタート節を追加し、最初の導線を
+  3 ステップで辿れるようにした
 - 0054: `workflow-agent-evidence` Skill に Claude 向け metadata を追加し、
   README の Skills 節から agent metadata へ辿れるようにした
 - 0053: `README.md` を圧縮して導線を整理し、repo 同梱 Skill と
