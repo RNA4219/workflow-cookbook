@@ -26,6 +26,7 @@ next_review_due: 2025-11-14
 - 0037: `docs/ci_phased_rollout_requirements.md` と `docs/ci-config.md` を実在する workflow / required jobs 構成へ再定義し、CI フェーズ文書を `policy.yaml` と同期した
 - 0038: `RUNBOOK.md` と `CHECKLISTS.md` の CI 運用手順を required jobs / Phase 正本に同期し、branch protection との同時確認ルールを追加した
 - 0039: `tools/ci/check_branch_protection.py` と対応テストを追加し、branch protection export と `policy.yaml` の論理 gate ID / 実 check 名対応を検証可能にした
+- 0040: `agent-protocols` の `Evidence` 契約へ接続する LLM 行動追跡ブリッジを追加し、`StructuredLogger` から任意 plugin / import 文字列 / config file ベースで Evidence JSON Lines を出力できるようにし、参照設定サンプル・protocols README・plugin config schema を追加した
 - 0007: `CHECKLISTS.md` に Development / Pull Request / Ops チェックリストを追加し、Release セクションが新設項目と重複しないよう参照構造へ更新
 - 0008: 過去のブランド表現をワークフロー向けの共通名称・リンクへ差し替え、関連チェックリストとメトリクス定義の整合性を再確認
 - 0009: `<旧ブランド名>` 参照を中立表現へ整理

@@ -68,11 +68,13 @@ Workflow Cookbook は、単なる Markdown テンプレート集ではなく、
   - `tools/autosave/`
   - `tools/merge/`
   - `tools/perf/`
+  - `tools/protocols/`
   - `tests/`
 - 設計原則
   - 実サービス本体ではなく、契約検証のための最小実装を置く。
   - 主要な入出力型と例外は docs に先に現れるようにする。
   - テレメトリ名は docs と tests の両方で追跡可能にする。
+  - 外部契約への接続は logger 本体と plugin / 変換ブリッジを分離し、未接続時の既存挙動を維持する。
 
 ### 2.4 CI / Governance 層
 
@@ -169,6 +171,25 @@ Workflow Cookbook は、単なる Markdown テンプレート集ではなく、
   - source 未指定は即時に `MetricsCollectionError` を返す。
   - PushGateway 送信失敗は collection error として扱う。
 
+### 3.6 agent-protocols Evidence ブリッジ
+
+- 責務
+  - `InferenceLogRecord` から `agent-protocols` の `Evidence` 契約へ写像する
+  - ハッシュ、既定時刻、既定 environment を補完する
+  - file sink へ JSON Lines として追記する
+- 状態所有
+  - logger は通常ログの書き込みと plugin 呼び出し責務のみを持つ
+  - context extractor は logger 外部の入力契約を解決する
+  - mapper は Evidence JSON の構築責務を持つ
+  - writer は永続化責務のみを持つ
+  - plugin config loader は import 文字列と options を `InferencePluginSpec` へ正規化する
+- 失敗モデル
+  - `extra.agent_protocol` が無い場合は no-op
+  - `extra.agent_protocol` が不完全な場合は bridge 専用エラーで停止する
+  - 通常ログ出力成功後に Evidence 側だけ失敗した場合は、呼び出し元へ失敗を返して再試行可能にする
+  - import 文字列から plugin を構成できない場合は loader 専用エラーで停止する
+  - YAML config を指定したが yaml loader が無い場合は config loader 専用エラーで停止する
+
 ## 4. 状態とデータフロー
 
 ### 4.1 Birdseye データフロー
@@ -199,6 +220,14 @@ Workflow Cookbook は、単なる Markdown テンプレート集ではなく、
 4. 標準出力へ JSON を出す
 5. `output_path` があれば `.ga/qa-metrics.json` へ書き出す
 6. `pushgateway_url` があれば PushGateway へ送る
+
+### 4.4 LLM 行動追跡データフロー
+
+1. 呼び出し元が `StructuredLogger.inference()` へ prompt / response / model を渡す
+2. `extra.agent_protocol` に TaskSeed / commit / actor などの追跡コンテキストを載せる
+3. logger は通常の inference JSON 行を先に出力する
+4. Evidence bridge が `InferenceLogRecord` を `Evidence` 契約へ変換する
+5. sink が JSON Lines として証跡を永続化する
 
 ## 5. 拡張ポイント
 

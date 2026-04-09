@@ -49,6 +49,8 @@ canary rules.
     - [`docs/BIRDSEYE.md`](docs/BIRDSEYE.md) …… Birdseye の Edges / Hot / 更新手順をフォールバック用に把握
     - [`tools/codemap/README.md`](tools/codemap/README.md) …… Birdseye カプセル
       再生成前提と `codemap.update` の流れを把握
+    - [`tools/protocols/README.md`](tools/protocols/README.md) …… LLM 行動追跡 plugin、
+      import 文字列 loader、config ベース導入手順を把握
     - [`tools/codemap/update.py`](tools/codemap/update.py) ……
       `python tools/codemap/update.py` で `codemap.update` を実行し
       Birdseye カプセルを再生成する。標準では直近変更ファイルから±2 hop の
@@ -77,6 +79,12 @@ canary rules.
       Birdseye カプセル要約で指示される `deps_out` を照合
 4. タスクごとに `TASK.codex.md` を複製して内容を埋め、エージェントに渡す
    - 雛形との差分を確認したい場合は `examples/TASK.sample.md` を参照し、実在の値が埋め込まれたダミーサンプルと比較する
+   - LLM 行動追跡 plugin を宣言的に導入したい場合は
+     [`examples/inference_plugins.agent_protocol.sample.json`](examples/inference_plugins.agent_protocol.sample.json)
+     を起点にし、`StructuredLogger.from_plugin_config(...)` で読み込む
+   - `Evidence` JSON Lines の受け側たたき台が必要な場合は
+     [`examples/agent_protocol_evidence_consumer.sample.py`](examples/agent_protocol_evidence_consumer.sample.py)
+     を起点にする
    - 完了した `TASK.*` の成果は `[Unreleased](CHANGELOG.md#unreleased)` へ通番付きで転記し、該当 Task Seed から成果差分へのリンクを貼る
 5. リリースは `CHECKLISTS.md` をなぞり、差分は `CHANGELOG.md` に追記しつつ、`[Unreleased](CHANGELOG.md#unreleased)` に集約した Task Seed 成果をリリースノートへ昇格させる
 

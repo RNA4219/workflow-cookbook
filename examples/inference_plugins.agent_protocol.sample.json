@@ -1,0 +1,13 @@
+{
+  "inference_plugins": [
+    {
+      "factory": "tools.protocols.evidence_bridge:create_agent_protocol_evidence_plugin",
+      "options": {
+        "path": "C:/logs/workflow-cookbook/evidence.jsonl",
+        "repo_root": "C:/Users/ryo-n/Codex_dev/workflow-cookbook",
+        "context_key": "agent_protocol"
+      },
+      "enabled": true
+    }
+  ]
+}

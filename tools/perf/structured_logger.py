@@ -4,7 +4,7 @@ import json
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import IO, Any, Mapping, Sequence
+from typing import IO, Any, Mapping, Protocol, Sequence
 
 JsonMapping = Mapping[str, Any]
 
@@ -57,15 +57,87 @@ class InferenceLogRecord:
         }
 
 
-class StructuredLogger:
-    __slots__ = ("_name", "_path", "_stream")
+class InferenceEvidenceSink(Protocol):
+    def emit_inference_evidence(self, record: InferenceLogRecord) -> None:
+        ...
 
-    def __init__(self, *, name: str, path: str | Path | None = None, stream: IO[str] | None = None) -> None:
+
+class InferenceLogPlugin(Protocol):
+    def handle_inference(self, record: InferenceLogRecord) -> None:
+        ...
+
+
+@dataclass(slots=True)
+class _LegacyEvidenceSinkAdapter:
+    sink: InferenceEvidenceSink
+
+    def handle_inference(self, record: InferenceLogRecord) -> None:
+        self.sink.emit_inference_evidence(record)
+
+
+class StructuredLogger:
+    __slots__ = ("_name", "_path", "_stream", "_plugins")
+
+    def __init__(
+        self,
+        *,
+        name: str,
+        path: str | Path | None = None,
+        stream: IO[str] | None = None,
+        evidence_sink: InferenceEvidenceSink | None = None,
+        plugins: Sequence[InferenceLogPlugin] | None = None,
+    ) -> None:
         if path is None and stream is None:
             raise ValueError("Either path or stream must be provided")
         self._name = name
         self._path = Path(path).expanduser() if path is not None else None
         self._stream = stream
+        resolved_plugins: list[InferenceLogPlugin] = list(plugins or ())
+        if evidence_sink is not None:
+            resolved_plugins.append(_LegacyEvidenceSinkAdapter(evidence_sink))
+        self._plugins = tuple(resolved_plugins)
+
+    @classmethod
+    def from_plugin_specs(
+        cls,
+        *,
+        name: str,
+        plugin_specs: Sequence[object],
+        path: str | Path | None = None,
+        stream: IO[str] | None = None,
+        evidence_sink: InferenceEvidenceSink | None = None,
+    ) -> StructuredLogger:
+        from tools.protocols.plugin_loader import instantiate_inference_plugins
+
+        plugins = instantiate_inference_plugins(plugin_specs)
+        return cls(
+            name=name,
+            path=path,
+            stream=stream,
+            evidence_sink=evidence_sink,
+            plugins=plugins,
+        )
+
+    @classmethod
+    def from_plugin_config(
+        cls,
+        *,
+        name: str,
+        plugin_config: object,
+        path: str | Path | None = None,
+        stream: IO[str] | None = None,
+        evidence_sink: InferenceEvidenceSink | None = None,
+    ) -> StructuredLogger:
+        from tools.protocols.plugin_config import load_inference_plugin_specs
+
+        plugin_specs = load_inference_plugin_specs(plugin_config)
+        return cls.from_plugin_specs(
+            name=name,
+            plugin_specs=plugin_specs,
+            path=path,
+            stream=stream,
+            evidence_sink=evidence_sink,
+        )
 
     @property
     def name(self) -> str:
@@ -109,6 +181,8 @@ class StructuredLogger:
             self._path.parent.mkdir(parents=True, exist_ok=True)
             with self._path.open("a", encoding="utf-8") as handle:
                 handle.write(line)
+        for plugin in self._plugins:
+            plugin.handle_inference(record)
 
 
-__all__ = ["InferenceLogRecord", "StructuredLogger"]
+__all__ = ["InferenceEvidenceSink", "InferenceLogPlugin", "InferenceLogRecord", "StructuredLogger"]

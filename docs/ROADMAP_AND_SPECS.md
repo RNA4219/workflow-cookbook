@@ -52,6 +52,7 @@ next_review_due: 2026-05-09
 | `examples/` | [design.md](design.md) / [spec.md](spec.md) | レシピの参照実装と設計・仕様を突き合わせる |
 | `styles/` | [design.md](design.md) / [requirements.md](requirements.md) | QA ルールに基づく表記統一・禁止用語チェック[^styles] |
 | `tools/` | [design.md](design.md) / [../RUNBOOK.md](../RUNBOOK.md#execute) | ドキュメント同期用スクリプトと運用手順を連結 |
+| `tools/protocols/` | [../tools/protocols/README.md](../tools/protocols/README.md) / [interfaces.md](interfaces.md) | LLM 行動追跡 plugin と loader / config 導線を提供 |
 | `tools/codemap/` | [tools/codemap/README.md](../tools/codemap/README.md) / [../CHECKLISTS.md](../CHECKLISTS.md#hygiene) | Birdseye 再生成 CLI と衛生チェックを担保[^codemap] |
 | `governance/` | [../EVALUATION.md](../EVALUATION.md#acceptance-criteria) / [../governance/policy.yaml](../governance/policy.yaml) | 受入基準と禁止パス・優先度設定を同期[^governance] |
 | `tests/` | [../EVALUATION.md](../EVALUATION.md#test-outline) / [birdseye/caps/](birdseye/caps/) | テストアウトラインと Birdseye カプセルを連携更新[^tests] |
@@ -83,6 +84,7 @@ next_review_due: 2026-05-09
 - [docs/ci-config.md](ci-config.md)：CI プリセットの分岐条件と再利用手順を集約。**利用シーン**：CI 設定変更前に `CHECKLISTS.md` の[Daily](../CHECKLISTS.md#daily)で運用要件をクロスチェック。
 - [docs/BIRDSEYE.md](BIRDSEYE.md) / [docs/birdseye/index.json](birdseye/index.json) / [docs/birdseye/hot.json](birdseye/hot.json) / [birdseye/caps/](birdseye/caps/) / [tools/codemap/README.md#実行手順](../tools/codemap/README.md#実行手順)：Birdseye トポロジーの参照起点と生成結果、運用手順を一括で把握。**利用シーン**：1. `BIRDSEYE.md` で確認手順とリンクを把握。2. `generated_at`（5 桁ゼロ埋め世代番号。必要に応じてホットリスト項目の `last_verified_at` も含む）を確認し、関連差分に対して未更新なら同期対象にする。3. README の手順通り `python tools/codemap/update.py --targets docs/birdseye/index.json,docs/birdseye/hot.json --emit index+caps` を実行し、局所更新なら `--radius` を併用して `docs/birdseye/index.json`・`docs/birdseye/hot.json`・`caps/*` を再生成。4. `CHECKLISTS.md` の[Hygiene](../CHECKLISTS.md#hygiene)と `GUARDRAILS.md` の[鮮度管理](../GUARDRAILS.md#鮮度管理staleness-handling)を突き合わせて差分と期限を監視。
 - [docs/interfaces.md](interfaces.md)：機能境界と受け渡し契約をテーブル化。**利用シーン**：境界整理や責務調整時に `docs/CONTRACTS.md` と `RUNBOOK.md` の[Execute](../RUNBOOK.md#execute)を並行確認。
+- [examples/inference_plugins.agent_protocol.sample.json](../examples/inference_plugins.agent_protocol.sample.json)：`StructuredLogger.from_plugin_config(...)` で読み込める agent-protocols Evidence plugin の参照設定。**利用シーン**：外部リポジトリへ LLM 行動追跡 plugin を宣言的に差し込む初期設定の複製元として使う。
 - [docs/INCIDENT_TEMPLATE.md](INCIDENT_TEMPLATE.md)：インシデント報告テンプレートとエスカレーション導線を定義。**利用シーン**：インシデント対応の初動で `RUNBOOK.md` の[Confirm](../RUNBOOK.md#confirm)を基点にメトリクス照合・記録更新・運用チャネル報告を完了し、`CHECKLISTS.md` の[Hygiene](../CHECKLISTS.md#hygiene)で未完了項目を洗い出す。
 - [docs/ADR/README.md](ADR/README.md)：設計判断の記録・改訂フローを統括。**利用シーン**：設計変更 PR に更新・新規 ADR を添付し、レビューテンプレと連携。
 - [docs/security/Security_Review_Checklist.md](security/Security_Review_Checklist.md)：セキュリティ審査項目と証跡収集ポイントを整理。**利用シーン**：リリース前審査で `SECURITY.md`・`docs/security/SAC.md`・`CHECKLISTS.md` の[Release](../CHECKLISTS.md#release)を同期。

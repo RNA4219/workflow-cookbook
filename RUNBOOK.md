@@ -60,6 +60,73 @@ next_review_due: 2026-05-09
     `.inference(metrics={"semantic_retention": 0.9})`。
     こうして生成された JSON ログ行は `collect_metrics --log-path ~/.logs/ops/metrics.log` で取り込まれ、
     `metrics` キー配下の辞書がそのまま運用ログ由来メトリクスとして集計される。
+  - LLM 行動追跡を `agent-protocols` の `Evidence` として残したい場合は、
+    `StructuredLogger` に Evidence plugin を注入し、`extra.agent_protocol` に
+    `evidence_id`、`task_seed_id`、`base_commit`、`head_commit`、`actor`
+    を渡す。例:
+
+    ```python
+    from tools.perf.structured_logger import StructuredLogger
+    from tools.protocols.evidence_bridge import AgentProtocolEvidenceFileSink
+
+    logger = StructuredLogger(
+        name="ops-ui",
+        path="~/.logs/ops/metrics.log",
+        plugins=[
+            AgentProtocolEvidenceFileSink(
+            path="~/.logs/ops/evidence.jsonl",
+            repo_root="C:/Users/ryo-n/Codex_dev/workflow-cookbook",
+            )
+        ],
+    )
+    logger.inference(
+        inference_id="run-001",
+        model="gpt-5.4",
+        prompt={"messages": [{"role": "user", "content": "Ping"}]},
+        response={"content": "Pong"},
+        extra={
+            "agent_protocol": {
+                "evidence_id": "EV-200",
+                "task_seed_id": "TS-200",
+                "base_commit": "abc1234",
+                "head_commit": "def5678",
+                "actor": "codex",
+                "tools": ["StructuredLogger", "Edit", "Shell"],
+            }
+        },
+    )
+    ```
+
+    これにより通常ログは維持したまま、`agent-protocols` 互換の Evidence JSON 行が
+    `evidence.jsonl` に追加される。`extra.agent_protocol` が無いログ行は通常どおり無視される。
+  - plugin をコードではなく設定から組み立てたい場合は、
+    `StructuredLogger.from_plugin_specs(...)` と
+    `InferencePluginSpec(factory="module:attribute", options={...})` を使う。
+    `factory` には
+    `tools.protocols.evidence_bridge:create_agent_protocol_evidence_plugin`
+    のような import 文字列を指定できる。
+  - さらに宣言的にしたい場合は `StructuredLogger.from_plugin_config(...)` を使い、
+    次のような JSON config を渡せる。
+
+    ```json
+    {
+      "inference_plugins": [
+        {
+          "factory": "tools.protocols.evidence_bridge:create_agent_protocol_evidence_plugin",
+          "options": {
+            "path": "C:/logs/evidence.jsonl",
+            "repo_root": "C:/Users/ryo-n/Codex_dev/workflow-cookbook"
+          },
+          "enabled": true
+        }
+      ]
+    }
+    ```
+
+    `.json` は常に利用でき、`.yaml` / `.yml` は yaml loader が存在する環境で利用できる。
+    参照雛形として
+    [`examples/inference_plugins.agent_protocol.sample.json`](examples/inference_plugins.agent_protocol.sample.json)
+    を利用できる。
   - FastAPI などの Web サービスに組み込む場合は `tools.perf.metrics_registry.MetricsRegistry` を共有シングルトン
     として初期化し、トリミング完了時に `observe_trim` を呼び出す。`compress_ratio=` を直接指定する新 API と、
     既存の `original_tokens=` / `trimmed_tokens=` を渡す後方互換 API のどちらでも動作し、`semantic_retention`

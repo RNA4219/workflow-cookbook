@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://workflow-cookbook.dev/schemas/inference-plugin-config.schema.json",
+  "$comment": "更新手順: (1) plugin_loader/plugin_config の受入形式を確認 (2) sample config と docs を同期 (3) pytest を実行して loader と sample の整合を確認してからマージする。",
+  "title": "Inference Plugin Config",
+  "description": "StructuredLogger.from_plugin_config(...) で利用する推論 plugin 設定。",
+  "oneOf": [
+    {
+      "$ref": "#/$defs/pluginConfigRoot"
+    },
+    {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/pluginSpec"
+      }
+    }
+  ],
+  "$defs": {
+    "pluginConfigRoot": {
+      "type": "object",
+      "required": ["inference_plugins"],
+      "additionalProperties": true,
+      "properties": {
+        "inference_plugins": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/pluginSpec"
+          }
+        }
+      }
+    },
+    "pluginSpec": {
+      "type": "object",
+      "required": ["factory"],
+      "additionalProperties": true,
+      "properties": {
+        "factory": {
+          "type": "string",
+          "minLength": 1,
+          "description": "module:attribute 形式の plugin factory import path"
+        },
+        "options": {
+          "type": "object",
+          "description": "plugin factory に渡す keyword arguments",
+          "additionalProperties": true
+        },
+        "enabled": {
+          "type": "boolean",
+          "description": "false の場合は loader が plugin を生成しない"
+        }
+      }
+    }
+  }
+}
