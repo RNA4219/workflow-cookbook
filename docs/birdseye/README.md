@@ -32,11 +32,19 @@ python tools/codemap/update.py \
   --emit index+caps
 ```
 
+```bash
+python tools/codemap/update.py \
+  --since \
+  --radius 1 \
+  --emit caps
+```
+
 1. 対象ノード（`--targets`）に今回更新したファイルや重要エントリをカンマ区切りで列挙します。
    Birdseye を再生成する場合は `docs/birdseye/` 配下を明示してください。
 2. `--emit` で出力対象を指定します。現在は `index+caps` が標準です。
+   `--radius` を省略した場合は既定で ±2 hop を探索し、`0` を指定すると seed ノード自身だけを更新します。
 3. `docs/birdseye/index.json` と `docs/birdseye/hot.json` を同一ターゲットで指定すると、両データセットの鮮度が揃います。
-   出力後は `index.json.generated_at` / `hot.json.generated_at` が最新コミットに追随しているか確認し、
+   出力後は `index.json.generated_at` / `hot.json.generated_at` が 5 桁ゼロ埋めの世代番号として同じ更新サイクルへ進んでいるか確認し、
    必要に応じてホットリスト項目の `last_verified_at` が対象ノードの最新確認日を反映しているか点検します。
 4. 差分をレビューし、`docs/BIRDSEYE.md` のフォールバック情報と矛盾がないことをチェックしてからコミットします。
 

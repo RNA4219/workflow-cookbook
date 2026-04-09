@@ -12,6 +12,13 @@ next_review_due: 2025-11-14
 
 ### Changed
 
+- 0026: `tools/codemap/update.py` に `--radius` を追加し、Birdseye の局所更新 hop 数を制御できるようにした
+- 0027: Birdseye / codemap の README・Guardrails・Runbook・Hub・Checklist を `--radius` と 5 桁世代番号の `generated_at` 前提に同期した
+- 0028: AutoSave の `autosave.snapshot.commit` テレメトリに `latency_ms` と `lock_wait_ms` を含められるようにし、CI workflow に Phase コメントを追加した
+- 0029: `docs/requirements.md` をこのリポジトリ実態に合わせて再定義し、Birdseye・参照実装・CI / Governance テンプレートまで含む要件へ更新した
+- 0030: `docs/spec.md` と `docs/design.md` を repo 実態に合わせて再定義し、`docs/requirements.md` の受入条件に `docs/CONTRACTS.md` と最低限の回帰テスト群を明記した
+- 0031: `EVALUATION.md` を新しい受入条件へ同期し、`docs/design.md` と `docs/ROADMAP_AND_SPECS.md` の周辺説明を feature detection と現行仕様に合わせて更新した
+- 0032: `docs/requirements.md` の受入条件を `EVALUATION.md` と同期し、Birdseye 実生成物の再生成と `docs/ROADMAP_AND_SPECS.md` の現状説明更新を行った
 - 0007: `CHECKLISTS.md` に Development / Pull Request / Ops チェックリストを追加し、Release セクションが新設項目と重複しないよう参照構造へ更新
 - 0008: 過去のブランド表現をワークフロー向けの共通名称・リンクへ差し替え、関連チェックリストとメトリクス定義の整合性を再確認
 - 0009: `<旧ブランド名>` 参照を中立表現へ整理

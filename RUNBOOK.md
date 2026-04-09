@@ -19,6 +19,10 @@ next_review_due: 2025-11-21
   - 準備: データ投入 / キャッシュ初期化
   - 実行: コマンド/ジョブ名
   - 確認: 出力の存在・件数・整合
+- Birdseye / codemap 更新
+  - 全体更新: `python tools/codemap/update.py --targets docs/birdseye/index.json,docs/birdseye/hot.json --emit index+caps`
+  - 局所更新: `python tools/codemap/update.py --since --radius 1 --emit caps`
+  - 確認: `docs/birdseye/index.json` / `docs/birdseye/hot.json` / `docs/birdseye/caps/*.json` の差分と `generated_at`（5 桁ゼロ埋め世代番号）を確認し、必要なら `CHECKLISTS.md` の [Hygiene](CHECKLISTS.md#hygiene) を更新する。
 
 ## Observability
 

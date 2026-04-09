@@ -1,4 +1,5 @@
 name: python-tests
+# Phase 1: MVP / 仕様固め向けの最小 Python テストゲート
 
 on:
   pull_request:

@@ -1,4 +1,5 @@
 name: test
+# Phase 2: 安定化向けの lint / typecheck / unit / build / e2e 集約ゲート
 on:
   push: { branches: ["**"] }
   pull_request:

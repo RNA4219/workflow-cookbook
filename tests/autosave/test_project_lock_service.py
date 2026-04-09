@@ -106,7 +106,14 @@ def service_components() -> tuple[ProjectLockService, StubCoordinator, StubTelem
     return service, coordinator, telemetry, flags
 
 
-def _request(project_id: str = "project-1", snapshot_id: int = 1, token: str = "lock-1") -> AutoSaveRequest:
+def _request(
+    project_id: str = "project-1",
+    snapshot_id: int = 1,
+    token: str = "lock-1",
+    *,
+    latency_ms: float | None = None,
+    lock_wait_ms: float | None = None,
+) -> AutoSaveRequest:
     return AutoSaveRequest(
         project_id=project_id,
         snapshot_delta={"key": "value"},
@@ -114,6 +121,8 @@ def _request(project_id: str = "project-1", snapshot_id: int = 1, token: str = "
         snapshot_id=snapshot_id,
         timestamp=datetime.now(tz=timezone.utc),
         precision_mode="strict",
+        latency_ms=latency_ms,
+        lock_wait_ms=lock_wait_ms,
     )
 
 
@@ -251,4 +260,21 @@ def test_flag_rollout_guard_enforces_checklist_before_enable(
     assert result.status == "skipped"
     assert telemetry.events == []
     assert any("action=flag_disabled" in record.message for record in caplog.records)
+
+
+def test_snapshot_commit_emits_latency_and_lock_wait_metrics(
+    service_components: tuple[ProjectLockService, StubCoordinator, StubTelemetry, MutableFlagState]
+) -> None:
+    service, coordinator, telemetry, _ = service_components
+    coordinator.set_token("project-1", "lock-1")
+
+    result = service.apply_snapshot(
+        _request(snapshot_id=3, latency_ms=18.5, lock_wait_ms=4.0)
+    )
+
+    assert result.status == "ok"
+    event_name, payload = telemetry.events[-1]
+    assert event_name == "autosave.snapshot.commit"
+    assert payload["latency_ms"] == pytest.approx(18.5)
+    assert payload["lock_wait_ms"] == pytest.approx(4.0)
 

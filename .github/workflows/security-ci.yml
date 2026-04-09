@@ -1,4 +1,5 @@
 name: security-ci
+# Phase 3: reusable security gate entrypoint
 
 on: [pull_request, push]
 

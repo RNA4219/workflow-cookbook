@@ -65,5 +65,6 @@ next_review_due: 2025-11-14
 
 - 命名・ディレクトリ整備
 - ドキュメント差分反映
+- Birdseye を更新した場合は `docs/birdseye/index.json` / `hot.json` / `caps/*` の差分と `generated_at` を確認し、局所更新では `--radius` 指定が意図どおりか点検
 - フォーク差分記録の最新化（[`docs/FORK_NOTES.md`](docs/FORK_NOTES.md) をリリース前レビューと突合）
 - 旧呼称の混入チェック（例: `rg "<旧ブランド名>"` など抽象化したキーワードで固有表現を検索し、現行ブランド以外の名称が残存していないか確認）

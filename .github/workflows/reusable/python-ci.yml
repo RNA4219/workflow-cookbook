@@ -6,6 +6,7 @@ concurrency:
   cancel-in-progress: true
 
 name: Reusable Python CI
+# Phase 1-2: 派生リポで使う Python CI ベースライン
 
 on:
   workflow_call:

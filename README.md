@@ -52,7 +52,7 @@ canary rules.
     - [`tools/codemap/update.py`](tools/codemap/update.py) ……
       `python tools/codemap/update.py` で `codemap.update` を実行し
       Birdseye カプセルを再生成する。標準では直近変更ファイルから±2 hop の
-      カプセルのみ更新し、全カプセルを再生成したい場合は
+      カプセルのみ更新し、`--radius` で hop 数を調整できる。全カプセルを再生成したい場合は
       `--targets docs/birdseye/index.json,docs/birdseye/hot.json`
       を指定する（`GUARDRAILS.md` の
       [鮮度管理](GUARDRAILS.md#鮮度管理staleness-handling)
@@ -61,6 +61,9 @@ canary rules.
       ```sh
       # 例: main との差分から対象カプセルを自動抽出
       python tools/codemap/update.py --since --emit index+caps
+
+      # 例: 1 hop に絞って局所更新
+      python tools/codemap/update.py --since --radius 1 --emit caps
 
       # 例: Birdseye リソースを明示的に指定（従来挙動）
       python tools/codemap/update.py --targets docs/birdseye/index.json,docs/birdseye/hot.json --emit index+caps
@@ -197,7 +200,7 @@ jobs:
 | `tools/` | ドキュメント同期と検証スクリプトを運用する | [docs/design.md](docs/design.md) / [RUNBOOK.md](RUNBOOK.md#execute) | `tools/codemap/update.py` で Birdseye を再生成[^birdseye] |
 | `docs/security/` | セキュリティレビューと SAC 手順を集約する | [docs/security/Security_Review_Checklist.md](docs/security/Security_Review_Checklist.md) / [docs/security/SAC.md](docs/security/SAC.md) | リリース審査の証跡を更新 |
 
-[^birdseye]: `python tools/codemap/update.py --since --emit index+caps` で Birdseye インデックスとカプセルを更新し、必要に応じて `--targets docs/birdseye/index.json,docs/birdseye/hot.json` などを併用して生成対象を明示する。`--emit` の指定により出力形式を切り替える。詳細は [tools/codemap/README.md](tools/codemap/README.md#実行手順) と [GUARDRAILS.md](GUARDRAILS.md#鮮度管理staleness-handling) を参照。
+[^birdseye]: `python tools/codemap/update.py --since --emit index+caps` で Birdseye インデックスとカプセルを更新し、必要に応じて `--radius` で hop 数を調整し、`--targets docs/birdseye/index.json,docs/birdseye/hot.json` などを併用して生成対象を明示する。`--emit` の指定により出力形式を切り替える。詳細は [tools/codemap/README.md](tools/codemap/README.md#実行手順) と [GUARDRAILS.md](GUARDRAILS.md#鮮度管理staleness-handling) を参照。
 [^styles]: `styles/qa/QA.yml` の禁止用語・表記揺れルールをレビューで適用し、検知結果を `CHECKLISTS.md` のリリース手順へ反映する。
 
 ![lint](https://github.com/RNA4219/workflow-cookbook/actions/workflows/markdown.yml/badge.svg)

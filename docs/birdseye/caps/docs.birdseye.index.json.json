@@ -4,7 +4,11 @@
   "public_api": [],
   "summary": "Birdseyeノードとエッジの一覧を提供し、LLMが必要なカプセルを最小ホップで特定できるようにする。",
   "deps_out": [
-    "docs/birdseye/caps/"
+    "GUARDRAILS.md",
+    "HUB.codex.md",
+    "README.md",
+    "docs/birdseye/caps/",
+    "tools/codemap/"
   ],
   "deps_in": [
     "GUARDRAILS.md",
@@ -18,5 +22,5 @@
     "生成が古いとBirdseye探索の経路が誤る"
   ],
   "tests": [],
-  "generated_at": "00006"
+  "generated_at": "00025"
 }

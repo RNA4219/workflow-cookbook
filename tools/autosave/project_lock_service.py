@@ -57,6 +57,8 @@ class AutoSaveRequest:
     snapshot_id: int
     timestamp: datetime
     precision_mode: str
+    latency_ms: float | None = None
+    lock_wait_ms: float | None = None
 
 
 @dataclass(frozen=True)
@@ -281,5 +283,9 @@ class AutoSaveSnapshotValidator:
             "precision_mode": request.precision_mode,
             "timestamp": request.timestamp.isoformat(),
         }
+        if request.latency_ms is not None:
+            payload["latency_ms"] = request.latency_ms
+        if request.lock_wait_ms is not None:
+            payload["lock_wait_ms"] = request.lock_wait_ms
         self._telemetry.emit("autosave.snapshot.commit", payload)
 

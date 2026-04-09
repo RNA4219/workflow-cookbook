@@ -103,7 +103,7 @@ next_review_due: 2025-11-14
 
 1. **スキャン**: ルートと `orchestration/` 配下を再帰探索し、Markdown front matter
    (`---`) を含むファイルを優先取得。
-2. **Birdseye 同期**: `docs/birdseye/index.json` から対象ファイル±2 hop のノードIDと役割を取得。
+2. **Birdseye 同期**: `docs/birdseye/index.json` から対象ファイルのノードIDと役割を取得し、既定では ±2 hop を展開する。局所更新や軽量読込が必要な場合は `codemap.update --radius` と同じ hop 数へ縮小してよい。
    必要な `docs/birdseye/caps/*.json` を取り込み、各節に `node_id` と `role` を差し込む。
    これにより GUARDRAILS の `plan` 出力要件（ノードID明示）を満たす初期データを確保。
 3. **ノード生成**: 各ファイルから `##` レベルの節をノード化し、`Priority`
@@ -171,7 +171,7 @@ in_progress → blocked → in_progress（解除後に戻す）
 - Orchestration MD には `## Phase` `## Stage` 等の段階名を揃える
 - タスク自動生成ツールはドライランでJSON出力を確認後にIssue化
 - 生成後は `CHANGELOG.md` へ反映済みタスクを移すことで履歴が追える
-- Birdseye 鮮度: `docs/birdseye/index.json.generated_at` が最新コミットより古ければ再収集を要求。
+- Birdseye 鮮度: `docs/birdseye/index.json.generated_at` は 5 桁ゼロ埋めの世代番号として扱い、関連差分に対して未更新または Birdseye 資源間で不整合なら再収集を要求。
   該当 Capsule も同時更新。
-- `codemap.update` は Birdseye 再生成時のみ実行。
+- `codemap.update` は Birdseye 再生成時のみ実行。既定は ±2 hop とし、局所更新時のみ `--radius 1` や `--radius 0` を使い分ける。
   Dual Stack では関数呼び出し→`tool_request` ミラーを同一内容で送る。

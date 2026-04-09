@@ -31,58 +31,6 @@ CapsuleState = dict[str, CapsuleEntry]
 Graph = dict[str, list[str]]
 
 
-def _resolve_focus_nodes_for_targets(
-    root_targets: Sequence[Path],
-    root: Path,
-    graph_out: Mapping[str, Sequence[str]],
-    graph_in: Mapping[str, Sequence[str]],
-    caps_state: CapsuleState,
-    cap_path_lookup: Mapping[Path, str],
-    available_caps: Mapping[str, Path],
-) -> set[str]:
-    combined_caps: dict[str, Path] = dict(available_caps)
-    for cap_id, (cap_path, _cap_data, _cap_original) in caps_state.items():
-        combined_caps.setdefault(cap_id, cap_path)
-    if not combined_caps:
-        return set()
-
-    focus_nodes: set[str] = set()
-    root_resolved = root.resolve()
-    index_resolved = (root / "index.json").resolve()
-    caps_dir_resolved = (root / "caps").resolve()
-    hot_resolved = (root / "hot.json").resolve()
-    special_roots = {root_resolved, index_resolved, caps_dir_resolved, hot_resolved}
-
-    for candidate in root_targets:
-        resolved = candidate.resolve()
-        if resolved in special_roots:
-            return set(combined_caps)
-        cap_id = cap_path_lookup.get(resolved)
-        if cap_id:
-            focus_nodes.add(cap_id)
-
-    if not focus_nodes:
-        focus_nodes = set(caps_state) or set(combined_caps)
-
-    seen: set[str] = set()
-    queue: deque[tuple[str, int]] = deque((node, 0) for node in focus_nodes)
-    while queue:
-        node, distance = queue.popleft()
-        if node in seen or distance > 2:
-            continue
-        seen.add(node)
-        if distance == 2:
-            continue
-        for neighbour in graph_out.get(node, ()):
-            if neighbour not in seen:
-                queue.append((neighbour, distance + 1))
-        for neighbour in graph_in.get(node, ()):
-            if neighbour not in seen:
-                queue.append((neighbour, distance + 1))
-
-    return {node for node in seen if node in combined_caps}
-
-
 class TargetResolutionError(RuntimeError):
     """Raised when Birdseye targets cannot be resolved."""
 
@@ -99,6 +47,7 @@ class UpdateOptions:
     dry_run: bool = False
     since: str | None = None
     diff_resolver: DiffResolver | None = None
+    radius: int = 2
 
     def resolve_targets(self) -> tuple[Path, ...]:
         resolved = [_normalise_target(path) for path in self.targets]
@@ -312,7 +261,15 @@ def parse_args(argv: Iterable[str] | None = None) -> UpdateOptions:
         action="store_true",
         help="Compute updates without writing to disk.",
     )
+    parser.add_argument(
+        "--radius",
+        type=int,
+        default=2,
+        help="Traverse the Birdseye graph up to this many hops from each target.",
+    )
     args = parser.parse_args(list(argv) if argv is not None else None)
+    if args.radius < 0:
+        parser.error("--radius must be 0 or greater")
     target_paths: list[Path] = []
     if args.targets:
         target_paths.extend(
@@ -328,6 +285,7 @@ def parse_args(argv: Iterable[str] | None = None) -> UpdateOptions:
         emit=args.emit,
         dry_run=args.dry_run,
         since=args.since,
+        radius=args.radius,
     )
 
 
@@ -536,6 +494,7 @@ class BirdseyeRootBuilder:
         emit_caps: bool,
         timestamp: str,
         serial_allocator: _SerialAllocator,
+        focus_resolver: BirdseyeFocusResolver,
     ) -> None:
         self.root = root
         self.root_targets = root_targets
@@ -548,7 +507,7 @@ class BirdseyeRootBuilder:
         self.caps_dir = root / "caps"
         self._loads: list[str] = []
         self._writes: list[PlannedWrite] = []
-        self._focus_resolver = BirdseyeFocusResolver(radius=2)
+        self._focus_resolver = focus_resolver
         self._first_generated: str | None = None
 
     def build(self) -> BirdseyeRootPlan:
@@ -693,14 +652,14 @@ class BirdseyeRootBuilder:
         cap_path_lookup: Mapping[Path, str],
         available_caps: Mapping[str, Path],
     ) -> set[str]:
-        return _resolve_focus_nodes_for_targets(
-            self.root_targets,
-            self.root,
-            graph_out,
-            graph_in,
-            caps_state,
-            cap_path_lookup,
-            available_caps,
+        return self._focus_resolver.resolve(
+            root_targets=self.root_targets,
+            root=self.root,
+            graph_out=graph_out,
+            graph_in=graph_in,
+            caps_state=caps_state,
+            cap_path_lookup=cap_path_lookup,
+            available_caps=available_caps,
         )
 
     def _ensure_placeholders(
@@ -808,6 +767,7 @@ class BirdseyeUpdateSession:
         self.emit_caps = options.emit in {"caps", "index+caps"}
         self.timestamp = timestamp or _format_timestamp(utc_now())
         self.serial_allocator = _SerialAllocator()
+        self.focus_resolver = BirdseyeFocusResolver(radius=options.radius)
         self._generated_at: str | None = None
         self._writes: list[PlannedWrite] = []
 
@@ -843,6 +803,7 @@ class BirdseyeUpdateSession:
             emit_caps=self.emit_caps,
             timestamp=self.timestamp,
             serial_allocator=self.serial_allocator,
+            focus_resolver=self.focus_resolver,
         )
         plan = builder.build()
         plan.apply(self)
@@ -857,14 +818,14 @@ class BirdseyeUpdateSession:
         cap_path_lookup: Mapping[Path, str],
         available_caps: Mapping[str, Path],
     ) -> set[str]:
-        return _resolve_focus_nodes_for_targets(
-            root_targets,
-            root,
-            graph_out,
-            graph_in,
-            caps_state,
-            cap_path_lookup,
-            available_caps,
+        return self.focus_resolver.resolve(
+            root_targets=root_targets,
+            root=root,
+            graph_out=graph_out,
+            graph_in=graph_in,
+            caps_state=caps_state,
+            cap_path_lookup=cap_path_lookup,
+            available_caps=available_caps,
         )
 
     def _plan_hot(

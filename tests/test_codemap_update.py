@@ -288,6 +288,7 @@ def test_birdseye_root_plan_records_loads_and_writes(
         emit_caps=emit_caps,
         timestamp="2025-01-01T00:00:00Z",
         serial_allocator=update._SerialAllocator(),
+        focus_resolver=update.BirdseyeFocusResolver(radius=2),
     )
     plan = builder.build()
 
@@ -306,6 +307,7 @@ def test_birdseye_root_plan_requires_hot_when_emitting_index(
         emit_caps=False,
         timestamp="2025-01-01T00:00:00Z",
         serial_allocator=update._SerialAllocator(),
+        focus_resolver=update.BirdseyeFocusResolver(radius=2),
     )
 
     with pytest.raises(FileNotFoundError):
@@ -1020,6 +1022,56 @@ def test_run_update_limits_caps_to_two_hop_scope(tmp_path, monkeypatch):
         assert refreshed["deps_in"] == deps_in
 
 
+def test_run_update_respects_radius_one_scope(tmp_path, monkeypatch):
+    caps_payloads = {
+        cap_id: _caps_payload(cap_id, deps_out=["stale"], deps_in=["old"])
+        for cap_id in ("alpha.md", "beta.md", "gamma.md", "delta.md")
+    }
+    _root, _index_path, _hot_path, cap_paths = _prepare_birdseye(
+        tmp_path,
+        edges=[
+            ["alpha.md", "beta.md"],
+            ["beta.md", "gamma.md"],
+            ["gamma.md", "delta.md"],
+        ],
+        caps_payloads=caps_payloads,
+        hot_entries=[],
+    )
+
+    frozen_now = datetime(2025, 1, 2, tzinfo=timezone.utc)
+    monkeypatch.setattr(update, "utc_now", lambda: frozen_now)
+
+    report = update.run_update(
+        update.UpdateOptions(
+            targets=(cap_paths["beta.md"],),
+            emit="caps",
+            dry_run=False,
+            radius=1,
+        )
+    )
+
+    expected_caps = {
+        cap_paths[cap_id]
+        for cap_id in ("alpha.md", "beta.md", "gamma.md")
+    }
+    assert set(report.planned_writes) == expected_caps
+    assert set(report.performed_writes) == expected_caps
+
+    refreshed_alpha = json.loads(cap_paths["alpha.md"].read_text(encoding="utf-8"))
+    refreshed_beta = json.loads(cap_paths["beta.md"].read_text(encoding="utf-8"))
+    refreshed_gamma = json.loads(cap_paths["gamma.md"].read_text(encoding="utf-8"))
+    untouched_delta = json.loads(cap_paths["delta.md"].read_text(encoding="utf-8"))
+
+    assert refreshed_alpha["deps_out"] == ["beta.md"]
+    assert refreshed_alpha["deps_in"] == []
+    assert refreshed_beta["deps_out"] == ["gamma.md"]
+    assert refreshed_beta["deps_in"] == ["alpha.md"]
+    assert refreshed_gamma["deps_out"] == ["delta.md"]
+    assert refreshed_gamma["deps_in"] == ["beta.md"]
+    assert untouched_delta["deps_out"] == ["stale"]
+    assert untouched_delta["deps_in"] == ["old"]
+
+
 def test_run_update_refreshes_caps_generated_at(tmp_path, monkeypatch):
     edges = [
         ["alpha.md", "beta.md"],
@@ -1201,6 +1253,17 @@ def test_parse_args_returns_since_without_resolving(monkeypatch):
 
     assert options.targets == ()
     assert options.since == "feature"
+
+
+def test_parse_args_supports_radius():
+    options = update.parse_args(["--since", "--radius", "1"])
+
+    assert options.radius == 1
+
+
+def test_parse_args_rejects_negative_radius():
+    with pytest.raises(SystemExit):
+        update.parse_args(["--since", "--radius", "-1"])
 
 
 def test_parse_args_supports_since_and_limits_scope(tmp_path, monkeypatch):
@@ -1515,3 +1578,35 @@ def test_focus_resolver_includes_two_hop_neighbours():
     )
 
     assert focus == {"a", "b", "c", "d", "x"}
+
+
+def test_focus_resolver_respects_radius_zero():
+    resolver = update.BirdseyeFocusResolver(radius=0)
+    root = Path("/repo/docs/birdseye")
+    root_targets = [(root / "caps" / "b.json").resolve()]
+    graph_out: Mapping[str, Sequence[str]] = {"b": ["c"]}
+    graph_in: Mapping[str, Sequence[str]] = {"b": ["a"]}
+    caps_state: update.CapsuleState = {
+        "b": ((root / "caps" / "b.json").resolve(), {}, ""),
+    }
+    cap_path_lookup: Mapping[Path, str] = {
+        (root / "caps" / "a.json").resolve(): "a",
+        (root / "caps" / "b.json").resolve(): "b",
+        (root / "caps" / "c.json").resolve(): "c",
+    }
+    available_caps: Mapping[str, Path] = {
+        "a": (root / "caps" / "a.json").resolve(),
+        "c": (root / "caps" / "c.json").resolve(),
+    }
+
+    focus = resolver.resolve(
+        root_targets=root_targets,
+        root=root,
+        graph_out=graph_out,
+        graph_in=graph_in,
+        caps_state=caps_state,
+        cap_path_lookup=cap_path_lookup,
+        available_caps=available_caps,
+    )
+
+    assert focus == {"b"}

@@ -1,4 +1,5 @@
 name: Security Gate
+# Phase 3: GA / 本番運用向けのセキュリティゲーティング
 
 on:
   push:

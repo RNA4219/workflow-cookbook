@@ -97,12 +97,12 @@ next_review_due: 2025-11-14
 
    ```json
    {
-     "generated_at": "2025-10-13T10:12:00Z",
+     "generated_at": "00005",
      "nodes": {
        "frontend/src/App.tsx": {
          "role": "entrypoint",
          "caps": "docs/birdseye/caps/frontend.src.App.tsx.json",
-         "mtime": "2025-10-12T09:01:00Z"
+         "mtime": "00012"
        }
      },
      "edges": [["frontend/src/App.tsx","frontend/src/hooks/recommendations/loader.ts"]]
@@ -140,8 +140,10 @@ next_review_due: 2025-11-14
 1. まず `README.md` の **LLM-BOOTSTRAP** ブロックのみ読む（100行以内）。
 2. `docs/birdseye/index.json` を読み、**対象変更ファイル±2 hop** のノードID集合を得る。
 3. 対応する **`docs/birdseye/caps/*.json` だけ**を読み込む。
-4. `index.json.generated_at` が最新コミットより古い場合、**再生成を要求**する（下記“鮮度管理”参照）。
+4. `index.json.generated_at` が未更新のまま関連ファイル差分だけ進んでいる、または Birdseye 資源同士で世代番号が揃っていない場合は、**再生成を要求**する（下記“鮮度管理”参照）。
 5. 生成物（`plan`/`patch`/`tests`/`commands`/`notes` 等）では、**ノードID（パス）を明示**し出典を示す。
+
+`codemap.update` を利用できる環境では、既定は ±2 hop としつつ、局所更新やトークン節約が必要な場合に `radius=1` や `radius=0` を明示してよい。
 
 **SHOULD**（推奨）
 
@@ -158,15 +160,15 @@ next_review_due: 2025-11-14
 
 ### 鮮度管理（Staleness Handling）
 
-- **条件**：`index.json.generated_at` が最新コミットより古い／Capsが見つからない／対象ノードが未登録。
+- **条件**：`index.json.generated_at` が関連変更に対して未更新／Capsが見つからない／対象ノードが未登録／Birdseye 資源間で世代番号が不整合。
 - **対応**：
-  - **ツールあり環境**（Function Calling）
-    - 例：`codemap.update` を呼ぶ（論理名）。
+- **ツールあり環境**（Function Calling）
+  - 例：`codemap.update` を呼ぶ（論理名）。
   - **ツールなし環境**
     - 本文に **ミラー封筒**を出し、外部実行を待つ。
 
         ```tool_request
-        {"name":"codemap.update","arguments":{"targets":["frontend/src/App.tsx"],"emit":"index+caps"}}
+        {"name":"codemap.update","arguments":{"targets":["frontend/src/App.tsx"],"emit":"index+caps","radius":1}}
         ```
 
     - 実行結果が到着するまで **偽の読込結果を作らない**。
@@ -182,7 +184,7 @@ next_review_due: 2025-11-14
   2. ノートに「人間が codemap スクリプトをローカルで実行し、成果物をコミットして戻す」旨を記載。
   3. 実行結果が共有されるまで Birdseye 参照を保留し、暫定読みは上記フォールバックのみ使用。
 - 可能なら `docs/birdseye/` を手動で更新するための最小手順（対象ファイル列挙、既存 JSON の削除有無）をノートに添える。
-- 手動生成後は `generated_at` の更新と差分確認を忘れない。
+- 手動生成後は `generated_at`（5 桁ゼロ埋め連番）の更新と差分確認を忘れない。
 
 ---
 
@@ -213,7 +215,7 @@ next_review_due: 2025-11-14
 ### 互換のための論理ツール名（最小セット）
 
 - `codemap.update`: args
-  `{targets?: string[], emit?: "index"|"caps"|"index+caps"}`
+  `{targets?: string[], emit?: "index"|"caps"|"index+caps", radius?: number}`
   — Birdseye再生成。
   - **実装未提供**：人間がローカル `tools/codemap/*` などのスクリプトを走らせ、成果物（`index.json`, `caps/*.json`）をコミット。
   - 代替操作例：対象ファイル一覧をメモし、`docs/BIRDSEYE.md` を基に手動で JSON を補完。

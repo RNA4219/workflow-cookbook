@@ -2,18 +2,26 @@
 intent_id: INT-001
 owner: your-handle
 status: active   # draft|active|deprecated
-last_reviewed_at: 2025-10-14
-next_review_due: 2025-11-14
+last_reviewed_at: 2026-04-09
+next_review_due: 2026-05-09
 ---
 
 # Evaluation
 
 ## Acceptance Criteria
 
-- 必須要件（フォーマット・件数・整合性など）
+- `docs/requirements.md`、`docs/spec.md`、`docs/design.md`、`docs/CONTRACTS.md` が repo 実態と矛盾しないこと。
+- Birdseye / Codemap の更新手順が `README.md`、`docs/BIRDSEYE.md`、`docs/birdseye/README.md`、`GUARDRAILS.md`、`RUNBOOK.md` で整合していること。
+- `docs/CONTRACTS.md` に定義された `.ga/qa-metrics.json` と `governance/predictor.yaml` の feature detection 契約が維持されていること。
 - PR本文に Priority Score（値と根拠）が記録されていること。
-- governance/policy.yaml の forbidden_paths を変更しないこと。
-- インシデント発生時は docs/IN-YYYYMMDD-XXX.md を作成し、該当PRおよびRUNBOOKから相互リンクする
+- `governance/policy.yaml` の `forbidden_paths` を無断で変更しないこと。
+- インシデント発生時は `docs/IN-YYYYMMDD-XXX.md` を作成し、該当 PR および `RUNBOOK.md` から相互リンクすること。
+- 最低限の回帰確認として、次のテストが通ること。
+  - `tests/test_codemap_update.py`
+  - `tests/autosave/test_project_lock_service.py`
+  - `tests/merge/test_precision_mode_pipeline.py`
+  - `tests/test_collect_metrics_cli.py`
+  - `tests/perf/test_collect_metrics_autosave_merge.py`
 
 ## KPIs
 
@@ -32,14 +40,23 @@ next_review_due: 2025-11-14
 
 ## Test Outline
 
-- 単体: 入力→出力の例テーブル（[ケース I-03](docs/addenda/I_Test_Cases.md#i-03-task-seed-tdd-例)）
-- 結合: 代表シナリオ（[ケース I-02](docs/addenda/I_Test_Cases.md#i-02-birdseye-再生成確認)）
-- 回帰: 重要パス再確認（[ケース I-01](docs/addenda/I_Test_Cases.md#i-01-チェックリスト突合)）
+- 単体:
+  - `tests/test_codemap_update.py`
+  - `tests/autosave/test_project_lock_service.py`
+  - `tests/merge/test_precision_mode_pipeline.py`
+- 結合:
+  - `tests/test_collect_metrics_cli.py`
+  - `tests/perf/test_collect_metrics_autosave_merge.py`
+- 補助シナリオ:
+  - [ケース I-01](docs/addenda/I_Test_Cases.md#i-01-チェックリスト突合)
+  - [ケース I-02](docs/addenda/I_Test_Cases.md#i-02-birdseye-再生成確認)
+  - [ケース I-03](docs/addenda/I_Test_Cases.md#i-03-task-seed-tdd-例)
 
 > 検証手順の詳細は [`docs/addenda/I_Test_Cases.md`](docs/addenda/I_Test_Cases.md) を参照する。
 
 ## Verification Checklist
 
-- [ ] 主要フローが動作する（手動確認）
-- [ ] エラー時挙動が明示されている
-- [ ] 依存関係が再現できる環境である
+- [ ] `requirements` / `spec` / `design` / `CONTRACTS` の整合を確認した
+- [ ] Birdseye / Codemap の更新導線が関連文書で一致している
+- [ ] 最低限の回帰テスト結果を確認した
+- [ ] エラー時挙動と feature detection 契約が明示されている
