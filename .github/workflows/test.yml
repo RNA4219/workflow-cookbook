@@ -279,7 +279,7 @@ jobs:
 
           echo "=== CI Summary (raw JSONL) ==="
           for f in "${files[@]}"; do
-            printf '--- %s ---\n' "${f#./}"
+            printf -- '--- %s ---\n' "${f#./}"
             cat "$f" || true
           done
 
