@@ -27,5 +27,5 @@ jobs:
         uses: EndBug/label-sync@v2
         with:
           delete-other-labels: false
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          labels-file: .github/labels.yml
+          token: ${{ secrets.GITHUB_TOKEN }}
+          config-file: .github/labels.yml
