@@ -12,6 +12,8 @@ next_review_due: 2025-11-14
 
 ### Changed
 
+- 0051: CodeQL workflow の解析対象を repo 実態に合わせて `python` のみに絞り、
+  JavaScript source 不在による失敗を解消した
 - 0050: `labels-sync` workflow のラベル同期 action を現行の
   `EndBug/label-sync@v2` へ置き換え、`README.md` を top-level front matter
   必須チェックの対象外にした
