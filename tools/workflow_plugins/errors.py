@@ -14,3 +14,11 @@ class WorkflowPluginLoadError(WorkflowPluginError):
 
 class WorkflowPluginCapabilityError(WorkflowPluginError):
     """Raised when a plugin does not provide a required capability."""
+
+
+class WorkflowPluginTimeoutError(WorkflowPluginError):
+    """Raised when a plugin execution exceeds the timeout limit."""
+
+
+class WorkflowPluginExecutionError(WorkflowPluginError):
+    """Raised when a plugin execution fails."""

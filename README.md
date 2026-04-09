@@ -3,6 +3,12 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![CI](https://github.com/RNA4219/workflow-cookbook/actions/workflows/test.yml/badge.svg)](https://github.com/RNA4219/workflow-cookbook/actions/workflows/test.yml)
 
+<!-- SLO-BADGES -->
+[![SLO: lead_time](https://img.shields.io/badge/Lead%20Time%20P95-1d-brightgreen)](https://img.shields.io/badge/Lead%20Time%20P95-1d-brightgreen)
+[![SLO: mttr](https://img.shields.io/badge/MTTR%20P95-30m-brightgreen)](https://img.shields.io/badge/MTTR%20P95-30m-brightgreen)
+[![SLO: change_failure_rate](https://img.shields.io/badge/Change%20Failure%20Rate-20%-yellow)](https://img.shields.io/badge/Change%20Failure%20Rate-20%-yellow)
+<!-- /SLO-BADGES -->
+
 Language: English | [日本語](README.ja.md) | [简体中文](README.zh-CN.md)
 
 A docs and runtime kit for workflow operations and context engineering.
