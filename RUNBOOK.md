@@ -79,7 +79,7 @@ next_review_due: 2026-05-09
         plugins=[
             AgentProtocolEvidenceFileSink(
             path="~/.logs/ops/evidence.jsonl",
-            repo_root="C:/Users/ryo-n/Codex_dev/workflow-cookbook",
+            repo_root=".",
             )
         ],
     )
@@ -118,8 +118,8 @@ next_review_due: 2026-05-09
         {
           "factory": "tools.protocols.evidence_bridge:create_agent_protocol_evidence_plugin",
           "options": {
-            "path": "C:/logs/evidence.jsonl",
-            "repo_root": "C:/Users/ryo-n/Codex_dev/workflow-cookbook"
+            "path": "logs/evidence.jsonl",
+            "repo_root": "."
           },
           "enabled": true
         }

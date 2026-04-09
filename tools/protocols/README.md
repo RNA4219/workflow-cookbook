@@ -54,7 +54,7 @@ logger = StructuredLogger.from_plugin_specs(
             factory="tools.protocols.evidence_bridge:create_agent_protocol_evidence_plugin",
             options={
                 "path": "evidence.jsonl",
-                "repo_root": "C:/Users/ryo-n/Codex_dev/workflow-cookbook",
+                "repo_root": ".",
             },
         )
     ],

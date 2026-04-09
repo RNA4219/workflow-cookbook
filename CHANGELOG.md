@@ -12,6 +12,10 @@ next_review_due: 2025-11-14
 
 ### Changed
 
+- 0047: repo 内に残っていた絶対パス参照を相対パスへ置き換え、sample config、
+  Runbook、Skill references、release docs の再利用性を改善した
+- 0046: `workflow-cookbook/skills/workflow-agent-evidence/` を追加し、
+  `agent-protocols` の Evidence 連携を扱う repo 同梱 Skill を配置した
 - 0044: `CODE_OF_CONDUCT.md` と `SECURITY.md` を廃止し、README / Hub /
   Roadmap / Checklist の参照を `docs/security/` 基準へ整理した
 - 0045: ライセンスを Apache-2.0 から MIT へ切り替え、`LICENSE` 本文、

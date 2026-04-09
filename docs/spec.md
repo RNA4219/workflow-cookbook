@@ -240,7 +240,7 @@ Workflow Cookbook は、QA / Governance-first の運用ドキュメント、Bird
 - config file の shape は `schemas/inference-plugin-config.schema.json` で共有し、
   sample config と同期すること。
 - Evidence 連携先の契約は
-  `C:\Users\ryo-n\Codex_dev\agent-protocols\schemas\Evidence.schema.json`
+  `../agent-protocols/schemas/Evidence.schema.json`
   を正本とすること。
 - 追跡対象は LLM の推論 1 回ごとの行動証跡とし、`InferenceLogRecord` から
   `Evidence` へ 1:1 で変換すること。

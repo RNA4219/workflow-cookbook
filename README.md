@@ -56,6 +56,7 @@ handoffs, and plugin-based LLM behavior tracking that can emit
   [`HUB.codex.md`](HUB.codex.md)
 - LLM 行動追跡を使う:
   [`tools/protocols/README.md`](tools/protocols/README.md) /
+  [`skills/workflow-agent-evidence/SKILL.md`](skills/workflow-agent-evidence/SKILL.md) /
   [`examples/inference_plugins.agent_protocol.sample.json`](examples/inference_plugins.agent_protocol.sample.json) /
   [`examples/agent_protocol_evidence_consumer.sample.py`](examples/agent_protocol_evidence_consumer.sample.py)
 - CI / Governance を使う:
