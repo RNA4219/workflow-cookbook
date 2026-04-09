@@ -97,6 +97,8 @@
 - IB-002
   - `CHANGELOG.md`、`docs/releases/`、git tag、GitHub release を照合する
     release evidence checker を追加済み
+- IB-003
+  - Task/Acceptance 双方向整合チェッカー `check_task_acceptance_bidirectional.py` 追加
 - IB-004
   - `workflow-cookbook` / `agent-taskstate` / `memx-resolver` を横断する
     cross-repo integration workflow を追加済み
@@ -108,6 +110,21 @@
   - `tools/ci/check_birdseye_freshness.py` を追加し、
     `generated_at`・`mtime`・caps 参照・`last_verified_at` の
     freshness check を実行可能にした
+- IB-008
+  - Acceptance Index 生成ツールを拡張し、
+    status summary / records テーブル形式を出力
+- IB-011
+  - Plugin runtime に timeout / retry / error policy と tracing 機能を追加
+- IB-013
+  - Evidence / Acceptance 連携レポート生成ツール `generate_evidence_report.py` 追加
+- IB-015
+  - ADR / addenda 索引自動生成ツール `generate_docs_index.py` 追加
+
+### Known Limitations 完了
+
+- 0005
+  - SLO バッジ自動生成ツール `generate_slo_badges.py` を追加し、
+    `policy.yaml` の SLO 値を README へ自動反映
 
 ## 7. 更新ルール
 

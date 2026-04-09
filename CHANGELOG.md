@@ -10,6 +10,16 @@ next_review_due: 2025-11-14
 
 ## [Unreleased]
 
+### Added
+
+- 0075: Improvement Backlog 実装完了
+  - IB-003: Task/Acceptance 双方向整合チェッカー追加
+  - IB-008: Acceptance Index 集計機能拡張（status summary 追加）
+  - IB-011: Plugin timeout/error policy 実装
+  - IB-013: Evidence レポート生成機能追加
+  - IB-015: ADR/addenda 索引自動生成
+  - 0005: SLO バッジ自動生成ツール追加
+
 ### Changed
 
 - 0074: KPI 閾値判定 CLI と Birdseye freshness checker を追加し、
