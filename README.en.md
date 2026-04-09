@@ -2,7 +2,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-Language: English | [日本語](README.ja.md) | [简体中文](README.zh-CN.md)
+Language: [English](README.md) | [日本語](README.ja.md) | [简体中文](README.zh-CN.md)
 
 Workflow Cookbook is a docs and runtime kit for workflow operations and
 context engineering.

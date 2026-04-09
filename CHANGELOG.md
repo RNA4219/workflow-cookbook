@@ -12,6 +12,18 @@ next_review_due: 2025-11-14
 
 ### Changed
 
+- 0069: README 3 言語の冒頭説明に context engineering の位置付けを戻し、
+  公開メタデータと repo 実態の整合を取り直した
+- 0068: README 3 言語の冒頭説明とタイトルを `Codex` 前提から
+  workflow operations 前提へ寄せ、公開向けの位置付けを整理した
+- 0067: 既定 README を英語版へ切り替え、日本語版を `README.ja.md` として分離した
+- 0066: `README.zh-CN.md` を追加し、日本語版・英語版 README から
+  中国語版への切替導線を追加した
+- 0065: `README.en.md` を追加し、日本語 README から英語版への切替導線を追加した
+- 0064: `README.md` の入口を整理し、重複していた導線を圧縮して
+  cross-repo plugin 導線を advanced 扱いへ寄せた
+- 0063: 改善候補を `docs/addenda/N_Improvement_Backlog.md` として整理し、
+  Security / Release / Acceptance / Cross-Repo plugin の次段 backlog を docs 正本へ追加した
 - 0062: workflow plugin dispatcher を `invoke_first` / `invoke_all` へ整理し、
   sample config の統合テスト、renderer / policy 分離、plugin の dataclass 返却へ寄せた
 - 0061: workflow plugin interface / capability error / config validate CLI を追加し、
