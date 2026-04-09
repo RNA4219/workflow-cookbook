@@ -12,6 +12,9 @@ next_review_due: 2025-11-14
 
 ### Changed
 
+- 0050: `labels-sync` workflow のラベル同期 action を現行の
+  `EndBug/label-sync@v2` へ置き換え、`README.md` を top-level front matter
+  必須チェックの対象外にした
 - 0049: GitHub Actions の Node 24 移行に合わせて
   `actions/checkout` を `v6`、`actions/setup-python` を `v6` へ更新した
 - 0048: `README.md` 先頭の front matter を削除し、公開向けの入口として不要な

@@ -24,7 +24,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
       - name: Sync labels
-        uses: github/labels@v1
+        uses: EndBug/label-sync@v2
         with:
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
-          configuration-path: .github/labels.yml
+          delete-other-labels: false
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          labels-file: .github/labels.yml

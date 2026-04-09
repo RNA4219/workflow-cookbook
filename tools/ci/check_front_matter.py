@@ -16,6 +16,10 @@ REQUIRED_FIELDS: Sequence[str] = (
     "next_review_due",
 )
 
+EXCLUDED_TOP_LEVEL_MARKDOWN: Sequence[str] = (
+    "README.md",
+)
+
 INCIDENT_REQUIRED_FIELDS: Sequence[str] = (
     "incident_id",
     "occurred_at",
@@ -56,6 +60,8 @@ def _parse_fields(front_matter_lines: Iterable[str]) -> Dict[str, str]:
 def validate_markdown_front_matter(root: Path) -> Dict[Path, List[str]]:
     missing: Dict[Path, List[str]] = {}
     for md_path in sorted(root.glob("*.md")):
+        if md_path.name in EXCLUDED_TOP_LEVEL_MARKDOWN:
+            continue
         fields = _parse_fields(_extract_front_matter_lines(md_path))
         absent = [field for field in REQUIRED_FIELDS if not fields.get(field)]
         if absent:
