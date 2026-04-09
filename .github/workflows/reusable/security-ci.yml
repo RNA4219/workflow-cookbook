@@ -9,10 +9,9 @@ on:
     secrets:
       GITLEAKS_LICENSE:
         required: false
-
-permissions:
-  contents: read
-  security-events: write
+    permissions:
+      contents: read
+      security-events: write
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}

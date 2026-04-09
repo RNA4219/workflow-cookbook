@@ -28,7 +28,4 @@ jobs:
   security-ci:
     uses: ./.github/workflows/reusable/security-ci.yml
     needs: security-posture
-    permissions:
-      contents: read
-      security-events: write
     secrets: inherit
