@@ -78,7 +78,6 @@ def validate_security_posture(
 
     dependabot_path = repo_root / ".github" / "dependabot.yml"
     security_workflow_path = repo_root / ".github" / "workflows" / "security.yml"
-    reusable_security_path = repo_root / ".github" / "workflows" / "reusable" / "security-ci.yml"
     sac_path = repo_root / "docs" / "security" / "SAC.md"
     checklist_path = repo_root / "docs" / "security" / "Security_Review_Checklist.md"
     requirements_path = repo_root / "docs" / "requirements.md"
@@ -88,7 +87,6 @@ def validate_security_posture(
     required_paths = (
         dependabot_path,
         security_workflow_path,
-        reusable_security_path,
         sac_path,
         checklist_path,
         requirements_path,

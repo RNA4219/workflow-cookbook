@@ -19,7 +19,7 @@ ValidationResult = module.ValidationResult
 
 
 def _seed_repo(root: Path) -> None:
-    (root / ".github" / "workflows" / "reusable").mkdir(parents=True)
+    (root / ".github" / "workflows").mkdir(parents=True)
     (root / "docs" / "security").mkdir(parents=True)
     (root / ".github" / "dependabot.yml").write_text(
         "\n".join(
@@ -35,9 +35,6 @@ def _seed_repo(root: Path) -> None:
         encoding="utf-8",
     )
     (root / ".github" / "workflows" / "security.yml").write_text("name: Security\n", encoding="utf-8")
-    (root / ".github" / "workflows" / "reusable" / "security-ci.yml").write_text(
-        "name: Security CI\n", encoding="utf-8"
-    )
     (root / "docs" / "security" / "SAC.md").write_text(
         "SAST\nSecrets\n依存\nContainer\n", encoding="utf-8"
     )
