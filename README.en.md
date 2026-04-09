@@ -144,6 +144,14 @@ python tools/ci/check_metrics_thresholds.py --check --metrics-json .ga/qa-metric
   [`CHANGELOG.md`](CHANGELOG.md),
   [`docs/acceptance/README.md`](docs/acceptance/README.md)
 
+### Connected Repositories
+
+| Repository | Role | Integration Type |
+|------------|------|------------------|
+| [`agent-protocols`](https://github.com/RNA4219/agent-protocols) | Contract schemas (Evidence, TaskSeed, Acceptance, etc.) | Schema reference |
+| [`agent-taskstate`](https://github.com/RNA4219/agent-taskstate) | Task state management, typed_ref, context bundle | Workflow plugin |
+| [`memx-resolver`](https://github.com/RNA4219/memx-resolver) | Docs resolve, ack, stale check | Workflow plugin |
+
 ### Advanced: Cross-Repo Plugins
 
 - Host / config:

@@ -173,6 +173,14 @@ python tools/ci/check_branch_protection.py --protection-json <json>
 
 ## Plugin 連携
 
+### 連携リポジトリ
+
+| リポジトリ | 役割 | 連携方式 |
+|------------|------|----------|
+| [`agent-protocols`](https://github.com/RNA4219/agent-protocols) | 契約スキーマ (Evidence, TaskSeed, Acceptance 等) | スキーマ参照 |
+| [`agent-taskstate`](https://github.com/RNA4219/agent-taskstate) | タスク状態管理、typed_ref、context bundle | Workflow plugin |
+| [`memx-resolver`](https://github.com/RNA4219/memx-resolver) | docs resolve、ack、stale check | Workflow plugin |
+
 ### Evidence Plugin
 
 ```sh

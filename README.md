@@ -179,6 +179,14 @@ Reusable workflows:
 
 ## Plugin Integration
 
+### Connected Repositories
+
+| Repository | Role | Integration Type |
+|------------|------|------------------|
+| [`agent-protocols`](https://github.com/RNA4219/agent-protocols) | Contract schemas (Evidence, TaskSeed, Acceptance, etc.) | Schema reference |
+| [`agent-taskstate`](https://github.com/RNA4219/agent-taskstate) | Task state management, typed_ref, context bundle | Workflow plugin |
+| [`memx-resolver`](https://github.com/RNA4219/memx-resolver) | Docs resolve, ack, stale check | Workflow plugin |
+
 ### Evidence Plugin
 
 ```sh
