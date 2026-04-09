@@ -25,10 +25,11 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           DAYS: ${{ inputs.lookback_days }}
+          REPOSITORY: ${{ github.repository }}
         run: |
           SINCE=$(date -u -d "$DAYS days ago" +%Y-%m-%dT%H:%M:%SZ 2>/dev/null || gdate -d "$DAYS days ago" +%Y-%m-%dT%H:%M:%SZ)
           gh api -H "Accept: application/vnd.github+json" \
-            "/repos/${{ github.repository }}/actions/runs?per_page=100&created=>=${SINCE}" > runs.json
+            "/repos/$REPOSITORY/actions/runs?per_page=100&created=>=${SINCE}" > runs.json
           python - <<'PY'
           import glob, json
           from pathlib import Path

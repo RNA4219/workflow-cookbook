@@ -48,9 +48,11 @@ jobs:
       - name: Fetch recent workflow runs
         env:
           GH_TOKEN: ${{ github.token }}
+          REPOSITORY: ${{ github.repository }}
+          LOOKBACK_RUNS: ${{ inputs.lookback_runs }}
         run: |
           gh api -H "Accept: application/vnd.github+json" \
-            /repos/${{ github.repository }}/actions/runs?per_page=${{ inputs.lookback_runs }} > runs.json
+            /repos/"$REPOSITORY"/actions/runs?per_page="$LOOKBACK_RUNS" > runs.json
 
       - name: Download job logs
         env:
@@ -129,6 +131,8 @@ jobs:
 
       - name: Persist observability branch
         if: ${{ inputs.persist_branch != '' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master') && hashFiles('.ga/observability.jsonl') != '' }}
+        env:
+          PERSIST_BRANCH: ${{ inputs.persist_branch }}
         run: |
           set -euo pipefail
           git config user.name "github-actions"
@@ -137,8 +141,8 @@ jobs:
           cp -f .ga/observability.jsonl data/ga/observability.jsonl
           git add data/ga/observability.jsonl
           git commit -m "chore(observability): update" || true
-          git switch -c "${{ inputs.persist_branch }}" || git switch "${{ inputs.persist_branch }}"
-          git push origin HEAD:"${{ inputs.persist_branch }}" --force
+          git switch -c "$PERSIST_BRANCH" || git switch "$PERSIST_BRANCH"
+          git push origin HEAD:"$PERSIST_BRANCH" --force
 
       - name: Prepare advisory body
         id: format

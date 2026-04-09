@@ -42,4 +42,6 @@ jobs:
       - name: Ruff
         run: pipx run ruff check .
       - name: Pytest
-        run: pytest --cov=. --cov-report=term-missing --cov-fail-under=${{ inputs.coverage-threshold }} -q
+        env:
+          COVERAGE_THRESHOLD: ${{ inputs.coverage-threshold }}
+        run: pytest --cov=. --cov-report=term-missing --cov-fail-under="$COVERAGE_THRESHOLD" -q

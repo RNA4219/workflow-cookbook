@@ -27,12 +27,15 @@ jobs:
 
       - name: Run docs resolve
         id: resolve
+        env:
+          HEAD_REF: ${{ github.head_ref }}
+          PR_BODY: ${{ github.event.pull_request.body }}
         run: |
           # Extract task_id from PR body or branch name
-          TASK_ID=$(echo "${{ github.head_ref }}" | grep -oP '\d{8}-\d{2}' || echo "")
+          TASK_ID=$(echo "$HEAD_REF" | grep -oP '\d{8}-\d{2}' || echo "")
 
           if [ -z "$TASK_ID" ]; then
-            TASK_ID=$(echo "${{ github.event.pull_request.body }}" | grep -oP 'task_id:\s*\K[\d-]+' || echo "")
+            TASK_ID=$(echo "$PR_BODY" | grep -oP 'task_id:\s*\K[\d-]+' || echo "")
           fi
 
           if [ -n "$TASK_ID" ]; then
