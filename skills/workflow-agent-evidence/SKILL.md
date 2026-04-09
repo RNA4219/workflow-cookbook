@@ -1,75 +1,109 @@
 ---
 name: workflow-agent-evidence
-description: Integrate and maintain workflow-cookbook logging with agent-protocols Evidence records. Use when Codex needs to wire StructuredLogger plugins, tools/protocols/evidence_bridge.py, plugin_loader.py, plugin_config.py, sample config, consumer samples, schema alignment, related tests, or requirements/spec/design updates for Evidence tracking.
+description: workflow-cookbookのLLM活動ログをagent-protocols Evidence契約へ接続するSkill。StructuredLogger、evidence_bridge、plugin_loader/config、sample、schema、testsの整合性を保つ場合に使用。
 ---
 
 # Workflow Agent Evidence
 
-Use this skill when connecting workflow-cookbook LLM activity logging to the
-agent-protocols Evidence contract.
+workflow-cookbookのLLM行動追跡をagent-protocols Evidence契約へ接続する。
+
+## 概要
+
+| 役割 | 内容 |
+|------|------|
+| **Logging** | StructuredLogger による LLM 活動記録 |
+| **Bridge** | Evidence 契約への変換・接続 |
+| **Plugin** | config/loader による拡張点 |
+| **Schema** | inference-plugin-config.schema.json 整合 |
 
 ## Quick Start
 
-1. If the target is workflow-cookbook, read `workflow-cookbook/README.md` and
-   `workflow-cookbook/tools/protocols/README.md` first.
-2. If the task touches Evidence fields or schema behavior, read
-   `references/agent-protocols.md`.
-3. Update logger integration points, plugin config, sample config, consumer
-   sample, and tests together.
-4. If behavior changes, sync requirements/spec/design before implementation.
+```sh
+# 1. core files 確認
+cat tools/perf/structured_logger.py
+cat tools/protocols/evidence_bridge.py
+
+# 2. tests 実行
+uv run pytest tests/test_structured_logger.py tests/test_agent_protocol_evidence.py -q
+
+# 3. plugin config 検証
+python tools/workflow_plugins/validate_workflow_plugin_config.py --config examples/inference_plugins.agent_protocol.sample.json
+```
+
+## Integration Points
+
+### Core Files
+
+| File | Role |
+|------|------|
+| `tools/perf/structured_logger.py` | Generic LLM activity logger |
+| `tools/protocols/evidence_bridge.py` | Evidence contract mapping |
+| `tools/protocols/plugin_loader.py` | Plugin discovery |
+| `tools/protocols/plugin_config.py` | Config parsing |
+| `tools/protocols/README.md` | Protocol docs |
+
+### Samples
+
+| File | Role |
+|------|------|
+| `examples/inference_plugins.agent_protocol.sample.json` | Plugin config sample |
+| `examples/agent_protocol_evidence_consumer.sample.py` | Consumer sample |
+| `schemas/inference-plugin-config.schema.json` | Config schema |
 
 ## Standard Flow
 
-### 1. Confirm the integration points
+### 1. 統合点確認
 
-Prioritize these files:
+優先ファイル:
+- `tools/perf/structured_logger.py`
+- `tools/protocols/evidence_bridge.py`
+- `tools/protocols/plugin_loader.py`
+- `tools/protocols/plugin_config.py`
 
-- `workflow-cookbook/tools/perf/structured_logger.py`
-- `workflow-cookbook/tools/protocols/evidence_bridge.py`
-- `workflow-cookbook/tools/protocols/plugin_loader.py`
-- `workflow-cookbook/tools/protocols/plugin_config.py`
-- `workflow-cookbook/examples/inference_plugins.agent_protocol.sample.json`
-- `workflow-cookbook/examples/agent_protocol_evidence_consumer.sample.py`
+詳細: `references/workflow-cookbook.md`
 
-Read `references/workflow-cookbook.md` for details.
+### 2. Architecture維持
 
-### 2. Preserve the architecture
+- `StructuredLogger` を generic に保つ
+- 契約固有の mapping を `tools/protocols/` 内に配置
+- plugin boundary を `handle_inference(record)` に固定
+- config/sample/schema/docs/tests を同時更新
 
-- Keep `StructuredLogger` generic.
-- Keep contract-specific mapping inside `tools/protocols/`.
-- Keep the plugin boundary at `handle_inference(record)`.
-- Update config loader, sample, schema, docs, and tests together.
+### 3. Evidence契約維持
 
-### 3. Preserve the Evidence contract
+必須フィールドを削除・変更しない:
+- `taskSeedId`, `baseCommit`, `headCommit`
+- `inputHash`, `outputHash`, `diffHash`
+- `model`, `tools`, `environment`
+- `startTime`, `endTime`, `actor`
+- `policyVerdict`, `mergeResult`, `staleStatus`
 
-Do not introduce missing required Evidence fields.
-Read `references/agent-protocols.md` before changing contract-related logic.
+詳細: `references/agent-protocols.md`
 
-### 4. Sync docs and tests
+### 4. Docs/Test同期
 
-When implementation changes, update the relevant docs as needed:
-
-- `docs/requirements.md`
-- `docs/spec.md`
-- `docs/design.md`
-- `docs/interfaces.md`
-- `RUNBOOK.md`
-- `CHANGELOG.md`
+実装変更時に更新:
+- `docs/requirements.md`, `docs/spec.md`, `docs/design.md`
+- `RUNBOOK.md`, `CHANGELOG.md`
 
 ### 5. Validate
 
-At minimum, review these test targets:
+```sh
+# core tests
+uv run pytest tests/test_structured_logger.py tests/test_agent_protocol_evidence.py tests/test_plugin_loader.py tests/test_plugin_config.py -q
 
-- `tests/test_structured_logger.py`
-- `tests/test_agent_protocol_evidence.py`
-- `tests/test_plugin_loader.py`
-- `tests/test_plugin_config.py`
-
-Run Markdown lint when README or release docs change.
+# coverage gate
+uv run pytest tests/ --cov=. --cov-fail-under=80 -q
+```
 
 ## References
 
-- `references/workflow-cookbook.md`
-  - integration paths, key files, validation commands
-- `references/agent-protocols.md`
-  - required Evidence fields and review points
+| File | Content |
+|------|---------|
+| `references/workflow-cookbook.md` | Integration paths, validation commands |
+| `references/agent-protocols.md` | Required Evidence fields, review points |
+
+## Agents
+
+- `agents/claude.yaml` — Claude metadata
+- `agents/openai.yaml` — OpenAI metadata

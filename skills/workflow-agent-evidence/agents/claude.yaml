@@ -1,4 +1,20 @@
 interface:
   display_name: "Workflow Agent Evidence"
-  short_description: "Connect workflow-cookbook with agent-protocols Evidence"
-  default_prompt: "Use workflow-agent-evidence to connect workflow-cookbook logging with agent-protocols Evidence records."
+  short_description: "Connect workflow-cookbook logging with agent-protocols Evidence"
+  default_prompt: |
+    Use workflow-agent-evidence to connect workflow-cookbook LLM activity logging
+    with agent-protocols Evidence records.
+
+    Quick start:
+    1. Read tools/protocols/README.md for protocol docs
+    2. Check tools/perf/structured_logger.py and tools/protocols/evidence_bridge.py
+    3. Run tests: uv run pytest tests/test_structured_logger.py tests/test_agent_protocol_evidence.py -q
+    4. Validate config: python tools/workflow_plugins/validate_workflow_plugin_config.py --config examples/inference_plugins.agent_protocol.sample.json
+
+    Key files:
+    - tools/perf/structured_logger.py
+    - tools/protocols/evidence_bridge.py
+    - tools/protocols/plugin_loader.py
+    - tools/protocols/plugin_config.py
+    - examples/inference_plugins.agent_protocol.sample.json
+    - examples/agent_protocol_evidence_consumer.sample.py
