@@ -12,6 +12,13 @@ next_review_due: 2025-11-14
 
 ### Changed
 
+- 0074: KPI 閾値判定 CLI と Birdseye freshness checker を追加し、
+  `RUNBOOK.md` / `CHECKLISTS.md` / `README.md` / backlog docs に
+  実行導線と完了状態を反映した
+- 0073: 自己改善ループ blueprint を任意機能かつリリース後運用向けへ整理し、
+  作成途中の通常フローを妨げない前提を要件・仕様・設計へ明記した
+- 0072: `hermes-agent` とは接続せず、着想のみを一般化した独自機能として
+  下流ソフトウェア向けの自己改善ループ要件・仕様・設計・境界定義を追加した
 - 0070: security posture checker と release evidence checker を追加し、
   security 恒常対策と release 証跡チェックを CI / docs / checklist へ反映した
 - 0071: `workflow-cookbook` / `agent-taskstate` / `memx-resolver` を横断する

@@ -1,0 +1,10 @@
+{
+  "checklist_compliance_rate": 96.0,
+  "task_seed_cycle_time_minutes": 30.0,
+  "birdseye_refresh_delay_minutes": 15.0,
+  "review_latency": 2.0,
+  "compress_ratio": 0.5,
+  "semantic_retention": 0.9,
+  "reopen_rate": 2.0,
+  "spec_completeness": 95.0
+}

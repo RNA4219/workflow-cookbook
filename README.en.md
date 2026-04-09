@@ -7,7 +7,8 @@ Language: [English](README.md) | [日本語](README.ja.md) | [简体中文](READ
 Workflow Cookbook is a docs and runtime kit for workflow operations and
 context engineering.
 It bundles Birdseye/Codemap, Task Seeds, acceptance operations, reusable CI,
-and plugin-based Evidence tracking.
+plugin-based Evidence tracking, and a repo-agnostic adaptive improvement loop
+blueprint for downstream software.
 
 <!-- LLM-BOOTSTRAP v1 -->
 Recommended read order:
@@ -29,6 +30,8 @@ Focus procedure:
 - LLM behavior tracking through `StructuredLogger` plugins
 - Sample config and consumer sample for the `agent-protocols` `Evidence` contract
 - A workflow host that can connect `agent-taskstate` and `memx-resolver` as optional plugins
+- An optional adaptive improvement loop blueprint for post-release reflection,
+  recall, skill evolution, and reviewed user/workspace models in downstream software
 - Reusable CI / governance workflows and validation scripts
 
 ## Quick Start
@@ -48,13 +51,18 @@ Focus procedure:
    [`docs/acceptance/ACCEPTANCE_TEMPLATE.md`](docs/acceptance/ACCEPTANCE_TEMPLATE.md)
 4. Review the test quality baseline:
    [`docs/addenda/J_Test_Engineering.md`](docs/addenda/J_Test_Engineering.md)
-5. Try Evidence tracking:
+5. Check collected metrics against KPI thresholds:
+   [`tools/ci/check_metrics_thresholds.py`](tools/ci/check_metrics_thresholds.py),
+   [`governance/metrics_thresholds.yaml`](governance/metrics_thresholds.yaml)
+6. Validate Birdseye freshness:
+   [`tools/ci/check_birdseye_freshness.py`](tools/ci/check_birdseye_freshness.py)
+7. Try Evidence tracking:
    [`tools/protocols/README.md`](tools/protocols/README.md),
    [`examples/inference_plugins.agent_protocol.sample.json`](examples/inference_plugins.agent_protocol.sample.json)
-6. Try cross-repo plugins:
+8. Try cross-repo plugins:
    [`tools/workflow_plugins/README.md`](tools/workflow_plugins/README.md),
    [`examples/workflow_plugins.cross_repo.sample.json`](examples/workflow_plugins.cross_repo.sample.json)
-7. Validate plugin config:
+9. Validate plugin config:
    [`tools/workflow_plugins/validate_workflow_plugin_config.py`](tools/workflow_plugins/validate_workflow_plugin_config.py)
 
 ## Navigation
@@ -73,7 +81,8 @@ Focus procedure:
   [`docs/ci_phased_rollout_requirements.md`](docs/ci_phased_rollout_requirements.md)
 - Quality baseline:
   [`docs/addenda/J_Test_Engineering.md`](docs/addenda/J_Test_Engineering.md),
-  [`docs/acceptance/README.md`](docs/acceptance/README.md)
+  [`docs/acceptance/README.md`](docs/acceptance/README.md),
+  [`governance/metrics_thresholds.yaml`](governance/metrics_thresholds.yaml)
 
 ## Skills
 
@@ -96,6 +105,14 @@ Focus procedure:
 python tools/codemap/update.py --since --emit index+caps
 python tools/codemap/update.py --since --radius 1 --emit caps
 python tools/codemap/update.py --targets docs/birdseye/index.json,docs/birdseye/hot.json --emit index+caps
+python tools/ci/check_birdseye_freshness.py --check
+```
+
+### Metrics Thresholds
+
+```sh
+python -m tools.perf.collect_metrics --suite qa --metrics-url <url> --log-path <path>
+python tools/ci/check_metrics_thresholds.py --check --metrics-json .ga/qa-metrics.json
 ```
 
 ### LLM Evidence Tracking
@@ -166,7 +183,9 @@ to validate gate alignment in this repo.
 - Operational addenda:
   [`docs/ROADMAP_AND_SPECS.md`](docs/ROADMAP_AND_SPECS.md),
   [`docs/addenda/J_Test_Engineering.md`](docs/addenda/J_Test_Engineering.md),
+  [`docs/addenda/O_Adaptive_Improvement_Loop.md`](docs/addenda/O_Adaptive_Improvement_Loop.md),
   [`docs/addenda/N_Improvement_Backlog.md`](docs/addenda/N_Improvement_Backlog.md),
+  [`docs/addenda/P_Expansion_Candidates.md`](docs/addenda/P_Expansion_Candidates.md),
   [`docs/addenda/M_Versioning_Release.md`](docs/addenda/M_Versioning_Release.md)
 - Security:
   [`docs/security/SAC.md`](docs/security/SAC.md),

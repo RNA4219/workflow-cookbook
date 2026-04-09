@@ -1,0 +1,40 @@
+checklist_compliance_rate:
+  comparator: min
+  threshold: 95.0
+  level: fail
+  unit: percent
+task_seed_cycle_time_minutes:
+  comparator: max
+  threshold: 1440.0
+  level: fail
+  unit: minutes
+birdseye_refresh_delay_minutes:
+  comparator: max
+  threshold: 60.0
+  level: fail
+  unit: minutes
+review_latency:
+  comparator: max
+  threshold: 12.0
+  level: fail
+  unit: hours
+compress_ratio:
+  comparator: max
+  threshold: 0.60
+  level: fail
+  unit: ratio
+semantic_retention:
+  comparator: min
+  threshold: 0.85
+  level: fail
+  unit: ratio
+reopen_rate:
+  comparator: max
+  threshold: 5.0
+  level: fail
+  unit: percent
+spec_completeness:
+  comparator: min
+  threshold: 90.0
+  level: fail
+  unit: percent

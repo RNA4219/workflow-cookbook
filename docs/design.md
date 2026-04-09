@@ -11,7 +11,8 @@ next_review_due: 2026-05-09
 ## 1. 設計目標
 
 Workflow Cookbook は、単なる Markdown テンプレート集ではなく、
-「運用ドキュメント」「最小読込用 Birdseye」「参照実装」「CI / Governance テンプレート」
+「運用ドキュメント」「最小読込用 Birdseye」「参照実装」
+「自己改善ループ blueprint」「CI / Governance テンプレート」
 を 1 つのリポジトリで同期させる構成を採る。
 
 設計上の主眼は次の 4 点である。
@@ -23,7 +24,7 @@ Workflow Cookbook は、単なる Markdown テンプレート集ではなく、
 
 ## 2. 全体アーキテクチャ
 
-本リポジトリは、次の 4 層を重ねる設計とする。
+本リポジトリは、次の 5 層を重ねる設計とする。
 
 ### 2.1 ドキュメント層
 
@@ -95,6 +96,22 @@ Workflow Cookbook は、単なる Markdown テンプレート集ではなく、
     の基準点にする。
   - 論理 gate ID から GitHub 上の実 check 名への対応は `docs/ci-config.md` で管理する。
   - `predictor.yaml` は外部拡張が任意に持ち込む optional config として扱う。
+
+### 2.5 自己改善ループ blueprint 層
+
+- 役割
+  - 下流ソフトウェアが実装する自己改善機能の契約と境界を提供する。
+- 主な構成
+  - `docs/requirements.md`
+  - `docs/spec.md`
+  - `docs/design.md`
+  - `docs/interfaces.md`
+  - `docs/addenda/O_Adaptive_Improvement_Loop.md`
+- 設計原則
+  - 特定エージェント実装や単一 repo に依存しない。
+  - 学習ループ本体は cookbook 自身に持たず、下流へ提供する設計知識として扱う。
+  - reflection / recall / skill evolution / user model の境界を acceptance / evidence と接続可能にする。
+  - 任意機能として扱い、通常の開発フローや未リリース作業を妨げない。
 
 ## 3. コンポーネント責務
 
@@ -192,6 +209,22 @@ Workflow Cookbook は、単なる Markdown テンプレート集ではなく、
   - import 文字列から plugin を構成できない場合は loader 専用エラーで停止する
   - YAML config を指定したが yaml loader が無い場合は config loader 専用エラーで停止する
 
+### 3.7 自己改善ループ orchestrator
+
+- 責務
+  - reflection、memory curation、periodic nudges、skill evolution、
+    cross-session recall、user / workspace model の境界を定義する
+  - acceptance / evidence / docs reference と接続できる traceability を維持する
+  - 下流ソフトウェアが plugin または service として差し替えられる設計を提供する
+- 状態所有
+  - cookbook 自身は state を持たず、state の種類と更新規則だけを定義する
+  - 長期状態は下流ソフトウェア側の memory store や skill registry が保持する
+- 失敗モデル
+  - reflection 生成失敗は本処理全体を壊さず、suggestion 生成を skip できること
+  - draft skill の review 未完了は publish 不可とする
+  - stale な recall source は `stale=true` で返せること
+  - 機能未導入または無効化時は no-op として扱い、主要フローを継続する
+
 ## 4. 状態とデータフロー
 
 ### 4.1 Birdseye データフロー
@@ -231,6 +264,16 @@ Workflow Cookbook は、単なる Markdown テンプレート集ではなく、
 4. Evidence bridge が `InferenceLogRecord` を `Evidence` 契約へ変換する
 5. sink が JSON Lines として証跡を永続化する
 
+### 4.5 自己改善ループデータフロー
+
+1. 下流ソフトウェアが session 終了時に task / acceptance / evidence を収集する
+2. reflection generator が `ReflectionSummary` を生成する
+3. curator が長期保持候補、短期保持候補、nudge 候補へ分類する
+4. skill evolution が複雑タスクから `SkillDraftRecord` を生成する
+5. recall resolver は次回 session で関連 reflection / docs / evidence を要約返却する
+6. user / workspace model は review 済み情報だけを snapshot として更新する
+7. review を通過した skill draft のみ公開 registry へ昇格する
+
 ## 5. 拡張ポイント
 
 ### 5.1 optional config
@@ -248,6 +291,19 @@ Workflow Cookbook は、単なる Markdown テンプレート集ではなく、
 
 - 新規ノードは `index.json` の `nodes` と `caps/*.json` を同期追加する。
 - `hot.json` へ入れるかは curated access の観点で判断する。
+
+### 5.4 自己改善ループの差し替えポイント
+
+- memory store
+- search backend
+- summarizer
+- skill registry
+- scheduler / nudge generator
+- user / workspace model store
+
+上記は差し替え可能とする一方、`ReflectionSummary`、
+`SkillDraftRecord`、`RecallResponse`、`UserModelSnapshot` の
+最低フィールドは固定する。
 
 ## 6. 設計上の不変条件
 

@@ -21,6 +21,7 @@ Workflow Cookbook は、QA / Governance-first の運用ドキュメント、Bird
   - `docs/birdseye/` の生成物
   - `tools/codemap/update.py`
   - `tools/autosave/` / `tools/merge/` / `tools/perf/`
+  - 下流ソフトウェア向けの自己改善ループ契約
   - `agent-protocols` の `Evidence` 契約へ接続する追跡ブリッジ
   - `.github/workflows/` と `governance/`
 - 非対象
@@ -314,7 +315,107 @@ Workflow Cookbook は、QA / Governance-first の運用ドキュメント、Bird
 - file writer plugin は UTF-8 の JSON Lines として末尾追記できること。
 - Evidence 出力は通常ログの内容を変更してはならないこと。
 
-### 4.6 Metrics 収集 CLI
+### 4.6 自己改善ループ blueprint
+
+#### 4.6.1 適用方針
+
+- 本機能は `workflow-cookbook` 自身へ `hermes-agent` を組み込むものではない。
+- `workflow-cookbook` は、下流ソフトウェアが独自実装できる
+  自己改善ループの契約を外向きに提供する。
+- 本機能は任意であり、未導入の下流ソフトウェアに必須ではない。
+- 本機能は原則としてリリース後運用で有効化する。
+- 開発中や作成途中の変更に対して、本機能の利用を必須条件としない。
+- `workflow-cookbook` は次を正本として扱う。
+  - reflection summary
+  - skill draft
+  - recall response
+  - user / workspace model snapshot
+
+#### 4.6.2 ReflectionSummary
+
+- `ReflectionSummary` は少なくとも次を持つこと。
+  - `session_id`
+  - `task_id` または `intent_id`
+  - `objective`
+  - `changes`
+  - `lessons`
+  - `open_questions`
+  - `next_actions`
+  - `sources`
+- `sources` は acceptance / evidence / docs reference のいずれかを保持できること。
+
+#### 4.6.3 SkillDraftRecord
+
+- `SkillDraftRecord` は少なくとも次を持つこと。
+  - `draft_id`
+  - `source_session_id`
+  - `title`
+  - `problem`
+  - `proposed_steps`
+  - `review_state`
+  - `linked_acceptance_ids`
+  - `linked_evidence_ids`
+- `review_state` は少なくとも次を扱えること。
+  - `draft`
+  - `review`
+  - `approved`
+  - `rejected`
+- `approved` 以外の draft は公開 skill として扱わないこと。
+
+#### 4.6.4 RecallResponse
+
+- `RecallResponse` は少なくとも次を持つこと。
+  - `query`
+  - `summary`
+  - `hits`
+  - `stale`
+- `hits[*]` は少なくとも次を持つこと。
+  - `source_type`
+  - `source_id`
+  - `excerpt`
+  - `reason`
+- recall は raw transcript 全文ではなく、
+  summary と根拠断片に正規化して返すこと。
+
+#### 4.6.5 UserModelSnapshot / WorkspaceModelSnapshot
+
+- `UserModelSnapshot` は少なくとも次を持つこと。
+  - `user_id`
+  - `preferences`
+  - `approval_style`
+  - `output_conventions`
+  - `reviewed_at`
+- `WorkspaceModelSnapshot` は少なくとも次を持つこと。
+  - `workspace_id`
+  - `constraints`
+  - `preferred_docs`
+  - `reviewed_at`
+- 長期保持される snapshot は review 済みであること。
+
+#### 4.6.6 Periodic Nudges
+
+- nudge は少なくとも次を持つこと。
+  - `nudge_id`
+  - `reason`
+  - `target_kind`
+  - `target_ref`
+  - `suggested_action`
+  - `created_at`
+- nudge は自動変更ではなく、次回セッションへの提案として扱うこと。
+- nudge はリリース前の未完了作業へ割り込んで必須フロー化しないこと。
+
+#### 4.6.7 差し替え可能性
+
+- 次の要素は下流ソフトウェアで差し替え可能であること。
+  - memory store
+  - search backend
+  - summarizer
+  - skill registry
+  - scheduler
+- 上記差し替えにかかわらず、`ReflectionSummary`、
+  `SkillDraftRecord`、`RecallResponse` の最低フィールドは維持すること。
+
+### 4.7 Metrics 収集 CLI
 
 #### 4.6.1 入力ソース
 

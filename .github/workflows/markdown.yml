@@ -19,6 +19,10 @@ jobs:
         run: python tools/ci/check_front_matter.py --check
       - name: Check acceptance records
         run: python tools/ci/check_acceptance.py --check
+      - name: Check Birdseye freshness
+        run: python tools/ci/check_birdseye_freshness.py --check
+      - name: Check metrics thresholds sample
+        run: python tools/ci/check_metrics_thresholds.py --check --metrics-json examples/qa-metrics.sample.json
       - uses: DavidAnson/markdownlint-cli2-action@v17
         with:
           globs: |

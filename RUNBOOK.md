@@ -52,6 +52,9 @@ next_review_due: 2026-05-09
   - `python tools/ci/check_release_evidence.py --check --github-repo <owner/name>`
     を実行し、`CHANGELOG.md`、`docs/releases/`、git tag、公開 release の
     証跡が一致していることを確認する。
+  - `python tools/ci/check_birdseye_freshness.py --check`
+    を実行し、Birdseye の `generated_at`、`mtime`、caps 参照整合が
+    崩れていないことを確認する。
   - `python tools/ci/check_task_acceptance_sync.py --plugin-config examples/workflow_plugins.cross_repo.sample.json`
     を実行し、Task Seed と Acceptance の対応が plugin 観点でも一致することを確認する。
   - `python tools/ci/generate_acceptance_index.py --plugin-config examples/workflow_plugins.cross_repo.sample.json`
@@ -68,6 +71,9 @@ next_review_due: 2026-05-09
 - Birdseye / codemap 更新
   - 全体更新: `python tools/codemap/update.py --targets docs/birdseye/index.json,docs/birdseye/hot.json --emit index+caps`
   - 局所更新: `python tools/codemap/update.py --since --radius 1 --emit caps`
+  - 構造確認: `python tools/ci/check_birdseye_freshness.py --check`
+  - 鮮度警告を有効にする場合:
+    `python tools/ci/check_birdseye_freshness.py --check --max-verified-age-days 90`
   - 確認:
     `docs/birdseye/index.json` / `docs/birdseye/hot.json` /
     `docs/birdseye/caps/*.json` の差分と `generated_at`
@@ -175,6 +181,10 @@ next_review_due: 2026-05-09
     `workflow_spec_completeness_*` → `spec_completeness_*` → `spec_completeness` をフォールバックとして参照する。
   - 実行後に `.ga/qa-metrics.json` がリポジトリルート配下へ生成されていることを確認する。生成されない場合は
     `--output` に明示したパスと標準出力を突き合わせ、異常がないか確認する。
+  - 閾値判定は
+    `python tools/ci/check_metrics_thresholds.py --check --metrics-json .ga/qa-metrics.json`
+    を実行し、`governance/metrics_thresholds.yaml` の KPI 基準に対して
+    warn / fail がないことを確認する。
   - `python - <<'PY'` を実行し、以下を評価して各メトリクスの値を抽出する:
 
     ```python

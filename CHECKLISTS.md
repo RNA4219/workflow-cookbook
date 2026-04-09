@@ -45,6 +45,7 @@ next_review_due: 2026-05-09
 - 入力到着の確認
 - 失敗通知の有無
 - 主要メトリクス閾値
+- `python tools/ci/check_birdseye_freshness.py --check` が通ること
 - `governance/policy.yaml` の `ci.required_jobs` に対応する論理 gate ID が、
   `docs/ci-config.md` の対応表どおりの実 check 名で最新 run 成功になっているか確認
 - CI Phase を変更した直後は `docs/ci-config.md` と `docs/ci_phased_rollout_requirements.md` の記述差異がないか確認
@@ -71,6 +72,7 @@ next_review_due: 2026-05-09
 - [Security Review Checklist](docs/security/Security_Review_Checklist.md) に沿って準備→実装→レビューの各フェーズを完了し、リリース判定と証跡を残す
 - `python tools/ci/check_security_posture.py --check --github-repo <owner/name>` が通ること
 - `python tools/ci/check_release_evidence.py --check --github-repo <owner/name>` が通ること
+- `python tools/ci/check_metrics_thresholds.py --check --metrics-json .ga/qa-metrics.json` が通ること
 - 配布物へ `LICENSE` を同梱済み
 
 ## Hygiene
@@ -81,6 +83,7 @@ next_review_due: 2026-05-09
 - `python tools/ci/check_ci_gate_matrix.py` が通ること
 - `python tools/ci/check_security_posture.py --check` が通ること
 - `python tools/ci/check_release_evidence.py --check` が通ること
+- `python tools/ci/check_birdseye_freshness.py --check` が通ること
 - Python 系変更では coverage ゲートが通っていること
 - CI / Governance を変更した場合は `.github/workflows/`、`governance/policy.yaml`、
   `docs/ci-config.md`、`docs/ci_phased_rollout_requirements.md`、`RUNBOOK.md` の同期を確認

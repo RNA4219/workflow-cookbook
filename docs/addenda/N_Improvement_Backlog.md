@@ -100,6 +100,14 @@
 - IB-004
   - `workflow-cookbook` / `agent-taskstate` / `memx-resolver` を横断する
     cross-repo integration workflow を追加済み
+- IB-005
+  - `tools/ci/check_metrics_thresholds.py` と
+    `governance/metrics_thresholds.yaml` を追加し、
+    `.ga/qa-metrics.json` の KPI 閾値判定を warn / fail で自動化済み
+- IB-006
+  - `tools/ci/check_birdseye_freshness.py` を追加し、
+    `generated_at`・`mtime`・caps 参照・`last_verified_at` の
+    freshness check を実行可能にした
 
 ## 7. 更新ルール
 
