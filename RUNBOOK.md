@@ -46,6 +46,12 @@ next_review_due: 2026-05-09
     `governance/policy.yaml`、workflow、`docs/ci-config.md` の整合を確認する。
   - `python tools/ci/check_acceptance.py --check` を実行し、
     検収記録の front matter と必須見出しを確認する。
+  - `python tools/ci/check_security_posture.py --check --github-repo <owner/name>`
+    を実行し、Security docs・Dependabot・GitHub security settings の
+    恒常対策が維持されていることを確認する。
+  - `python tools/ci/check_release_evidence.py --check --github-repo <owner/name>`
+    を実行し、`CHANGELOG.md`、`docs/releases/`、git tag、公開 release の
+    証跡が一致していることを確認する。
   - `python tools/ci/check_task_acceptance_sync.py --plugin-config examples/workflow_plugins.cross_repo.sample.json`
     を実行し、Task Seed と Acceptance の対応が plugin 観点でも一致することを確認する。
   - `python tools/ci/generate_acceptance_index.py --plugin-config examples/workflow_plugins.cross_repo.sample.json`
@@ -56,6 +62,9 @@ next_review_due: 2026-05-09
     で読むべき docs を確認する。
   - 読了後は `... ack --task-id <task_id> --doc-id README.md` を実行する。
   - 検収前に `... stale --task-id <task_id> --check` を実行し、stale docs が残っていないことを確認する。
+  - 3 repo 連携を確認する場合は `.github/workflows/cross-repo-integration.yml`
+    と同じ順序で `workflow-cookbook` / `agent-taskstate` / `memx-resolver`
+    の plugin テストを実行する。
 - Birdseye / codemap 更新
   - 全体更新: `python tools/codemap/update.py --targets docs/birdseye/index.json,docs/birdseye/hot.json --emit index+caps`
   - 局所更新: `python tools/codemap/update.py --since --radius 1 --emit caps`

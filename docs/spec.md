@@ -349,7 +349,20 @@ Workflow Cookbook は、QA / Governance-first の運用ドキュメント、Bird
 - Python CI は単体テスト・結合テストの実行と coverage 下限 80% の確認を
   標準で行えること。
 
-### 4.8 外部契約
+### 4.8 Security baseline
+
+- `.github/dependabot.yml` は GitHub Actions 依存更新を週次で監視すること。
+- `.github/workflows/security.yml` は security posture 確認と reusable security CI を連結すること。
+- security posture 確認では少なくとも次を検証できること。
+  - `docs/security/SAC.md`
+  - `docs/security/Security_Review_Checklist.md`
+  - vulnerability alerts
+  - Dependabot security updates
+  - secret scanning
+  - push protection
+- security posture の検証 CLI は GitHub token がある場合に remote repository settings を確認できること。
+
+### 4.9 外部契約
 
 - `docs/CONTRACTS.md` の契約は feature detection で扱うこと。
 - 少なくとも次を optional な外部入力として扱えること。

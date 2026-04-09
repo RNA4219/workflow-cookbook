@@ -10,6 +10,13 @@
 - [ ] 依存コンポーネントの脆弱性監査計画を確定する
   - 完了条件: 利用するスキャナ（`pip-audit` 等）と実行タイミングを決定し、CI/ローカルの運用手順へ組み込んでいる
   - 参照: [SAC 原則 (7, 10)](./SAC.md#原則), [ci-config ゲート](../ci-config.md)
+- [ ] GitHub Security 設定の恒常運用を確認する
+  - 完了条件:
+    vulnerability alerts、Dependabot security updates、secret scanning、
+    push protection が有効であり、
+    `tools/ci/check_security_posture.py --check --github-repo <owner/name>`
+    が通る
+  - 参照: [SAC 原則 (10, 11)](./SAC.md#原則), [RUNBOOK](../../RUNBOOK.md)
 - [ ] データ保護要件（PII/秘密情報）の分類と保護方針を合意する
   - 完了条件: 取り扱うデータ分類と保護メカニズム（暗号化、マスキング、保管場所）を記述し、レビュー参加者に共有済み
   - 参照: [SAC 原則 (1, 8)](./SAC.md#原則), [RUNBOOK データ取扱い方針](../../RUNBOOK.md)
@@ -37,6 +44,12 @@
 - [ ] セキュリティゲート（SAST/Secrets/依存/Container）結果を確認する
   - 完了条件: `reusable/security-ci` の全ジョブが成功し、例外が必要な場合はリスク受容文書を添付して承認済み
   - 参照: [SAC 原則 (10)](./SAC.md#原則), [reusable/security-ci](../../.github/workflows/reusable/security-ci.yml)
+- [ ] release 証跡と security posture の整合を確認する
+  - 完了条件:
+    `tools/ci/check_release_evidence.py --check --github-repo <owner/name>` と
+    `tools/ci/check_security_posture.py --check --github-repo <owner/name>` が通り、
+    release note / tag / docs / security setting の整合が取れている
+  - 参照: [SAC 原則 (10, 11)](./SAC.md#原則), [CHECKLISTS リリース](../../CHECKLISTS.md#release)
 - [ ] リリース後の監査・運用計画を更新する
   - 完了条件: インシデント対応手順・監査ログ保管・定期見直しサイクルを RUNBOOK / INCIDENT テンプレートへ反映し、次回レビュー期限を設定
   - 参照: [SAC 原則 (5, 8)](./SAC.md#原則), [INCIDENT TEMPLATE](../INCIDENT_TEMPLATE.md)

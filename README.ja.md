@@ -141,6 +141,14 @@ python tools/codemap/update.py --targets docs/birdseye/index.json,docs/birdseye/
   [`.github/workflows/reusable/python-ci.yml`](.github/workflows/reusable/python-ci.yml)
 - Security CI:
   [`.github/workflows/reusable/security-ci.yml`](.github/workflows/reusable/security-ci.yml)
+- Security posture:
+  [`.github/workflows/security.yml`](.github/workflows/security.yml),
+  [`tools/ci/check_security_posture.py`](tools/ci/check_security_posture.py)
+- Release evidence:
+  [`.github/workflows/release-evidence.yml`](.github/workflows/release-evidence.yml),
+  [`tools/ci/check_release_evidence.py`](tools/ci/check_release_evidence.py)
+- Cross-repo integration:
+  [`.github/workflows/cross-repo-integration.yml`](.github/workflows/cross-repo-integration.yml)
 - Governance gate:
   [`.github/workflows/governance-gate.yml`](.github/workflows/governance-gate.yml)
 

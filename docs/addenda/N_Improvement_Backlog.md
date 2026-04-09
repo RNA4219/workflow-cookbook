@@ -89,7 +89,19 @@
 5. IB-005 Metrics 判定自動化
 6. IB-006 Birdseye freshness check
 
-## 6. 更新ルール
+## 6. 完了済み
+
+- IB-001
+  - Dependabot / vulnerability alerts / secret scanning の恒常対策を
+    security posture checker と docs へ反映済み
+- IB-002
+  - `CHANGELOG.md`、`docs/releases/`、git tag、GitHub release を照合する
+    release evidence checker を追加済み
+- IB-004
+  - `workflow-cookbook` / `agent-taskstate` / `memx-resolver` を横断する
+    cross-repo integration workflow を追加済み
+
+## 7. 更新ルール
 
 - backlog へ追加するときは ID を採番する
 - 実装した項目は `CHANGELOG.md` に記録する
@@ -97,7 +109,7 @@
   後継タスクへリンクする
 - cross-repo で実装する場合は対象 repo を必ず更新する
 
-## 7. 参照先
+## 8. 参照先
 
 - [README.md](../../README.md)
 - [RUNBOOK.md](../../RUNBOOK.md)

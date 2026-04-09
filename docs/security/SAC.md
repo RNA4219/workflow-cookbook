@@ -14,6 +14,7 @@
 8. 監査ログは PII をマスクし、改ざん検知を適用する
 9. モデル切替はサーバ設定のみ許可し、クライアントからの変更を禁止する
 10. リリース前に SAST / Secrets / 依存 / Container の4種ゲートを通過する
+11. GitHub repository settings では vulnerability alerts・Dependabot security updates・secret scanning・push protection を有効化し、定常的に監視する
 
 ### 付録A: 推奨CSP
 

@@ -69,6 +69,8 @@ next_review_due: 2026-05-09
 - 影響範囲の再確認
 - PR に `type:*` および `semver:*` ラベルを付与済み
 - [Security Review Checklist](docs/security/Security_Review_Checklist.md) に沿って準備→実装→レビューの各フェーズを完了し、リリース判定と証跡を残す
+- `python tools/ci/check_security_posture.py --check --github-repo <owner/name>` が通ること
+- `python tools/ci/check_release_evidence.py --check --github-repo <owner/name>` が通ること
 - 配布物へ `LICENSE` を同梱済み
 
 ## Hygiene
@@ -77,6 +79,8 @@ next_review_due: 2026-05-09
 - ドキュメント差分反映
 - `python tools/ci/check_acceptance.py --check` が通ること
 - `python tools/ci/check_ci_gate_matrix.py` が通ること
+- `python tools/ci/check_security_posture.py --check` が通ること
+- `python tools/ci/check_release_evidence.py --check` が通ること
 - Python 系変更では coverage ゲートが通っていること
 - CI / Governance を変更した場合は `.github/workflows/`、`governance/policy.yaml`、
   `docs/ci-config.md`、`docs/ci_phased_rollout_requirements.md`、`RUNBOOK.md` の同期を確認

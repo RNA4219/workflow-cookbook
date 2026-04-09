@@ -1,0 +1,53 @@
+name: cross-repo-integration
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  integration:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout workflow-cookbook
+        uses: actions/checkout@v6
+        with:
+          path: workflow-cookbook
+          fetch-depth: 0
+      - name: Checkout agent-taskstate
+        uses: actions/checkout@v6
+        with:
+          repository: RNA4219/agent-taskstate
+          path: agent-taskstate
+      - name: Checkout memx-resolver
+        uses: actions/checkout@v6
+        with:
+          repository: RNA4219/memx-resolver
+          path: memx-resolver
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+      - name: Install pytest
+        working-directory: workflow-cookbook
+        run: |
+          python -m pip install --upgrade pip
+          pip install pytest
+      - name: Run workflow-cookbook integration checks
+        working-directory: workflow-cookbook
+        run: |
+          python tools/workflow_plugins/validate_workflow_plugin_config.py --plugin-config examples/workflow_plugins.cross_repo.sample.json --instantiate
+          python tools/ci/check_task_acceptance_sync.py --plugin-config examples/workflow_plugins.cross_repo.sample.json
+          python tools/ci/generate_acceptance_index.py --plugin-config examples/workflow_plugins.cross_repo.sample.json
+          python tools/context/workflow_docs.py --plugin-config examples/workflow_plugins.cross_repo.sample.json resolve --task-id 20260410-01
+          pytest tests/test_workflow_plugin_sample_integration.py tests/test_validate_workflow_plugin_config.py tests/test_workflow_plugin_runtime.py -q
+      - name: Run agent-taskstate workflow plugin tests
+        working-directory: agent-taskstate
+        run: pytest tests/test_workflow_plugin.py -q
+      - name: Run memx-resolver workflow plugin tests
+        working-directory: memx-resolver
+        run: pytest tests/test_workflow_plugin.py -q
