@@ -222,7 +222,7 @@ def test_cli_returns_error_on_unapproved_domain(
     )
 def test_detects_unapproved_domain_addition() -> None:
     allowlist_path = REPO_ROOT / "network" / "allowlist.yaml"
-    base_content = allowlist_path.read_text()
+    base_content = allowlist_path.read_text(encoding="utf-8")
     malicious_entry = (
         "\n"
         "  - domain: \"evil.example.com\"\n"
