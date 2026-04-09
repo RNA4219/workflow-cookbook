@@ -10,6 +10,8 @@ next_review_due: 2025-11-14
 
 ## [Unreleased]
 
+## 1.2.0 - 2026-04-10
+
 ### Added
 
 - 0076: Improvement Backlog残り実装完了
