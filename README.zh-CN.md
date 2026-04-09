@@ -1,3 +1,11 @@
+---
+intent_id: DOC-README
+owner: docs-core
+status: active
+last_reviewed_at: 2026-04-10
+next_review_due: 2026-05-10
+---
+
 # Workflow Cookbook
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
