@@ -2,8 +2,8 @@
 intent_id: INT-001
 owner: your-handle
 status: active   # draft|active|deprecated
-last_reviewed_at: 2025-10-14
-next_review_due: 2025-11-14
+last_reviewed_at: 2026-04-09
+next_review_due: 2026-05-09
 ---
 
 # Checklists
@@ -41,12 +41,16 @@ next_review_due: 2025-11-14
 - 入力到着の確認
 - 失敗通知の有無
 - 主要メトリクス閾値
+- `governance/policy.yaml` の `ci.required_jobs` に対応する論理 gate ID が、
+  `docs/ci-config.md` の対応表どおりの実 check 名で最新 run 成功になっているか確認
+- CI Phase を変更した直後は `docs/ci-config.md` と `docs/ci_phased_rollout_requirements.md` の記述差異がないか確認
 
 ## Release
 
 - 実装・レビューの完了条件は「Development」「Pull Request / Review」を満たしていることを前提に進行
 - [docs/Release_Checklist.md](docs/Release_Checklist.md) を参照して全体手順を確認
-- `.github/workflows/security.yml` の最新実行結果を確認し、4 ゲートが成功していること
+- `governance/policy.yaml` の `ci.required_jobs` に定義された論理 gate ID について、
+  `docs/ci-config.md` の対応表にある実 check 名の最新実行結果を確認し、branch protection の必須チェック名と一致していること
 - 変更点の要約
 - リリースノート（`CHANGELOG.md` など）へ必要最小の項目を追記
 - 未反映の `TASK.*` が残っていないか確認し、成果を `[Unreleased](CHANGELOG.md#unreleased)` へ通番付きで転記済みかチェック
@@ -65,6 +69,10 @@ next_review_due: 2025-11-14
 
 - 命名・ディレクトリ整備
 - ドキュメント差分反映
+- CI / Governance を変更した場合は `.github/workflows/`、`governance/policy.yaml`、
+  `docs/ci-config.md`、`docs/ci_phased_rollout_requirements.md`、`RUNBOOK.md` の同期を確認
+- `security-ci` は `.github/workflows/security.yml` を Phase 3 正本入口として扱い、
+  `.github/workflows/security-ci.yml` が互換入口としてのみ記述されていることを確認
 - Birdseye を更新した場合は `docs/birdseye/index.json` / `hot.json` / `caps/*` の差分と `generated_at` を確認し、局所更新では `--radius` 指定が意図どおりか点検
 - フォーク差分記録の最新化（[`docs/FORK_NOTES.md`](docs/FORK_NOTES.md) をリリース前レビューと突合）
 - 旧呼称の混入チェック（例: `rg "<旧ブランド名>"` など抽象化したキーワードで固有表現を検索し、現行ブランド以外の名称が残存していないか確認）

@@ -2,18 +2,18 @@
 intent_id: INT-001
 owner: docs-core
 status: draft
-last_reviewed_at: 2025-10-28
-next_review_due: 2025-11-28
+last_reviewed_at: 2026-04-09
+next_review_due: 2026-05-09
 ---
 
 # 実装計画（Implementation Plan）
 
-本計画は [README.md](../README.md) および [HUB.codex.md](../HUB.codex.md) の導入指針に従い、AutoSave と Merge の段階導入を支える
-最小単位の意思決定と依存関係を整理する。
+本計画は [README.md](../README.md) および [HUB.codex.md](../HUB.codex.md) の導入指針に従い、AutoSave と Merge の参照実装を
+段階導入できる最小単位の意思決定と依存関係を整理する。
 
 ## フラグ方針
 
-- `autosave.project_lock` フラグで AutoSave のプロジェクトロック機構を段階的に有効化する。
+- `autosave.project_lock` フラグで AutoSave のプロジェクトロック検証を段階的に有効化する。
   詳細な不変条件とテレメトリは
   [docs/AUTOSAVE-DESIGN-IMPL.md#不変条件](
     AUTOSAVE-DESIGN-IMPL.md#%E4%B8%8D%E5%A4%89%E6%9D%A1%E4%BB%B6) と
@@ -25,6 +25,8 @@ next_review_due: 2025-11-28
   [docs/MERGE-DESIGN-IMPL.md#ロック協調](MERGE-DESIGN-IMPL.md#%E3%83%AD%E3%83%83%E3%82%AF%E5%8D%94%E8%AA%BF) に従う。
 - 両フラグともに [docs/tasks/task-autosave-project-locks.md](tasks/task-autosave-project-locks.md)
   のチェックリスト完了を有効化条件とし、未完了状態では強制的にオフ。
+- `strict` は valid な `lock_token` を必須とし、未検証 token を許容する運用は
+  `baseline` に限定する。
 
 ## 依存関係
 
@@ -42,16 +44,34 @@ next_review_due: 2025-11-28
     tasks/task-autosave-project-locks.md#%E3%83%AD%E3%83%BC%E3%83%AB%E3%83%90%E3%83%83%E3%82%AF%E6%89%8B%E9%A0%86)
   に準拠する。
 
+## 実装前提
+
+- AutoSave は `ProjectLockCoordinator` に lock lifecycle を委譲し、自身では
+  token 妥当性検証と snapshot monotonicity のみを担う。
+- Merge は `precision_mode_override`、または `FlagState.merge_precision_mode()` から
+  精度モードを解決し、`strict` 以外を `baseline` に正規化する。
+- テレメトリ契約は次の 2 つを最小単位とする。
+  - `autosave.snapshot.commit`
+  - `merge.pipeline.metrics`
+- 参照実装の評価単位は UI や外部ジョブではなく、Python テストと構造化ログ、
+  telemetry payload の整合に置く。
+
 ## 段階導入チェックリスト
 
-1. `autosave.project_lock` を `baseline` プロジェクトに対してカナリア実行し、
-   [docs/AUTOSAVE-DESIGN-IMPL.md#不変条件](AUTOSAVE-DESIGN-IMPL.md#%E4%B8%8D%E5%A4%89%E6%9D%A1%E4%BB%B6) で定義した監視アラートを有効化する。
-2. `merge.precision_mode` を `baseline` → `strict` へ段階昇格し、
+1. `autosave.project_lock` を有効にした状態で、
+   `LockTokenInvalidError` と `SnapshotOrderViolation` の分岐をテストで確認する。
+2. `merge.precision_mode` を `baseline` と `strict` で切り替え、
+   strict では invalid token が失敗し、baseline では lock release 条件が緩和されることを確認する。
+3. `autosave.snapshot.commit` と `merge.pipeline.metrics` の payload が
+   [docs/AUTOSAVE-DESIGN-IMPL.md#テレメトリ要件](
+     AUTOSAVE-DESIGN-IMPL.md#%E3%83%86%E3%83%AC%E3%83%A1%E3%83%88%E3%83%AA%E8%A6%81%E4%BB%B6)
+   および
    [docs/MERGE-DESIGN-IMPL.md#テレメトリ要件](
      MERGE-DESIGN-IMPL.md#%E3%83%86%E3%83%AC%E3%83%A1%E3%83%88%E3%83%AA%E8%A6%81%E4%BB%B6)
-   の指標で回帰を確認する。
-3. 1・2 の結果を [docs/tasks/task-autosave-project-locks.md#ロールバック手順][task-autosave-rollback]
-   に沿ってレビューし、完了後にフラグを恒常化する。
+   に一致することを確認する。
+4. 1 から 3 の結果を
+   [docs/tasks/task-autosave-project-locks.md#ロールバック手順][task-autosave-rollback]
+   に沿ってレビューし、flag の既定値変更可否を判断する。
 
 ---
 

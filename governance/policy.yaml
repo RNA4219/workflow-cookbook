@@ -15,6 +15,8 @@ canary:
       action: rollback
 
 ci:
+  # Logical gate identifiers. The mapping to concrete GitHub workflow/job/check names
+  # is documented in docs/ci-config.md and ci_phased_rollout_requirements.md.
   required_jobs:
     - governance-gate
     - security-ci

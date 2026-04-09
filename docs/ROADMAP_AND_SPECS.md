@@ -72,10 +72,10 @@ next_review_due: 2026-05-09
   - `docs/birdseye/index.json` の `generated_at`（5 桁ゼロ埋め世代番号）監視と、`tools/codemap/update.py` の `--targets` / `--emit` / `--radius` フローは `RUNBOOK.md` の[Execute](../RUNBOOK.md#execute)へ反映済み。
   - ステータスは `GUARDRAILS.md` の[鮮度管理](../GUARDRAILS.md#鮮度管理staleness-handling)と[codemap 未実装時の暫定手順](../GUARDRAILS.md#codemap-未実装時の暫定手順)で追跡。
 - **CI テンプレ整備**
-  - `ci-config.md` の設定例を `README.md` の[再利用CIの呼び出し例](../README.md#再利用ciの呼び出し例下流リポ側)と整合させる。
+  - `ci-config.md` の workflow 対応表と `README.md` の[再利用CIの呼び出し例](../README.md#再利用ciの呼び出し例下流リポ側)を整合させる。
   - `governance/policy.yaml` の `ci.required_jobs` を基準に、`CHECKLISTS.md` の[Daily](../CHECKLISTS.md#daily)で稼働状況をモニタ。
 - **CI 段階的導入フレームの実装**
-  - [docs/ci_phased_rollout_requirements.md](ci_phased_rollout_requirements.md) に定義した Phase 0〜3 の要件を順次満たし、CI 負荷を段階的に引き上げる。
+  - [docs/ci_phased_rollout_requirements.md](ci_phased_rollout_requirements.md) に定義した Phase 0〜3 の要件を、実在する workflow と `policy.yaml` の required jobs に対応づけて順次満たす。
   - フェーズ移行ごとに `governance/policy.yaml`・`RUNBOOK.md`・`CHECKLISTS.md` を更新し、`CHANGELOG.md` の `[Unreleased]` へ通番付きで記録する。
 
 ## 参照クイックリンク

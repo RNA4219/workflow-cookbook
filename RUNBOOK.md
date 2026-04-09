@@ -2,8 +2,8 @@
 intent_id: INT-001
 owner: your-handle
 status: active   # draft|active|deprecated
-last_reviewed_at: 2025-10-21
-next_review_due: 2025-11-21
+last_reviewed_at: 2026-04-09
+next_review_due: 2026-05-09
 ---
 
 # Runbook
@@ -19,6 +19,18 @@ next_review_due: 2025-11-21
   - 準備: データ投入 / キャッシュ初期化
   - 実行: コマンド/ジョブ名
   - 確認: 出力の存在・件数・整合
+- CI / Governance 確認
+  - `governance/policy.yaml` の `ci.required_jobs` を確認し、論理 gate ID
+    (`governance-gate` / `python-ci` / `security-ci`) を基準にする。
+  - GitHub 上の実 check 名は [docs/ci-config.md](docs/ci-config.md) の
+    「論理 gate ID と実 check 名」を参照する。
+  - Phase 判定は [docs/ci_phased_rollout_requirements.md](docs/ci_phased_rollout_requirements.md)
+    を参照し、実在する workflow のみを対象にする。
+  - branch protection の必須チェック名が、論理 gate ID ではなく
+    実 check 名の対応表と一致しているか確認する。
+  - GitHub API の取得権限がある場合は
+    `python tools/ci/check_branch_protection.py --protection-json <json>` で
+    branch protection export を検証する。
 - Birdseye / codemap 更新
   - 全体更新: `python tools/codemap/update.py --targets docs/birdseye/index.json,docs/birdseye/hot.json --emit index+caps`
   - 局所更新: `python tools/codemap/update.py --since --radius 1 --emit caps`
@@ -144,10 +156,17 @@ next_review_due: 2025-11-21
 ## Confirm
 
 - Execute 結果を主要メトリクス・アウトプットと突き合わせ、`CHECKLISTS.md` の [Hygiene](CHECKLISTS.md#hygiene) で整合性と未完了項目を再確認
+- CI / Governance 変更時は `.github/workflows/`、`governance/policy.yaml`、
+  `docs/ci-config.md`、`docs/ci_phased_rollout_requirements.md` の記述が一致していることを確認
+- required jobs を変更した場合は branch protection の必須チェック名と
+  `docs/ci-config.md` の対応表も同時に見直し、
+  docs だけ先行・設定だけ先行の片寄りを残さない
 - インシデント記録を [docs/INCIDENT_TEMPLATE.md](docs/INCIDENT_TEMPLATE.md) に沿って初動報告→確定記録まで更新し、関連 PR / チケットへリンクを共有
 - `Observability` で検知したアラート・兆候の解消を運用チャネルへ報告し、残るフォローアップを RUNBOOK / docs/IN-YYYYMMDD-XXX.md に追記
 
 ## Rollback / Retry
 
 - どこまで戻すか、再実行条件
+- CI Phase を戻す場合は、直前 Phase の required jobs へ戻し、
+  `governance/policy.yaml` / `docs/ci-config.md` / `CHANGELOG.md` を同時更新する
 - インシデントサマリを更新後、該当PRの説明欄と本RUNBOOKの該当セクションにリンクを追加する

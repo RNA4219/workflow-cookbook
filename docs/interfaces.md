@@ -2,8 +2,8 @@
 intent_id: DOC-LEGACY
 owner: docs-core
 status: active
-last_reviewed_at: 2025-10-28
-next_review_due: 2025-11-28
+last_reviewed_at: 2026-04-09
+next_review_due: 2026-05-09
 ---
 
 # Boundary Map
@@ -13,15 +13,11 @@ next_review_due: 2025-11-28
 
 | 機能 | 提供するもの | 受け取るもの | 備考 |
 |------|---------------|---------------|------|
-| 例: metrics 集計 | 集計済みメトリクスAPI | ログストリーム、設定 | スキーマ: `/docs/spec.template.md` |
-
-| 機能 | 提供するもの | 受け取るもの | 備考 |
-|------|---------------|---------------|------|
 | context_trimmer | `ContextTrimResult` JSON（`messages`、`omitted`, `token_budget` を含むトリミング後会話コンテキスト） | `ConversationLog` JSON（メッセージ列、`token_budget` 指定、`policy` 設定）、`context_trimmer` の操作ログ出力先 | 入出力スキーマ: `ContextTrimResult` / `ConversationLog`; 依存: structured logging sink。関連仕様: [docs/ROADMAP_AND_SPECS.md](./ROADMAP_AND_SPECS.md) の「Minimal Context Intake」。 |
-
-| 機能 | 提供するもの | 受け取るもの | 備考 |
-|------|---------------|---------------|------|
-| collect_metrics_cli（仮称） | CLI経由でエクスポートされる `MetricsSnapshot` JSON + Prometheus PushGateway 互換メトリクス (`--suite qa` で `.ga/qa-metrics.json` を既定出力、`--output` で上書き可、`--pushgateway-url` 指定時に即時送信) | CI/実行時ログ (`StructuredLog`)、`qa-metrics.json`（任意）、Prometheus PushGateway 接続情報 | 入出力スキーマ: `MetricsSnapshot` JSON; 依存: Prometheus PushGateway、構造化ログ。契約: [docs/CONTRACTS.md](./CONTRACTS.md) の `.ga/qa-metrics.json`。 |
+| codemap_update_cli | `docs/birdseye/index.json`、`docs/birdseye/hot.json`、`docs/birdseye/caps/*.json` の更新済み生成物 | 既存 Birdseye 資産、`--targets` / `--emit` / `--since` / `--radius` 引数、差分元 git 状態 | 入出力仕様は [docs/spec.md](./spec.md) の「4.2 Birdseye / Codemap」を参照。`generated_at` は 5 桁ゼロ埋め世代番号で、`index.json` と `hot.json` は同じ更新サイクルへ揃える。 |
+| autosave_project_lock | `AutoSaveResult`（`status`, `applied_snapshot_id`, `next_retry_at`）と `autosave.snapshot.commit` テレメトリ | `AutoSaveRequest`、`ProjectLockCoordinator`、feature flag state | 代表例外: `LockTokenInvalidError`, `SnapshotOrderViolation`。関連仕様: [docs/spec.md](./spec.md) の「4.3 AutoSave 参照実装」。 |
+| merge_pipeline | `MergePipelineResult`（`status`, `precision_mode`, `resolved_snapshot_id`, `lock_released`）と `merge.pipeline.metrics` テレメトリ | `MergePipelineRequest`、`ProjectLockCoordinator`、feature flag state、merge executor | `strict` では valid な `lock_token` を要求する。関連仕様: [docs/spec.md](./spec.md) の「4.4 Merge 参照実装」。 |
+| collect_metrics_cli | CLI 経由でエクスポートされる `MetricsSnapshot` JSON、`.ga/qa-metrics.json`、Prometheus PushGateway 互換メトリクス | `--metrics-url`、`--log-path`、`--suite qa`、`--pushgateway-url`、構造化ログ | どの入力ソースも無い場合は `MetricsCollectionError`。契約: [docs/CONTRACTS.md](./CONTRACTS.md) の `.ga/qa-metrics.json`。関連仕様: [docs/spec.md](./spec.md) の「4.5 Metrics 収集 CLI」。 |
 
 追加ルール:
 
