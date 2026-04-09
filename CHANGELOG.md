@@ -12,6 +12,15 @@ next_review_due: 2025-11-14
 
 ### Added
 
+- 0076: Improvement Backlog残り実装完了
+  - IB-007: Docs Resolve PR gate参照 (workflow追加)
+  - IB-009: Sample/docs同期チェック
+  - IB-010: Upstream差分抽出CLI
+  - IB-012: TaskState export機能
+  - IB-014: 用途別docs hub生成
+  - IB-016: Security Docs更新チェック
+  - IB-017: Release Notes自動生成
+  - IB-018: Knowledge Reuse導線
 - 0075: Improvement Backlog 実装完了
   - IB-003: Task/Acceptance 双方向整合チェッカー追加
   - IB-008: Acceptance Index 集計機能拡張（status summary 追加）

@@ -110,15 +110,31 @@
   - `tools/ci/check_birdseye_freshness.py` を追加し、
     `generated_at`・`mtime`・caps 参照・`last_verified_at` の
     freshness check を実行可能にした
+- IB-007
+  - `docs-resolve-pr-gate.yml` workflow 追加、PR comment へ docs resolve 結果投稿
 - IB-008
   - Acceptance Index 生成ツールを拡張し、
     status summary / records テーブル形式を出力
+- IB-009
+  - `check_sample_docs_sync.py` 追加、sample と docs の同期チェック
+- IB-010
+  - `extract_upstream_changes.py` 追加、UPSTREAM 差分抽出
 - IB-011
   - Plugin runtime に timeout / retry / error policy と tracing 機能を追加
+- IB-012
+  - `export_task_state.py` 追加、TaskState JSON export 機能
 - IB-013
   - Evidence / Acceptance 連携レポート生成ツール `generate_evidence_report.py` 追加
+- IB-014
+  - `generate_navigation_hub.py` 追加、用途別 docs hub 自動生成
 - IB-015
   - ADR / addenda 索引自動生成ツール `generate_docs_index.py` 追加
+- IB-016
+  - `check_security_docs_freshness.py` 追加、security docs 更新チェック
+- IB-017
+  - `generate_release_notes.py` 追加、Release Notes 自動生成
+- IB-018
+  - `knowledge_reuse.py` 追加、release/acceptance/incident 横断参照 CLI
 
 ### Known Limitations 完了
 
