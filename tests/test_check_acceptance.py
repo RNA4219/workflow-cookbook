@@ -64,6 +64,7 @@ def test_validate_acceptance_docs_pass(repo_root: Path) -> None:
     docs_dir.mkdir(parents=True)
     (docs_dir / "README.md").write_text("# Acceptance\n", encoding="utf-8")
     (docs_dir / "ACCEPTANCE_TEMPLATE.md").write_text("# Template\n", encoding="utf-8")
+    (docs_dir / "INDEX.md").write_text("# Acceptance Index\n", encoding="utf-8")
     _write_acceptance(docs_dir / "AC-20260410-01.md")
 
     assert validate_acceptance_docs(repo_root) == {}

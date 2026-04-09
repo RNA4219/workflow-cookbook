@@ -28,6 +28,7 @@ REQUIRED_HEADINGS: Sequence[str] = (
 EXCLUDED_FILES: Sequence[str] = (
     "README.md",
     "ACCEPTANCE_TEMPLATE.md",
+    "INDEX.md",
 )
 
 
