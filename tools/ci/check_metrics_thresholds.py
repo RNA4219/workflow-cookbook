@@ -37,7 +37,7 @@ except ModuleNotFoundError:  # pragma: no cover - fallback for minimal env
                     try:
                         parsed = float(parsed)
                     except ValueError:
-                        parsed = parsed
+                        pass  # Keep as string
                 result[current_key][key.strip()] = parsed
             return result
 
