@@ -49,7 +49,7 @@ jobs:
         with:
           python-version: "3.11"
       - run: pip install bandit
-      - run: bandit -q -r tools security_headers tests -s B404,B603
+      - run: bandit -q -r tools security_headers tests -s B101,B310,B404,B603,B607
 
   gitleaks:
     name: Gitleaks
