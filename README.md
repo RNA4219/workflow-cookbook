@@ -1,11 +1,3 @@
----
-intent_id: INT-001
-owner: your-handle
-status: active   # draft|active|deprecated
-last_reviewed_at: 2025-10-14
-next_review_due: 2025-11-14
----
-
 # Workflow Cookbook / Codex Task Kit
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)

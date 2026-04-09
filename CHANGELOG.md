@@ -12,6 +12,8 @@ next_review_due: 2025-11-14
 
 ### Changed
 
+- 0048: `README.md` 先頭の front matter を削除し、公開向けの入口として不要な
+  管理メタデータを外した
 - 0047: repo 内に残っていた絶対パス参照を相対パスへ置き換え、sample config、
   Runbook、Skill references、release docs の再利用性を改善した
 - 0046: `workflow-cookbook/skills/workflow-agent-evidence/` を追加し、

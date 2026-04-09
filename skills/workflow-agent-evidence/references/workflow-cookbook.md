@@ -1,6 +1,7 @@
-workflow-cookbook integration notes
+# workflow-cookbook Integration Notes
 
 Key files
+
 - tools/perf/structured_logger.py
 - tools/protocols/evidence_bridge.py
 - tools/protocols/plugin_loader.py
@@ -11,12 +12,14 @@ Key files
 - schemas/inference-plugin-config.schema.json
 
 Typical validation
+
 - uv run pytest tests/test_structured_logger.py -q
 - uv run pytest tests/test_agent_protocol_evidence.py -q
 - uv run pytest tests/test_plugin_loader.py -q
 - uv run pytest tests/test_plugin_config.py -q
 
 Checklist
+
 - Keep StructuredLogger generic.
 - Keep contract-specific mapping inside tools/protocols.
 - Update sample config, consumer sample, schema, docs, and tests together.
