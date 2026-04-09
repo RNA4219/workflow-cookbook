@@ -12,6 +12,9 @@ next_review_due: 2025-11-14
 
 ### Changed
 
+- 0042: `README.md` の導入説明を Birdseye / Task Seed /
+  `agent-protocols` 連携前提へ更新し、公開用 GitHub Topics を
+  リポジトリ実態に合わせて見直した
 - 0041: `CHANGELOG.md`、`RUNBOOK.md`、`HUB.codex.md`、
   `docs/releases/v1.1.0.md` の Markdown 行長を調整し、
   `markdownlint-cli2` の `MD013` 指摘を解消した

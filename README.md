@@ -10,9 +10,11 @@ next_review_due: 2025-11-14
 
 [![License: Apache-2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
 
-This repo defines QA/Governance-first workflows (not application code).
-AI agents implement changes under these policies with acceptance tests and
-canary rules.
+This repo defines QA/Governance-first workflows, reusable operational docs,
+and Codex-oriented task orchestration patterns rather than application code.
+It also includes Birdseye / Codemap maintenance flows, Task Seed driven
+handoffs, and plugin-based LLM behavior tracking that can emit
+`agent-protocols` compatible `Evidence` logs.
 
 <!-- LLM-BOOTSTRAP v1 -->
 読む順番:
@@ -27,10 +29,20 @@ canary rules.
 
 <!-- /LLM-BOOTSTRAP -->
 
-任意のリポジトリに貼って入力時に本リポジトリを参照させるだけで、**仕様→実装→検収**まで一貫して回せるコンテキストエンジニアリングが可能なMD群。
+任意のリポジトリに貼って入力時に本リポジトリを参照させるだけで、
+**仕様→実装→検収**まで一貫して回せるコンテキストエンジニアリングが
+可能な MD 群。
 
 - 人間にもエージェント（Codex等）にも読ませやすい最小フォーマット
 - 言語・技術スタック非依存（存在するコマンドだけ使用）
+
+## このリポジトリで扱うもの
+
+- Birdseye / Codemap による Markdown ハブと依存関係の軽量同期
+- Task Seed、Runbook、Evaluation、Checklist を中心にした実行導線
+- `StructuredLogger` を起点にした plugin 型の LLM 行動追跡
+- `agent-protocols` の `Evidence` 契約へ接続できる設定例と consumer sample
+- reusable CI / Governance workflow と検証スクリプト
 
 ## 使い方（最短）
 
