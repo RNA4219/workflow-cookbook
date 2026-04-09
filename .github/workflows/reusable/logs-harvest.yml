@@ -40,7 +40,7 @@ jobs:
     outputs:
       advisory_body: ${{ steps.format.outputs.body }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Install GitHub CLI
         uses: cli/cli-action@v2

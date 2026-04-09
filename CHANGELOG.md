@@ -12,6 +12,8 @@ next_review_due: 2025-11-14
 
 ### Changed
 
+- 0049: GitHub Actions の Node 24 移行に合わせて
+  `actions/checkout` を `v6`、`actions/setup-python` を `v6` へ更新した
 - 0048: `README.md` 先頭の front matter を削除し、公開向けの入口として不要な
   管理メタデータを外した
 - 0047: repo 内に残っていた絶対パス参照を相対パスへ置き換え、sample config、

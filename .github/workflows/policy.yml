@@ -8,7 +8,7 @@ jobs:
   forbidden_paths:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Block changes touching forbidden paths
         env:
           FORBIDDEN_REGEX: '^core/schema/|^auth/|^governance/'
