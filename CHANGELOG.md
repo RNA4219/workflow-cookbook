@@ -12,6 +12,9 @@ next_review_due: 2025-11-14
 
 ### Changed
 
+- 0041: `CHANGELOG.md`、`RUNBOOK.md`、`HUB.codex.md`、
+  `docs/releases/v1.1.0.md` の Markdown 行長を調整し、
+  `markdownlint-cli2` の `MD013` 指摘を解消した
 - 0026: `tools/codemap/update.py` に `--radius` を追加し、Birdseye の局所更新 hop 数を制御できるようにした
 - 0027: Birdseye / codemap の README・Guardrails・Runbook・Hub・Checklist を `--radius` と 5 桁世代番号の `generated_at` 前提に同期した
 - 0028: AutoSave の `autosave.snapshot.commit` テレメトリに `latency_ms` と `lock_wait_ms` を含められるようにし、CI workflow に Phase コメントを追加した
