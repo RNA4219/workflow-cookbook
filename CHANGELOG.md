@@ -218,5 +218,4 @@ next_review_due: 2025-11-14
 
 ### Known limitations
 
-- 0005: SLOバッジ自動生成は未実装（README と policy.yaml を手動同期）
 - 0006: Canary 連携は任意

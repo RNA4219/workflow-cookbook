@@ -180,5 +180,14 @@ next_review_due: 2026-05-09
 
 ## 10. 今後の具体化候補
 
+### 実装済み
+
 - branch protection の exported 設定との差分検証
-- `codeql.yml` を Phase 3 の必須へ昇格するかどうかの判断基準整備
+  - `tools/ci/check_branch_protection.py` で実装済み (v1.1.0)
+  - policy.yaml と branch protection の整合を CI で検証可能
+
+### 未実装 / backlog 移管
+
+- codeql.yml を Phase 3 の必須へ昇格するかどうかの判断基準整備
+  - 現状: Phase 3 任意 (高コストな静的解析)
+  - backlog: `docs/addenda/P_Expansion_Candidates.md` へ移管検討

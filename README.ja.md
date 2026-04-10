@@ -65,6 +65,9 @@ python tools/ci/check_ci_gate_matrix.py
 python tools/ci/check_birdseye_freshness.py --check
 ```
 
+> **Windows ユーザー**: `python` コマンドが Windows Store stub を起動する場合があります。
+> 上記例では `python` を `py -3` または `uv run python` に置き換えてください。
+
 ---
 
 ## ドキュメント導線

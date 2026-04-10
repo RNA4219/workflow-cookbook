@@ -14,6 +14,9 @@ next_review_due: 2026-05-09
 
 ## Execute
 
+> **Windows ユーザー**: `python` コマンドが Windows Store stub を起動する場合があります。
+> 本文中の `python` は `py -3` または `uv run python` に置き換えてください。
+
 - 準備 → 実行 → 確認（最短手順）
 - 例）
   - 準備: データ投入 / キャッシュ初期化

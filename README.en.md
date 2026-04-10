@@ -73,6 +73,9 @@ Focus procedure:
 9. Validate plugin config:
    [`tools/workflow_plugins/validate_workflow_plugin_config.py`](tools/workflow_plugins/validate_workflow_plugin_config.py)
 
+> **Windows users**: The `python` command may invoke the Windows Store stub.
+> Use `py -3` or `uv run python` instead of `python` in the examples above.
+
 ## Navigation
 
 - Start here:

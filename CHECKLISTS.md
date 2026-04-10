@@ -8,6 +8,9 @@ next_review_due: 2026-05-09
 
 # Checklists
 
+> **Windows ユーザー**: `python` コマンドが Windows Store stub を起動する場合があります。
+> 本文中の `python` は `py -3` または `uv run python` に置き換えてください。
+
 ## Development
 
 - `TASK.*` を起票・更新し、[docs/TASKS.md](docs/TASKS.md) の運用ルールに沿ってスコープとフォローアップを同期

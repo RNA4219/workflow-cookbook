@@ -65,6 +65,9 @@ python tools/ci/check_ci_gate_matrix.py
 python tools/ci/check_birdseye_freshness.py --check
 ```
 
+> **Windows users**: The `python` command may invoke the Windows Store stub.
+> Use `py -3` or `uv run python` instead of `python` in the examples above.
+
 ---
 
 ## Documentation Guide

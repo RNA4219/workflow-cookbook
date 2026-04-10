@@ -19,10 +19,21 @@ jobs:
         run: python tools/ci/check_front_matter.py --check
       - name: Check acceptance records
         run: python tools/ci/check_acceptance.py --check
-      - name: Check Birdseye freshness
-        run: python tools/ci/check_birdseye_freshness.py --check
-      - name: Check metrics thresholds sample
+      - name: Check Birdseye freshness (with freshness window)
+        # RG-002: max-verified-age-daysを設定し、staleなlast_verified_atを検知
+        # 初期値365日は運用開始期間用、徐々に短縮予定
+        run: python tools/ci/check_birdseye_freshness.py --check --max-verified-age-days 365
+      - name: Check metrics thresholds (sample - for CI validation)
+        # 疎通確認用sample。本番gateは次ステップ参照
         run: python tools/ci/check_metrics_thresholds.py --check --metrics-json examples/qa-metrics.sample.json
+      - name: Check metrics thresholds (real metrics if exists)
+        # RG-001: 実metrics fileに対するgate
+        run: |
+          if [ -f ".ga/qa-metrics.json" ]; then
+            python tools/ci/check_metrics_thresholds.py --check --metrics-json .ga/qa-metrics.json
+          else
+            echo "No .ga/qa-metrics.json found - skipping real metrics check"
+          fi
       - uses: DavidAnson/markdownlint-cli2-action@v17
         with:
           globs: |

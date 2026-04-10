@@ -11,9 +11,9 @@ next_review_due: 2026-05-10
 
 ## 背景
 
-- Improvement Backlogの残り項目を実装する必要がある
-- IB-007, IB-009, IB-010, IB-012, IB-014, IB-016, IB-017, IB-018 が未実装
-- Known Limitations(0005)も解消が必要
+- Improvement Backlogの全項目を実装完了した
+- v1.2.0で IB-003, IB-007, IB-008, IB-009, IB-010, IB-011, IB-012, IB-013, IB-014, IB-015, IB-016, IB-017, IB-018 を実装
+- Known Limitations(0005)のSLOバッジ自動生成も解消済み
 
 ## ゴール
 
