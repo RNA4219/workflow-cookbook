@@ -15,8 +15,10 @@ jobs:
       - uses: actions/setup-python@v6
         with:
           python-version: '3.11'
-      - name: Generate qa-metrics.json (baseline)
-        # 初期metrics生成。定期運用ではmetrics-harvest.ymlで更新
+      - name: Generate qa-metrics.json (smoke baseline)
+        # 注意: これは固定baselineであり、実測値ではない
+        # 実 metrics gate は metrics-harvest.yml または collect_metrics CLI で生成
+        # 現状は「gate存在確認」+「threshold CLI 疎通」用の smoke test
         run: |
           mkdir -p .ga
           python -c "
@@ -32,7 +34,8 @@ jobs:
             'reopen_rate': 2.0,
             'spec_completeness': 95.0,
             '_generated_at': '2026-04-11',
-            '_source': 'baseline from markdown.yml'
+            '_source': 'smoke baseline from markdown.yml - not production metrics',
+            '_warning': 'This is a fixed baseline for smoke testing only'
           }
           Path('.ga/qa-metrics.json').write_text(json.dumps(metrics, indent=2))
           "
