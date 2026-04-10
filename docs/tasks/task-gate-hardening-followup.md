@@ -2,7 +2,7 @@
 task_id: 20260411-02
 intent_id: INT-001
 owner: docs-core
-status: planned
+status: done
 last_reviewed_at: 2026-04-11
 next_review_due: 2026-05-11
 ---

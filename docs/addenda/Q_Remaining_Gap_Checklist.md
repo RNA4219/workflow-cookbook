@@ -28,6 +28,7 @@ next_review_due: 2026-05-11
 
 | ID | 完了日 | 内容 |
 | :-- | :-- | :-- |
+| RG-001 | 2026-04-11 | 実 metrics gate 未生成時 failure 化 |
 | RG-002 | 2026-04-11 | Birdseye stale を failure 化 |
 | RG-003 | 2026-04-11 | acceptance record を実装状態へ再同期 |
 
@@ -35,7 +36,7 @@ next_review_due: 2026-05-11
 
 ### 3.1 P1
 
-- [ ] RG-001: `.ga/qa-metrics.json` 未生成のまま実 metrics gate が素通りしないようにする
+- [x] RG-001: `.ga/qa-metrics.json` 未生成のまま実 metrics gate が素通りしないようにする
 - [x] RG-002: Birdseye stale を warning ではなく failure として扱う
 
 ### 3.2 P2
@@ -46,7 +47,7 @@ next_review_due: 2026-05-11
 
 ## 4.1 CI / Gate
 
-- [ ] 実 metrics file を入力にした threshold check が CI で動く
+- [x] 実 metrics file を入力にした threshold check が CI で動く
 - [x] sample JSON は疎通確認用と明記され、本番 gate と混同しない
 - [x] Birdseye freshness check に `--max-verified-age-days` が付いている
 - [x] stale な `last_verified_at` を CI で fail できる
