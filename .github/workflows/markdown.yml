@@ -27,7 +27,7 @@ jobs:
         # 疎通確認用sample。本番gateは次ステップ参照
         run: python tools/ci/check_metrics_thresholds.py --check --metrics-json examples/qa-metrics.sample.json
       - name: Check metrics thresholds (real metrics if exists)
-        # RG-001: 実metrics fileに対するgate
+        # RG-001: 実metrics fileに対するgate。未生成時はskip（followupで対応）
         run: |
           if [ -f ".ga/qa-metrics.json" ]; then
             python tools/ci/check_metrics_thresholds.py --check --metrics-json .ga/qa-metrics.json

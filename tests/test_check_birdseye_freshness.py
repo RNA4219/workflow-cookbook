@@ -172,7 +172,7 @@ class TestEvaluateBirdseyeFreshness:
         )
         assert any("missing caps" in f for f in report.failures)
 
-    def test_warns_for_stale_verified_at(self, tmp_path: Path) -> None:
+    def test_fails_for_stale_verified_at(self, tmp_path: Path) -> None:
         index_doc = {"generated_at": "00042", "nodes": {}}
         hot_doc = {
             "generated_at": "00042",
@@ -192,7 +192,8 @@ class TestEvaluateBirdseyeFreshness:
             now=datetime.now(UTC),
             max_verified_age_days=90,
         )
-        assert len(report.warnings) >= 1
+        assert len(report.failures) >= 1
+        assert len(report.warnings) == 0
 
     def test_fails_for_non_mapping_nodes(self, tmp_path: Path) -> None:
         index_doc = {"generated_at": "00042", "nodes": "invalid"}
@@ -275,7 +276,7 @@ def test_birdseye_freshness_fails_when_capsule_is_missing(tmp_path: Path) -> Non
     ]
 
 
-def test_birdseye_freshness_warns_when_last_verified_is_stale(tmp_path: Path) -> None:
+def test_birdseye_freshness_fails_when_last_verified_is_stale(tmp_path: Path) -> None:
     index_path, hot_path = _write_birdseye_fixture(tmp_path)
     hot_doc = json.loads(hot_path.read_text(encoding="utf-8"))
     hot_doc["nodes"][0]["last_verified_at"] = "2025-01-01T00:00:00Z"
@@ -293,9 +294,9 @@ def test_birdseye_freshness_warns_when_last_verified_is_stale(tmp_path: Path) ->
         "90",
     )
 
-    assert result.returncode == 0, result.stderr
+    assert result.returncode == 1
     payload = json.loads(result.stdout)
-    assert payload["failures"] == []
-    assert payload["warnings"] == [
+    assert payload["warnings"] == []
+    assert payload["failures"] == [
         "hot.json: node README.md last verified at 2025-01-01T00:00:00Z exceeds 90 day freshness window"
     ]

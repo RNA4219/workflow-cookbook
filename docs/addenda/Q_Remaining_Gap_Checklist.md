@@ -20,34 +20,33 @@ next_review_due: 2026-05-11
 
 | ID | 優先度 | 領域 | 内容 | 根拠 |
 | :-- | :-- | :-- | :-- | :-- |
-| RG-001 | P1 | CI | metrics gate が固定 sample 中心で、実 metrics gate としては弱い | `.github/workflows/markdown.yml`, `docs/tasks/task-gate-hardening-metrics-birdseye.md` |
-| RG-002 | P1 | CI | Birdseye freshness check が `--max-verified-age-days` を伴わず、鮮度 gate として弱い | `.github/workflows/markdown.yml`, `docs/tasks/task-gate-hardening-metrics-birdseye.md` |
-| RG-003 | P1 | Docs / Tasks | `task-improvement-backlog-complete.md` が `status: done` なのに本文背景が古い | `docs/tasks/task-improvement-backlog-complete.md` |
-| RG-004 | P1 | Docs / Release | `CHANGELOG.md` の Known limitations に 0005 未実装表現が残っている | `CHANGELOG.md` |
-| RG-005 | P2 | Docs / CI | `CI 段階的導入 要件定義` に「今後の具体化候補」が残り、現行自動化との差分棚卸しが必要 | `docs/ci_phased_rollout_requirements.md` |
-| RG-006 | P2 | Local Ops | Windows 環境で `python` が Store stub を向いており、ローカル手順は `py -3` か `uv run` 前提の明記が必要 | ローカル確認結果 |
+| RG-001 | P1 | CI | 実 metrics gate が `.ga/qa-metrics.json` 未生成時に skip 成功となる | `.github/workflows/markdown.yml`, `docs/tasks/task-gate-hardening-followup.md` |
+| RG-002 | P1 | CI | Birdseye freshness checker が stale を warning のみで返し、CI failure にならない | `tools/ci/check_birdseye_freshness.py`, `docs/tasks/task-gate-hardening-followup.md` |
+| RG-003 | P2 | Docs / Acceptance | acceptance record が未完了事項を含んだまま `approved` 扱いになっている | `docs/acceptance/AC-20260411-01.md`, `docs/tasks/task-gate-hardening-followup.md` |
+
+## 2.1 完了済みギャップ
+
+| ID | 完了日 | 内容 |
+| :-- | :-- | :-- |
+| RG-002 | 2026-04-11 | Birdseye stale を failure 化 |
+| RG-003 | 2026-04-11 | acceptance record を実装状態へ再同期 |
 
 ## 3. 実装優先チェック
 
 ### 3.1 P1
 
-- [x] RG-001: 実 metrics に対する threshold check を CI gate に昇格する
-- [x] RG-002: Birdseye freshness に日数しきい値を導入し、CI で fail できるようにする
-- [x] RG-003: `task-improvement-backlog-complete.md` の背景説明を現状へ合わせる
-- [x] RG-004: `CHANGELOG.md` の Known limitations と backlog 完了状態を同期する
+- [ ] RG-001: `.ga/qa-metrics.json` 未生成のまま実 metrics gate が素通りしないようにする
+- [x] RG-002: Birdseye stale を warning ではなく failure として扱う
 
 ### 3.2 P2
 
-- [x] RG-005: `docs/ci_phased_rollout_requirements.md` の「今後の具体化候補」を
-  実装済み / 未実装 / backlog 移管に整理する
-- [x] RG-006: README / RUNBOOK / CHECKLISTS のローカル実行例で
-  `python` ではなく `py -3` または `uv run` を正本として明記する
+- [x] RG-003: acceptance / checklist / task seed の完了表現を実装状態へ合わせる
 
 ## 4. 分野別チェックリスト
 
 ## 4.1 CI / Gate
 
-- [x] 実 metrics file を入力にした threshold check が CI で動く
+- [ ] 実 metrics file を入力にした threshold check が CI で動く
 - [x] sample JSON は疎通確認用と明記され、本番 gate と混同しない
 - [x] Birdseye freshness check に `--max-verified-age-days` が付いている
 - [x] stale な `last_verified_at` を CI で fail できる
@@ -59,6 +58,7 @@ next_review_due: 2026-05-11
 - [x] backlog 完了済み項目と task seed の説明が矛盾していない
 - [x] `CHANGELOG.md` の Known limitations が現状と一致する
 - [x] README / RUNBOOK / CHECKLISTS のコマンド例が実際の実行環境と合う
+- [x] acceptance record が実装状態より強い完了表現になっていない
 
 ## 4.3 Release Readiness
 
@@ -81,6 +81,7 @@ next_review_due: 2026-05-11
 
 ## 6. 関連文書
 
+- [Task Seed: Gate Hardening Follow-up](../tasks/task-gate-hardening-followup.md)
 - [Task Seed: Metrics / Birdseye Gate Hardening](../tasks/task-gate-hardening-metrics-birdseye.md)
 - [N. Improvement Backlog](N_Improvement_Backlog.md)
 - [CI 段階的導入 要件定義](../ci_phased_rollout_requirements.md)

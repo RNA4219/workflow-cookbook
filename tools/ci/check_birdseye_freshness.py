@@ -117,7 +117,7 @@ def evaluate_birdseye_freshness(
                 else:
                     verified_at = _parse_timestamp(verified_raw)
                     if stale_cutoff is not None and verified_at < stale_cutoff:
-                        warnings.append(
+                        failures.append(
                             f"hot.json: node {node_id} last verified at {verified_raw} exceeds "
                             f"{max_verified_age_days} day freshness window"
                         )
@@ -140,7 +140,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument(
         "--max-verified-age-days",
         type=int,
-        help="Warn when hot list last_verified_at is older than this many days",
+        help="Fail when hot list last_verified_at is older than this many days",
     )
     parser.add_argument("--check", action="store_true", help="Validate Birdseye artifacts")
     args = parser.parse_args(argv)
