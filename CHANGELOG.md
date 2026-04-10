@@ -10,6 +10,37 @@ next_review_due: 2025-11-14
 
 ## [Unreleased]
 
+## 1.1.2 - 2026-04-09
+
+### v1.1.2 Highlights
+
+- Security Gate workflow improvements: Bandit skip list expanded, Gitleaks configuration fixed, safety check command updated
+- README updates: Connected repositories section added
+- CI fixes: Shell injection prevention, markdown quality improvements
+
+### Changed
+
+- 0080: Security Gate workflow修正
+  - Bandit: testsディレクトリをscan対象から除外、skipリスト拡張 (B101, B105, B106, B107, B108, B310, B404, B603, B607)
+  - Gitleaks: `fetch-depth: 0`追加で完全なgit履歴取得
+  - Semgrep: shell injection防止 (env変数使用)
+  - Safety: `--full-report`にコマンド修正
+  - security-posture job削除
+  - reusable workflowをinline化
+- 0079: CI/CD修正
+  - YAML flow mapping → block mapping変換
+  - e2e job条件分岐ロジック修正
+  - printf format文字列問題回避
+  - memx-resolverテストに`PYTHONPATH=.`設定追加
+  - permissions/concurrency設定の構造修正
+- 0078: README更新
+  - 連携リポジトリセクション追加: agent-taskstate, memx-resolverプラグイン記載
+  - 多言語版README整理・再構成
+- 0077: テスト・品質向上
+  - 12テストファイル追加 → coverage 87.75%
+  - Markdownlint修正 (MD022, MD024, MD031, MD032, MD040, MD047)
+  - CodeQL code scanning alerts修正
+
 ## 1.2.0 - 2026-04-10
 
 ### Added
