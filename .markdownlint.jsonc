@@ -5,5 +5,8 @@
     "tables": false,
     "headings": false,
     "inline_code": false
+  },
+  "MD024": {
+    "siblings_only": true
   }
 }
