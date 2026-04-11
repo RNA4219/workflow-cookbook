@@ -71,6 +71,12 @@ next_review_due: 2026-05-09
   - 3 repo 連携を確認する場合は `.github/workflows/cross-repo-integration.yml`
     と同じ順序で `workflow-cookbook` / `agent-taskstate` / `memx-resolver`
     の plugin テストを実行する。
+- docs review due 確認
+  - `python tools/ci/check_docs_review_due.py --check --max-days-overdue 30`
+    を実行し、review overdue docs を確認する。
+  - overdue docs がある場合は `next_review_due` を更新日付へ延ばし commit/push。
+  - 定期運用では週次で実行し、critical (>30日 overdue) docs を更新する。
+  - JSON output: `python tools/ci/check_docs_review_due.py --json` で一覧取得。
 - Birdseye / codemap 更新
   - 全体更新: `python tools/codemap/update.py --targets docs/birdseye/index.json,docs/birdseye/hot.json --emit index+caps`
   - 局所更新: `python tools/codemap/update.py --since --radius 1 --emit caps`

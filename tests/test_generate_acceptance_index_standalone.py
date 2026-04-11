@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import sys
+from datetime import datetime
 from pathlib import Path
 from textwrap import dedent
 
@@ -107,10 +108,14 @@ class TestGenerateIndexMarkdown:
         # Create actual acceptance files to avoid relative_to error
         acc_dir = tmp_path / "docs" / "acceptance"
         acc_dir.mkdir(parents=True)
+        releases_dir = tmp_path / "docs" / "releases"
+        releases_dir.mkdir(parents=True)
         acc_file1 = acc_dir / "AC-001.md"
         acc_file2 = acc_dir / "AC-002.md"
         acc_file1.write_text("---\nacceptance_id: AC-001\n---")
         acc_file2.write_text("---\nacceptance_id: AC-002\n---")
+        release_file = releases_dir / "v1.0.0.md"
+        release_file.write_text("# Release")
 
         acceptances = [
             gen_module.AcceptanceInfo(
@@ -120,6 +125,7 @@ class TestGenerateIndexMarkdown:
                 status="approved",
                 reviewed_at="2026-04-10",
                 file_path=acc_file1,
+                release="v1.0.0",
             ),
             gen_module.AcceptanceInfo(
                 acceptance_id="AC-002",
@@ -128,13 +134,18 @@ class TestGenerateIndexMarkdown:
                 status="rejected",
                 reviewed_at="2026-04-09",
                 file_path=acc_file2,
+                release="unlinked",
             ),
+        ]
+
+        releases = [
+            gen_module.ReleaseInfo(version="1.0.0", date=datetime(2026, 4, 10)),
         ]
 
         original_repo_root = gen_module._REPO_ROOT
         gen_module._REPO_ROOT = tmp_path
 
-        markdown = gen_module.generate_index_markdown(acceptances)
+        markdown = gen_module.generate_index_markdown(acceptances, releases)
 
         gen_module._REPO_ROOT = original_repo_root
 
@@ -142,12 +153,80 @@ class TestGenerateIndexMarkdown:
         assert "## Summary" in markdown
         assert "approved" in markdown
         assert "rejected" in markdown
+        assert "## Release Mapping" in markdown
         assert "## Records" in markdown
         assert "AC-001" in markdown
         assert "AC-002" in markdown
 
+    def test_release_links_use_relative_path(self, tmp_path: Path) -> None:
+        """Release links should use ../releases/ relative to docs/acceptance/."""
+        acc_dir = tmp_path / "docs" / "acceptance"
+        acc_dir.mkdir(parents=True)
+        releases_dir = tmp_path / "docs" / "releases"
+        releases_dir.mkdir(parents=True)
+        release_file = releases_dir / "v1.0.0.md"
+        release_file.write_text("# Release")
+
+        acceptances = [
+            gen_module.AcceptanceInfo(
+                acceptance_id="AC-001",
+                task_id="TASK-001",
+                intent_id="INT-001",
+                status="approved",
+                reviewed_at="2026-04-10",
+                file_path=acc_dir / "AC-001.md",
+                release="v1.0.0",
+            ),
+        ]
+
+        releases = [
+            gen_module.ReleaseInfo(version="1.0.0", date=datetime(2026, 4, 10)),
+        ]
+
+        original_repo_root = gen_module._REPO_ROOT
+        gen_module._REPO_ROOT = tmp_path
+
+        markdown = gen_module.generate_index_markdown(acceptances, releases)
+
+        gen_module._REPO_ROOT = original_repo_root
+
+        # Should use ../releases/ not docs/releases/
+        assert "../releases/v1.0.0.md" in markdown
+        assert "docs/releases/v1.0.0.md" not in markdown
+
+    def test_file_links_use_filename_only(self, tmp_path: Path) -> None:
+        """File links should use filename only (same directory)."""
+        acc_dir = tmp_path / "docs" / "acceptance"
+        acc_dir.mkdir(parents=True)
+        acc_file = acc_dir / "AC-001.md"
+        acc_file.write_text("---\n---")
+
+        acceptances = [
+            gen_module.AcceptanceInfo(
+                acceptance_id="AC-001",
+                task_id="TASK-001",
+                intent_id="INT-001",
+                status="approved",
+                reviewed_at="2026-04-10",
+                file_path=acc_file,
+                release="unlinked",
+            ),
+        ]
+
+        original_repo_root = gen_module._REPO_ROOT
+        gen_module._REPO_ROOT = tmp_path
+
+        markdown = gen_module.generate_index_markdown(acceptances, [])
+
+        gen_module._REPO_ROOT = original_repo_root
+
+        # Should use filename only, not path with backslash
+        assert "[AC-001.md](AC-001.md)" in markdown
+        # Should not have backslashes
+        assert "\\" not in markdown
+
     def test_handles_empty_acceptances(self) -> None:
-        markdown = gen_module.generate_index_markdown([])
+        markdown = gen_module.generate_index_markdown([], [])
         assert "# Acceptance Index" in markdown
         assert "## Summary" in markdown
         assert "**Total** | **0**" in markdown
@@ -168,6 +247,7 @@ class TestGenerateIndexMarkdown:
                 status="approved",
                 reviewed_at="2026-04-10",
                 file_path=acc_file1,
+                release="v1.0.0",
             ),
             gen_module.AcceptanceInfo(
                 acceptance_id="AC-002",
@@ -176,13 +256,18 @@ class TestGenerateIndexMarkdown:
                 status="approved",
                 reviewed_at="2026-04-10",
                 file_path=acc_file2,
+                release="v1.0.0",
             ),
+        ]
+
+        releases = [
+            gen_module.ReleaseInfo(version="1.0.0", date=datetime(2026, 4, 10)),
         ]
 
         original_repo_root = gen_module._REPO_ROOT
         gen_module._REPO_ROOT = tmp_path
 
-        markdown = gen_module.generate_index_markdown(acceptances)
+        markdown = gen_module.generate_index_markdown(acceptances, releases)
 
         gen_module._REPO_ROOT = original_repo_root
 

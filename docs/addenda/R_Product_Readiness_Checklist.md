@@ -41,21 +41,25 @@ next_review_due: 2026-05-11
 
 ### 3.2 P1: 実用条件
 
-- [ ] smoke 用 baseline と production 用データの責務が docs / workflow で分離されている
-- [ ] metrics の収集、閾値判定、確認手順が `RUNBOOK.md` から辿れる
-- [ ] Birdseye freshness failure 後の復旧手順が docs 化されている
-- [ ] acceptance index を見れば task / acceptance / release の関係が追える
-- [ ] release evidence checker と security posture checker が release 導線に組み込まれている
-- [ ] README の多言語版が最低限同じ機能集合を説明している
-- [ ] 新規 contributor が `README.md` と `RUNBOOK.md` だけで最初の検証を再現できる
+- [x] smoke 用 baseline と production 用データの責務が docs / workflow で分離されている
+- [x] metrics の収集、閾値判定、確認手順が `RUNBOOK.md` から辿れる
+- [x] Birdseye freshness failure 後の復旧手順が docs 化されている
+- [x] acceptance index を見れば task / acceptance / release の関係が追える
+- [x] release evidence checker と security posture checker が release 導線に組み込まれている
+- [x] README の多言語版が最低限同じ機能集合を説明している
+- [x] 新規 contributor が `README.md` と `RUNBOOK.md` だけで最初の検証を再現できる
 
 ### 3.3 P2: 量産条件
 
 - [ ] `workflow-cookbook` の運用観点を `agent-taskstate` / `memx-resolver` へ横展開できる
-- [ ] plugin host / Evidence / docs resolve の使い分けが明確に説明されている
-- [ ] downstream software 向け optional capability が必須フローを邪魔しない
-- [ ] release / acceptance / evidence を横断した品質サマリを生成できる
+  > **注記**: acceptance 記録置き場、テンプレート、README入口、CHECKLISTS項目を追加済み。
+  > CI 統合（acceptance index 生成 workflow）は未完。
+- [x] plugin host / Evidence / docs resolve の使い分けが明確に説明されている
+- [x] downstream software 向け optional capability が必須フローを邪魔しない
+- [x] release / acceptance / evidence を横断した品質サマリを生成できる
 - [ ] front matter の review 期限や stale docs の棚卸しが定期運用されている
+  > **注記**: `check_docs_review_due.py` を追加し、RUNBOOK/CHECKLISTS に実行導線を整備済み。
+  > 定期 workflow / 週次実行の習慣化は未完。
 
 ## 4. 分野別チェック
 
@@ -110,12 +114,33 @@ next_review_due: 2026-05-11
   ここが未完でも `P0` / `P1` を満たしていれば
   実用上のプロダクト価値は十分にある。
 
+## 5.1 2026-04-11 時点の進捗メモ
+
+- `P1` は 7 項目すべて完了。
+  smoke baseline と production metrics の責務分離、
+  metrics 確認導線、
+  Birdseye stale 復旧、
+  acceptance index release mapping、
+  release 導線、
+  多言語 README、
+  初回検証導線は docs と acceptance で確認済み。
+- `P2` は 5 項目中 3 項目完了、2 項目は導線整備まで。
+  plugin host / Evidence / docs resolve の責務分離、
+  optional capability を必須フロー化しない設計、
+  release / acceptance / evidence 横断サマリ生成は完了。
+  横展開（acceptance 構造追加済み、CI統合未完）、
+  review due 定期運用（checker追加済み、定期実行未完）
+  は導線整備段階。
+- 残課題:
+  - 週次運用の習慣化: docs review due / stale docs check
+  - agent-taskstate / memx-resolver の CI 統合
+  - overdue docs の更新
+
 ## 6. 次の優先候補
 
-1. metrics-harvest の実運用化
-2. Birdseye freshness しきい値の段階短縮
-3. `agent-taskstate` / `memx-resolver` への横展開レビュー
-4. release / acceptance / evidence の横断サマリ生成
+1. 週次運用の習慣化: docs review due / stale docs check を定期実行
+2. `agent-taskstate` / `memx-resolver` の CI 統合: acceptance index 生成 workflow 追加
+3. overdue docs の更新: front matter の next_review_due を現在日付基準へ調整
 
 ## 7. 参照
 

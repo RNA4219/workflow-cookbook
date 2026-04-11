@@ -91,6 +91,9 @@ next_review_due: 2026-05-09
 - `python tools/ci/check_security_posture.py --check` が通ること
 - `python tools/ci/check_release_evidence.py --check` が通ること
 - `python tools/ci/check_birdseye_freshness.py --check` が通ること
+- `python tools/ci/check_docs_review_due.py --check --max-days-overdue 30` が通ること
+  > **注記**: review overdue docs は warn で報告し、critical (>30日) で fail する。
+  > 定期運用では週次で実行し、overdue docs を更新する。
 - Python 系変更では coverage ゲートが通っていること
 - CI / Governance を変更した場合は `.github/workflows/`、`governance/policy.yaml`、
   `docs/ci-config.md`、`docs/ci_phased_rollout_requirements.md`、`RUNBOOK.md` の同期を確認

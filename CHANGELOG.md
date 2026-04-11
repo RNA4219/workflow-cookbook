@@ -10,6 +10,16 @@ next_review_due: 2025-11-14
 
 ## [Unreleased]
 
+### Added
+
+- Product Readiness P1/P2 完了: acceptance index release mapping、横展開、定期運用導線
+- `tools/ci/check_docs_review_due.py`: docs review overdue checker 追加
+- `docs/acceptance/INDEX.md`: Release Mapping section 追加
+
+### Changed
+
+- `tools/ci/generate_acceptance_index_standalone.py`: release linkage 拡張
+
 ## 1.1.2 - 2026-04-09
 
 ### v1.1.2 Highlights
