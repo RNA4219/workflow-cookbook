@@ -8,6 +8,7 @@ next_review_due: 2026-05-10
 
 # Workflow Cookbook
 
+[![Version](https://img.shields.io/badge/version-1.1.3-blue)](CHANGELOG.md)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![CI](https://github.com/RNA4219/workflow-cookbook/actions/workflows/test.yml/badge.svg)](https://github.com/RNA4219/workflow-cookbook/actions/workflows/test.yml)
 

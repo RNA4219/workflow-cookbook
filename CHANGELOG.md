@@ -8,7 +8,7 @@ next_review_due: 2025-11-14
 
 # Changelog
 
-## [Unreleased]
+## 1.1.3 - 2026-04-11
 
 ### Added
 
