@@ -1,11 +1,3 @@
----
-intent_id: DOC-README
-owner: docs-core
-status: active
-last_reviewed_at: 2026-04-10
-next_review_due: 2026-05-10
----
-
 # Workflow Cookbook
 
 [![Version](https://img.shields.io/badge/version-1.1.3-blue)](CHANGELOG.md)
