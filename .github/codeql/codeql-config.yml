@@ -1,0 +1,9 @@
+name: Custom CodeQL Configuration
+
+# Only analyze Python and GitHub Actions (configured in workflow)
+# This project has no JavaScript/TypeScript code
+
+paths-ignore:
+  - '**/test/**'
+  - '**/tests/**'
+  - '**/testdata/**'
