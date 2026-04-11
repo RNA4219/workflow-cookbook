@@ -29,15 +29,15 @@ next_review_due: 2026-05-11
 
 ### 3.1 P0: 成立条件
 
-- [ ] README だけで導入目的、主要機能、最初のコマンドが分かる
-- [ ] `RUNBOOK.md` と `CHECKLISTS.md` から日常運用と復旧手順が辿れる
-- [ ] `docs/requirements.md` / `docs/spec.md` / `docs/design.md` の役割分担が崩れていない
-- [ ] `docs/acceptance/` の records が、実装状態より強い完了表現になっていない
-- [ ] Birdseye / codemap の更新手順が docs と CI で一致している
-- [ ] CI の required gate が green で、`governance/policy.yaml` と整合している
-- [ ] security / release / acceptance の証跡が release 判定から辿れる
-- [ ] Python 系の基準 coverage 80% を継続的に満たしている
-- [ ] ライセンス、公開メタデータ、README の記述が一致している
+- [x] README だけで導入目的、主要機能、最初のコマンドが分かる
+- [x] `RUNBOOK.md` と `CHECKLISTS.md` から日常運用と復旧手順が辿れる
+- [x] `docs/requirements.md` / `docs/spec.md` / `docs/design.md` の役割分担が崩れていない
+- [x] `docs/acceptance/` の records が、実装状態より強い完了表現になっていない
+- [x] Birdseye / codemap の更新手順が docs と CI で一致している
+- [x] CI の required gate が green で、`governance/policy.yaml` と整合している
+- [x] security / release / acceptance の証跡が release 判定から辿れる
+- [x] Python 系の基準 coverage 80% を継続的に満たしている
+- [x] ライセンス、公開メタデータ、README の記述が一致している
 
 ### 3.2 P1: 実用条件
 
@@ -61,44 +61,44 @@ next_review_due: 2026-05-11
 
 ## 4.1 Docs / Onboarding
 
-- [ ] README に Quick Start がある
-- [ ] README に repo の役割と非対象が書かれている
-- [ ] 主要 docs への入口が 1 回のスクロールで見つかる
-- [ ] README / RUNBOOK / CHECKLISTS / HUB の説明が矛盾していない
-- [ ] Windows 利用者向けの `python` 実行注意が明記されている
+- [x] README に Quick Start がある
+- [x] README に repo の役割と非対象が書かれている
+- [x] 主要 docs への入口が 1 回のスクロールで見つかる
+- [x] README / RUNBOOK / CHECKLISTS / HUB の説明が矛盾していない
+- [x] Windows 利用者向けの `python` 実行注意が明記されている
 
 ## 4.2 CI / Quality
 
-- [ ] `markdown-quality`
-- [ ] `python-tests`
-- [ ] `test`
-- [ ] `cross-repo-integration`
-- [ ] `release-evidence`
-- [ ] `Security Gate`
-- [ ] `CodeQL`
+- [x] `markdown-quality`
+- [x] `python-tests`
+- [x] `test`
+- [x] `cross-repo-integration`
+- [x] `release-evidence`
+- [x] `Security Gate`
+- [x] `CodeQL`
 
 上記が green であり、役割が `docs/ci-config.md` と一致していること。
 
 ## 4.3 Acceptance / Release
 
-- [ ] acceptance record は scope を越えた完了表現になっていない
-- [ ] release ごとの主要変更が `CHANGELOG.md` と `docs/releases/` で追える
-- [ ] acceptance index から最新の承認記録へすぐ辿れる
-- [ ] review finding を task seed へ落とす流れが機能している
+- [x] acceptance record は scope を越えた完了表現になっていない
+- [x] release ごとの主要変更が `CHANGELOG.md` と `docs/releases/` で追える
+- [x] acceptance index から最新の承認記録へすぐ辿れる
+- [x] review finding を task seed へ落とす流れが機能している
 
 ## 4.4 Security / Governance
 
-- [ ] security checklist と workflow の関係が docs から分かる
-- [ ] branch protection / required jobs / docs の差分が管理されている
-- [ ] release 判定前に security posture を確認する手順がある
-- [ ] forbidden paths や自己改変境界が docs で追える
+- [x] security checklist と workflow の関係が docs から分かる
+- [x] branch protection / required jobs / docs の差分が管理されている
+- [x] release 判定前に security posture を確認する手順がある
+- [x] forbidden paths や自己改変境界が docs で追える
 
 ## 4.5 Observability / Metrics
 
-- [ ] `.ga/qa-metrics.json` の位置づけが明記されている
-- [ ] baseline と実測値を混同しない
-- [ ] threshold check の意味が docs に書かれている
-- [ ] Birdseye freshness のしきい値と運用方針が説明されている
+- [x] `.ga/qa-metrics.json` の位置づけが明記されている
+- [x] baseline と実測値を混同しない
+- [x] threshold check の意味が docs に書かれている
+- [x] Birdseye freshness のしきい値と運用方針が説明されている
 
 ## 5. 現時点の自己評価ガイド
 
