@@ -59,7 +59,8 @@ jobs:
 
       - name: Requirements annotation (from spec-notify)
         if: ${{ steps.detect.outputs.has_req != '0' }}
-        run: echo "::warning:: Requirements not found (REQUIREMENTS.md or docs/requirements.md)."
+        run: |
+          echo "::warning:: Requirements not found (REQUIREMENTS.md or docs/requirements.md)."
 
       - name: Label PR
         uses: actions/github-script@v7
