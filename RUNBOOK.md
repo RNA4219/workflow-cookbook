@@ -77,6 +77,16 @@ next_review_due: 2026-05-09
   - 構造確認: `python tools/ci/check_birdseye_freshness.py --check`
   - 鮮度警告を有効にする場合:
     `python tools/ci/check_birdseye_freshness.py --check --max-verified-age-days 90`
+  - **Freshness しきい値段階計画**:
+    - 現行: 365日 (運用開始期間用)
+    - 次段: 90日 (運用安定後)
+    - 最終: 30日 (習慣化された点検後)
+  - **Stale failure 復旧手順**:
+    1. CI failure 通知を受け取る
+    2. `python tools/codemap/update.py --targets docs/birdseye/index.json,docs/birdseye/hot.json --emit index+caps` を実行
+    3. `python tools/ci/check_birdseye_freshness.py --check --max-verified-age-days <現在のしきい値>` で確認
+    4. `hot.json` の該当ノードの `last_verified_at` を更新日付へ更新
+    5. 変更を commit / push
   - 確認:
     `docs/birdseye/index.json` / `docs/birdseye/hot.json` /
     `docs/birdseye/caps/*.json` の差分と `generated_at`
@@ -84,6 +94,16 @@ next_review_due: 2026-05-09
     `CHECKLISTS.md` の [Hygiene](CHECKLISTS.md#hygiene) を更新する。
 
 ## Observability
+
+> **Metrics 責務分離**: `.ga/qa-metrics.json` には 2 つの経路がある。
+>
+> - **Smoke baseline**: `.github/workflows/markdown.yml` で生成される固定値。
+>   CI gate の存在確認と threshold CLI 疎通確認のみを目的とし、実測値ではない。
+> - **Production metrics**: `collect_metrics --suite qa` または
+>   `.github/workflows/reusable/metrics-harvest.yml` で生成される実測値。
+>   定期運用または手動実行で更新し、実運用の品質監視に使用する。
+>
+> 実運用では production metrics を正本とし、smoke baseline は CI 疎通確認用として扱う。
 
 - ログ/メトリクスの確認点、失敗時の兆候（[ADR-021: メトリクスと可観測性の統合](docs/ADR/ADR-021-metrics-observability.md) を参照）
 - KPI の目的・閾値は [EVALUATION.md#KPIs](EVALUATION.md#kpis) を参照し、収集手順と解釈を同期する。
