@@ -104,6 +104,7 @@ def _scan_docs(root: Path) -> list[DocReviewStatus]:
             else:
                 days_until_review = delta.days
         except ValueError:
+            # Invalid date format in next_review_due, skip calculation
             pass
 
         results.append(DocReviewStatus(
