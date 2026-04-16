@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import http.server
 import json
+import os
 import socket
 import subprocess
 import sys
@@ -29,6 +30,9 @@ from tools.perf.collect_metrics import (
 
 ROOT = Path(__file__).resolve().parents[1]
 
+# Environment variable to allow tests to bypass URL validation for local mock servers
+_TEST_SKIP_URL_VALIDATION = "GOVERNANCE_SKIP_URL_VALIDATION_FOR_TESTING=true"
+
 
 def _run_cli(*args: str) -> subprocess.CompletedProcess[str]:
     return subprocess.run(
@@ -37,6 +41,7 @@ def _run_cli(*args: str) -> subprocess.CompletedProcess[str]:
         capture_output=True,
         text=True,
         check=False,
+        env={**os.environ, "GOVERNANCE_SKIP_URL_VALIDATION_FOR_TESTING": "true"},
     )
 
 

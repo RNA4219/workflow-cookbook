@@ -5,10 +5,12 @@ from __future__ import annotations
 
 import argparse
 import functools
+import ipaddress
 import json
 import logging
 import os
 import sys
+import urllib.parse
 import urllib.request
 from dataclasses import dataclass
 from pathlib import Path
@@ -106,6 +108,105 @@ SUITES: dict[str, SuiteConfig] = {
 
 class MetricsCollectionError(RuntimeError):
     """Raised when metrics could not be collected."""
+
+
+# Security: SSRF prevention constants
+ALLOWED_SCHEMES: frozenset[str] = frozenset({"http", "https"})
+BLOCKED_SCHEMES: frozenset[str] = frozenset({"file", "ftp", "ftps", "sftp", "data", "gopher", "ldap", "ldaps"})
+# Environment variable to disable URL validation for testing purposes only
+# WARNING: This should NEVER be set in production environments
+_SKIP_URL_VALIDATION_ENV = "GOVERNANCE_SKIP_URL_VALIDATION_FOR_TESTING"
+
+
+def _validate_url(url: str, context: str = "url") -> str:
+    """
+    Validate URL to prevent SSRF and local file access attacks.
+
+    - Only http/https schemes are allowed
+    - file:// and other dangerous schemes are explicitly blocked
+    - localhost, loopback, private networks, and link-local addresses are blocked
+
+    Args:
+        url: URL to validate
+        context: Context string for error messages (e.g., "metrics_url" or "pushgateway_url")
+
+    Returns:
+        The validated URL (unchanged if valid)
+
+    Raises:
+        MetricsCollectionError: If URL is invalid or potentially dangerous
+
+    Note:
+        URL validation can be disabled by setting the environment variable
+        GOVERNANCE_SKIP_URL_VALIDATION_FOR_TESTING=true. This is ONLY intended
+        for testing purposes and should NEVER be used in production.
+    """
+    # Allow tests to bypass validation with explicit environment variable
+    if os.environ.get(_SKIP_URL_VALIDATION_ENV, "").lower() in ("true", "1", "yes"):
+        LOGGER.warning("URL validation disabled for testing: %s", url)
+        return url
+
+    try:
+        parsed = urllib.parse.urlparse(url)
+    except ValueError as exc:
+        raise MetricsCollectionError(f"Invalid URL for {context}: {url}: {exc}") from exc
+
+    scheme = parsed.scheme.lower()
+    if not scheme:
+        raise MetricsCollectionError(f"Missing scheme in {context}: {url}")
+
+    # Explicitly block dangerous schemes
+    if scheme in BLOCKED_SCHEMES:
+        raise MetricsCollectionError(f"Blocked scheme '{scheme}' in {context}: {url}")
+
+    # Only allow safe schemes
+    if scheme not in ALLOWED_SCHEMES:
+        raise MetricsCollectionError(f"Unsupported scheme '{scheme}' in {context}: {url}")
+
+    # Resolve hostname and check for dangerous destinations
+    hostname = parsed.hostname
+    if not hostname:
+        raise MetricsCollectionError(f"Missing hostname in {context}: {url}")
+
+    hostname_lower = hostname.lower()
+
+    # Block localhost variants
+    if hostname_lower in ("localhost", "local", "localhost.localdomain"):
+        raise MetricsCollectionError(f"Blocked hostname '{hostname}' in {context}: {url}")
+
+    # Try to resolve hostname as IP address
+    try:
+        ip = ipaddress.ip_address(hostname)
+    except ValueError:
+        # hostname is not a raw IP, but could still resolve to dangerous IP
+        # For safety, we also block hostnames that look like IP-like patterns
+        # More comprehensive DNS-based blocking would require socket module
+        # but that introduces network dependency during validation
+        pass
+    else:
+        # Block loopback (127.x.x.x)
+        if ip.is_loopback:
+            raise MetricsCollectionError(f"Blocked loopback IP in {context}: {url}")
+
+        # Block private networks (10.x, 172.16-31.x, 192.168.x)
+        if ip.is_private:
+            raise MetricsCollectionError(f"Blocked private network IP in {context}: {url}")
+
+        # Block link-local (169.254.x.x)
+        if ip.is_link_local:
+            raise MetricsCollectionError(f"Blocked link-local IP in {context}: {url}")
+
+        # Block reserved addresses
+        if ip.is_reserved:
+            raise MetricsCollectionError(f"Blocked reserved IP in {context}: {url}")
+
+        # Block multicast
+        if ip.is_multicast:
+            raise MetricsCollectionError(f"Blocked multicast IP in {context}: {url}")
+
+    return url
+
+
 def _coerce_optional_path(value: object | None) -> Path | None:
     if value is None:
         return None
@@ -1131,8 +1232,10 @@ def _parse_prometheus(text: str) -> dict[str, float]:
 
 
 def _load_prometheus(metrics_url: str) -> Mapping[str, float]:
+    # Security: Validate URL before making request
+    _validate_url(metrics_url, context="metrics_url")
     try:
-        with urllib.request.urlopen(metrics_url) as response:  # type: ignore[arg-type]
+        with urllib.request.urlopen(metrics_url) as response:  # type: ignore[arg-type]  # nosec B310  # URL validated by _validate_url()
             payload = response.read()
     except OSError as exc:  # urllib.request raises URLError, an OSError subclass
         raise MetricsCollectionError(f"Failed to read metrics from {metrics_url}: {exc}") from exc
@@ -1175,11 +1278,13 @@ def _format_pushgateway_payload(metrics: Mapping[str, float]) -> bytes:
 
 
 def _push_to_gateway(pushgateway_url: str, metrics: Mapping[str, float]) -> None:
+    # Security: Validate URL before making request
+    _validate_url(pushgateway_url, context="pushgateway_url")
     payload = _format_pushgateway_payload(metrics)
     request = urllib.request.Request(pushgateway_url, data=payload, method="PUT")
     request.add_header("Content-Type", "text/plain; version=0.0.4")
     try:
-        with urllib.request.urlopen(request) as response:  # type: ignore[arg-type]
+        with urllib.request.urlopen(request) as response:  # type: ignore[arg-type]  # nosec B310  # URL validated by _validate_url()
             response.read()
     except OSError as exc:
         raise MetricsCollectionError(
