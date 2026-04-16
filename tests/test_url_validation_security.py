@@ -121,7 +121,7 @@ class TestUrlValidationHostname:
 
     def test_allowed_ip_with_port(self) -> None:
         """Public IP with port should be allowed."""
-        url = "https://203.0.113.1:9090/metrics"
+        url = "https://1.1.1.1:9090/metrics"
         assert _validate_url(url) == url
 
     def test_missing_hostname(self) -> None:
