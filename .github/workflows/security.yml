@@ -67,7 +67,7 @@ jobs:
           GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE }}
 
   dep_audit:
-    name: Dependency Audit
+    name: Dependency Audit & SBOM
     needs: gitleaks
     runs-on: ubuntu-latest
     steps:
@@ -75,10 +75,16 @@ jobs:
       - uses: actions/setup-python@v6
         with:
           python-version: "3.11"
-      - name: Install audit tools
-        run: pip install pip-audit safety
       - name: Audit fixed dependencies
         # Use requirements.txt for reproducible, environment-independent auditing
-        # pip-audit checks requirements.txt for known vulnerabilities
         run: pip-audit -r requirements.txt
+      - name: Generate SBOM
+        # Generate CycloneDX SBOM from requirements.txt for supply chain visibility
+        run: python -m tools.security.generate_sbom --output .ga/sbom.json
+      - name: Upload SBOM artifact
+        uses: actions/upload-artifact@v6
+        with:
+          name: sbom-cyclonedx
+          path: .ga/sbom.json
+          retention-days: 90
         # Safety scan requires interactive login; pip-audit is sufficient for CI
