@@ -76,6 +76,8 @@ jobs:
       - uses: actions/setup-python@v6
         with:
           python-version: "3.11"
+      - name: Install audit tools
+        run: pip install pip-audit
       - name: Audit fixed dependencies
         # Use requirements.txt for reproducible, environment-independent auditing
         run: pip-audit -r requirements.txt
