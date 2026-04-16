@@ -19,7 +19,7 @@ _REPO_ROOT = Path(__file__).resolve().parents[2]
 
 
 def get_changed_paths(refspec: str) -> List[str]:
-    result = subprocess.run(
+    result = subprocess.run(  # nosec B603,B607  # git command with fixed args, no shell=True, refspec validated by caller
         ["git", "diff", "--name-only", refspec],
         check=True,
         capture_output=True,

@@ -270,7 +270,7 @@ def detect_violations(*, base_content: str, current_content: str) -> list[str]:
 
 
 def _git_show(ref: str) -> str:
-    result = subprocess.run(
+    result = subprocess.run(  # nosec B603,B607  # git command with fixed args, no shell=True
         ["git", "show", ref],
         check=False,
         capture_output=True,

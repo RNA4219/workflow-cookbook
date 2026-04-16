@@ -45,7 +45,7 @@ def _fetch_repo_security(repo: str, token: str) -> dict:
             "X-GitHub-Api-Version": "2022-11-28",
         },
     )
-    with urllib.request.urlopen(request, timeout=20) as response:
+    with urllib.request.urlopen(request, timeout=20) as response:  # nosec B310  # GitHub API with fixed host, token auth
         return json.loads(response.read().decode("utf-8"))
 
 
@@ -60,7 +60,7 @@ def _vulnerability_alerts_enabled(repo: str, token: str) -> bool:
         method="GET",
     )
     try:
-        with urllib.request.urlopen(request, timeout=20) as response:
+        with urllib.request.urlopen(request, timeout=20) as response:  # nosec B310  # GitHub API with fixed host, token auth
             return response.status == 204
     except urllib.error.HTTPError as exc:
         if exc.code == 404:

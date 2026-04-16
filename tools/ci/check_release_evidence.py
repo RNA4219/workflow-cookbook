@@ -86,7 +86,7 @@ def load_git_tag_versions(repo_root: Path) -> set[str]:
     )
     for command in commands:
         try:
-            completed = subprocess.run(
+            completed = subprocess.run(  # nosec B603,B607  # git command with fixed args, no shell=True
                 command,
                 cwd=repo_root,
                 capture_output=True,
@@ -113,7 +113,7 @@ def load_published_release_versions(repo: str, token: str | None) -> set[str]:
         },
     )
     try:
-        with urllib.request.urlopen(request, timeout=20) as response:
+        with urllib.request.urlopen(request, timeout=20) as response:  # nosec B310  # GitHub API with fixed host, token auth
             payload = json.loads(response.read().decode("utf-8"))
     except urllib.error.HTTPError as exc:
         raise RuntimeError(f"Failed to fetch GitHub releases for {repo}: HTTP {exc.code}") from exc

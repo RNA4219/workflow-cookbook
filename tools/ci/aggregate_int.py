@@ -81,7 +81,7 @@ def _read_commits(path: Path | None) -> list[str]:
             return [line for line in file_path.read_text(encoding="utf-8").splitlines() if line]
     if value:
         return [line for line in value.splitlines() if line]
-    result = subprocess.run(
+    result = subprocess.run(  # nosec B603,B607  # git command with fixed args, no shell=True, no untrusted input
         ["git", "log", "-1", "--pretty=%s"],
         capture_output=True,
         check=False,

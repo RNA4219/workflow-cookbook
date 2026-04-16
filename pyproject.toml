@@ -1,0 +1,60 @@
+# SPDX-License-Identifier: MIT
+# Copyright 2025 RNA4219
+
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "workflow-cookbook"
+version = "0.1.0"
+description = "Workflow automation toolkit for governance and CI operations"
+readme = "README.md"
+license = {text = "MIT"}
+authors = [
+    {name = "RNA4219"}
+]
+requires-python = ">=3.11"
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+
+# Core dependencies - minimal runtime requirements
+dependencies = [
+    "pyyaml>=6.0",  # Optional but recommended for YAML configuration files
+]
+
+[project.optional-dependencies]
+# Development dependencies for testing and linting
+dev = [
+    "pytest>=8.0",
+    "pytest-cov>=4.0",
+    "bandit>=1.7",
+    "pip-audit>=2.6",
+    "safety>=3.0",
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["tools*", "security_headers*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = "-v --tb=short"
+
+[tool.bandit]
+exclude_dirs = ["tests"]
+# B101: assert used (legitimate in tests)
+# B105-B108: hardcoded password patterns (not applicable to this project)
+# B404: subprocess module (used for git operations, validated)
+# B603: subprocess without shell=True (used safely)
+# B607: hardcoded SQL (not applicable to this project)
+skips = ["B101", "B105", "B106", "B107", "B108", "B404", "B603", "B607"]

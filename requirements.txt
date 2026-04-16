@@ -1,0 +1,11 @@
+# SPDX-License-Identifier: MIT
+# Copyright 2025 RNA4219
+# Core dependencies for workflow-cookbook
+# This file provides fixed versions for pip-audit security scanning
+
+# YAML configuration file handling (optional but recommended)
+pyyaml==6.0.3
+
+# Note: This project primarily uses Python standard library modules.
+# The above dependency is optional - fallback implementations exist
+# for minimal environments without pyyaml installed.
