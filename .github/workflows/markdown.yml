@@ -1,4 +1,4 @@
-﻿name: markdown-quality
+name: markdown-quality
 on:
   pull_request:
   push:
@@ -60,7 +60,7 @@ jobs:
             echo "To generate: run reusable/metrics-harvest.yml or collect_metrics CLI"
             exit 1
           fi
-      - uses: DavidAnson/markdownlint-cli2-action@v17
+      - uses: DavidAnson/markdownlint-cli2-action@v23
         with:
           globs: |
             **/*.md
