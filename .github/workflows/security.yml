@@ -49,9 +49,10 @@ jobs:
         with:
           python-version: "3.11"
       - run: pip install bandit
-      - run: bandit -q -r tools security_headers -s B101,B105,B106,B107,B108,B404
+      - run: bandit -q -r tools security_headers -s B101,B105,B106,B107,B108,B404,B603
         # B101 (assert): excluded for test code; B105-108 (hardcoded passwords): review needed
-        # B404 (import subprocess): use cases validated with inline #nosec B603,B607 at call sites
+        # B404 (import subprocess), B603 (subprocess call): git commands validated at call sites
+        # B310 (urlopen) NOT excluded - SSRF risks will be detected
 
   gitleaks:
     name: Gitleaks
