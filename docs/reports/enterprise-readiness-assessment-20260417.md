@@ -17,13 +17,13 @@ next_review_due: 2026-05-17
 「上場企業が継続利用するソフトとして十分に説明可能な品質水準」
 と断言するには証拠が不足している。
 
-現時点の総合判定は `B- / C+ 境界` とする。
+現時点の総合判定は `B` とする。
 
 - 強み:
   危険実装への即応、supply chain docs の改善、
   Runbook / Acceptance / Release docs の土台
 - 弱み:
-  live branch protection 不在、branch ruleset 不在、
+  branch ruleset 不在、
   例外管理と rollback 運用の実証不足
 
 ## セクション別採点
@@ -31,7 +31,7 @@ next_review_due: 2026-05-17
 | セクション | 評価 | 根拠 |
 | --- | --- | --- |
 | Secure Coding | B | `collect_metrics.py` に URL 検証と危険スキーム拒否が入った。失敗系テストも追加済み。一方で、同種パターンの repo 横断棚卸しは未確認。 |
-| CI Security Gates | C+ | `Bandit` / dependency audit / CI gate mapping docs は改善したが、GitHub API で `main` branch protection が `404 Branch not protected`、rulesets も空で、live enforcement が欠ける。 |
+| CI Security Gates | B | `Bandit` / dependency audit / CI gate mapping docs 改善に加え、`main` に classic branch protection を設定し、required checks の live enforcement を確認した。ruleset への移行や例外台帳の自動照合は今後の強化余地。 |
 | Supply Chain / Dependency Governance | B- | `requirements.txt` の固定入力、CycloneDX SBOM 生成、Dependabot、脆弱性 SLA、例外台帳テンプレートが追加され、C+ から前進した。 |
 | Release / Change Management | B | `CHECKLISTS.md`、`Release_Checklist.md`、`RUNBOOK.md`、`docs/releases/` に加え、承認記録テンプレートと rollback 証跡導線が追加され、B- から前進した。 |
 | Ops / Incident Readiness | B | `RUNBOOK.md`、incident template、sample incident、docs freshness 系チェックがある。日常運用の入口は揃っているが、演習・定期レビューの証拠は弱い。 |
@@ -61,10 +61,12 @@ next_review_due: 2026-05-17
 
 不足:
 - `nosec` / skip 例外の定期棚卸し台帳はない
-- GitHub API で `main` branch protection が `404 Branch not protected` となり、
-  classic branch protection が見当たらない
-- `gh api repos/RNA4219/workflow-cookbook/rulesets` も空配列で、
-  ruleset による代替 enforcement も確認できない
+- GitHub API で `main` branch protection を取得でき、
+  classic branch protection に required checks が設定済み
+- required checks は `governance`、`unit`、
+  `Allowlist Guard`、`Semgrep`、`Bandit`、`Gitleaks`、
+  `Dependency Audit & SBOM` の 7 本で live enforcement されている
+- ruleset は未使用であり、将来的に org 標準へ寄せる余地はある
 
 ### 3. Supply Chain / Dependency Governance
 
@@ -119,16 +121,15 @@ next_review_due: 2026-05-17
 その観点では、
 次の 3 系統を優先して埋めるべきである。
 
-1. live branch protection / ruleset の有効化
-2. Release / rollback / approval の実運用証跡の蓄積
-3. Supply chain の再現性強化（dev 依存固定、transitive 可視化）
+1. Release / rollback / approval の実運用証跡の蓄積
+2. Supply chain の再現性強化（dev 依存固定、transitive 可視化）
+3. branch protection の ruleset 移行可否と例外照合自動化の整理
 
 ## 推奨アクション
 
-1. `main` への branch protection または ruleset を有効化し、
-   `check_branch_protection.py` の実データ検証を通す
-2. release / rollback / approval の証跡テンプレートを実運用で 1 回以上回す
-3. dev dependencies 固定と transitive dependency 可視化の方針を追加する
+1. release / rollback / approval の証跡テンプレートを実運用で 1 回以上回す
+2. dev dependencies 固定と transitive dependency 可視化の方針を追加する
+3. classic branch protection から ruleset へ移すかを決め、運用標準を一本化する
 
 ## 関連 Task Seed
 

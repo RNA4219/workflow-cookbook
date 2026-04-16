@@ -52,6 +52,38 @@ python tools/ci/check_ci_gate_matrix.py
 - check_ci_gate_matrix.py
 - 結果を docs または CI log に保存
 
+## 2026-04-17 時点の live 設定
+
+`main` には classic branch protection を適用済み。
+
+- required checks
+  - `governance`
+  - `unit`
+  - `Allowlist Guard`
+  - `Semgrep`
+  - `Bandit`
+  - `Gitleaks`
+  - `Dependency Audit & SBOM`
+- strict status checks: 有効
+- required pull request reviews: 1 approvals
+- dismiss stale reviews: 有効
+- required conversation resolution: 有効
+- force pushes: 無効
+- deletions: 無効
+
+確認コマンド:
+
+```sh
+gh api repos/RNA4219/workflow-cookbook/branches/main/protection > branch-protection.json
+python tools/ci/check_branch_protection.py --protection-json branch-protection.json
+```
+
+期待結果:
+
+```text
+Branch protection matches governance/policy.yaml logical gate IDs.
+```
+
 ## 現行 required jobs 対応表
 
 | 論理 gate ID | workflow | job/check 名 | branch protection での表示 |
