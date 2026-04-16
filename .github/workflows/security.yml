@@ -81,6 +81,4 @@ jobs:
         # Use requirements.txt for reproducible, environment-independent auditing
         # pip-audit checks requirements.txt for known vulnerabilities
         run: pip-audit -r requirements.txt
-      - name: Safety scan for fixed dependencies
-        # Safety scans requirements.txt for known vulnerabilities
-        run: safety scan -r requirements.txt
+        # Safety scan requires interactive login; pip-audit is sufficient for CI
