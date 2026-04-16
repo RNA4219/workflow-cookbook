@@ -19,7 +19,7 @@ jobs:
       - uses: actions/checkout@v6
       - run: mkdir -p workflow-cookbook/logs
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: '22'
       - name: Cache npm dependencies
@@ -53,7 +53,7 @@ jobs:
       - uses: actions/checkout@v6
       - run: mkdir -p workflow-cookbook/logs
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: '22'
       - name: Cache npm dependencies
@@ -87,7 +87,7 @@ jobs:
       - uses: actions/checkout@v6
       - run: mkdir -p workflow-cookbook/logs
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: '22'
       - name: Cache npm dependencies
@@ -176,7 +176,7 @@ jobs:
       - uses: actions/checkout@v6
       - run: mkdir -p workflow-cookbook/logs dist
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: '22'
       - name: Cache npm dependencies
@@ -216,7 +216,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6
       - run: mkdir -p workflow-cookbook/logs
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with: { node-version: '22' }
       - name: Playwright E2E (if exists)
         run: |
