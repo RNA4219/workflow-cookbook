@@ -25,12 +25,12 @@ def test_validate_ci_gate_matrix_pass(tmp_path: Path) -> None:
         "jobs:\n  governance:\n    runs-on: ubuntu-latest\n",
         encoding="utf-8",
     )
-    (repo_root / ".github" / "workflows" / "tests.yml").write_text(
-        "jobs:\n  pytest:\n    runs-on: ubuntu-latest\n",
+    (repo_root / ".github" / "workflows" / "test.yml").write_text(
+        "jobs:\n  unit:\n    runs-on: ubuntu-latest\n",
         encoding="utf-8",
     )
     (repo_root / ".github" / "workflows" / "security.yml").write_text(
-        "jobs:\n  security-ci:\n    runs-on: ubuntu-latest\n",
+        "jobs:\n  allowlist_guard:\n    name: Allowlist Guard\n  semgrep:\n    name: Semgrep\n  bandit:\n    name: Bandit\n  gitleaks:\n    name: Gitleaks\n  dep_audit:\n    name: Dependency Audit & SBOM\n",
         encoding="utf-8",
     )
     (repo_root / "docs" / "ci-config.md").write_text(
@@ -39,8 +39,8 @@ def test_validate_ci_gate_matrix_pass(tmp_path: Path) -> None:
                 "| `required_jobs` の値 | この repo での正本 workflow | この repo で確認する job / check | 備考 |",
                 "| --- | --- | --- | --- |",
                 "| `governance-gate` | `.github/workflows/governance-gate.yml` | job `governance` | ok |",
-                "| `python-ci` | `.github/workflows/tests.yml` | job `pytest` | ok |",
-                "| `security-ci` | `.github/workflows/security.yml` | job `security-ci` | ok |",
+                "| `python-ci` | `.github/workflows/test.yml` | job `unit` | ok |",
+                "| `security-ci` | `.github/workflows/security.yml` | `Allowlist Guard`, `Semgrep`, `Bandit`, `Gitleaks`, `Dependency Audit & SBOM` | ok |",
             ]
         ),
         encoding="utf-8",
@@ -70,7 +70,7 @@ def test_validate_ci_gate_matrix_reports_missing_mapping(tmp_path: Path) -> None
         "jobs:\n  governance:\n    runs-on: ubuntu-latest\n",
         encoding="utf-8",
     )
-    (repo_root / ".github" / "workflows" / "tests.yml").write_text(
+    (repo_root / ".github" / "workflows" / "test.yml").write_text(
         "jobs:\n  ci:\n    runs-on: ubuntu-latest\n",
         encoding="utf-8",
     )
@@ -86,7 +86,7 @@ def test_validate_ci_gate_matrix_reports_missing_mapping(tmp_path: Path) -> None
     )
 
     assert "docs/ci-config.md does not mention logical gate ID 'python-ci'." in result.errors
-    assert "Workflow '.github/workflows/tests.yml' does not mention expected check/job 'pytest' for 'python-ci'." in result.errors
+    assert "Workflow '.github/workflows/test.yml' does not mention expected check/job 'unit' for 'python-ci'." in result.errors
 
 
 def test_main_returns_success_for_matching_repo(tmp_path: Path, monkeypatch, capsys) -> None:

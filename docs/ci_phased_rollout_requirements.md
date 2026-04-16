@@ -51,16 +51,12 @@ next_review_due: 2026-05-09
   - 表示名: `Python CI`
   - 役割: Ruff と Pytest による Python 基本ゲート
 - `security.yml`
-  - job 名: `security-ci`
-  - 役割: reusable security gate を本 repo 側で呼び出す Phase 3 正本入口
-- `security-ci.yml`
-  - job 名: `security-ci`
-  - 役割: reusable security gate の互換入口
+  - job 名: `allowlist_guard`, `semgrep`, `bandit`, `gitleaks`, `dep_audit`
+  - 表示名: `Allowlist Guard`, `Semgrep`, `Bandit`, `Gitleaks`, `Dependency Audit & SBOM`
+  - 役割: Phase 3 正本のセキュリティゲート
 
 ### 4.2 補助系
 
-- `tests.yml`
-  - 役割: Phase 1 の最小 Python テストゲート
 - `test.yml`
   - 役割: Phase 2 の lint / typecheck / unit / build / e2e 集約ゲート
 - `codeql.yml`
@@ -78,8 +74,6 @@ next_review_due: 2026-05-09
   - `governance-gate.yml`
   - `links.yml`
   - `markdown.yml`
-- 任意
-  - `tests.yml`
 - 昇格条件
   - `README.md` と `docs/ci-config.md` に採用 workflow を記載済み
   - `CHECKLISTS.md` の日次確認項目に CI 結果確認が存在する
@@ -92,8 +86,8 @@ next_review_due: 2026-05-09
   - `governance-gate`
   - `python-ci`
 - 代表実装
-  - reusable: `.github/workflows/reusable/python-ci.yml`
-  - repo 内補助構成: `.github/workflows/tests.yml`
+  - downstream reusable: `.github/workflows/reusable/python-ci.yml`
+  - 本 repo concrete check: `.github/workflows/test.yml` の `unit`
 - 任意
   - `test.yml`
   - `security.yml`
@@ -101,7 +95,7 @@ next_review_due: 2026-05-09
   - `governance/policy.yaml` の `ci.required_jobs` に `governance-gate` と
     `python-ci` が登録されている
   - `python-ci` の論理名と GitHub 上の check 名対応が `docs/ci-config.md` に記載されている
-  - Python の最低限回帰テスト群が安定して通る
+  - 本 repo では `unit` check が安定して通る
 
 ### Phase 2
 
@@ -137,7 +131,8 @@ next_review_due: 2026-05-09
   - 高コストな追加監査ジョブ
 - 昇格条件
   - `governance/policy.yaml` の `ci.required_jobs` と branch protection が一致
-  - `security-ci` の論理名が `.github/workflows/security.yml` の job `security-ci`
+  - `security-ci` の論理名が `.github/workflows/security.yml` の concrete checks
+    (`Allowlist Guard`, `Semgrep`, `Bandit`, `Gitleaks`, `Dependency Audit & SBOM`)
     に対応づいている
   - `EVALUATION.md` の受入基準と矛盾しない
   - セキュリティ gate の失敗時運用が `RUNBOOK.md` から辿れる

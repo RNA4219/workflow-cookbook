@@ -29,6 +29,24 @@
 | [v0.1.0](../releases/v0.1.0.md) | - | 2025-10-13 |
 | unreleased | AC-20260411-01, AC-20260411-02, AC-20260411-03, AC-20260411-04, AC-20260411-05, AC-20260411-06, AC-20260411-07, AC-20260411-08 | - |
 
+## Release Approval Mapping
+
+> Release Approval Record（RA-XXX）と Acceptance の相互参照
+
+| Approval ID | Version | Acceptance IDs | Status |
+| --- | --- | --- | --- |
+| <!-- RA-YYYYMMDD-XX --> | <!-- vX.Y.Z --> | <!-- AC-YYYYMMDD-XX --> | <!-- draft|approved --> |
+
+> 詳細は [docs/releases/INDEX.md](../releases/INDEX.md) を参照
+
+## Approval Type Summary
+
+| Type | Count | Description |
+| --- | --- | --- |
+| technical | <!-- X --> | 技術要件達成（機能/性能/テスト確認） |
+| security | <!-- X --> | セキュリティ審査完了（Security Review Checklist完了） |
+| risk_acceptance | <!-- X --> | リスク受容合意（リスク評価記録、緩和措置合意） |
+
 ## Records
 
 | Acceptance | Task | Intent | Status | Reviewed | Release | File |

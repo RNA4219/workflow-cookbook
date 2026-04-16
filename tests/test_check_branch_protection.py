@@ -46,18 +46,26 @@ slo:
 def test_extract_required_check_names_supports_contexts_and_checks() -> None:
     payload = {
         "required_status_checks": {
-            "contexts": ["governance", "security-ci"],
-            "checks": [{"context": "pytest"}, {"context": "security-ci"}],
+            "contexts": ["governance", "unit"],
+            "checks": [{"context": "Bandit"}, {"context": "Dependency Audit & SBOM"}],
         }
     }
 
-    assert extract_required_check_names(payload) == {"governance", "security-ci", "pytest"}
+    assert extract_required_check_names(payload) == {"governance", "unit", "Bandit", "Dependency Audit & SBOM"}
 
 
 def test_validate_branch_protection_accepts_expected_repo_checks() -> None:
     payload = {
         "required_status_checks": {
-            "contexts": ["governance", "pytest", "security-ci"],
+            "contexts": [
+                "governance",
+                "unit",
+                "Allowlist Guard",
+                "Semgrep",
+                "Bandit",
+                "Gitleaks",
+                "Dependency Audit & SBOM",
+            ],
         }
     }
 
@@ -73,7 +81,7 @@ def test_validate_branch_protection_accepts_expected_repo_checks() -> None:
 def test_validate_branch_protection_reports_missing_check() -> None:
     payload = {
         "required_status_checks": {
-            "contexts": ["governance", "security-ci"],
+            "contexts": ["governance", "unit", "Allowlist Guard", "Semgrep", "Bandit", "Gitleaks"],
         }
     }
 
@@ -83,7 +91,7 @@ def test_validate_branch_protection_reports_missing_check() -> None:
     )
 
     assert result.errors == [
-        "Missing protected check for logical gate ID 'python-ci': expected 'pytest'."
+        "Missing protected checks for logical gate ID 'security-ci': expected 'Dependency Audit & SBOM'."
     ]
 
 
@@ -111,7 +119,15 @@ def test_main_returns_success_for_matching_payload(tmp_path: Path, capsys) -> No
         json.dumps(
             {
                 "required_status_checks": {
-                    "contexts": ["governance", "pytest", "security-ci"],
+                    "contexts": [
+                        "governance",
+                        "unit",
+                        "Allowlist Guard",
+                        "Semgrep",
+                        "Bandit",
+                        "Gitleaks",
+                        "Dependency Audit & SBOM",
+                    ],
                 }
             }
         ),

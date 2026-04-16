@@ -53,6 +53,9 @@ next_review_due: 2026-05-09
   > `hot.json` の `last_verified_at` を更新日付へ更新し commit/push。
 - `governance/policy.yaml` の `ci.required_jobs` に対応する論理 gate ID が、
   `docs/ci-config.md` の対応表どおりの実 check 名で最新 run 成功になっているか確認
+- Branch Protection / Ruleset を有効化済みの場合は、
+  [task-branch-protection-enablement-20260417](docs/tasks/task-branch-protection-enablement-20260417.md)
+  の required checks と最新 run が一致しているか確認
 - CI Phase を変更した直後は `docs/ci-config.md` と `docs/ci_phased_rollout_requirements.md` の記述差異がないか確認
 
 ## Release
@@ -81,6 +84,15 @@ next_review_due: 2026-05-09
   > **注記**: `.ga/qa-metrics.json` は smoke baseline または production metrics のいずれか。
   > CI 疎通確認では smoke baseline を使用。実運用監視では production metrics を使用。
 - 配布物へ `LICENSE` を同梱済み
+- Release Approval Record（`docs/releases/RA-YYYYMMDD-XX.md`）を作成済み
+- Approval Type（technical|security|risk_acceptance）を分類済み
+- Approval Checklist 全項目完了
+- `docs/releases/INDEX.md` に Release Approval Mapping を追加
+- ロールバック準備完了（前回安定版確認、戻し先Gitタグ特定）
+- ロールバック判定基準（KPI閾値/Security Gate）を理解済み
+- 実運用 drill の残タスクがある場合は
+  [task-release-evidence-operational-drill-20260417](docs/tasks/task-release-evidence-operational-drill-20260417.md)
+  を参照し、RA / AC / rollback 証跡の不足がないか確認
 
 ## Hygiene
 
@@ -99,6 +111,9 @@ next_review_due: 2026-05-09
   `docs/ci-config.md`、`docs/ci_phased_rollout_requirements.md`、`RUNBOOK.md` の同期を確認
 - `security-ci` は `.github/workflows/security.yml` を Phase 3 正本入口として扱い、
   `.github/workflows/security-ci.yml` が互換入口としてのみ記述されていることを確認
+- Supply chain の残課題がある場合は
+  [task-supply-chain-reproducibility-followup-20260417](docs/tasks/task-supply-chain-reproducibility-followup-20260417.md)
+  を参照し、dependency 例外レビュー周期と SBOM 更新導線が docs と一致するか確認
 - Birdseye を更新した場合は `docs/birdseye/index.json` / `hot.json` / `caps/*` の差分と `generated_at` を確認し、局所更新では `--radius` 指定が意図どおりか点検
 - フォーク差分記録の最新化（[`docs/FORK_NOTES.md`](docs/FORK_NOTES.md) をリリース前レビューと突合）
 - 旧呼称の混入チェック（例: `rg "<旧ブランド名>"` など抽象化したキーワードで固有表現を検索し、現行ブランド以外の名称が残存していないか確認）

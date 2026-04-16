@@ -21,8 +21,15 @@ _DEFAULT_CI_CONFIG = _REPO_ROOT / "docs" / "ci-config.md"
 
 LOGICAL_TO_WORKFLOW = {
     "governance-gate": ".github/workflows/governance-gate.yml",
-    "python-ci": ".github/workflows/tests.yml",
+    "python-ci": ".github/workflows/test.yml",
     "security-ci": ".github/workflows/security.yml",
+}
+
+
+LOGICAL_TO_EXPECTED_CHECKS = {
+    "governance-gate": ("governance",),
+    "python-ci": ("unit",),
+    "security-ci": ("Allowlist Guard", "Semgrep", "Bandit", "Gitleaks", "Dependency Audit & SBOM"),
 }
 
 
@@ -54,12 +61,12 @@ def validate_ci_gate_matrix(
 
     for logical_id in required_jobs:
         workflow_rel = LOGICAL_TO_WORKFLOW.get(logical_id)
-        concrete_check = LOGICAL_TO_REPO_CHECK.get(logical_id)
+        concrete_checks = LOGICAL_TO_EXPECTED_CHECKS.get(logical_id)
 
         if workflow_rel is None:
             result.errors.append(f"No workflow mapping is defined for logical gate ID '{logical_id}'.")
             continue
-        if concrete_check is None:
+        if concrete_checks is None:
             result.errors.append(f"No concrete check mapping is defined for logical gate ID '{logical_id}'.")
             continue
 
@@ -71,19 +78,21 @@ def validate_ci_gate_matrix(
             continue
 
         workflow_text = workflow_path.read_text(encoding="utf-8")
-        if concrete_check not in workflow_text:
-            result.errors.append(
-                f"Workflow '{workflow_rel}' does not mention expected check/job '{concrete_check}' for '{logical_id}'."
-            )
+        for concrete_check in concrete_checks:
+            if concrete_check not in workflow_text:
+                result.errors.append(
+                    f"Workflow '{workflow_rel}' does not mention expected check/job '{concrete_check}' for '{logical_id}'."
+                )
 
         if logical_id not in ci_config_text:
             result.errors.append(f"docs/ci-config.md does not mention logical gate ID '{logical_id}'.")
         if workflow_rel not in ci_config_text:
             result.errors.append(f"docs/ci-config.md does not mention workflow path '{workflow_rel}'.")
-        if concrete_check not in ci_config_text:
-            result.errors.append(
-                f"docs/ci-config.md does not mention concrete check/job '{concrete_check}' for '{logical_id}'."
-            )
+        for concrete_check in concrete_checks:
+            if concrete_check not in ci_config_text:
+                result.errors.append(
+                    f"docs/ci-config.md does not mention concrete check/job '{concrete_check}' for '{logical_id}'."
+                )
 
     return result
 

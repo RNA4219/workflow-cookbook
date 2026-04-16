@@ -55,3 +55,11 @@
   - 参照: [SAC 原則 (5, 8)](./SAC.md#原則), [INCIDENT TEMPLATE](../INCIDENT_TEMPLATE.md)
 
 各項目の証跡は、PR テンプレートやリリースノートにリンクし、後続レビューで追跡できるようにしてください。
+
+## 関連資料
+
+- [Enterprise Readiness Checklist](./Enterprise_Readiness_Checklist.md)
+- [Security Exception Registry](./Security_Exception_Registry.md)
+- [Security API Inventory](./Security_API_Inventory.md)
+- [Branch Protection Operation](./Branch_Protection_Operation.md)
+- [SAC.md](./SAC.md)

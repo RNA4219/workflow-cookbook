@@ -99,6 +99,44 @@ next_review_due: 2026-05-09
     （5 桁ゼロ埋め世代番号）を確認し、必要なら
     `CHECKLISTS.md` の [Hygiene](CHECKLISTS.md#hygiene) を更新する。
 
+## Operational Readiness Backlog
+
+会社導入を前提にした残タスクは、以下の Task Seed を正本にする。
+日次確認・release 確認・security review の各導線から参照できるようにし、
+完了したら `status` と検収記録を更新する。
+
+1. Branch Protection の live enforcement
+   - [task-branch-protection-enablement-20260417](docs/tasks/task-branch-protection-enablement-20260417.md)
+   - 実施タイミング:
+     release 前、または governance / security gate を変更した直後
+   - 実行確認:
+     `gh api repos/<owner>/<repo>/branches/main/protection`
+     または ruleset export を取得し、
+     `python tools/ci/check_branch_protection.py --protection-json <json>` を通す
+
+2. Release approval / rollback 証跡の実運用 drill
+   - [task-release-evidence-operational-drill-20260417](docs/tasks/task-release-evidence-operational-drill-20260417.md)
+   - 実施タイミング:
+     次回 release または rehearsal 実施時
+   - 実行確認:
+     `docs/releases/RA-YYYYMMDD-XX.md` 作成、
+     `python tools/ci/check_release_evidence.py --check --github-repo <owner/name>`,
+     `python tools/ci/check_acceptance.py --check`
+
+3. Supply chain 再現性の追加強化
+   - [task-supply-chain-reproducibility-followup-20260417](docs/tasks/task-supply-chain-reproducibility-followup-20260417.md)
+   - 実施タイミング:
+     依存更新方針を見直すとき、または quarterly review 時
+   - 実行確認:
+     SBOM、dependency exception、requirements / pyproject の整合を確認し、
+     `docs/security/Dependency_Governance.md` と差分がないこと
+
+運用ルール:
+- 残タスクに着手するときは、対象 Task Seed を PR / rehearsal 記録へリンクする
+- 残タスク完了時は、`CHECKLISTS.md` の該当項目と検収記録を同時に更新する
+- branch protection / release evidence / supply chain のいずれかを変更した場合は、
+  `docs/reports/enterprise-readiness-assessment-20260417.md` の再評価要否を確認する
+
 ## Observability
 
 > **Metrics 責務分離**: `.ga/qa-metrics.json` には 2 つの経路がある。
@@ -315,7 +353,59 @@ next_review_due: 2026-05-09
 
 ## Rollback / Retry
 
-- どこまで戻すか、再実行条件
-- CI Phase を戻す場合は、直前 Phase の required jobs へ戻し、
-  `governance/policy.yaml` / `docs/ci-config.md` / `CHANGELOG.md` を同時更新する
-- インシデントサマリを更新後、該当PRの説明欄と本RUNBOOKの該当セクションにリンクを追加する
+### ロールバック判定基準
+
+以下の条件でロールバックを判断する:
+
+- [ ] KPI閾値逸脱（`check_metrics_thresholds.py --check --metrics-json .ga/qa-metrics.json` 失敗）
+- [ ] Security Gate失敗（`.github/workflows/security.yml` 失敗）
+- [ ] 主要機能障害（インシデント検知）
+- [ ] 受入基準未達成（`EVALUATION.md#acceptance-criteria` 未達）
+
+### ロールバック手順
+
+1. **影響範囲確認**
+   - インシデントテンプレート（`docs/INCIDENT_TEMPLATE.md`）で概要記録
+   - 影響ユーザ/システムを特定
+
+2. **戻し先バージョン決定**
+   - `CHANGELOG.md` で前回安定版を確認
+   - `git tag` で戻し先コミット特定
+   - `git checkout <previous-tag>` で確認
+
+3. **ロールバック実行**
+   - デプロイ環境へ反映
+   - CI Phase を戻す場合は、直前 Phase の required jobs へ戻し、
+     `governance/policy.yaml` / `docs/ci-config.md` / `CHANGELOG.md` を同時更新する
+
+4. **ロールバック後確認**
+   - 主要フロー動作確認
+   - メトリクス復旧確認
+   - インシデントサマリを更新後、該当PRの説明欄と本RUNBOOKの該当セクションにリンクを追加する
+
+### ロールバック証跡記録
+
+ロールバック完了後、以下を記録:
+
+| 項目 | 内容 |
+| --- | --- |
+| Rolled Back At | <!-- YYYY-MM-DD HH:MM UTC --> |
+| From Version | <!-- vX.Y.Z --> |
+| To Version | <!-- vX.Y.W --> |
+| Reason | <!-- 原因 --> |
+| Evidence URL | <!-- PR/インシデント URL --> |
+| Verified At | <!-- 確認日時 --> |
+
+証跡は以下に記録:
+- `docs/releases/RA-XXX.md` の Rollback History セクション（Release Approval Record）
+- `docs/releases/INDEX.md` の Rollback Events セクション
+- `docs/IN-YYYYMMDD-XXX.md`（インシデント記録）
+
+### 再実行条件
+
+- ロールバック原因が解消済み
+- Security Gate 成功（`.github/workflows/security.yml`）
+- QAメトリクス閾値達成（`check_metrics_thresholds.py --check`）
+- 受入基準再達成（`EVALUATION.md#acceptance-criteria`）
+
+> 再実行時は新規 Release Approval ID（RA-YYYYMMDD-YY）を採番し、Approval Record を更新

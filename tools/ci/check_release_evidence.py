@@ -18,9 +18,11 @@ from typing import Iterable, Sequence
 _REPO_ROOT = Path(__file__).resolve().parents[2]
 _DEFAULT_CHANGELOG = _REPO_ROOT / "CHANGELOG.md"
 _DEFAULT_RELEASES_DIR = _REPO_ROOT / "docs" / "releases"
+_DEFAULT_APPROVAL_PATTERN = "RA-*.md"
 
 _CHANGELOG_VERSION_RE = re.compile(r"^## (\d+\.\d+\.\d+) - ")
 _RELEASE_DOC_RE = re.compile(r"^v(\d+\.\d+\.\d+)\.md$")
+_APPROVAL_DOC_RE = re.compile(r"^RA-(\d{8}-\d{2})\.md$")
 _TITLE_RE = re.compile(r"^# workflow-cookbook v(\d+\.\d+\.\d+)$")
 _TAG_RE = re.compile(r"^v(\d+\.\d+\.\d+)$")
 
@@ -57,6 +59,51 @@ def load_release_doc_versions(releases_dir: Path) -> dict[str, Path]:
         if match:
             versions[match.group(1)] = path
     return versions
+
+
+def load_approval_docs(releases_dir: Path) -> list[Path]:
+    """Load Release Approval Record documents (RA-*.md)."""
+    return sorted(releases_dir.glob(_DEFAULT_APPROVAL_PATTERN))
+
+
+def validate_approval_evidence(approval_docs: list[Path]) -> ValidationResult:
+    """Validate approval evidence in Release Approval Records."""
+    result = ValidationResult()
+    for path in approval_docs:
+        try:
+            content = path.read_text(encoding="utf-8")
+        except OSError:
+            result.warnings.append(f"Could not read approval doc {path}")
+            continue
+
+        # Parse front matter
+        front_matter: dict[str, str | None] = {}
+        lines = content.splitlines()
+        if lines and lines[0].strip() == "---":
+            for line in lines[1:]:
+                stripped = line.strip()
+                if stripped == "---":
+                    break
+                if ":" in stripped:
+                    key, value = stripped.split(":", 1)
+                    front_matter[key.strip()] = value.strip() if value.strip() else None
+
+        status = front_matter.get("status")
+        approved_at = front_matter.get("approved_at")
+        approved_by = front_matter.get("approved_by")
+
+        # Warn if status is approved/deployed but approval fields are missing
+        if status in ("approved", "deployed"):
+            if not approved_at or approved_at == "null":
+                result.warnings.append(
+                    f"Approval doc {path.name} has status={status} but approved_at is not set"
+                )
+            if not approved_by or approved_by == "null":
+                result.warnings.append(
+                    f"Approval doc {path.name} has status={status} but approved_by is not set"
+                )
+
+    return result
 
 
 def load_release_doc_title_version(path: Path) -> str | None:
@@ -196,6 +243,17 @@ def validate_release_evidence(
                     result.errors.append(
                         f"Published GitHub release v{version} is missing docs/releases/v{version}.md."
                     )
+
+    # Validate approval evidence
+    approval_docs = load_approval_docs(releases_dir)
+    if approval_docs:
+        approval_result = validate_approval_evidence(approval_docs)
+        result.errors.extend(approval_result.errors)
+        result.warnings.extend(approval_result.warnings)
+    else:
+        result.warnings.append(
+            "No Release Approval Records (RA-*.md) found; approval evidence validation skipped."
+        )
 
     return result
 

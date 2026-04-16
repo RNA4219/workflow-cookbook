@@ -14,12 +14,13 @@ from typing import Iterable, Mapping, Sequence
 _REPO_ROOT = Path(__file__).resolve().parents[2]
 _DEFAULT_POLICY = _REPO_ROOT / "governance" / "policy.yaml"
 
-# Logical gate IDs in governance/policy.yaml map to concrete GitHub check names
-# for this repository. Downstream repositories may use different concrete names.
+# Logical gate IDs in governance/policy.yaml map to one or more concrete GitHub
+# check names for this repository. Downstream repositories may use different
+# concrete names.
 LOGICAL_TO_REPO_CHECK = {
-    "governance-gate": "governance",
-    "python-ci": "pytest",
-    "security-ci": "security-ci",
+    "governance-gate": ("governance",),
+    "python-ci": ("unit",),
+    "security-ci": ("Allowlist Guard", "Semgrep", "Bandit", "Gitleaks", "Dependency Audit & SBOM"),
 }
 
 
@@ -112,7 +113,7 @@ def validate_branch_protection(
     payload: Mapping[str, object],
     *,
     required_jobs: Iterable[str],
-    logical_to_check: Mapping[str, str] = LOGICAL_TO_REPO_CHECK,
+    logical_to_check: Mapping[str, Sequence[str]] = LOGICAL_TO_REPO_CHECK,
 ) -> ValidationResult:
     result = ValidationResult()
     configured_checks = extract_required_check_names(payload)
@@ -121,15 +122,17 @@ def validate_branch_protection(
         return result
 
     for logical_id in required_jobs:
-        concrete_check = logical_to_check.get(logical_id)
-        if concrete_check is None:
+        concrete_checks = logical_to_check.get(logical_id)
+        if concrete_checks is None:
             result.warnings.append(
                 f"No concrete check mapping is defined for logical gate ID '{logical_id}'."
             )
             continue
-        if concrete_check not in configured_checks:
+        missing = [check for check in concrete_checks if check not in configured_checks]
+        if missing:
+            missing_display = ", ".join(f"'{check}'" for check in missing)
             result.errors.append(
-                f"Missing protected check for logical gate ID '{logical_id}': expected '{concrete_check}'."
+                f"Missing protected checks for logical gate ID '{logical_id}': expected {missing_display}."
             )
 
     return result
