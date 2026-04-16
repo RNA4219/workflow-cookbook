@@ -126,7 +126,7 @@ class _GitDiffRunner(Protocol):
 
 
 def _run_git_diff(args: Sequence[str]) -> subprocess.CompletedProcess[str]:
-    return subprocess.run(
+    return subprocess.run(  # nosec B603,B607  # git diff command with fixed args, no shell=True
         args,
         capture_output=True,
         text=True,

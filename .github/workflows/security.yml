@@ -49,7 +49,9 @@ jobs:
         with:
           python-version: "3.11"
       - run: pip install bandit
-      - run: bandit -q -r tools security_headers -s B101,B105,B106,B107,B108,B404,B603,B607
+      - run: bandit -q -r tools security_headers -s B101,B105,B106,B107,B108,B404
+        # B101 (assert): excluded for test code; B105-108 (hardcoded passwords): review needed
+        # B404 (import subprocess): use cases validated with inline #nosec B603,B607 at call sites
 
   gitleaks:
     name: Gitleaks
@@ -78,6 +80,6 @@ jobs:
         # Use requirements.txt for reproducible, environment-independent auditing
         # pip-audit checks requirements.txt for known vulnerabilities
         run: pip-audit -r requirements.txt
-      - name: Safety check for fixed dependencies
-        # Safety checks requirements.txt for known vulnerabilities
-        run: safety check -r requirements.txt --full-report
+      - name: Safety scan for fixed dependencies
+        # Safety scans requirements.txt for known vulnerabilities
+        run: safety scan -r requirements.txt

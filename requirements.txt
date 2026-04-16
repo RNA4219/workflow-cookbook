@@ -4,7 +4,7 @@
 # This file provides fixed versions for pip-audit security scanning
 
 # YAML configuration file handling (optional but recommended)
-pyyaml>=6.0
+pyyaml==6.0.3
 
 # Note: This project primarily uses Python standard library modules.
 # The above dependency is optional - fallback implementations exist
