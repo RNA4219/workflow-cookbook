@@ -1,7 +1,35 @@
+# SPDX-License-Identifier: MIT
+# Copyright 2025 RNA4219
+
 version: 2
 updates:
+  # GitHub Actions - weekly updates
   - package-ecosystem: github-actions
     directory: "/"
     schedule:
       interval: weekly
     open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "github-actions"
+
+  # Python pip dependencies - weekly updates
+  - package-ecosystem: pip
+    directory: "/"
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 3
+    labels:
+      - "dependencies"
+      - "python"
+    # Review requirements for dependency updates
+    reviewers:
+      - "RNA4219"
+    # Group minor/patch updates together
+    groups:
+      minor-patch:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
