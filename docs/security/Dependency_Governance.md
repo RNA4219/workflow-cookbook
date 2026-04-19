@@ -2,7 +2,7 @@
 intent_id: INT-SEC-004
 owner: security
 status: active
-last_reviewed_at: 2026-04-17
+last_reviewed_at: 2026-04-19
 next_review_due: 2026-05-17
 ---
 
@@ -18,7 +18,7 @@ next_review_due: 2026-05-17
 | ファイル | 用途 | 固定方式 |
 | --- | --- | --- |
 | `requirements.txt` | 本番依存 | `==` 固定バージョン |
-| `pyproject.toml` | dev/optional依存 | `>=` 範囲指定 |
+| `pyproject.toml` | dev/optional依存 | `==` 固定バージョン |
 
 **現状の依存一覧**:
 
@@ -30,11 +30,12 @@ next_review_due: 2026-05-17
 `requirements.txt` を **lockfile 相当**として扱う。
 
 - 全ての本番依存は `==` で完全固定
+- dev依存も `==` で完全固定（CI再現性確保）
 - バージョン更新は Dependabot PR または手動レビューで実施
-- dev依存は `>=` で範囲指定（CI再現性は dev依存に依存しない）
 
 **理由**: pip-tools/pip-compile は現状の依存数に対して過剰。
-`requirements.txt` 固定 + pip-audit監査 で enterprise 相当の再現性を担保。
+`requirements.txt` + `pyproject.toml` 固定 + pip-audit監査 で
+enterprise 相当の再現性を担保。dev依存固定によりCI環境の安定性を確保。
 
 ## 3. 依存更新方法
 
@@ -45,10 +46,16 @@ next_review_due: 2026-05-17
 
 ### 手動更新
 
-1. `requirements.txt` のバージョンを更新
+1. `requirements.txt` または `pyproject.toml` のバージョンを更新
 2. `pip-audit -r requirements.txt` で脆弱性確認
 3. CI で Bandit/Semgrep/pip-audit が通ることを確認
 4. PR 作成・レビュー・マージ
+
+### dev依存更新（Dependabot）
+
+- Dependabot が `pyproject.toml` の dev依存を週次監視
+- バージョン更新PR作成 → CI検証 → マージ承認
+- 脆弱性発見時は critical/high を優先対応
 
 ## 4. 脆弱性監査方法
 
