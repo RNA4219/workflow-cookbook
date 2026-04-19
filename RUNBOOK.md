@@ -132,6 +132,7 @@ next_review_due: 2026-05-09
      `docs/security/Dependency_Governance.md` と差分がないこと
 
 運用ルール:
+
 - 残タスクに着手するときは、対象 Task Seed を PR / rehearsal 記録へリンクする
 - 残タスク完了時は、`CHECKLISTS.md` の該当項目と検収記録を同時に更新する
 - branch protection / release evidence / supply chain のいずれかを変更した場合は、
@@ -397,6 +398,7 @@ next_review_due: 2026-05-09
 | Verified At | <!-- 確認日時 --> |
 
 証跡は以下に記録:
+
 - `docs/releases/RA-XXX.md` の Rollback History セクション（Release Approval Record）
 - `docs/releases/INDEX.md` の Rollback Events セクション
 - `docs/IN-YYYYMMDD-XXX.md`（インシデント記録）

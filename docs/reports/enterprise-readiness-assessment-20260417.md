@@ -39,6 +39,7 @@ branch protection live enforcement、rollback drill 記録により
 「rollback 手順を drill で実証できる」という意味で企業利用の基盤が整った。
 
 次の強化余地:
+
 1. 定期 rollback drill の月次実施と証跡蓄積
 2. classic branch protection から ruleset 移行の判断
 3. transitive dependencies の可視化
@@ -54,17 +55,20 @@ branch protection live enforcement、rollback drill 記録により
 ### 1. Secure Coding
 
 確認できたこと:
+
 - `tools/perf/collect_metrics.py` で URL 検証が入り、
   `file://`、loopback、private network、link-local などが拒否される
 - `tests/test_url_validation_security.py` に失敗系テストが追加されている
 
 不足:
+
 - URL / subprocess / file access の同種パターンを
   repo 横断で棚卸しした証跡は見当たらない
 
 ### 2. CI Security Gates
 
 確認できたこと:
+
 - `.github/workflows/security.yml` が存在する
 - `Bandit` の `B310` は除外されていない
 - `Dependabot` 設定ファイルがある
@@ -72,6 +76,7 @@ branch protection live enforcement、rollback drill 記録により
 - `check_ci_gate_matrix.py` と `check_branch_protection.py` の mapping 不整合は修正された
 
 不足:
+
 - `nosec` / skip 例外の定期棚卸し台帳はない
 - GitHub API で `main` branch protection を取得でき、
   classic branch protection に required checks が設定済み
@@ -83,6 +88,7 @@ branch protection live enforcement、rollback drill 記録により
 ### 3. Supply Chain / Dependency Governance
 
 確認できたこと:
+
 - `requirements.txt` が固定入力として使われる
 - `pyproject.toml` dev依存が `==` で固定（pytest, pytest-cov, bandit, pip-audit）
 - SBOM 生成スクリプトと CI artifact upload が追加された
@@ -91,11 +97,13 @@ branch protection live enforcement、rollback drill 記録により
 - dev dependencies 固定方針が `Dependency_Governance.md` に記載
 
 不足:
+
 - transitive dependencies の可視化は今後の強化余地がある
 
 ### 4. Release / Change Management
 
 確認できたこと:
+
 - `Release_Checklist.md` がある
 - `RUNBOOK.md` で release evidence / acceptance / CI gate の導線がある
 - `docs/releases/` に履歴がある
@@ -103,6 +111,7 @@ branch protection live enforcement、rollback drill 記録により
 - acceptance / release evidence checker 側の関連付けが強化された
 
 不足:
+
 - rollback が docs 参照に留まり、
   実証ログや drill 記録までは確認できない
 - 新しい承認テンプレートを用いた実運用ログはまだ少ない
@@ -110,15 +119,17 @@ branch protection live enforcement、rollback drill 記録により
 ### 5. Ops / Incident Readiness
 
 確認できたこと:
+
 - `RUNBOOK.md` に運用確認手順がある
 - `docs/INCIDENT_TEMPLATE.md` と sample incident がある
 - docs freshness / review due を確認する CI がある
 
 不足:
+
 - 定期演習の記録が見えにくい
 - 監視項目はあるが、閾値逸脱時の責任分界や応答時間目標は弱い
 
-## 総合コメント
+## 詳細分析
 
 この repo は、
 「危険な実装を安全側へ直せる」

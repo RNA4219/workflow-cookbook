@@ -78,6 +78,7 @@ next_review_due: 2026-05-17
 - **Bandit**: B310, B603, B607 を検出
 - **Semgrep**: 追加 rule で URL / subprocess / file を検出可能
 - **grep 棚卸し**: 月次で以下を実行:
+
   ```sh
   grep -r "subprocess" --include="*.py" tools/
   grep -r "urlopen" --include="*.py" tools/

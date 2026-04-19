@@ -26,7 +26,7 @@ next_review_due: 2026-05-17
 
 | Approval ID | Version | Status | Approved At | Approved By | File |
 | --- | --- | --- | --- | --- | --- |
-| <!-- RA-YYYYMMDD-XX --> | <!-- vX.Y.Z --> | <!-- draft|approved|deployed --> | <!-- YYYY-MM-DD --> | <!-- handle --> | <!-- [RA-XXX.md](RA-XXX.md) --> |
+| <!-- RA-YYYYMMDD-XX --> | <!-- vX.Y.Z --> | <!-- draft or approved or deployed --> | <!-- YYYY-MM-DD --> | <!-- handle --> | <!-- [RA-XXX.md](RA-XXX.md) --> |
 
 ## Acceptance Mapping
 

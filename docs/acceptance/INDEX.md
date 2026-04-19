@@ -35,7 +35,7 @@
 
 | Approval ID | Version | Acceptance IDs | Status |
 | --- | --- | --- | --- |
-| <!-- RA-YYYYMMDD-XX --> | <!-- vX.Y.Z --> | <!-- AC-YYYYMMDD-XX --> | <!-- draft|approved --> |
+| <!-- RA-YYYYMMDD-XX --> | <!-- vX.Y.Z --> | <!-- AC-YYYYMMDD-XX --> | <!-- draft or approved --> |
 
 > 詳細は [docs/releases/INDEX.md](../releases/INDEX.md) を参照
 

@@ -47,6 +47,7 @@ python tools/ci/check_ci_gate_matrix.py
 ### 4. 定期実行
 
 月次または release 前に実行:
+
 - branch protection JSON export
 - check_branch_protection.py
 - check_ci_gate_matrix.py

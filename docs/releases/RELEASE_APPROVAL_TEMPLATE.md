@@ -21,10 +21,10 @@ next_review_due: 2026-05-17
 | 項目 | 内容 |
 | --- | --- |
 | Release Version | vX.Y.Z |
-| Release Type | <!-- major|minor|patch|hotfix --> |
+| Release Type | <!-- major or minor or patch or hotfix --> |
 | Approved By | <!-- 承認者名/ハンドル --> |
 | Approved At | <!-- YYYY-MM-DD HH:MM UTC --> |
-| Approval Type | <!-- technical|security|risk_acceptance --> |
+| Approval Type | <!-- technical or security or risk_acceptance --> |
 | Evidence Links | <!-- PR URL, QA結果, Security Gate --> |
 
 ## Approval Checklist
@@ -42,7 +42,7 @@ next_review_due: 2026-05-17
 
 | 項目 | 内容 |
 | --- | --- |
-| Risk Level | <!-- low|medium|high --> |
+| Risk Level | <!-- low or medium or high --> |
 | Risk Description | <!-- リスク内容 --> |
 | Mitigation Measures | <!-- 緩和措置 --> |
 | Rollback Plan | <!-- RUNBOOK.md 参照 --> |
