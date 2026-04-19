@@ -20,7 +20,7 @@ branch protection live enforcement、rollback drill 記録により
   危険実装への即応、supply chain docs 改善、branch protection live enforcement、
   rollback drill 記録、Runbook / Acceptance / Release docs の土台
 - 弱み:
-  定期演習の実証ログ蓄積、dev dependencies 固定化、ruleset 移行の検討
+  定期演習の実証ログ蓄積、ruleset 移行の検討
 
 ## セクション別採点（2026-04-19 Update）
 
@@ -28,7 +28,7 @@ branch protection live enforcement、rollback drill 記録により
 | --- | --- | --- |
 | Secure Coding | B | `collect_metrics.py` に URL 検証と危険スキーム拒否。失敗系テスト追加済み。repo 横断棚卸しは未確認。 |
 | CI Security Gates | B+ | branch protection live enforcement 確認済み。required checks 7本が docs と整合。例外台帳あり。 |
-| Supply Chain / Dependency Governance | B | SBOM 生成、Dependabot、脆弱性 SLA、例外台帳テンプレート追加済み。lockfile 方針 docs 化済み。 |
+| Supply Chain / Dependency Governance | B+ | SBOM 生成、Dependabot、脆弱性 SLA、例外台帳テンプレート追加済み。dev dependencies 固定化完了。lockfile 方針 docs 化済み。 |
 | Release / Change Management | B+ | rollback drill 記録サンプル追加。承認テンプレート、INDEX 相互参照、rollback 手順 docs 化済み。 |
 | Ops / Incident Readiness | B | incident template、sample incident、docs freshness CI あり。演習・定期レビュー証拠は弱い。 |
 | Documentation / Auditability | A- | Task / Acceptance / Runbook / Release docs 相互参照整備。Enterprise checklist、例外台帳、API inventory、branch protection docs 揃った。 |
@@ -40,13 +40,13 @@ branch protection live enforcement、rollback drill 記録により
 
 次の強化余地:
 1. 定期 rollback drill の月次実施と証跡蓄積
-2. dev dependencies 固定化（pytest, bandit 等）
-3. classic branch protection から ruleset 移行の判断
+2. classic branch protection から ruleset 移行の判断
+3. transitive dependencies の可視化
 
 ## 推奨アクション（2026-04-19）
 
 1. rollback drill を月次または release 前に実施し、証跡蓄積
-2. dev dependencies 固定方針を docs 化
+2. ~~dev dependencies 固定方針を docs 化~~ ✓ 完了（pyproject.toml + Dependency_Governance.md）
 3. ruleset 移行可否を org 標準と整合判断
 
 ## 根拠メモ
@@ -84,13 +84,13 @@ branch protection live enforcement、rollback drill 記録により
 
 確認できたこと:
 - `requirements.txt` が固定入力として使われる
+- `pyproject.toml` dev依存が `==` で固定（pytest, pytest-cov, bandit, pip-audit）
 - SBOM 生成スクリプトと CI artifact upload が追加された
 - `Dependabot` による pip 依存監視が入った
 - 脆弱性 SLA と例外台帳テンプレートが docs 化された
+- dev dependencies 固定方針が `Dependency_Governance.md` に記載
 
 不足:
-- lockfile がない
-- dev dependencies の固定化はまだ弱い
 - transitive dependencies の可視化は今後の強化余地がある
 
 ### 4. Release / Change Management
@@ -131,16 +131,16 @@ branch protection live enforcement、rollback drill 記録により
 ことである。
 
 その観点では、
-次の 3 系統を優先して埋めるべきである。
+次の 2 系統を優先して埋めるべきである。
 
 1. Release / rollback / approval の実運用証跡の蓄積
-2. Supply chain の再現性強化（dev 依存固定、transitive 可視化）
-3. branch protection の ruleset 移行可否と例外照合自動化の整理
+2. branch protection の ruleset 移行可否と例外照合自動化の整理
+3. transitive dependency 可視化（将来検討）
 
 ## 推奨アクション
 
 1. release / rollback / approval の証跡テンプレートを実運用で 1 回以上回す
-2. dev dependencies 固定と transitive dependency 可視化の方針を追加する
+2. ~~dev dependencies 固定と transitive dependency 可視化の方針を追加する~~ ✓ dev固定完了
 3. classic branch protection から ruleset へ移すかを決め、運用標準を一本化する
 
 ## 関連 Task Seed
