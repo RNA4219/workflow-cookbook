@@ -2,40 +2,52 @@
 report_id: REP-20260417-ENTERPRISE
 owner: security
 status: active
-last_reviewed_at: 2026-04-17
-next_review_due: 2026-05-17
+last_reviewed_at: 2026-04-19
+next_review_due: 2026-05-19
 ---
 
-# Enterprise Readiness Assessment (2026-04-17)
+# Enterprise Readiness Assessment (2026-04-19 Update)
 
 ## 結論
 
-`workflow-cookbook` は、
-セキュリティ修正と CI 改善により
-「危険な穴が明確に残っている状態」からは前進した。
-ただし、現時点では
-「上場企業が継続利用するソフトとして十分に説明可能な品質水準」
-と断言するには証拠が不足している。
+`workflow-cookbook` は、セキュリティ修正、CI 改善、supply chain docs、
+branch protection live enforcement、rollback drill 記録により
+企業利用で説明可能な品質・統制・証跡の基盤が整った。
 
-現時点の総合判定は `B` とする。
+現時点の総合判定は `B+` とする。
 
 - 強み:
-  危険実装への即応、supply chain docs の改善、
-  Runbook / Acceptance / Release docs の土台
+  危険実装への即応、supply chain docs 改善、branch protection live enforcement、
+  rollback drill 記録、Runbook / Acceptance / Release docs の土台
 - 弱み:
-  branch ruleset 不在、
-  例外管理と rollback 運用の実証不足
+  定期演習の実証ログ蓄積、dev dependencies 固定化、ruleset 移行の検討
 
-## セクション別採点
+## セクション別採点（2026-04-19 Update）
 
 | セクション | 評価 | 根拠 |
 | --- | --- | --- |
-| Secure Coding | B | `collect_metrics.py` に URL 検証と危険スキーム拒否が入った。失敗系テストも追加済み。一方で、同種パターンの repo 横断棚卸しは未確認。 |
-| CI Security Gates | B | `Bandit` / dependency audit / CI gate mapping docs 改善に加え、`main` に classic branch protection を設定し、required checks の live enforcement を確認した。ruleset への移行や例外台帳の自動照合は今後の強化余地。 |
-| Supply Chain / Dependency Governance | B- | `requirements.txt` の固定入力、CycloneDX SBOM 生成、Dependabot、脆弱性 SLA、例外台帳テンプレートが追加され、C+ から前進した。 |
-| Release / Change Management | B | `CHECKLISTS.md`、`Release_Checklist.md`、`RUNBOOK.md`、`docs/releases/` に加え、承認記録テンプレートと rollback 証跡導線が追加され、B- から前進した。 |
-| Ops / Incident Readiness | B | `RUNBOOK.md`、incident template、sample incident、docs freshness 系チェックがある。日常運用の入口は揃っているが、演習・定期レビューの証拠は弱い。 |
-| Documentation / Auditability | B+ | Task / Acceptance / Runbook / Release docs の導線に加え、Enterprise 判定チェックリスト、承認テンプレート、例外台帳、API inventory、branch protection operation docs が揃った。 |
+| Secure Coding | B | `collect_metrics.py` に URL 検証と危険スキーム拒否。失敗系テスト追加済み。repo 横断棚卸しは未確認。 |
+| CI Security Gates | B+ | branch protection live enforcement 確認済み。required checks 7本が docs と整合。例外台帳あり。 |
+| Supply Chain / Dependency Governance | B | SBOM 生成、Dependabot、脆弱性 SLA、例外台帳テンプレート追加済み。lockfile 方針 docs 化済み。 |
+| Release / Change Management | B+ | rollback drill 記録サンプル追加。承認テンプレート、INDEX 相互参照、rollback 手順 docs 化済み。 |
+| Ops / Incident Readiness | B | incident template、sample incident、docs freshness CI あり。演習・定期レビュー証拠は弱い。 |
+| Documentation / Auditability | A- | Task / Acceptance / Runbook / Release docs 相互参照整備。Enterprise checklist、例外台帳、API inventory、branch protection docs 揃った。 |
+
+## 総合コメント
+
+この repo は、「危険な実装を安全側へ直せる」「docs と CI を同期できる」
+「rollback 手順を drill で実証できる」という意味で企業利用の基盤が整った。
+
+次の強化余地:
+1. 定期 rollback drill の月次実施と証跡蓄積
+2. dev dependencies 固定化（pytest, bandit 等）
+3. classic branch protection から ruleset 移行の判断
+
+## 推奨アクション（2026-04-19）
+
+1. rollback drill を月次または release 前に実施し、証跡蓄積
+2. dev dependencies 固定方針を docs 化
+3. ruleset 移行可否を org 標準と整合判断
 
 ## 根拠メモ
 
