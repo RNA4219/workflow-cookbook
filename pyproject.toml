@@ -30,13 +30,13 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-# Development dependencies for testing and linting
+# Development dependencies for testing and linting - pinned for reproducibility
+# Update versions via Dependabot PRs after vulnerability review
 dev = [
-    "pytest>=8.0",
-    "pytest-cov>=4.0",
-    "bandit>=1.7",
-    "pip-audit>=2.6",
-    "safety>=3.0",
+    "pytest==9.0.3",
+    "pytest-cov==7.1.0",
+    "bandit==1.9.4",
+    "pip-audit==2.10.0",
 ]
 
 [tool.setuptools.packages.find]
