@@ -45,7 +45,17 @@ next_review_due: 2026-05-17
 
 | Rolled Back At | From Version | To Version | Reason | Evidence |
 | --- | --- | --- | --- | --- |
-| <!-- YYYY-MM-DD --> | <!-- vX.Y.Z --> | <!-- vX.Y.W --> | <!-- 原因 --> | <!-- URL --> |
+| 2026-04-19 | v1.3.0 (drill) | v1.2.0 | Rollback drill | [RB-20260419-01](RB-20260419-01-sample-drill.md) |
+
+### Rollback Template Usage
+
+- **ファイル**: [RB-20260419-01-sample-drill.md](RB-20260419-01-sample-drill.md)（サンプル）
+- **作成手順**:
+  1. Rollback 実施時に `RB-YYYYMMDD-XX.md` を作成
+  2. Pre-Rollback Checklist 完了
+  3. Rollback Execution Log 記録
+  4. Post-Rollback Verification 実施
+  5. INDEX.md の Rollback Events に追加
 
 ---
 
