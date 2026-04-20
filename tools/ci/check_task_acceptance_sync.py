@@ -20,8 +20,32 @@ from tools.workflow_plugins.interfaces import (
 from tools.workflow_plugins.runtime import WorkflowPluginRuntime
 
 
-def _collect_report_errors(report) -> list[str]:
-    errors = list(report.errors)
+def _is_missing_acceptance_message(message: str) -> bool:
+    normalized = message.strip().lower()
+    return (
+        "missing an acceptance record" in normalized
+        or "does not have an acceptance record" in normalized
+    )
+
+
+def _collect_report_errors(report, *, require_acceptance_for_done: bool) -> list[str]:
+    seen: set[str] = set()
+    errors: list[str] = []
+    for item in report.errors:
+        message = str(item)
+        if not require_acceptance_for_done and _is_missing_acceptance_message(message):
+            continue
+        if message in seen:
+            continue
+        seen.add(message)
+        errors.append(message)
+    return errors
+
+
+def _collect_missing_acceptance_errors(report, *, require_acceptance_for_done: bool) -> list[str]:
+    if not require_acceptance_for_done:
+        return []
+    errors: list[str] = []
     for task in report.tasks:
         if not isinstance(task, dict):
             continue
@@ -64,6 +88,11 @@ def main(argv: Sequence[str] | None = None) -> int:
         action="store_true",
         help="Emit the raw sync report as JSON.",
     )
+    parser.add_argument(
+        "--require-acceptance-for-done",
+        action="store_true",
+        help="Treat done tasks without acceptance records as errors.",
+    )
     args = parser.parse_args(argv)
 
     runtime = WorkflowPluginRuntime.from_config(args.plugin_config)
@@ -81,7 +110,18 @@ def main(argv: Sequence[str] | None = None) -> int:
     warnings: list[str] = []
     merged_report = _merge_reports(reports)
     for report in reports:
-        errors.extend(_collect_report_errors(report))
+        errors.extend(
+            _collect_report_errors(
+                report,
+                require_acceptance_for_done=args.require_acceptance_for_done,
+            )
+        )
+        errors.extend(
+            _collect_missing_acceptance_errors(
+                report,
+                require_acceptance_for_done=args.require_acceptance_for_done,
+            )
+        )
         warnings.extend(report.warnings)
 
     if args.emit_json:

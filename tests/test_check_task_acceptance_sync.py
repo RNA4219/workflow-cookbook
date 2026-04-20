@@ -77,8 +77,54 @@ def test_check_task_acceptance_sync_fails_for_done_task_without_acceptance(
         package_name="sync_plugin_fail",
     )
 
-    result = check_task_acceptance_sync.main(["--plugin-config", str(config_path)])
+    result = check_task_acceptance_sync.main(
+        ["--plugin-config", str(config_path), "--require-acceptance-for-done"]
+    )
 
     captured = capsys.readouterr()
     assert result == 1
     assert "does not have an acceptance record" in captured.err
+
+
+def test_check_task_acceptance_sync_warns_but_passes_by_default(
+    tmp_path: Path, capsys
+) -> None:
+    config_path = _write_plugin(
+        tmp_path,
+        report={
+            "tasks": [{"task_id": "20260410-02", "status": "done", "acceptance_ids": []}],
+            "acceptances": [],
+            "errors": [],
+            "warnings": ["Done task '20260410-02' is missing an acceptance record."],
+        },
+        package_name="sync_plugin_warn",
+    )
+
+    result = check_task_acceptance_sync.main(["--plugin-config", str(config_path)])
+
+    captured = capsys.readouterr()
+    assert result == 0
+    assert "missing an acceptance record" in captured.err
+    assert "synchronized" in captured.out
+
+
+def test_check_task_acceptance_sync_ignores_plugin_missing_acceptance_errors_by_default(
+    tmp_path: Path, capsys
+) -> None:
+    config_path = _write_plugin(
+        tmp_path,
+        report={
+            "tasks": [{"task_id": "20260410-03", "status": "done", "acceptance_ids": []}],
+            "acceptances": [],
+            "errors": ["Done task '20260410-03' is missing an acceptance record."],
+            "warnings": [],
+        },
+        package_name="sync_plugin_legacy_error",
+    )
+
+    result = check_task_acceptance_sync.main(["--plugin-config", str(config_path)])
+
+    captured = capsys.readouterr()
+    assert result == 0
+    assert "missing an acceptance record" not in captured.err
+    assert "synchronized" in captured.out

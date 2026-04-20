@@ -60,6 +60,8 @@ next_review_due: 2026-05-09
     崩れていないことを確認する。
   - `python tools/ci/check_task_acceptance_sync.py --plugin-config examples/workflow_plugins.cross_repo.sample.json`
     を実行し、Task Seed と Acceptance の対応が plugin 観点でも一致することを確認する。
+    `done` task に acceptance record を必須化したい運用では
+    `--require-acceptance-for-done` を付ける。
   - `python tools/ci/generate_acceptance_index.py --plugin-config examples/workflow_plugins.cross_repo.sample.json`
     で `docs/acceptance/INDEX.md` を再生成できることを確認する。
 - docs resolve / stale 確認

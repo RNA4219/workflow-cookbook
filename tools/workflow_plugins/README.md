@@ -69,6 +69,9 @@ python tools/workflow_plugins/validate_workflow_plugin_config.py --plugin-config
 
 ```sh
 python tools/ci/check_task_acceptance_sync.py --plugin-config examples/workflow_plugins.cross_repo.sample.json
+
+# done task に acceptance を必須化したい場合
+python tools/ci/check_task_acceptance_sync.py --plugin-config examples/workflow_plugins.cross_repo.sample.json --require-acceptance-for-done
 python tools/ci/generate_acceptance_index.py --plugin-config examples/workflow_plugins.cross_repo.sample.json
 python tools/context/workflow_docs.py --plugin-config examples/workflow_plugins.cross_repo.sample.json resolve --task-id 20260410-01
 ```

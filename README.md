@@ -136,6 +136,9 @@ python tools/ci/check_acceptance.py --check
 # Task/Acceptance sync check
 python tools/ci/check_task_acceptance_sync.py --plugin-config examples/workflow_plugins.cross_repo.sample.json
 
+# Strict mode: fail when done tasks do not have acceptance records
+python tools/ci/check_task_acceptance_sync.py --plugin-config examples/workflow_plugins.cross_repo.sample.json --require-acceptance-for-done
+
 # Generate acceptance index
 python tools/ci/generate_acceptance_index.py --plugin-config examples/workflow_plugins.cross_repo.sample.json
 ```
