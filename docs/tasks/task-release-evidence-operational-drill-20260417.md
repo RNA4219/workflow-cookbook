@@ -2,7 +2,7 @@
 task_id: 20260417-06
 intent_id: INT-SEC-011
 owner: docs-core
-status: todo
+status: done
 last_reviewed_at: 2026-04-17
 next_review_due: 2026-05-17
 ---

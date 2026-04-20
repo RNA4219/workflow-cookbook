@@ -131,6 +131,13 @@ next_review_due: 2026-05-09
      SBOM、dependency exception、requirements / pyproject の整合を確認し、
      `docs/security/Dependency_Governance.md` と差分がないこと
 
+4. Dependency exceptions 定期レビュー
+   - 実施タイミング: 月次（dependency_exceptions.md の next_review_due 日付）
+   - 実行確認:
+     `python tools/ci/check_dependency_exceptions.py --check --max-overdue-days 30`
+     を実行し、期限切れ例外がないことを確認
+   - 期限切れ例外がある場合は `docs/security/dependency_exceptions.md` で更新または削除
+
 運用ルール:
 
 - 残タスクに着手するときは、対象 Task Seed を PR / rehearsal 記録へリンクする

@@ -26,7 +26,7 @@ next_review_due: 2026-05-17
 
 | Approval ID | Version | Status | Approved At | Approved By | File |
 | --- | --- | --- | --- | --- | --- |
-| <!-- RA-YYYYMMDD-XX --> | <!-- vX.Y.Z --> | <!-- draft or approved or deployed --> | <!-- YYYY-MM-DD --> | <!-- handle --> | <!-- [RA-XXX.md](RA-XXX.md) --> |
+| RA-20260421-01 | v1.2.0 | approved | 2026-04-21 | RNA4219 | [RA-20260421-01.md](RA-20260421-01.md) |
 
 ## Acceptance Mapping
 
