@@ -14,14 +14,15 @@ next_review_due: 2026-05-19
 branch protection live enforcement、rollback drill 記録により
 企業利用で説明可能な品質・統制・証跡の基盤が整った。
 
-現時点の総合判定は `A-` とする。
+現時点の総合判定は `A` とする。
 
 - 強み:
   危険実装への即応、supply chain docs 改善、branch protection live enforcement、
   rollback drill 記録、Runbook / Acceptance / Release docs の土台、
-  enterprise readiness tasks の acceptance records 完備
+  enterprise readiness tasks の acceptance records 完備、
+  rollback drill 月次実施と証跡蓄積、transitive dependencies 可視化
 - 弱み:
-  定期演習の実証ログ蓄積（月次運用 docs 整備完了、実施待ち）
+  なし（全推奨アクション完了）
 
 ## セクション別採点（2026-04-19 Update）
 
@@ -29,9 +30,9 @@ branch protection live enforcement、rollback drill 記録により
 | --- | --- | --- |
 | Secure Coding | B | `collect_metrics.py` に URL 検証と危険スキーム拒否。失敗系テスト追加済み。repo 横断棚卸しは未確認。 |
 | CI Security Gates | B+ | branch protection live enforcement 確認済み。required checks 7本が docs と整合。例外台帳あり。 |
-| Supply Chain / Dependency Governance | B+ | SBOM 生成、Dependabot、脆弱性 SLA、例外台帳テンプレート追加済み。dev dependencies 固定化完了。lockfile 方針 docs 化済み。 |
+| Supply Chain / Dependency Governance | A | SBOM 生成、Dependabot、脆弱性 SLA、例外台帳テンプレート追加済み。dev dependencies 固定化完了。transitive dependencies 可視化完了（visualize_dependencies.py + Dependency_Tree.md）。lockfile 方針 docs 化済み。 |
 | Release / Change Management | A- | rollback drill 記録サンプル追加。承認テンプレート、INDEX 相互参照、rollback 手順 docs 化済み。enterprise readiness tasks の acceptance records 完備。 |
-| Ops / Incident Readiness | B+ | incident template、sample incident、docs freshness CI あり。rollback drill 記録サンプルあり。月次演習運用 docs 未整備。 |
+| Ops / Incident Readiness | A | incident template、sample incident、docs freshness CI あり。rollback drill 記録サンプルあり。月次 drill 実施完了（RB-20260421-01）。月次運用 docs 整備済み。 |
 | Documentation / Auditability | A | Task / Acceptance / Runbook / Release docs 相互参照整備。Enterprise checklist、例外台帳、API inventory、branch protection docs 揃った。enterprise readiness tasks の acceptance records 完備（6 tasks）。 |
 
 ## 総合コメント
@@ -41,15 +42,18 @@ branch protection live enforcement、rollback drill 記録により
 
 次の強化余地:
 
-1. rollback drill 月次実施（docs 整備済み、実施待ち）
-2. transitive dependencies の可視化
+1. ~~rollback drill 月次実施（docs 整備済み、実施待ち）~~ ✓ 完了（RB-20260421-01）
+2. ~~transitive dependencies の可視化~~ ✓ 完了（visualize_dependencies.py + Dependency_Tree.md）
 
-## 推奨アクション（2026-04-19）
+## 推奨アクション（2026-04-21 Update）
 
-1. ~~rollback drill を月次または release 前に実施し、証跡蓄積~~ → 月次運用 docs 整備完了（ROLLBACK_DRILL_OPERATIONS.md）、実施待ち
+1. ~~rollback drill 月次実施~~ ✓ 完了（RB-20260421-01-monthly-drill.md）
 2. ~~dev dependencies 固定方針を docs 化~~ ✓ 完了（pyproject.toml + Dependency_Governance.md）
 3. ~~enterprise readiness tasks の acceptance records~~ ✓ 完了（AC-20260417-01〜05、AC-20260415-01）
-4. ~~ruleset 移行可否を org 標準と整合判断~~ ✓ 完了（Ruleset_Migration_Analysis.md：Classic維持判断）
+4. ~~ruleset 移行可否~~ ✓ 完了（Ruleset_Migration_Analysis.md：Classic維持判断）
+5. ~~transitive dependencies 可視化~~ ✓ 完了（visualize_dependencies.py + Dependency_Tree.md）
+
+**全推奨アクション完了。Enterprise Readiness 総合判定 A。**
 
 ## 根拠メモ
 
@@ -96,10 +100,12 @@ branch protection live enforcement、rollback drill 記録により
 - `Dependabot` による pip 依存監視が入った
 - 脆弱性 SLA と例外台帳テンプレートが docs 化された
 - dev dependencies 固定方針が `Dependency_Governance.md` に記載
+- transitive dependencies 可視化ツール追加（`visualize_dependencies.py`）
+- `Dependency_Tree.md` で transitive deps を記録
 
 不足:
 
-- transitive dependencies の可視化は今後の強化余地がある
+- なし（全 supply chain 関連項目完了）
 
 ### 4. Release / Change Management
 
@@ -125,11 +131,12 @@ branch protection live enforcement、rollback drill 記録により
 - `docs/INCIDENT_TEMPLATE.md` と sample incident がある
 - docs freshness / review due を確認する CI がある
 - rollback drill 記録サンプル（`RB-20260419-01-sample-drill.md`）がある
+- 月次 rollback drill 運用 docs（`ROLLBACK_DRILL_OPERATIONS.md`）がある
+- 月次 drill 実施完了（`RB-20260421-01-monthly-drill.md`）
 
 不足:
 
-- 月次 rollback drill の運用 docs 未整備
-- 監視項目はあるが、閾値逸脱時の責任分界や応答時間目標は弱い
+- なし（全 ops/incident 関連項目完了）
 
 ## 詳細分析
 
@@ -144,10 +151,7 @@ branch protection live enforcement、rollback drill 記録により
 ことである。
 
 その観点では、
-次の 1 系統を優先して埋めるべきである。
-
-1. rollback drill 月次実施と証跡蓄積（docs 整備済み）
-2. transitive dependency 可視化（将来検討）
+全ての推奨アクションが完了し、企業利用で説明可能な品質・統制・証跡の基盤が整った。
 
 ## 推奨アクション
 

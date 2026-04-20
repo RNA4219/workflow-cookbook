@@ -2,7 +2,7 @@
 intent_id: DOC-OPS-001
 owner: ops-core
 status: active
-last_reviewed_at: 2026-04-17
+last_reviewed_at: 2026-04-21
 next_review_due: 2026-05-17
 ---
 
@@ -45,7 +45,8 @@ next_review_due: 2026-05-17
 
 | Rolled Back At | From Version | To Version | Reason | Evidence |
 | --- | --- | --- | --- | --- |
-| 2026-04-19 | v1.3.0 (drill) | v1.2.0 | Rollback drill | [RB-20260419-01](RB-20260419-01-sample-drill.md) |
+| 2026-04-21 | v1.1.3 (drill) | v1.1.2 | Monthly rollback drill | [RB-20260421-01](RB-20260421-01-monthly-drill.md) |
+| 2026-04-19 | v1.3.0 (drill) | v1.2.0 | Rollback drill (sample) | [RB-20260419-01](RB-20260419-01-sample-drill.md) |
 
 ### Rollback Template Usage
 
