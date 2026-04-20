@@ -11,7 +11,7 @@ outputting to docs/security/Dependency_Tree.md.
 from __future__ import annotations
 
 import argparse
-import subprocess
+import subprocess  # nosec B404
 import sys
 from pathlib import Path
 from typing import Sequence
@@ -60,7 +60,7 @@ def _get_direct_dependencies() -> dict[str, list[str]]:
 def _run_pipdeptree() -> str:
     """Run pipdeptree and return output."""
     try:
-        result = subprocess.run(
+        result = subprocess.run(  # nosec B603,B607
             ["pipdeptree", "--json-tree"],
             capture_output=True,
             text=True,

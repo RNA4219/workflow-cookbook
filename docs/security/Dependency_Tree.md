@@ -108,5 +108,3 @@ docs/security/Dependency_Tree.md に記録。
 
 - [Dependency Governance](./Dependency_Governance.md)
 - [Enterprise Readiness Assessment](../reports/enterprise-readiness-assessment-20260417.md)
-
-
