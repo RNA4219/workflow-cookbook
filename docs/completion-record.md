@@ -45,15 +45,7 @@ RUNBOOK は日常運用と現在の判断に集中させ、完了済みの長い
 
 | 項目 | 状態 | 正本 |
 |---|---|---|
-| ReflectionSummary schema | 完了 | `schemas/reflection-summary.schema.json` |
-| SkillDraftRecord schema | 完了 | `schemas/skill-draft-record.schema.json` |
-| RecallResponse schema | 完了 | `schemas/recall-response.schema.json` |
-| UserModelSnapshot schema | 完了 | `schemas/user-model-snapshot.schema.json` |
-| WorkspaceModelSnapshot schema | 完了 | `schemas/workspace-model-snapshot.schema.json` |
-| PeriodicNudge schema | 完了 | `schemas/periodic-nudge.schema.json` |
-| Sample config (ReflectionSummary) | 完了 | `examples/reflection-summary.sample.json` |
-| Sample config (SkillDraftRecord) | 完了 | `examples/skill-draft-record.sample.json` |
-| Schema validation test | 完了 | `tests/test_self_improvement_schemas.py` |
+| Self-Improvement Loop Schemas | 完了 | [docs/acceptance/AC-20260502-01.md](acceptance/AC-20260502-01.md) |
 
 判定: go
-補足: spec.md 4.6.2-4.6.6 の DTO 定義に基づく JSON Schema。21 tests passed。
+補足: spec.md 4.6.2-4.6.6 の DTO 定義に基づく JSON Schema。21 tests passed。schemas/, examples/, tests/ 詳細は acceptance レコード参照。
