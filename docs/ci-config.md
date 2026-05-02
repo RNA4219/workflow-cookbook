@@ -12,10 +12,11 @@ next_review_due: 2026-05-09
 
 - gate 名の正本は `governance/policy.yaml` の `ci.required_jobs` とする。
 - ここでの `required_jobs` は GitHub の生の check 名ではなく、論理 gate ID として扱う。
-- 現行の required jobs は次の 3 つ。
+- 現行の required jobs は次の 4 つ。
   - `governance-gate`
   - `security-ci`
   - `python-ci`
+  - `docs-gate`
 - Phase ごとの考え方は [docs/ci_phased_rollout_requirements.md](./ci_phased_rollout_requirements.md)
   を参照する。
 
@@ -26,6 +27,17 @@ next_review_due: 2026-05-09
 | `governance-gate` | `.github/workflows/governance-gate.yml` | job `governance` | GitHub 上では workflow 名 `Governance Gate` 配下の `governance` job を基準に確認する。 |
 | `python-ci` | `.github/workflows/test.yml` | job `unit` | `python-ci` は論理名。downstream では caller 側 job 名を使ってよいが、本 repo では `test.yml` の `unit` job を concrete check として扱う。 |
 | `security-ci` | `.github/workflows/security.yml` | `Allowlist Guard`, `Semgrep`, `Bandit`, `Gitleaks`, `Dependency Audit & SBOM` | `security-ci` は論理名。branch protection では `security.yml` の複数 job を concrete checks として扱う。 |
+| `docs-gate` | `.github/workflows/markdown.yml` | job `docs-gate` | RG-002〜RG-005 の docs governance checker を集約。内部 steps は front matter, acceptance, birdseye, runbook slimming (RG-003), completion trace (RG-004), agent-tools-hub boundary (RG-005)。 |
+| `metrics-gate` | `.github/workflows/markdown.yml` | job `metrics-gate` | RG-001 metrics thresholds gate。独立 job として status 可視化。 |
+
+## Docs Gate 内部 checker 対応
+
+| Gate ID | Checker | Status | 備考 |
+| --- | --- | --- | --- |
+| RG-002 | `check_birdseye_freshness.py` | warning → fail | `--max-verified-age-days` で鮮度判定。 |
+| RG-003 | `check_runbook_slimming.py` | warning | 完了済み表肥大化を検出。 |
+| RG-004 | `check_completion_trace.py` | warning (default) | `--require-acceptance-for-done` で error 昇格可。 |
+| RG-005 | `check_agent_tools_hub_boundary.py` | warning | routing table 複製を検出。 |
 
 ## Branch Protection 検証
 

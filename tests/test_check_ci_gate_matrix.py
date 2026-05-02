@@ -18,7 +18,7 @@ def test_validate_ci_gate_matrix_pass(tmp_path: Path) -> None:
     (repo_root / "governance").mkdir(parents=True)
 
     (repo_root / "governance" / "policy.yaml").write_text(
-        "ci:\n  required_jobs:\n    - governance-gate\n    - python-ci\n    - security-ci\n",
+        "ci:\n  required_jobs:\n    - governance-gate\n    - python-ci\n    - security-ci\n    - docs-gate\n",
         encoding="utf-8",
     )
     (repo_root / ".github" / "workflows" / "governance-gate.yml").write_text(
@@ -33,6 +33,10 @@ def test_validate_ci_gate_matrix_pass(tmp_path: Path) -> None:
         "jobs:\n  allowlist_guard:\n    name: Allowlist Guard\n  semgrep:\n    name: Semgrep\n  bandit:\n    name: Bandit\n  gitleaks:\n    name: Gitleaks\n  dep_audit:\n    name: Dependency Audit & SBOM\n",
         encoding="utf-8",
     )
+    (repo_root / ".github" / "workflows" / "markdown.yml").write_text(
+        "jobs:\n  docs-gate:\n    runs-on: ubuntu-latest\n",
+        encoding="utf-8",
+    )
     (repo_root / "docs" / "ci-config.md").write_text(
         "\n".join(
             [
@@ -41,6 +45,7 @@ def test_validate_ci_gate_matrix_pass(tmp_path: Path) -> None:
                 "| `governance-gate` | `.github/workflows/governance-gate.yml` | job `governance` | ok |",
                 "| `python-ci` | `.github/workflows/test.yml` | job `unit` | ok |",
                 "| `security-ci` | `.github/workflows/security.yml` | `Allowlist Guard`, `Semgrep`, `Bandit`, `Gitleaks`, `Dependency Audit & SBOM` | ok |",
+                "| `docs-gate` | `.github/workflows/markdown.yml` | job `docs-gate` | ok |",
             ]
         ),
         encoding="utf-8",

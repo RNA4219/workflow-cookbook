@@ -21,6 +21,7 @@ ci:
     - governance-gate
     - security-ci
     - python-ci
+    - docs-gate
 
 slo:
   lead_time_p95_hours: 24

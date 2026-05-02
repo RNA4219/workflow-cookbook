@@ -23,6 +23,7 @@ LOGICAL_TO_WORKFLOW = {
     "governance-gate": ".github/workflows/governance-gate.yml",
     "python-ci": ".github/workflows/test.yml",
     "security-ci": ".github/workflows/security.yml",
+    "docs-gate": ".github/workflows/markdown.yml",
 }
 
 
@@ -30,6 +31,7 @@ LOGICAL_TO_EXPECTED_CHECKS = {
     "governance-gate": ("governance",),
     "python-ci": ("unit",),
     "security-ci": ("Allowlist Guard", "Semgrep", "Bandit", "Gitleaks", "Dependency Audit & SBOM"),
+    "docs-gate": ("docs-gate",),
 }
 
 

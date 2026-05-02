@@ -42,3 +42,9 @@ next_review_due: 2026-05-17
 - [RUNBOOK](../../RUNBOOK.md)
 - [Release Checklist](../Release_Checklist.md)
 - [Enterprise Readiness Assessment](../reports/enterprise-readiness-assessment-20260417.md)
+
+## 例外理由
+
+Acceptance record 不要: Operational Readiness Backlog の項目。
+実施タイミングは次回 release または rehearsal 実施時。
+完了時は `docs/releases/RA-*.md` と `CHECKLISTS.md` を更新する。

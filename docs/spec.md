@@ -55,6 +55,36 @@ Workflow Cookbook は、QA / Governance-first の運用ドキュメント、Bird
   `docs/CONTRACTS.md` は互いに矛盾してはならない。
 - 仕様変更時は `CHANGELOG.md` の `[Unreleased]` に差分を記録する。
 
+#### 4.1.1 RUNBOOK slimming
+
+- `RUNBOOK.md` は次の情報を保持する。
+  - 実行手順
+  - 現在の運用判断
+  - 未解決事項
+  - 参照リンク
+  - incident / rollback / release などの実行時手順
+- `RUNBOOK.md` は次の情報を原則として保持しない。
+  - 完了済みタスクの長い一覧
+  - 検収結果の詳細表
+  - リリース履歴の詳細
+  - `docs/tasks/*.md` や `docs/acceptance/*.md` と同じ内容の複製
+- RUNBOOK に完了済み項目を書く場合は、現在の運用判断に必要な短い参照に限定する。
+- 完了済み詳細を記録する場合は `docs/completion-record.md` へ索引として記載し、
+  詳細は task / acceptance / release / changelog の正本へリンクする。
+
+#### 4.1.2 RUNBOOK slimming check
+
+将来の機械チェックは、少なくとも次の条件を検出対象にする。
+
+| check | 条件 | 期待動作 |
+|---|---|---|
+| Completed table growth | RUNBOOK に完了済み項目の表が一定行数以上追加される | warning |
+| Missing canonical link | RUNBOOK の完了済み記述に task / acceptance / completion record へのリンクがない | warning |
+| Duplicate completion detail | RUNBOOK と completion record / acceptance に同じ詳細表が重複する | warning |
+| Current-ops exception | 現在の運用判断に必要な短い完了参照である | pass |
+
+この check は実装必須ではなく、本仕様時点では仕様定義に留める。
+
 ### 4.2 Birdseye / Codemap
 
 #### 4.2.1 `docs/birdseye/index.json`
@@ -471,6 +501,66 @@ Workflow Cookbook は、QA / Governance-first の運用ドキュメント、Bird
   - `governance/predictor.yaml`
 - これらが未提供でも Cookbook 側は正常動作しなければならない。
 
+### 4.10 Task / Acceptance / Completion trace
+
+#### 4.10.1 正本の役割
+
+| artifact | 正本として扱う内容 |
+|---|---|
+| `docs/tasks/*.md` | 作業の背景、目的、要求、完了条件、レビュー観点 |
+| `docs/acceptance/*.md` | 実行コマンド、テスト結果、検収判定、参照資料 |
+| `docs/completion-record.md` | 完了事項の要約索引と正本リンク |
+| `CHANGELOG.md` | ユーザー向け変更履歴 |
+| `docs/releases/*.md` | リリース証跡、承認、rollback/rehearsal 記録 |
+
+#### 4.10.2 Trace rule
+
+- `status: done` の Task Seed は、原則として対応する acceptance record を参照する。
+- acceptance record が不要な小変更では、Task Seed または completion record に
+  例外理由を短く記載する。
+- completion record は task / acceptance / release / changelog のいずれかへリンクし、
+  単独の正本として完了を主張しない。
+- completion record の 1 項目は次の最小情報を持つ。
+  - 日付
+  - 完了テーマ
+  - 状態
+  - 正本リンク
+  - 判定 (`go` / `hold` / `follow-up required`)
+
+#### 4.10.3 Future sync check
+
+将来の同期チェックは、少なくとも次を検出対象にする。
+
+| check | 条件 | 期待動作 |
+|---|---|---|
+| Done task without acceptance | `docs/tasks/*.md` が `status: done` だが acceptance または例外理由がない | fail or warning |
+| Completion without source | completion record の項目に正本リンクがない | fail |
+| Acceptance orphan | acceptance record が task / release / completion のどれからも参照されない | warning |
+| Changelog drift | release/changelog にある完了事項が completion record から辿れない | warning |
+
+この check は既存の `check_task_acceptance_sync.py` の拡張候補とし、
+本仕様時点では実装しない。
+
+### 4.11 Agent-tools-hub boundary
+
+`agent-tools-hub` と `workflow-cookbook` の責務境界は次のとおり。
+
+| 判断対象 | 正本 | 内容 |
+|---|---|---|
+| Agent_tools 全体の repo 選定 | `agent-tools-hub` | どの repo / Skill を使うべきかの横断案内 |
+| 複数 repo の初動整理 | `agent-tools-hub` | repo map、入口、既存 Skill へのルーティング |
+| Workflow Cookbook 内の作業分割 | `workflow-cookbook/HUB.codex.md` | cookbook 内の docs / Birdseye / Task Seed への分解 |
+| Birdseye / Task Seed / Acceptance / CI / Evidence の手順 | `workflow-cookbook` | 実行手順、契約、検収、証跡 |
+| 他 repo との接続 | `workflow-cookbook` | plugin config、Evidence、Acceptance、Task state などの連携契約 |
+
+境界ルール:
+
+- `workflow-cookbook/HUB.codex.md` は Agent_tools 全体の routing table を複製しない。
+- `workflow-cookbook` から他 repo を説明する場合、連携契約と実行手順に限定する。
+- repo 選定や Skill 選定の説明が必要な場合は `agent-tools-hub` を参照する。
+- `workflow-cookbook` の改善案は、Birdseye、Task Seed、Acceptance、CI、Evidence、
+  release/security operations、self-improvement loop の品質向上に限定する。
+
 ## 5. 互換性と変更管理
 
 - ドキュメント、Birdseye 生成物、参照実装、CI テンプレートは相互に矛盾してはならない。
@@ -481,6 +571,15 @@ Workflow Cookbook は、QA / Governance-first の運用ドキュメント、Bird
 
 - 文書整合
   - `requirements` / `spec` / `design` / `CONTRACTS` が矛盾しないこと。
+- RUNBOOK slimming
+  - RUNBOOK に完了済み詳細が増える変更では、completion record への分離要否が確認されていること。
+  - completion record の各項目が正本リンクを持つこと。
+- Task / Acceptance / Completion trace
+  - `status: done` の task から acceptance または例外理由へ辿れること。
+  - completion record が単独の完了正本になっていないこと。
+- Agent-tools-hub boundary
+  - `workflow-cookbook/HUB.codex.md` が Agent_tools 全体の repo routing を複製していないこと。
+  - 横断 repo 選定が必要な文脈では `agent-tools-hub` を参照していること。
 - Birdseye 整合
   - `README.md`、`docs/BIRDSEYE.md`、`docs/birdseye/README.md`、
     `GUARDRAILS.md`、`RUNBOOK.md` の更新手順が一致すること。

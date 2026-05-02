@@ -71,6 +71,8 @@ next_review_due: 2025-11-14
   備考: `plan` 出力にノードID/役割を埋め込む基準面。
 - **Task Seeds** (`TASK.*-MM-DD-YYYY`): 既存タスクドラフト。優先順: 高。
   備考: 未着手タスクの候補。
+- **Evidence** (`agent-protocols` 連携): LLM 行動追跡と証跡記録。優先順: 中。
+  備考: `RUNBOOK.md#Observability` と `docs/CONTRACTS.md` を参照。
 
 補完資料一覧:
 

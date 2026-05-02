@@ -40,3 +40,9 @@ next_review_due: 2026-05-17
 - [RUNBOOK](../../RUNBOOK.md)
 - [Enterprise Readiness Checklist](../security/Enterprise_Readiness_Checklist.md)
 - [Enterprise Readiness Assessment](../reports/enterprise-readiness-assessment-20260417.md)
+
+## 例外理由
+
+Acceptance record 不要: Operational Readiness Backlog の項目。
+実施タイミングは依存更新方針見直し時または quarterly review。
+完了時は `docs/security/Dependency_Governance.md` と `CHECKLISTS.md` を更新する。

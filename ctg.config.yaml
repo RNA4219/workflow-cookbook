@@ -1,0 +1,40 @@
+# code-to-gate configuration for workflow-cookbook
+# Excludes third-party libraries and generated files
+
+version: ctg/v1
+
+languages:
+  - py
+
+exclude:
+  # Third-party libraries
+  - .venv/**/*
+  - node_modules/**/*
+  - venv/**/*
+  - __pycache__/**/*
+  - .browser-use-env/**/*
+
+  # Generated files
+  - "*.pyc"
+  - "*.pyo"
+  - "*.generated.*"
+
+  # Test fixtures (not production code)
+  - fixtures/**/*
+  - examples/**/*
+
+  # Documentation (not code)
+  - docs/**/*
+  - "*.md"
+
+# Large module thresholds - adjusted for existing codebase
+thresholds:
+  large_module:
+    line_count: 500
+    function_count: 20
+    # Allow existing large modules with follow-up plan
+    acknowledge_existing: true
+
+output:
+  default_out: .qh
+  suppressions: .ctg/suppressions.yaml

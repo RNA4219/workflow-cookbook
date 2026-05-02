@@ -72,6 +72,22 @@ next_review_due: 2026-05-09
     `--require-acceptance-for-done` を付ける。
   - `python tools/ci/generate_acceptance_index.py --plugin-config examples/workflow_plugins.cross_repo.sample.json`
     で `docs/acceptance/INDEX.md` を再生成できることを確認する。
+  - RUNBOOK slimming 確認
+    - `python tools/ci/check_runbook_slimming.py --check` を実行し、
+      RUNBOOK に完了済み詳細表が蓄積されていないことを確認する。
+    - 完了済み詳細は `docs/completion-record.md` に分離する。
+    - JSON output: `python tools/ci/check_runbook_slimming.py --check --json`。
+  - Completion trace 確認
+    - `python tools/ci/check_completion_trace.py --check` を実行し、
+      Task/Acceptance/Completion のトレースが正本へ辿れることを確認する。
+    - `status: done` の task に acceptance または例外理由があることを検証する。
+    - completion record の項目が task/acceptance/release/changelog へリンクしていることを検証する。
+    - JSON output: `python tools/ci/check_completion_trace.py --check --json`。
+  - Agent-tools-hub 境界確認
+    - `python tools/ci/check_agent_tools_hub_boundary.py --check` を実行し、
+      `HUB.codex.md` が Agent_tools 全体の routing table を複製していないことを確認する。
+    - 横断 repo 選定が必要な場合は `agent-tools-hub` を参照する。
+    - JSON output: `python tools/ci/check_agent_tools_hub_boundary.py --check --json`。
 - docs resolve / stale 確認
   - `python tools/context/workflow_docs.py --plugin-config`
     `examples/workflow_plugins.cross_repo.sample.json resolve --task-id <task_id>`
