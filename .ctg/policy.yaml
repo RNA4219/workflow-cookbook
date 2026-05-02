@@ -32,3 +32,7 @@ readiness:
   criticalFindingStatus: needs_review
   requireLlm: false
   allowSuppressed: true
+
+suppression:
+  file: .ctg/suppressions.yaml
+  expiryWarningDays: 30
