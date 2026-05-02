@@ -1,0 +1,120 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://workflow-cookbook.dev/schemas/skill-draft-record.schema.json",
+  "$comment": "更新手順: (1) docs/spec.md 4.6.3 SkillDraftRecord のフィールド定義と同期 (2) docs/addenda/O_Adaptive_Improvement_Loop.md 4.4 Skill Evolution と整合確認 (3) review_state は approved 以外を公開skillとして扱わない。",
+  "title": "SkillDraftRecord",
+  "description": "複雑なtask完了後に生成されるskill改善候補のdraft記録。",
+  "type": "object",
+  "required": [
+    "draft_id",
+    "source_session_id",
+    "title",
+    "problem",
+    "proposed_steps",
+    "review_state"
+  ],
+  "additionalProperties": true,
+  "properties": {
+    "draft_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "draft識別子"
+    },
+    "source_session_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "生成元セッションID"
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1,
+      "description": "skillタイトル"
+    },
+    "problem": {
+      "type": "string",
+      "minLength": 1,
+      "description": "解決対象問題の記述"
+    },
+    "proposed_steps": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["step"],
+        "properties": {
+          "step": {
+            "type": "string",
+            "description": "手順の説明"
+          },
+          "order": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "実行順序"
+          },
+          "optional": {
+            "type": "boolean",
+            "default": false,
+            "description": "任意手順か"
+          },
+          "rationale": {
+            "type": "string",
+            "description": "手順の理由"
+          }
+        }
+      },
+      "minItems": 1,
+      "description": "提案される手順"
+    },
+    "review_state": {
+      "type": "string",
+      "enum": ["draft", "review", "approved", "rejected"],
+      "default": "draft",
+      "description": "review状態。approved以外は公開skillとして扱わない"
+    },
+    "linked_acceptance_ids": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "関連acceptance ID"
+    },
+    "linked_evidence_ids": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "関連evidence ID"
+    },
+    "linked_task_id": {
+      "type": "string",
+      "description": "関連task ID"
+    },
+    "author": {
+      "type": "string",
+      "description": "作成者"
+    },
+    "reviewer": {
+      "type": "string",
+      "description": "review担当者"
+    },
+    "reviewed_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "review日時"
+    },
+    "review_notes": {
+      "type": "string",
+      "description": "reviewコメント"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "作成日時"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "更新日時"
+    },
+    "schema_version": {
+      "type": "string",
+      "default": "1.0.0",
+      "description": "schemaバージョン"
+    }
+  }
+}

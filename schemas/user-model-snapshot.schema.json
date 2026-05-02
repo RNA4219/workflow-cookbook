@@ -1,0 +1,185 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://workflow-cookbook.dev/schemas/user-model-snapshot.schema.json",
+  "$comment": "更新手順: (1) docs/spec.md 4.6.5 UserModelSnapshot のフィールド定義と同期 (2) docs/addenda/O_Adaptive_Improvement_Loop.md 4.6 User/Workspace Model と整合確認 (3) 長期保持されるsnapshotはreview済みであること。",
+  "title": "UserModelSnapshot",
+  "description": "ユーザーごとの好み、承認閾値、レビュー傾向、出力形式嗜好を保持。",
+  "type": "object",
+  "required": [
+    "user_id",
+    "preferences",
+    "approval_style",
+    "output_conventions",
+    "reviewed_at"
+  ],
+  "additionalProperties": true,
+  "properties": {
+    "user_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "ユーザー識別子"
+    },
+    "preferences": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "language": {
+          "type": "string",
+          "description": " preferred language (ja, en, etc.)"
+        },
+        "detail_level": {
+          "type": "string",
+          "enum": ["concise", "moderate", "detailed"],
+          "default": "moderate",
+          "description": "出力詳細度嗜好"
+        },
+        "auto_approve_threshold": {
+          "type": "string",
+          "enum": ["low", "medium", "high", "none"],
+          "default": "none",
+          "description": "自動承認閾値嗜好"
+        },
+        "notification_frequency": {
+          "type": "string",
+          "enum": ["realtime", " hourly", "daily", "weekly"],
+          "default": "daily",
+          "description": "通知頻度嗜好"
+        },
+        "timezone": {
+          "type": "string",
+          "description": "ユーザーtimezone"
+        }
+      },
+      "description": "ユーザー嗜好設定"
+    },
+    "approval_style": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "review_depth": {
+          "type": "string",
+          "enum": ["quick", "standard", "thorough"],
+          "default": "standard",
+          "description": "review深さ嗜好"
+        },
+        "require_explanation": {
+          "type": "boolean",
+          "default": true,
+          "description": "変更説明必須か"
+        },
+        "require_tests": {
+          "type": "boolean",
+          "default": true,
+          "description": "テスト必須か"
+        },
+        "require_docs": {
+          "type": "boolean",
+          "default": false,
+          "description": "docs更新必須か"
+        },
+        "batch_approve": {
+          "type": "boolean",
+          "default": false,
+          "description": "バッチ承認許容か"
+        }
+      },
+      "description": "承認スタイル"
+    },
+    "output_conventions": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "format": {
+          "type": "string",
+          "enum": ["markdown", "json", "yaml", "text"],
+          "default": "markdown",
+          "description": " preferred output format"
+        },
+        "line_length_limit": {
+          "type": "integer",
+          "minimum": 80,
+          "maximum": 200,
+          "default": 120,
+          "description": "行長制限"
+        },
+        "indent_style": {
+          "type": "string",
+          "enum": ["spaces", "tabs"],
+          "default": "spaces",
+          "description": "indentスタイル"
+        },
+        "emoji_usage": {
+          "type": "string",
+          "enum": ["none", "minimal", "moderate", "freely"],
+          "default": "minimal",
+          "description": "emoji使用程度"
+        },
+        "summary_style": {
+          "type": "string",
+          "enum": ["bullet", "paragraph", "table"],
+          "default": "bullet",
+          "description": "要約形式嗜好"
+        }
+      },
+      "description": "出力形式規約"
+    },
+    "review_history": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "total_reviews": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "review総数"
+        },
+        "approval_rate": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "承認率"
+        },
+        "common_feedback": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "頻出feedbackパターン"
+        }
+      },
+      "description": "review履歴統計"
+    },
+    "reviewed_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "review日時（長期保持にはreview必須）"
+    },
+    "reviewer": {
+      "type": "string",
+      "description": "review担当者"
+    },
+    "review_state": {
+      "type": "string",
+      "enum": ["pending", "approved", "rejected"],
+      "default": "pending",
+      "description": "review状態"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "作成日時"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "更新日時"
+    },
+    "expires_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "有効期限（短期保持の場合）"
+    },
+    "schema_version": {
+      "type": "string",
+      "default": "1.0.0",
+      "description": "schemaバージョン"
+    }
+  }
+}

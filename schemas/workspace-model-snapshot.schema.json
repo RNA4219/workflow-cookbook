@@ -1,0 +1,189 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://workflow-cookbook.dev/schemas/workspace-model-snapshot.schema.json",
+  "$comment": "更新手順: (1) docs/spec.md 4.6.5 WorkspaceModelSnapshot のフィールド定義と同期 (2) docs/addenda/O_Adaptive_Improvement_Loop.md 4.6 User/Workspace Model と整合確認 (3) 長期保持されるsnapshotはreview済みであること。",
+  "title": "WorkspaceModelSnapshot",
+  "description": "workspaceごとの制約、repo注意点、頻出runbookを保持。",
+  "type": "object",
+  "required": [
+    "workspace_id",
+    "constraints",
+    "preferred_docs",
+    "reviewed_at"
+  ],
+  "additionalProperties": true,
+  "properties": {
+    "workspace_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "workspace識別子"
+    },
+    "constraints": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "allowed_tools": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "使用許可ツール"
+        },
+        "restricted_tools": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "使用制限ツール"
+        },
+        "allowed_paths": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "アクセス許可パス"
+        },
+        "restricted_paths": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "アクセス制限パス"
+        },
+        "max_file_size_mb": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "最大ファイルサイズ（MB）"
+        },
+        "require_branch_prefix": {
+          "type": "string",
+          "description": "必須branch prefix"
+        },
+        "require_pr_template": {
+          "type": "boolean",
+          "default": false,
+          "description": "PR template使用必須か"
+        },
+        "forbidden_file_patterns": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "禁止ファイルパターン"
+        },
+        "ci_phase": {
+          "type": "string",
+          "enum": ["phase0", "phase1", "phase2", "phase3"],
+          "default": "phase0",
+          "description": "CI段階設定"
+        }
+      },
+      "description": "workspace制約"
+    },
+    "preferred_docs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["doc_id", "priority"],
+        "properties": {
+          "doc_id": {
+            "type": "string",
+            "minLength": 1,
+            "description": "優先doc IDまたはパス"
+          },
+          "priority": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 10,
+            "description": "優先度（1=最高）"
+          },
+          "reason": {
+            "type": "string",
+            "description": "優先理由"
+          },
+          "category": {
+            "type": "string",
+            "enum": ["runbook", "spec", "requirements", "design", "contract", "other"],
+            "description": "docカテゴリ"
+          }
+        }
+      },
+      "description": "優先参照docs"
+    },
+    "repo_notes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["repo", "note"],
+        "properties": {
+          "repo": {
+            "type": "string",
+            "minLength": 1,
+            "description": "repo識別子"
+          },
+          "note": {
+            "type": "string",
+            "minLength": 1,
+            "description": "注意点"
+          },
+          "category": {
+            "type": "string",
+            "enum": ["convention", "dependency", "testing", "deployment", "security", "other"],
+            "description": "注意点カテゴリ"
+          }
+        }
+      },
+      "description": "repo固有注意点"
+    },
+    "common_runbooks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["runbook_id"],
+        "properties": {
+          "runbook_id": {
+            "type": "string",
+            "minLength": 1,
+            "description": "頻出runbook ID"
+          },
+          "usage_frequency": {
+            "type": "string",
+            "enum": ["daily", "weekly", "monthly", "occasional"],
+            "description": "使用頻度"
+          },
+          "last_used_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "最終使用日時"
+          }
+        }
+      },
+      "description": "頻出runbook"
+    },
+    "reviewed_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "review日時（長期保持にはreview必須）"
+    },
+    "reviewer": {
+      "type": "string",
+      "description": "review担当者"
+    },
+    "review_state": {
+      "type": "string",
+      "enum": ["pending", "approved", "rejected"],
+      "default": "pending",
+      "description": "review状態"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "作成日時"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "更新日時"
+    },
+    "expires_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "有効期限（短期保持の場合）"
+    },
+    "schema_version": {
+      "type": "string",
+      "default": "1.0.0",
+      "description": "schemaバージョン"
+    }
+  }
+}

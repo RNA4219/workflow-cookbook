@@ -1,0 +1,115 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://workflow-cookbook.dev/schemas/recall-response.schema.json",
+  "$comment": "更新手順: (1) docs/spec.md 4.6.4 RecallResponse のフィールド定義と同期 (2) docs/addenda/O_Adaptive_Improvement_Loop.md 4.5 Cross-Session Recall と整合確認 (3) recall は raw transcript 全展開ではなく要約と出典リンクを返す。",
+  "title": "RecallResponse",
+  "description": "過去セッションから関連reflection/acceptance/evidence/docsを検索し要約して返す。",
+  "type": "object",
+  "required": [
+    "query",
+    "summary",
+    "hits",
+    "stale"
+  ],
+  "additionalProperties": true,
+  "properties": {
+    "query": {
+      "type": "string",
+      "minLength": 1,
+      "description": "検索クエリ"
+    },
+    "summary": {
+      "type": "string",
+      "minLength": 1,
+      "description": "検索結果の要約"
+    },
+    "hits": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["source_type", "source_id", "excerpt", "reason"],
+        "properties": {
+          "source_type": {
+            "type": "string",
+            "enum": ["reflection", "acceptance", "evidence", "docs", "task", "release"],
+            "description": "参照タイプ"
+          },
+          "source_id": {
+            "type": "string",
+            "minLength": 1,
+            "description": "参照ID"
+          },
+          "excerpt": {
+            "type": "string",
+            "minLength": 1,
+            "description": "関連断片の抜粋"
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1,
+            "description": "ヒット理由"
+          },
+          "relevance_score": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1,
+            "description": "関連度スコア"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "source作成日時"
+          }
+        }
+      },
+      "description": "検索ヒット項目"
+    },
+    "stale": {
+      "type": "object",
+      "required": ["classification"],
+      "properties": {
+        "classification": {
+          "type": "string",
+          "enum": ["fresh", "stale", "unknown"],
+          "default": "fresh",
+          "description": "結果鮮度分類"
+        },
+        "evaluated_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "鮮度評価日時"
+        },
+        "stale_threshold_days": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "stale判定の閾値日数"
+        }
+      },
+      "description": "検索結果鮮度判定"
+    },
+    "total_hits": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "ヒット総数（hits配列は一部の場合あり）"
+    },
+    "search_backend": {
+      "type": "string",
+      "description": "使用したsearch backend識別子"
+    },
+    "search_duration_ms": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "検索所要時間（ms）"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "応答作成日時"
+    },
+    "schema_version": {
+      "type": "string",
+      "default": "1.0.0",
+      "description": "schemaバージョン"
+    }
+  }
+}

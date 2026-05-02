@@ -1,0 +1,74 @@
+{
+  "$schema": "./schemas/reflection-summary.schema.json",
+  "session_id": "SESSION-20260502-001",
+  "task_id": "TASK-self-improvement-schemas",
+  "objective": "自己改善ループのschema定義を実装",
+  "changes": [
+    {
+      "summary": "ReflectionSummary schema追加",
+      "files": ["schemas/reflection-summary.schema.json"],
+      "commit": "abc1234"
+    },
+    {
+      "summary": "SkillDraftRecord schema追加",
+      "files": ["schemas/skill-draft-record.schema.json"]
+    },
+    {
+      "summary": "RecallResponse schema追加",
+      "files": ["schemas/recall-response.schema.json"]
+    },
+    {
+      "summary": "UserModelSnapshot schema追加",
+      "files": ["schemas/user-model-snapshot.schema.json"]
+    },
+    {
+      "summary": "WorkspaceModelSnapshot schema追加",
+      "files": ["schemas/workspace-model-snapshot.schema.json"]
+    },
+    {
+      "summary": "PeriodicNudge schema追加",
+      "files": ["schemas/periodic-nudge.schema.json"]
+    }
+  ],
+  "lessons": [
+    {
+      "observation": "spec.mdのフィールド定義をschemaに変換する際、additionalProperties: trueで拡張性を保持",
+      "category": "technical",
+      "actionable": true
+    },
+    {
+      "observation": "review_state enumはdraft/review/approved/rejectedの4状態",
+      "category": "process"
+    }
+  ],
+  "open_questions": [
+    {
+      "question": "nudge生成CLIを実装するか、CI checkerとして実装するか",
+      "priority": "medium",
+      "blocking": false
+    }
+  ],
+  "next_actions": [
+    {
+      "action": "schema validationテストを追加",
+      "owner": "docs-core",
+      "due": "2026-05-05"
+    },
+    {
+      "action": "CHANGELOG.mdとcompletion-record.mdを更新",
+      "owner": "docs-core"
+    }
+  ],
+  "sources": [
+    {
+      "type": "docs",
+      "ref": "docs/spec.md"
+    },
+    {
+      "type": "docs",
+      "ref": "docs/addenda/O_Adaptive_Improvement_Loop.md"
+    }
+  ],
+  "created_at": "2026-05-02T12:00:00Z",
+  "schema_version": "1.0.0"
+}

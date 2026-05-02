@@ -1,0 +1,164 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://workflow-cookbook.dev/schemas/reflection-summary.schema.json",
+  "$comment": "更新手順: (1) docs/spec.md 4.6.2 ReflectionSummary のフィールド定義と同期 (2) docs/addenda/O_Adaptive_Improvement_Loop.md 4.1 Session Reflection と整合確認 (3) 下流repoがこのschemaを参照してDTO実装可能にする。",
+  "title": "ReflectionSummary",
+  "description": "セッション終了時に抽出する作業要約。repo非依存のDTOとして下流ソフトウェアで利用。",
+  "type": "object",
+  "required": [
+    "session_id",
+    "objective",
+    "changes",
+    "lessons",
+    "open_questions",
+    "next_actions",
+    "sources"
+  ],
+  "additionalProperties": true,
+  "properties": {
+    "session_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "セッション識別子"
+    },
+    "task_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "関連タスクID（intent_id との排他）"
+    },
+    "intent_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "関連intent ID（task_id との排他）"
+    },
+    "objective": {
+      "type": "string",
+      "minLength": 1,
+      "description": "セッションの目的"
+    },
+    "changes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["summary"],
+        "properties": {
+          "summary": {
+            "type": "string",
+            "description": "変更の概要"
+          },
+          "files": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "変更対象ファイル"
+          },
+          "commit": {
+            "type": "string",
+            "description": "関連commit hash"
+          }
+        }
+      },
+      "description": "実施した変更"
+    },
+    "lessons": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["observation"],
+        "properties": {
+          "observation": {
+            "type": "string",
+            "description": "学んだこと"
+          },
+          "category": {
+            "type": "string",
+            "enum": ["technical", "process", "tooling", "communication", "other"],
+            "description": "学びのカテゴリ"
+          },
+          "actionable": {
+            "type": "boolean",
+            "description": "アクション可能か"
+          }
+        }
+      },
+      "description": "セッションで得た学び"
+    },
+    "open_questions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["question"],
+        "properties": {
+          "question": {
+            "type": "string",
+            "description": "未解決の問い"
+          },
+          "priority": {
+            "type": "string",
+            "enum": ["high", "medium", "low"],
+            "default": "medium",
+            "description": "優先度"
+          },
+          "blocking": {
+            "type": "boolean",
+            "default": false,
+            "description": "ブロッキング要因か"
+          }
+        }
+      },
+      "description": "未解決事項"
+    },
+    "next_actions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["action"],
+        "properties": {
+          "action": {
+            "type": "string",
+            "description": "次回の推奨アクション"
+          },
+          "owner": {
+            "type": "string",
+            "description": "担当者"
+          },
+          "due": {
+            "type": "string",
+            "format": "date",
+            "description": "期限"
+          }
+        }
+      },
+      "description": "次回セッションへの推奨アクション"
+    },
+    "sources": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["type", "ref"],
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": ["acceptance", "evidence", "docs", "task", "release"],
+            "description": "参照タイプ"
+          },
+          "ref": {
+            "type": "string",
+            "minLength": 1,
+            "description": "参照IDまたはパス"
+          }
+        }
+      },
+      "description": "acceptance / evidence / docs reference のいずれか"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "作成日時"
+    },
+    "schema_version": {
+      "type": "string",
+      "default": "1.0.0",
+      "description": "schemaバージョン"
+    }
+  }
+}

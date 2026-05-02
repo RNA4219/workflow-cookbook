@@ -24,6 +24,16 @@ next_review_due: 2025-11-14
 - `governance/policy.yaml`: `docs-gate` を required_jobs に追加
 - `docs/ci-config.md`: docs-gate, metrics-gate, RG-002〜RG-05 対応表追加
 - `tools/ci/check_ci_gate_matrix.py`: docs-gate mapping 追加
+- 自己改善ループ schema 定義追加 (spec.md 4.6.2-4.6.6 対応):
+  - `schemas/reflection-summary.schema.json`: ReflectionSummary DTO
+  - `schemas/skill-draft-record.schema.json`: SkillDraftRecord DTO
+  - `schemas/recall-response.schema.json`: RecallResponse DTO
+  - `schemas/user-model-snapshot.schema.json`: UserModelSnapshot DTO
+  - `schemas/workspace-model-snapshot.schema.json`: WorkspaceModelSnapshot DTO
+  - `schemas/periodic-nudge.schema.json`: PeriodicNudge DTO
+- `examples/reflection-summary.sample.json`: ReflectionSummary sample config
+- `examples/skill-draft-record.sample.json`: SkillDraftRecord sample config
+- `tests/test_self_improvement_schemas.py`: schema validation test 追加
 
 ### Changed
 

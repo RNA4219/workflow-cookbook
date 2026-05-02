@@ -1,0 +1,103 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://workflow-cookbook.dev/schemas/periodic-nudge.schema.json",
+  "$comment": "更新手順: (1) docs/spec.md 4.6.6 Periodic Nudges のフィールド定義と同期 (2) docs/addenda/O_Adaptive_Improvement_Loop.md 4.3 Periodic Nudges と整合確認 (3) nudge は自動実行ではなく次回セッションへの提案として扱う。",
+  "title": "PeriodicNudge",
+  "description": "長期間未整理のreflectionやstaleなdocs/acceptance/release evidenceを見直すための提案。自動実行ではなく次回セッションで参照できる提案。",
+  "type": "object",
+  "required": [
+    "nudge_id",
+    "reason",
+    "target_kind",
+    "target_ref",
+    "suggested_action",
+    "created_at"
+  ],
+  "additionalProperties": true,
+  "properties": {
+    "nudge_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "nudge識別子"
+    },
+    "reason": {
+      "type": "string",
+      "minLength": 1,
+      "description": "nudge生成理由"
+    },
+    "target_kind": {
+      "type": "string",
+      "enum": ["reflection", "docs", "acceptance", "release", "evidence", "task", "skill_draft"],
+      "description": "対象種別"
+    },
+    "target_ref": {
+      "type": "string",
+      "minLength": 1,
+      "description": "対象IDまたはパス"
+    },
+    "suggested_action": {
+      "type": "string",
+      "minLength": 1,
+      "description": "推奨アクション"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "作成日時"
+    },
+    "priority": {
+      "type": "string",
+      "enum": ["low", "medium", "high"],
+      "default": "medium",
+      "description": "nudge優先度"
+    },
+    "stale_days": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "対象がstaleになっている日数"
+    },
+    "threshold_days": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "nudge生成の閾値日数"
+    },
+    "category": {
+      "type": "string",
+      "enum": ["review_due", "stale_content", "unfinished_task", "orphan_record", "security_check", "other"],
+      "description": "nudgeカテゴリ"
+    },
+    "blocking": {
+      "type": "boolean",
+      "default": false,
+      "description": "ブロッキングnudgeか（リリース前未完了作業には割り込まない）"
+    },
+    "acknowledged_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "確認日時"
+    },
+    "acknowledged_by": {
+      "type": "string",
+      "description": "確認者"
+    },
+    "resolved_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "解決日時"
+    },
+    "resolution_action": {
+      "type": "string",
+      "description": "解決アクション"
+    },
+    "expires_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "nudge有効期限"
+    },
+    "schema_version": {
+      "type": "string",
+      "default": "1.0.0",
+      "description": "schemaバージョン"
+    }
+  }
+}
