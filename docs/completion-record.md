@@ -72,3 +72,13 @@ RUNBOOK は日常運用と現在の判断に集中させ、完了済みの長い
 
 判定: go
 補足: 运用開始期間終了、90日しきい値移行完了。最終目標は30日。
+
+## 2026-05-03 Task Seed完了propagation checker実装
+
+| 項目 | 状態 | 正本 |
+|---|---|---|
+| propagation checker | 完了 | `tools/ci/check_task_completion_propagation.py` |
+| propagation checker test | 完了 | `tests/test_check_task_completion_propagation.py` |
+
+判定: go
+補足: SKILL-DRAFT-002手順1実装。13 tests passed。done Task Seedのcompletion-record未反映をnudge検出。

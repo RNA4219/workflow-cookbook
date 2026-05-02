@@ -45,6 +45,9 @@ next_review_due: 2025-11-14
 - 自己改善ループ nudge checker 実装:
   - `tools/ci/check_stale_self_improvement.py`: stale reflection/skill draft検出
   - `tests/test_check_stale_self_improvement.py`: nudge checker test (12 tests)
+- Task Seed完了propagation checker実装 (SKILL-DRAFT-002):
+  - `tools/ci/check_task_completion_propagation.py`: done Task Seedのcompletion-record未反映検出
+  - `tests/test_check_task_completion_propagation.py`: propagation checker test (13 tests)
 - 自己改善ループ nudge checker 実装:
   - `tools/ci/check_stale_self_improvement.py`: stale reflection/skill_draft検出
   - `tests/test_check_stale_self_improvement.py`: nudge checker test (12 tests)
