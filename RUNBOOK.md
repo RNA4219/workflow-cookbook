@@ -27,6 +27,14 @@ next_review_due: 2026-05-09
     `docs/acceptance/AC-YYYYMMDD-xx.md` を作成する。
   - 実行コマンド、テスト結果、参照ドキュメント、判定を記入する。
   - PR 本文の `Acceptance Record` から該当ファイルへリンクする。
+- 完了記録の分離
+  - 完了済みの長い表や詳細証跡は RUNBOOK に蓄積しない。
+  - 完了事項の索引は `docs/completion-record.md` に追記する。
+  - 作業単位の正本は `docs/tasks/*.md`、検収証跡は `docs/acceptance/*.md`、
+    リリース証跡は `CHANGELOG.md` / `docs/releases/*.md` に分ける。
+  - RUNBOOK には現在の運用判断、未解決事項、実行手順、参照リンクだけを残す。
+  - 大きな機能分割やドキュメント分割が完了した場合は、
+    「何をどこへ分けたか」を `docs/completion-record.md` に明示する。
 - テスト工程
   - 単体テストと結合テストを分けて `TASK.codex.md` と検収記録へ記載する。
   - Python 系は `pytest --cov=. --cov-report=term-missing --cov-fail-under=80`
