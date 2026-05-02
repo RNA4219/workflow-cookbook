@@ -13,6 +13,8 @@ next_review_due: 2025-11-14
 ### Added
 
 - RUNBOOK slimming、Task/Acceptance/Completion trace、agent-tools-hub 境界の要件・仕様を追加。
+- 先行改善案として、version consistency、stable CLI entrypoint、docs gate escalation、
+  plugin capability catalog、large module split policy を要件・仕様・Blueprint へ追加。
 - `tools/ci/check_runbook_slimming.py`: RUNBOOK 完了済み表肥大化検出 checker 追加
 - `tools/ci/check_completion_trace.py`: Task/Acceptance/Completion トレース検証 checker 追加
 - `tools/ci/check_agent_tools_hub_boundary.py`: agent-tools-hub 境界 checker 追加

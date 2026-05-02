@@ -74,7 +74,7 @@ Workflow Cookbook は、QA / Governance-first の運用ドキュメント、Bird
 
 #### 4.1.2 RUNBOOK slimming check
 
-将来の機械チェックは、少なくとも次の条件を検出対象にする。
+機械チェックは、少なくとも次の条件を検出対象にする。
 
 | check | 条件 | 期待動作 |
 |---|---|---|
@@ -83,7 +83,7 @@ Workflow Cookbook は、QA / Governance-first の運用ドキュメント、Bird
 | Duplicate completion detail | RUNBOOK と completion record / acceptance に同じ詳細表が重複する | warning |
 | Current-ops exception | 現在の運用判断に必要な短い完了参照である | pass |
 
-この check は実装必須ではなく、本仕様時点では仕様定義に留める。
+この check は `tools/ci/check_runbook_slimming.py` を実装入口とする。
 
 ### 4.2 Birdseye / Codemap
 
@@ -447,7 +447,7 @@ Workflow Cookbook は、QA / Governance-first の運用ドキュメント、Bird
 
 ### 4.7 Metrics 収集 CLI
 
-#### 4.6.1 入力ソース
+#### 4.7.1 入力ソース
 
 - 収集元は次のいずれか、または両方を受け付けること。
   - `--metrics-url`
@@ -457,18 +457,18 @@ Workflow Cookbook は、QA / Governance-first の運用ドキュメント、Bird
   `No metrics input configured: provide --metrics-url or --log-path`
   を用いること。
 
-#### 4.6.2 suite
+#### 4.7.2 suite
 
 - `--suite qa` を提供すること。
 - `qa` suite の既定出力先は `.ga/qa-metrics.json` とすること。
 
-#### 4.6.3 出力
+#### 4.7.3 出力
 
 - 結果は標準出力へ JSON として出力すること。
 - `output_path` がある場合はファイルにも書き出すこと。
 - `--pushgateway-url` 指定時は PushGateway へ PUT 送信できること。
 
-### 4.7 CI / Governance テンプレート
+### 4.8 CI / Governance テンプレート
 
 - `.github/workflows/reusable/*.yml` は `workflow_call` により派生リポジトリから再利用できること。
 - `governance/policy.yaml` は少なくとも次の責務を持つこと。
@@ -480,7 +480,7 @@ Workflow Cookbook は、QA / Governance-first の運用ドキュメント、Bird
 - Python CI は単体テスト・結合テストの実行と coverage 下限 80% の確認を
   標準で行えること。
 
-### 4.8 Security baseline
+### 4.9 Security baseline
 
 - `.github/dependabot.yml` は GitHub Actions 依存更新を週次で監視すること。
 - `.github/workflows/security.yml` は security posture 確認と reusable security CI を連結すること。
@@ -493,7 +493,7 @@ Workflow Cookbook は、QA / Governance-first の運用ドキュメント、Bird
   - push protection
 - security posture の検証 CLI は GitHub token がある場合に remote repository settings を確認できること。
 
-### 4.9 外部契約
+### 4.10 外部契約
 
 - `docs/CONTRACTS.md` の契約は feature detection で扱うこと。
 - 少なくとも次を optional な外部入力として扱えること。
@@ -501,9 +501,9 @@ Workflow Cookbook は、QA / Governance-first の運用ドキュメント、Bird
   - `governance/predictor.yaml`
 - これらが未提供でも Cookbook 側は正常動作しなければならない。
 
-### 4.10 Task / Acceptance / Completion trace
+### 4.11 Task / Acceptance / Completion trace
 
-#### 4.10.1 正本の役割
+#### 4.11.1 正本の役割
 
 | artifact | 正本として扱う内容 |
 |---|---|
@@ -513,7 +513,7 @@ Workflow Cookbook は、QA / Governance-first の運用ドキュメント、Bird
 | `CHANGELOG.md` | ユーザー向け変更履歴 |
 | `docs/releases/*.md` | リリース証跡、承認、rollback/rehearsal 記録 |
 
-#### 4.10.2 Trace rule
+#### 4.11.2 Trace rule
 
 - `status: done` の Task Seed は、原則として対応する acceptance record を参照する。
 - acceptance record が不要な小変更では、Task Seed または completion record に
@@ -527,9 +527,9 @@ Workflow Cookbook は、QA / Governance-first の運用ドキュメント、Bird
   - 正本リンク
   - 判定 (`go` / `hold` / `follow-up required`)
 
-#### 4.10.3 Future sync check
+#### 4.11.3 Sync check
 
-将来の同期チェックは、少なくとも次を検出対象にする。
+同期チェックは、少なくとも次を検出対象にする。
 
 | check | 条件 | 期待動作 |
 |---|---|---|
@@ -538,10 +538,9 @@ Workflow Cookbook は、QA / Governance-first の運用ドキュメント、Bird
 | Acceptance orphan | acceptance record が task / release / completion のどれからも参照されない | warning |
 | Changelog drift | release/changelog にある完了事項が completion record から辿れない | warning |
 
-この check は既存の `check_task_acceptance_sync.py` の拡張候補とし、
-本仕様時点では実装しない。
+この check は `tools/ci/check_completion_trace.py` を実装入口とする。
 
-### 4.11 Agent-tools-hub boundary
+### 4.12 Agent-tools-hub boundary
 
 `agent-tools-hub` と `workflow-cookbook` の責務境界は次のとおり。
 
@@ -561,11 +560,121 @@ Workflow Cookbook は、QA / Governance-first の運用ドキュメント、Bird
 - `workflow-cookbook` の改善案は、Birdseye、Task Seed、Acceptance、CI、Evidence、
   release/security operations、self-improvement loop の品質向上に限定する。
 
+### 4.13 Version consistency
+
+release 前の version 情報は、次の artifact 間で整合していること。
+
+| artifact | 期待値 |
+|---|---|
+| `README.md` badge | 最新 release または明示された current version |
+| `pyproject.toml` project.version | package として配布する version |
+| `CHANGELOG.md` | release version と日付 |
+| `docs/releases/v*.md` | release note の filename と title |
+| git tag | `vX.Y.Z` 形式の release tag |
+| GitHub Release | tag / changelog / release docs と対応する published release |
+
+整合ルール:
+
+- 同一 release に属する version は `v` prefix の有無を正規化して比較する。
+- `CHANGELOG.md` にある release version は、対応する `docs/releases/vX.Y.Z.md`
+  を持つこと。
+- release docs の title は filename の version と一致すること。
+- package 配布を行う release では `pyproject.toml` の version と release version が
+  一致すること。
+- package 配布を行わない docs-only release では、例外理由を release docs または
+  acceptance record に記録すること。
+
+将来の checker は `tools/ci/check_release_evidence.py` の責務を拡張するか、
+小さな `check_version_consistency.py` として実装する。
+
+### 4.14 Stable CLI entrypoints
+
+既存の script 入口は後方互換として維持する。
+
+| 既存入口 | 将来 entrypoint 例 | 責務 |
+|---|---|---|
+| `python tools/codemap/update.py` | `workflow-cookbook birdseye update` | Birdseye / Codemap 更新 |
+| `python tools/ci/check_ci_gate_matrix.py` | `workflow-cookbook gate ci-matrix` | logical gate と workflow/docs の整合確認 |
+| `python tools/ci/check_acceptance.py` | `workflow-cookbook acceptance check` | acceptance record validation |
+| `python tools/ci/generate_acceptance_index.py` | `workflow-cookbook acceptance index` | acceptance index 生成 |
+| `python tools/ci/check_release_evidence.py` | `workflow-cookbook release evidence` | release 証跡確認 |
+
+CLI 互換ルール:
+
+- package entrypoint は既存 script と同じ exit code 意味論を維持する。
+- 既存 script を削除せず、少なくとも 1 release cycle は wrapper として残す。
+- 新旧入口の smoke test を追加し、同一 fixture に対して同等の結果を返すことを確認する。
+- help text には対応する docs、主要入力、出力、strict mode の有無を含める。
+
+### 4.15 Docs gate escalation policy
+
+docs gate checker は次の段階を持てる。
+
+| stage | 意味 | CI 動作 |
+|---|---|---|
+| observe | 導入直後。結果を収集する | pass with notice |
+| warn | 既存例外を許容しつつ差分へ注意を出す | pass with warning |
+| enforce | 既定違反を merge blocker にする | fail |
+
+昇格条件:
+
+- checker ごとに owner、対象ファイル、既定 stage、次回見直し日を
+  `docs/ci-config.md` または `governance/policy.yaml` から追跡できること。
+- `warn` から `enforce` へ上げる前に、既存違反の棚卸しと例外理由を記録する。
+- false positive が発生した場合は、checker の修正または明示 suppression を優先し、
+  gate 全体を無効化しない。
+- rollback 条件は「誤検知で通常 docs 更新を阻害する」「既存 release 手順を壊す」
+  「downstream reusable workflow が互換性を失う」のいずれかとする。
+
+### 4.16 Plugin capability catalog
+
+workflow plugin capability catalog は、少なくとも次を保持する。
+
+| field | 内容 |
+|---|---|
+| `capability` | capability 名。例: `docs.resolve` |
+| `required_method` | plugin が提供すべき method 名 |
+| `input_contract` | 入力 DTO または mapping の最低フィールド |
+| `output_contract` | 出力 DTO または mapping の最低フィールド |
+| `error_policy` | timeout / retry / fail-open / fail-closed |
+| `trace_event` | runtime trace に残す event 名 |
+| `schema_ref` | 関連 schema または sample config |
+
+catalog 整合ルール:
+
+- `tools/workflow_plugins/interfaces.py`、`runtime.py`、config schema、
+  `tools/workflow_plugins/README.md`、`examples/workflow_plugins*.json` は
+  capability 名と required method で一致すること。
+- inference plugin についても `schemas/inference-plugin-config.schema.json`、
+  sample config、`StructuredLogger` の plugin loader が矛盾しないこと。
+- capability 追加時は、sample config と validation test を同時に更新する。
+- capability rename は破壊的変更として扱い、migration note と互換 alias の有無を明記する。
+
+### 4.17 Large module split policy
+
+large module は `TECH_DEBT_REGISTER.md` を正本として管理する。
+
+対象基準:
+
+- 500 行を超える Python module
+- 20 関数を超える Python module
+- CLI、I/O、集計、外部通信、出力が 1 ファイルに集中している module
+
+分割ルール:
+
+- まず `cli.py` と core logic を分け、既存 entrypoint は wrapper として維持する。
+- 互換維持のため、既存 import path から public function を re-export できること。
+- 分割前後で既存 unit test と CLI smoke test が同じ結果を返すこと。
+- 分割計画には対象 module、分割先、優先度、期限、関連テスト、抑制 expiry を含める。
+- suppression は永続化せず、期限切れ時に再評価する。
+
 ## 5. 互換性と変更管理
 
 - ドキュメント、Birdseye 生成物、参照実装、CI テンプレートは相互に矛盾してはならない。
 - 公開インターフェース変更時は、関連テストと関連文書を同時に更新すること。
 - 変更履歴は `CHANGELOG.md` の `[Unreleased]` に追記すること。
+- version、CLI entrypoint、plugin capability、large module split のいずれかを
+  変更する場合、互換性影響を `CHANGELOG.md` または該当 task / acceptance に記録すること。
 
 ## 6. 検証観点
 
@@ -580,6 +689,17 @@ Workflow Cookbook は、QA / Governance-first の運用ドキュメント、Bird
 - Agent-tools-hub boundary
   - `workflow-cookbook/HUB.codex.md` が Agent_tools 全体の repo routing を複製していないこと。
   - 横断 repo 選定が必要な文脈では `agent-tools-hub` を参照していること。
+- Version consistency
+  - README badge、`pyproject.toml`、`CHANGELOG.md`、release docs、git tag が
+    release 文脈で矛盾しないこと。
+- Stable CLI entrypoints
+  - 新しい package entrypoint が既存 script 入口と同じ fixture で同等の結果を返すこと。
+- Docs gate escalation
+  - checker ごとの stage、owner、昇格条件、rollback 条件が追跡できること。
+- Plugin capability catalog
+  - runtime、schema、README、sample config の capability 定義が一致すること。
+- Large module split
+  - large module の suppression が `TECH_DEBT_REGISTER.md` の分割計画へリンクしていること。
 - Birdseye 整合
   - `README.md`、`docs/BIRDSEYE.md`、`docs/birdseye/README.md`、
     `GUARDRAILS.md`、`RUNBOOK.md` の更新手順が一致すること。
