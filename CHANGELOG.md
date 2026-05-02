@@ -39,6 +39,11 @@ next_review_due: 2025-11-14
   - Release drill: 完了 (2026-04-19)
   - Supply chain: 完了 (2026-04-17)
   - Dependency exceptions: 整備済み
+- 自己改善ループ nudge checker 実装:
+  - `tools/ci/check_stale_self_improvement.py`: stale reflection/skill_draft検出
+  - `tests/test_check_stale_self_improvement.py`: nudge checker test (12 tests)
+- `.workflow-cache/reflections/SESSION-20260502-002.json`: セッションreflection記録
+- `.workflow-cache/skill-drafts/SKILL-DRAFT-002.json`: Task Seed完了自動反映skill draft
 
 ### Changed
 

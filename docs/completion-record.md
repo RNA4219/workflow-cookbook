@@ -49,3 +49,16 @@ RUNBOOK は日常運用と現在の判断に集中させ、完了済みの長い
 
 判定: go
 補足: spec.md 4.6.2-4.6.6 の DTO 定義に基づく JSON Schema。21 tests passed。schemas/, examples/, tests/ 詳細は acceptance レコード参照。
+
+## 2026-05-02 自己改善ループ nudge checker 実装
+
+| 項目 | 状態 | 正本 |
+|---|---|---|
+| stale reflection checker | 完了 | `tools/ci/check_stale_self_improvement.py` |
+| stale skill draft checker | 完了 | `tools/ci/check_stale_self_improvement.py` |
+| nudge checker test | 完了 | `tests/test_check_stale_self_improvement.py` |
+| Session reflection | 完了 | `.workflow-cache/reflections/SESSION-20260502-002.json` |
+| Skill draft (Task Seed auto-propagation) | draft | `.workflow-cache/skill-drafts/SKILL-DRAFT-002.json` |
+
+判定: go
+補足: 12 tests passed。O_Adaptive_Improvement_Loop.md 8節「次の実装候補」のnudge checker実装。
