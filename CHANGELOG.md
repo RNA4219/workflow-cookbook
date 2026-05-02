@@ -16,7 +16,8 @@ next_review_due: 2025-11-14
 - `tools/ci/check_runbook_slimming.py`: RUNBOOK 完了済み表肥大化検出 checker 追加
 - `tools/ci/check_completion_trace.py`: Task/Acceptance/Completion トレース検証 checker 追加
 - `tools/ci/check_agent_tools_hub_boundary.py`: agent-tools-hub 境界 checker 追加
-- 対応する unit test (`tests/test_check_runbook_slimming.py`, `tests/test_check_completion_trace.py`, `tests/test_check_agent_tools_hub_boundary.py`) 追加
+- 対応する unit test (`tests/test_check_runbook_slimming.py`, `tests/test_check_completion_trace.py`,
+  `tests/test_check_agent_tools_hub_boundary.py`) 追加
 - `.github/workflows/markdown.yml`: job 分割 (`docs-gate`, `metrics-gate`, `lint`) + 3 checker 統合 (RG-003, RG-004, RG-005)
 - `governance/policy.yaml`: `docs-gate` を required_jobs に追加
 - `docs/ci-config.md`: docs-gate, metrics-gate, RG-002〜RG-05 対応表追加

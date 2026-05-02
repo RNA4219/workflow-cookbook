@@ -19,6 +19,7 @@ code-to-gate 分析で検出された技術的債務の記録と対応計画。
 **現状**: メトリクス収集の統合ハブ。CLI、Prometheus 取得、ログ解析、集計、出力すべてを含む。
 
 **分割計画**:
+
 | 新モジュール | 内容 | 行数見積 |
 |---|---|---|
 | `collect_metrics/cli.py` | CLI 入口、argparse、main | ~100 |
@@ -35,6 +36,7 @@ code-to-gate 分析で検出された技術的債務の記録と対応計画。
 **現状**: Birdseye 更新の統合入口。CLI、graph 操作、capsule 生成、hot.json 管理。
 
 **分割計画**:
+
 | 新モジュール | 内容 | 行数見積 |
 |---|---|---|
 | `codemap/update/cli.py` | CLI 入口、argparse、main | ~80 |
@@ -50,6 +52,7 @@ code-to-gate 分析で検出された技術的債務の記録と対応計画。
 **現状**: context packing ツール。pack、resolve、compression。
 
 **分割計画**:
+
 | 新モジュール | 内容 | 行数見積 |
 |---|---|---|
 | `pack/cli.py` | CLI 入口 | ~80 |
@@ -72,6 +75,7 @@ code-to-gate 分析で検出された技術的債務の記録と対応計画。
 ### 2.1 tools/audit/purge_logs.py
 
 **判定**: Safe (正当な audit tool)
+
 - `older_than_days > 0` 検証あり
 - `cutoff_timestamp` 明示的期限判定
 - audit log 用ツールとして設計
@@ -81,6 +85,7 @@ code-to-gate 分析で検出された技術的債務の記録と対応計画。
 ### 2.2 tools/workflow_plugins/runtime.py
 
 **判定**: False Positive
+
 - `_traces.clear()` は trace ログクリア、実データ削除ではない
 
 **対応**: 抑制設定で false positive 記録
