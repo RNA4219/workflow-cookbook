@@ -34,6 +34,11 @@ next_review_due: 2025-11-14
 - `examples/reflection-summary.sample.json`: ReflectionSummary sample config
 - `examples/skill-draft-record.sample.json`: SkillDraftRecord sample config
 - `tests/test_self_improvement_schemas.py`: schema validation test 追加
+- RUNBOOK Operational Readiness Backlog: 4項目の完了状態反映
+  - Branch Protection: 完了 (2026-04-17)
+  - Release drill: 完了 (2026-04-19)
+  - Supply chain: 完了 (2026-04-17)
+  - Dependency exceptions: 整備済み
 
 ### Changed
 

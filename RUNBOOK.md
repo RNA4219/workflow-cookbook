@@ -131,8 +131,10 @@ next_review_due: 2026-05-09
 日次確認・release 確認・security review の各導線から参照できるようにし、
 完了したら `status` と検収記録を更新する。
 
-1. Branch Protection の live enforcement
+1. Branch Protection の live enforcement **[完了: 2026-04-17]**
    - [task-branch-protection-enablement-20260417](docs/tasks/task-branch-protection-enablement-20260417.md)
+   - **完了証跡**: `docs/security/Branch_Protection_Operation.md`、classic branch protection 設定済み
+   - 再実行タイミング: governance / security gate 変更時
    - 実施タイミング:
      release 前、または governance / security gate を変更した直後
    - 実行確認:
@@ -149,7 +151,7 @@ next_review_due: 2026-05-09
      `python tools/ci/check_release_evidence.py --check --github-repo <owner/name>`,
      `python tools/ci/check_acceptance.py --check`
 
-3. Supply chain 再現性の追加強化
+3. Supply chain 再現性の追加強化 **[完了: 2026-04-17]**
    - [task-supply-chain-reproducibility-followup-20260417](docs/tasks/task-supply-chain-reproducibility-followup-20260417.md)
    - 実施タイミング:
      依存更新方針を見直すとき、または quarterly review 時
@@ -157,7 +159,7 @@ next_review_due: 2026-05-09
      SBOM、dependency exception、requirements / pyproject の整合を確認し、
      `docs/security/Dependency_Governance.md` と差分がないこと
 
-4. Dependency exceptions 定期レビュー
+4. Dependency exceptions 定期レビュー **[整備済み: 2026-04-17]**
    - 実施タイミング: 月次（dependency_exceptions.md の next_review_due 日付）
    - 実行確認:
      `python tools/ci/check_dependency_exceptions.py --check --max-overdue-days 30`
