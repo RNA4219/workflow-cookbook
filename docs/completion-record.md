@@ -62,3 +62,13 @@ RUNBOOK は日常運用と現在の判断に集中させ、完了済みの長い
 
 判定: go
 補足: 12 tests passed。O_Adaptive_Improvement_Loop.md 8節「次の実装候補」のnudge checker実装。
+
+## 2026-05-03 Birdseye Freshness しきい値 365→90日移行
+
+| 項目 | 状態 | 正本 |
+|---|---|---|
+| markdown.ymlしきい値変更 | 完了 | `.github/workflows/markdown.yml` L24-26 |
+| RUNBOOK段階計画更新 | 完了 | `RUNBOOK.md` L112-114 |
+
+判定: go
+補足: 运用開始期間終了、90日しきい値移行完了。最終目標は30日。

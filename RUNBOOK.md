@@ -110,8 +110,7 @@ next_review_due: 2026-05-09
   - 鮮度警告を有効にする場合:
     `python tools/ci/check_birdseye_freshness.py --check --max-verified-age-days 90`
   - **Freshness しきい値段階計画**:
-    - 現行: 365日 (運用開始期間用)
-    - 次段: 90日 (運用安定後)
+    - 現行: 90日 (2026-05-03移行完了)
     - 最終: 30日 (習慣化された点検後)
   - **Stale failure 復旧手順**:
     1. CI failure 通知を受け取る

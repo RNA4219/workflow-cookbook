@@ -39,6 +39,12 @@ next_review_due: 2025-11-14
   - Release drill: 完了 (2026-04-19)
   - Supply chain: 完了 (2026-04-17)
   - Dependency exceptions: 整備済み
+- Birdseye Freshness しきい値 365→90日移行
+  - `.github/workflows/markdown.yml`: RG-002しきい値変更
+  - `RUNBOOK.md`: 段階計画更新（現行90日、最終30日）
+- 自己改善ループ nudge checker 実装:
+  - `tools/ci/check_stale_self_improvement.py`: stale reflection/skill draft検出
+  - `tests/test_check_stale_self_improvement.py`: nudge checker test (12 tests)
 - 自己改善ループ nudge checker 実装:
   - `tools/ci/check_stale_self_improvement.py`: stale reflection/skill_draft検出
   - `tests/test_check_stale_self_improvement.py`: nudge checker test (12 tests)
