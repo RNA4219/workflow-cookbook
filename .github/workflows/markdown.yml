@@ -30,6 +30,9 @@ jobs:
         run: python tools/ci/check_completion_trace.py --check
       - name: Check agent-tools-hub boundary (RG-005)
         run: python tools/ci/check_agent_tools_hub_boundary.py --check
+      - name: Check task completion propagation (RG-006)
+        # SKILL-DRAFT-002手順3: done Task Seedのcompletion-record反映照合
+        run: python tools/ci/check_task_completion_propagation.py --check
 
   metrics-gate:
     runs-on: ubuntu-latest

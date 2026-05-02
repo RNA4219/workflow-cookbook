@@ -48,6 +48,13 @@ next_review_due: 2025-11-14
 - Task Seed完了propagation checker実装 (SKILL-DRAFT-002):
   - `tools/ci/check_task_completion_propagation.py`: done Task Seedのcompletion-record未反映検出
   - `tests/test_check_task_completion_propagation.py`: propagation checker test (13 tests)
+  - `.github/workflows/markdown.yml`: RG-006 task completion propagation gate追加
+  - `docs/ci-config.md`: RG-006 checker対応表追加
+- 自己改善ループ sample config追加:
+  - `examples/user-model-snapshot.sample.json`
+  - `examples/workspace-model-snapshot.sample.json`
+  - `examples/recall-response.sample.json`
+  - `examples/periodic-nudge.sample.json`
 - 自己改善ループ nudge checker 実装:
   - `tools/ci/check_stale_self_improvement.py`: stale reflection/skill_draft検出
   - `tests/test_check_stale_self_improvement.py`: nudge checker test (12 tests)

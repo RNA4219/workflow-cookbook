@@ -82,3 +82,17 @@ RUNBOOK は日常運用と現在の判断に集中させ、完了済みの長い
 
 判定: go
 補足: SKILL-DRAFT-002手順1実装。13 tests passed。done Task Seedのcompletion-record未反映をnudge検出。
+
+## 2026-05-03 CI workflow RG-006追加 + sample config作成
+
+| 項目 | 状態 | 正本 |
+|---|---|---|
+| RG-006 gate追加 | 完了 | `.github/workflows/markdown.yml` |
+| ci-config.md更新 | 完了 | `docs/ci-config.md` |
+| UserModelSnapshot sample | 完了 | `examples/user-model-snapshot.sample.json` |
+| WorkspaceModelSnapshot sample | 完了 | `examples/workspace-model-snapshot.sample.json` |
+| RecallResponse sample | 完了 | `examples/recall-response.sample.json` |
+| PeriodicNudge sample | 完了 | `examples/periodic-nudge.sample.json` |
+
+判定: go
+補足: SKILL-DRAFT-002手順3完了。sample config 4件作成。

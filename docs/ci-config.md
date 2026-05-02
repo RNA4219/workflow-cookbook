@@ -38,6 +38,7 @@ next_review_due: 2026-05-09
 | RG-003 | `check_runbook_slimming.py` | warning | 完了済み表肥大化を検出。 |
 | RG-004 | `check_completion_trace.py` | warning (default) | `--require-acceptance-for-done` で error 昇格可。 |
 | RG-005 | `check_agent_tools_hub_boundary.py` | warning | routing table 複製を検出。 |
+| RG-006 | `check_task_completion_propagation.py` | warning | done Task Seedのcompletion-record未反映をnudge。 |
 
 ## Branch Protection 検証
 

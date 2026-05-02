@@ -1,0 +1,41 @@
+{
+  "$schema": "./schemas/recall-response.schema.json",
+  "query": "branch protection setup",
+  "summary": "Branch Protectionは2026-04-17にclassic branch protectionを設定。7 required checks、PR review必須1 approvals、stale review dismiss有効。",
+  "hits": [
+    {
+      "source_type": "task",
+      "source_id": "20260417-05",
+      "excerpt": "2026-04-17 に classic branch protection を live 設定し、required checks と PR review 条件の適用を確認した。",
+      "reason": "Task Seed正本、完了記録あり",
+      "relevance_score": 0.95,
+      "created_at": "2026-04-17T00:00:00Z"
+    },
+    {
+      "source_type": "docs",
+      "source_id": "docs/security/Branch_Protection_Operation.md",
+      "excerpt": "main には classic branch protection を適用済み。required checks: governance, unit, Allowlist Guard, Semgrep, Bandit, Gitleaks, Dependency Audit & SBOM",
+      "reason": "運用手順正本",
+      "relevance_score": 0.90,
+      "created_at": "2026-04-17T00:00:00Z"
+    },
+    {
+      "source_type": "acceptance",
+      "source_id": "AC-20260417-01",
+      "excerpt": "check_branch_protection.py --protection-json branch-protection.json で整合確認済み",
+      "reason": "検収証跡",
+      "relevance_score": 0.85,
+      "created_at": "2026-04-17T00:00:00Z"
+    }
+  ],
+  "stale": {
+    "classification": "fresh",
+    "evaluated_at": "2026-05-03T00:00:00Z",
+    "stale_threshold_days": 30
+  },
+  "total_hits": 3,
+  "search_backend": "local-knowledge-index",
+  "search_duration_ms": 150,
+  "created_at": "2026-05-03T00:00:00Z",
+  "schema_version": "1.0.0"
+}
