@@ -55,10 +55,11 @@ def test_collects_merge_precision_mode_metrics(monkeypatch: pytest.MonkeyPatch, 
         """
     ).strip()
 
+    loaded = collect_metrics._load_metric_config()
     try:
-        prometheus_metrics = collect_metrics._parse_prometheus(prometheus_text)
-        structured_metrics = collect_metrics._load_structured_log(structured_path)
-        merged = collect_metrics._merge([prometheus_metrics, structured_metrics])
+        prometheus_metrics = collect_metrics._parse_prometheus(prometheus_text, loaded.extractor)
+        structured_metrics = collect_metrics.load_structured_log(structured_path, loaded.extractor)
+        merged = collect_metrics.collect_metrics([prometheus_metrics, structured_metrics])
     finally:
         collect_metrics._load_metric_config.cache_clear()  # type: ignore[attr-defined]
 

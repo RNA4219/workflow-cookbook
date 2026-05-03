@@ -46,7 +46,7 @@ jobs:
         if: steps.changes.outputs.code == 'true'
         env:
           GITHUB_EVENT_PATH: ${{ github.event_path }}
-        run: python tools/ci/check_governance_gate.py
+        run: python -m tools.ci.governance_gate
       - name: Aggregate INT metrics
         if: steps.changes.outputs.code == 'true'
         run: python tools/ci/aggregate_int.py

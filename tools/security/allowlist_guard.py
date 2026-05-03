@@ -14,6 +14,7 @@ except ModuleNotFoundError:  # pragma: no cover - fallback for minimal env
 
 @dataclass(frozen=True)
 class Purpose:
+    """Represents a purpose entry within an allowlist entry."""
     id: str
     fields: tuple[tuple[str, Any], ...] = field(default_factory=tuple)
 
@@ -30,6 +31,7 @@ class Purpose:
 
 @dataclass(frozen=True)
 class AllowlistEntry:
+    """Represents a domain entry in the network allowlist."""
     domain: str
     fields: tuple[tuple[str, Any], ...] = field(default_factory=tuple)
     purposes: tuple[Purpose, ...] = field(default_factory=tuple)
@@ -69,6 +71,7 @@ class AllowlistEntry:
 
 @dataclass(frozen=True)
 class AllowlistDocument:
+    """Represents the complete allowlist document with entries and version."""
     entries: tuple[AllowlistEntry, ...]
     version: int | None = None
 
@@ -77,6 +80,7 @@ class AllowlistDocument:
 
 
 class AllowlistLoader:
+    """Loads and parses allowlist YAML documents with fallback parser."""
     def __init__(self, yaml_module: Any | None) -> None:
         self._yaml_module = yaml_module
         self._allowlist: list[dict[str, Any]] = []
@@ -161,6 +165,7 @@ class AllowlistLoader:
 
 
 def _strip_quotes(value: str) -> str:
+    """Strip surrounding quotes from a string value."""
     if (value.startswith("\"") and value.endswith("\"")) or (
         value.startswith("'") and value.endswith("'")
     ):
@@ -169,6 +174,7 @@ def _strip_quotes(value: str) -> str:
 
 
 def _parse_inline_list(value: str) -> list[str]:
+    """Parse inline YAML list format [a, b, c] into Python list."""
     stripped = value.strip()
     if not stripped:
         return []
@@ -185,12 +191,14 @@ def _parse_inline_list(value: str) -> list[str]:
 
 
 def _normalize_value(value: Any) -> Any:
+    """Normalize value, converting lists to tuples for immutability."""
     if isinstance(value, (list, tuple)):
         return tuple(_normalize_value(item) for item in value)
     return value
 
 
 def _normalize_fields(mapping: Mapping[str, Any], exclude: Iterable[str]) -> tuple[tuple[str, Any], ...]:
+    """Extract and normalize fields from mapping, excluding specified keys."""
     excluded = set(exclude)
     items = []
     for key, value in mapping.items():
@@ -201,11 +209,13 @@ def _normalize_fields(mapping: Mapping[str, Any], exclude: Iterable[str]) -> tup
 
 
 def _diff_fields(base: Mapping[str, Any], current: Mapping[str, Any]) -> list[str]:
+    """Return list of field keys with differing values between base and current."""
     keys = set(base) | set(current)
     return sorted(key for key in keys if base.get(key) != current.get(key))
 
 
 def _document_from_raw(raw: Mapping[str, Any] | None) -> AllowlistDocument:
+    """Convert raw mapping to AllowlistDocument with validated entries."""
     if raw is None:
         return AllowlistDocument(entries=())
     allowlist = raw.get("allowlist", [])
@@ -220,11 +230,13 @@ def _document_from_raw(raw: Mapping[str, Any] | None) -> AllowlistDocument:
     version = int(version_value) if isinstance(version_value, int) else None
     return AllowlistDocument(entries=tuple(sorted(entries, key=lambda item: item.domain)), version=version)
 def _load_document_for_testing(content: str) -> AllowlistDocument:
+    """Load allowlist document from YAML content for testing purposes."""
     loader = AllowlistLoader(yaml)
     return loader.load(content)
 
 
 def detect_violations(*, base_content: str, current_content: str) -> list[str]:
+    """Detect violations between base and current allowlist content."""
     loader = AllowlistLoader(yaml)
     base_doc = loader.load(base_content)
     current_doc = loader.load(current_content)
@@ -270,6 +282,7 @@ def detect_violations(*, base_content: str, current_content: str) -> list[str]:
 
 
 def _git_show(ref: str) -> str:
+    """Fetch file content from git at specified ref."""
     result = subprocess.run(  # nosec B603,B607  # git command with fixed args, no shell=True
         ["git", "show", ref],
         check=False,
@@ -282,6 +295,7 @@ def _git_show(ref: str) -> str:
 
 
 def _parse_args(argv: Sequence[str] | None) -> argparse.Namespace:
+    """Parse CLI arguments for allowlist guard."""
     parser = argparse.ArgumentParser(description="Validate network allowlist changes")
     parser.add_argument("--base-ref", required=True)
     parser.add_argument(
@@ -293,6 +307,7 @@ def _parse_args(argv: Sequence[str] | None) -> argparse.Namespace:
 
 
 def main(argv: Sequence[str] | None = None) -> int:
+    """Run allowlist guard validation and return exit code."""
     args = _parse_args(argv)
     allowlist_path = args.allowlist_path
     base_spec = f"{args.base_ref}:{allowlist_path.as_posix()}"

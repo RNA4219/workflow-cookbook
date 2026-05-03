@@ -17,7 +17,7 @@ from tools.codemap import update
 
 
 def test_ensure_python_version_exits(monkeypatch, capsys):
-    monkeypatch.setattr(update, "sys", SimpleNamespace(version_info=(3, 10, 0)))
+    monkeypatch.setattr(update.cli, "sys", SimpleNamespace(version_info=(3, 10, 0)))
 
     with pytest.raises(SystemExit) as excinfo:
         update.ensure_python_version()
@@ -39,7 +39,7 @@ def test_since_command_resolves_capsules_for_non_birdseye_diff(monkeypatch):
             "--find-copies",
             "main...HEAD",
         ]
-        assert cwd == update._REPO_ROOT
+        assert cwd == update._REPO_ROOT.get()
         return SimpleNamespace(stdout="M\tREADME.md\n")
 
     monkeypatch.setattr(update.subprocess, "run", fake_run)
@@ -47,7 +47,7 @@ def test_since_command_resolves_capsules_for_non_birdseye_diff(monkeypatch):
 
     resolved = options.resolve_targets()
 
-    expected = update._REPO_ROOT / "docs" / "birdseye" / "caps" / "README.md.json"
+    expected = update._REPO_ROOT.get() / "docs" / "birdseye" / "caps" / "README.md.json"
     assert expected in resolved
 
 
@@ -58,9 +58,9 @@ def test_since_command_falls_back_to_default_targets(monkeypatch):
 
     resolved = options.resolve_targets()
 
-    expected_index = (update._REPO_ROOT / "docs" / "birdseye" / "index.json").resolve()
-    expected_hot = (update._REPO_ROOT / "docs" / "birdseye" / "hot.json").resolve()
-    expected_caps = (update._REPO_ROOT / "docs" / "birdseye" / "caps").resolve()
+    expected_index = (update._REPO_ROOT.get() / "docs" / "birdseye" / "index.json").resolve()
+    expected_hot = (update._REPO_ROOT.get() / "docs" / "birdseye" / "hot.json").resolve()
+    expected_caps = (update._REPO_ROOT.get() / "docs" / "birdseye" / "caps").resolve()
 
     assert resolved == (expected_index, expected_hot, expected_caps)
 
@@ -215,7 +215,7 @@ def _prepare_birdseye_root(
 ) -> dict[str, Path]:
     repo_root = tmp_path / "repo"
     repo_root.mkdir(parents=True, exist_ok=True)
-    monkeypatch.setattr(update, "_REPO_ROOT", repo_root)
+    monkeypatch.setattr(update.constants._REPO_ROOT, "value", repo_root)
 
     root = repo_root / "docs" / "birdseye"
     caps_dir = root / "caps"
@@ -545,7 +545,7 @@ def _prepare_birdseye(
 
 def test_birdseye_session_plan_targets_root_and_capsule(tmp_path, monkeypatch):
     monkeypatch.chdir(tmp_path)
-    monkeypatch.setattr(update, "_REPO_ROOT", tmp_path)
+    monkeypatch.setattr(update.constants._REPO_ROOT, "value", tmp_path)
 
     caps_payloads = {
         "alpha.md": _caps_payload("alpha.md", deps_out=["beta.md"], deps_in=[]),
@@ -592,7 +592,7 @@ def test_birdseye_session_plan_targets_root_and_capsule(tmp_path, monkeypatch):
 
 def test_birdseye_session_plan_computes_expected_writes(tmp_path, monkeypatch):
     monkeypatch.chdir(tmp_path)
-    monkeypatch.setattr(update, "_REPO_ROOT", tmp_path)
+    monkeypatch.setattr(update.constants._REPO_ROOT, "value", tmp_path)
 
     caps_payloads = {
         "alpha.md": _caps_payload("alpha.md", deps_out=["beta.md"], deps_in=[]),
@@ -637,7 +637,7 @@ def test_birdseye_session_plan_computes_expected_writes(tmp_path, monkeypatch):
 
 def test_run_update_with_since_updates_capsules_within_two_hops(tmp_path, monkeypatch):
     monkeypatch.chdir(tmp_path)
-    monkeypatch.setattr(update, "_REPO_ROOT", tmp_path)
+    monkeypatch.setattr(update.constants._REPO_ROOT, "value", tmp_path)
 
     caps_payloads = {
         "alpha.md": _caps_payload("alpha.md", deps_out=["stale"], deps_in=["stale"]),
@@ -684,7 +684,7 @@ def test_run_update_with_since_updates_capsules_within_two_hops(tmp_path, monkey
 
 def test_run_update_with_since_handles_git_rename(tmp_path, monkeypatch):
     monkeypatch.chdir(tmp_path)
-    monkeypatch.setattr(update, "_REPO_ROOT", tmp_path)
+    monkeypatch.setattr(update.constants._REPO_ROOT, "value", tmp_path)
 
     caps_payloads = {
         "README.md": _caps_payload("README.md"),
@@ -730,7 +730,7 @@ def test_run_update_with_since_handles_git_rename(tmp_path, monkeypatch):
 
 def test_run_update_recreates_missing_capsule(tmp_path, monkeypatch):
     monkeypatch.chdir(tmp_path)
-    monkeypatch.setattr(update, "_REPO_ROOT", tmp_path)
+    monkeypatch.setattr(update.constants._REPO_ROOT, "value", tmp_path)
 
     caps_payloads = {
         "README.md": _caps_payload("README.md"),
@@ -780,7 +780,7 @@ def test_run_update_resolves_targets_from_repo_root_outside_cwd(tmp_path, monkey
         root=repo_root / "docs" / "birdseye",
     )
 
-    monkeypatch.setattr(update, "_REPO_ROOT", repo_root)
+    monkeypatch.setattr(update.constants._REPO_ROOT, "value", repo_root)
     monkeypatch.chdir(outside_dir)
 
     options = update.parse_args(["--targets", "docs/birdseye/index.json", "--emit", "index"])
@@ -897,7 +897,7 @@ def test_run_update_requires_hot_json_when_emitting_index(tmp_path, monkeypatch)
 
     hot_path.unlink()
 
-    monkeypatch.setattr(update, "_REPO_ROOT", tmp_path)
+    monkeypatch.setattr(update.constants._REPO_ROOT, "value", tmp_path)
 
     with pytest.raises(FileNotFoundError) as excinfo:
         update.run_update(update.UpdateOptions(targets=(root,), emit="index+caps"))
@@ -1137,7 +1137,7 @@ def test_run_update_refreshes_caps_generated_at(tmp_path, monkeypatch):
 
 def test_run_update_recovers_non_serial_generated_at(tmp_path, monkeypatch):
     monkeypatch.chdir(tmp_path)
-    monkeypatch.setattr(update, "_REPO_ROOT", tmp_path)
+    monkeypatch.setattr(update.constants._REPO_ROOT, "value", tmp_path)
 
     caps_payloads = {
         "alpha.md": {**_caps_payload("alpha.md"), "generated_at": "00007"},
@@ -1200,7 +1200,7 @@ def test_run_update_accepts_caps_directory_target(tmp_path, monkeypatch):
         root=root_base,
     )
 
-    monkeypatch.setattr(update, "_REPO_ROOT", tmp_path)
+    monkeypatch.setattr(update.constants._REPO_ROOT, "value", tmp_path)
     baseline_index = json.loads(index_path.read_text(encoding="utf-8"))
     base_serial = baseline_index["generated_at"]
     expected_serial = _next_serial(base_serial)
@@ -1297,7 +1297,7 @@ def test_parse_args_supports_since_and_limits_scope(tmp_path, monkeypatch):
     monkeypatch.setattr(update, "utc_now", lambda: frozen_now)
 
     monkeypatch.chdir(tmp_path)
-    monkeypatch.setattr(update, "_REPO_ROOT", tmp_path)
+    monkeypatch.setattr(update.constants._REPO_ROOT, "value", tmp_path)
 
     class FakeResolver:
         def __init__(self) -> None:
@@ -1364,7 +1364,7 @@ def test_git_diff_resolver_filters_paths(monkeypatch):
         "--find-copies",
         "develop...HEAD",
     ]
-    assert captured["cwd"] == update._REPO_ROOT
+    assert captured["cwd"] == update._REPO_ROOT.get()
     assert result == (
         Path("docs/birdseye/caps/delta.md.json"),
         Path("docs/birdseye/caps/README.md.json"),

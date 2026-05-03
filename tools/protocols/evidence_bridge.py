@@ -37,25 +37,30 @@ _APPROVAL_DECISIONS = {"approved", "rejected"}
 
 
 class AgentProtocolEvidenceError(ValueError):
+    """Error raised when agent protocol evidence validation fails."""
     pass
 
 
 class InferenceContextExtractor(Protocol):
+    """Protocol for extracting inference context from log records."""
     def extract(self, record: InferenceLogRecord) -> JsonMapping | None:
         ...
 
 
 class EnvironmentResolver(Protocol):
+    """Protocol for resolving execution environment metadata."""
     def resolve(self) -> JsonMapping:
         ...
 
 
 class EvidenceWriter(Protocol):
+    """Protocol for writing evidence records to storage."""
     def write(self, evidence: JsonMapping) -> None:
         ...
 
 
 def _to_jsonable(value: Any) -> Any:
+    """Convert value to JSON-serializable format."""
     if isinstance(value, Mapping):
         return {str(key): _to_jsonable(item) for key, item in value.items()}
     if isinstance(value, (list, tuple)):
@@ -64,18 +69,22 @@ def _to_jsonable(value: Any) -> Any:
 
 
 def _stable_json(value: Any) -> str:
+    """Serialize value to deterministic JSON string."""
     return json.dumps(_to_jsonable(value), ensure_ascii=False, sort_keys=True, separators=(",", ":"))
 
 
 def _sha256_text(value: str) -> str:
+    """Compute SHA256 hash of text with algorithm prefix."""
     return f"sha256:{hashlib.sha256(value.encode('utf-8')).hexdigest()}"
 
 
 def _sha256_json(value: Any) -> str:
+    """Compute SHA256 hash of JSON-serialized value."""
     return _sha256_text(_stable_json(value))
 
 
 def _normalize_timestamp(value: str | datetime | None, *, default: str | None = None) -> str:
+    """Normalize timestamp to ISO 8601 format with UTC timezone."""
     if value is None:
         if default is None:
             value = datetime.now(timezone.utc)
@@ -97,12 +106,14 @@ def _normalize_timestamp(value: str | datetime | None, *, default: str | None = 
 
 
 def _require_mapping(value: Any, *, field_name: str) -> JsonMapping:
+    """Validate that value is a mapping, raising error if not."""
     if not isinstance(value, Mapping):
         raise AgentProtocolEvidenceError(f"{field_name} must be a mapping")
     return value
 
 
 def _require_text(mapping: JsonMapping, key: str, *, field_name: str | None = None) -> str:
+    """Require non-empty text value from mapping."""
     value = mapping.get(key)
     label = field_name or key
     if not isinstance(value, str) or not value.strip():
@@ -111,6 +122,7 @@ def _require_text(mapping: JsonMapping, key: str, *, field_name: str | None = No
 
 
 def _optional_text(mapping: JsonMapping, key: str, default: str) -> str:
+    """Get optional text value from mapping with default."""
     value = mapping.get(key)
     if isinstance(value, str) and value.strip():
         return value.strip()
@@ -118,6 +130,7 @@ def _optional_text(mapping: JsonMapping, key: str, default: str) -> str:
 
 
 def _normalize_tools(value: Any) -> list[str]:
+    """Normalize tools list, defaulting to StructuredLogger."""
     if value is None:
         return ["StructuredLogger"]
     if isinstance(value, (str, bytes)) or not isinstance(value, Sequence):
@@ -129,6 +142,7 @@ def _normalize_tools(value: Any) -> list[str]:
 
 
 def _normalize_stale_status(value: Any, *, default_timestamp: str) -> dict[str, str]:
+    """Normalize stale status classification with timestamp."""
     if value is None:
         return {
             "classification": "fresh",
@@ -149,6 +163,7 @@ def _normalize_stale_status(value: Any, *, default_timestamp: str) -> dict[str, 
 
 
 def _normalize_merge_result(value: Any) -> dict[str, str]:
+    """Normalize merge result with status and optional metadata."""
     if value is None:
         return {"status": "not_applicable"}
     mapping = _require_mapping(value, field_name="agent_protocol.merge_result")
@@ -167,6 +182,7 @@ def _normalize_merge_result(value: Any) -> dict[str, str]:
 
 
 def _normalize_approvals(value: Any) -> list[dict[str, str]] | None:
+    """Normalize approvals snapshot with role, actor, and decision."""
     if value is None:
         return None
     if not isinstance(value, Sequence) or isinstance(value, (str, bytes)):
@@ -196,6 +212,7 @@ def _normalize_approvals(value: Any) -> list[dict[str, str]] | None:
 
 
 def _detect_lockfile(repo_root: Path, candidates: Sequence[str]) -> Path | None:
+    """Detect first existing lockfile from candidate list."""
     for name in candidates:
         candidate = repo_root / name
         if candidate.is_file():
@@ -204,6 +221,8 @@ def _detect_lockfile(repo_root: Path, candidates: Sequence[str]) -> Path | None:
 
 
 class AgentProtocolContextExtractor:
+    """Extracts agent protocol context from inference log records."""
+
     def __init__(self, *, context_key: str = "agent_protocol") -> None:
         self._context_key = context_key
 
@@ -220,6 +239,8 @@ class AgentProtocolContextExtractor:
 
 
 class RepositoryEnvironmentResolver:
+    """Resolves repository environment including OS, runtime, and lockfile hash."""
+
     def __init__(
         self,
         *,
@@ -245,6 +266,8 @@ class RepositoryEnvironmentResolver:
 
 
 class JsonLinesEvidenceWriter:
+    """Writes evidence records to JSON Lines file."""
+
     def __init__(self, *, path: str | Path) -> None:
         self._path = Path(path).expanduser()
 
@@ -255,6 +278,8 @@ class JsonLinesEvidenceWriter:
 
 
 class AgentProtocolEvidenceMapper:
+    """Maps inference log records to agent protocol evidence format."""
+
     def __init__(
         self,
         *,
@@ -346,6 +371,8 @@ class AgentProtocolEvidenceMapper:
 
 
 class AgentProtocolEvidencePlugin(InferenceLogPlugin):
+    """Plugin for handling inference events and writing evidence."""
+
     def __init__(
         self,
         *,
@@ -363,6 +390,8 @@ class AgentProtocolEvidencePlugin(InferenceLogPlugin):
 
 
 class AgentProtocolEvidenceBridge:
+    """Bridge for building agent protocol evidence from inference records."""
+
     def __init__(
         self,
         *,
@@ -381,6 +410,8 @@ class AgentProtocolEvidenceBridge:
 
 
 class AgentProtocolEvidenceFileSink:
+    """File-based sink for writing inference evidence to JSON Lines."""
+
     def __init__(
         self,
         *,
@@ -414,6 +445,7 @@ def create_agent_protocol_evidence_plugin(
     repo_root: str | Path,
     context_key: str = "agent_protocol",
 ) -> AgentProtocolEvidencePlugin:
+    """Factory function for creating agent protocol evidence plugin."""
     return AgentProtocolEvidencePlugin(
         writer=JsonLinesEvidenceWriter(path=path),
         mapper=AgentProtocolEvidenceMapper(

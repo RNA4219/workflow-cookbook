@@ -84,6 +84,7 @@ def test_metric_loader_reflects_yaml_changes(
     )
 
     monkeypatch.setenv("GOVERNANCE_METRICS_PATH", str(metrics_yaml))
+    collect_metrics._load_metric_config.cache_clear()  # type: ignore[attr-defined]
     module = importlib.reload(collect_metrics)
     try:
         assert list(module.metric_keys()) == [

@@ -7,8 +7,10 @@ import pytest
 
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
-from tools.ci import check_governance_gate
-from tools.ci.check_governance_gate import (
+from tools.ci import governance_gate as check_governance_gate
+from tools.ci.governance_gate import resolver as governance_resolver
+from tools.ci.governance_gate import validator as governance_validator
+from tools.ci.governance_gate import (
     AcceptanceRecordRule,
     CategoryHintResolver,
     DocsMatrixRule,
@@ -169,12 +171,12 @@ def test_get_changed_paths_uses_repo_root(monkeypatch):
 
         return _Result()
 
-    monkeypatch.setattr(check_governance_gate.subprocess, "run", _fake_run)
+    monkeypatch.setattr(governance_resolver.subprocess, "run", _fake_run)
 
     result = check_governance_gate.get_changed_paths("main..HEAD")
 
     assert result == ["foo.txt"]
-    assert captured["kwargs"]["cwd"] == check_governance_gate._REPO_ROOT
+    assert captured["kwargs"]["cwd"] == governance_resolver._REPO_ROOT
 
 
 def test_validate_pr_body_success(capsys):
@@ -325,7 +327,7 @@ DESIGN:       present?  [x] yes / [ ] later
 
 def test_validate_pr_body_warns_when_category_missing(monkeypatch, capsys):
     monkeypatch.setattr(
-        check_governance_gate,
+        governance_resolver,
         "get_changed_paths",
         lambda refspec: ["ops/runbook.md", "docs/guide.md"] if refspec == "HEAD^..HEAD" else [],
     )
@@ -348,7 +350,7 @@ DESIGN:       present?  [x] yes / [ ] later
 
 
 def test_collect_validation_outcome_matches_cli(monkeypatch, capsys):
-    monkeypatch.setattr(check_governance_gate, "collect_recent_category_hints", lambda: ["OPS"])
+    monkeypatch.setattr(governance_validator, "collect_recent_category_hints", lambda: ["OPS"])
 
     body = """Intent: INT-4242
 """
@@ -393,7 +395,7 @@ def test_collect_validation_outcome_prefers_injected_hints(monkeypatch):
     def _fail():  # pragma: no cover - guard against fallback path
         pytest.fail("collect_recent_category_hints should not be called")
 
-    monkeypatch.setattr(check_governance_gate, "collect_recent_category_hints", _fail)
+    monkeypatch.setattr(governance_validator, "collect_recent_category_hints", _fail)
 
     body = """
 Intent: INT-1234
@@ -491,7 +493,7 @@ def test_collect_recent_category_hints_uses_base_ref(monkeypatch):
             pytest.fail(f"Unexpected refspec requested: {refspec}")
         return paths_by_refspec[refspec]
 
-    monkeypatch.setattr(check_governance_gate, "get_changed_paths", _fake)
+    monkeypatch.setattr(governance_resolver, "get_changed_paths", _fake)
     monkeypatch.setenv("GITHUB_BASE_REF", "main")
 
     hints = check_governance_gate.collect_recent_category_hints()
@@ -511,7 +513,7 @@ def test_pr_template_contains_required_sections():
 
 
 def test_main_accepts_pr_body_env(monkeypatch, capsys):
-    monkeypatch.setattr(check_governance_gate, "get_changed_paths", lambda refspec: [])
+    monkeypatch.setattr(governance_resolver, "get_changed_paths", lambda refspec: [])
     monkeypatch.setenv(
         "PR_BODY",
         """Intent: INT-999-OPS-Migrate\n## EVALUATION\n- [Acceptance Criteria](../EVALUATION.md#acceptance-criteria)\n- [Acceptance Record](docs/acceptance/AC-20260410-01.md)\nPriority Score: 2\nREQUIREMENTS: present?  [x] yes / [ ] later\nSPEC:         present?  [x] yes / [ ] later\nDESIGN:       present?  [x] yes / [ ] later\n""",
@@ -526,7 +528,7 @@ def test_main_accepts_pr_body_env(monkeypatch, capsys):
 
 
 def test_main_accepts_pr_body_path_argument(monkeypatch, tmp_path, capsys):
-    monkeypatch.setattr(check_governance_gate, "get_changed_paths", lambda refspec: [])
+    monkeypatch.setattr(governance_resolver, "get_changed_paths", lambda refspec: [])
     monkeypatch.delenv("PR_BODY", raising=False)
     monkeypatch.delenv("GITHUB_EVENT_PATH", raising=False)
     body_path = tmp_path / "body.md"
@@ -543,7 +545,7 @@ def test_main_accepts_pr_body_path_argument(monkeypatch, tmp_path, capsys):
 
 
 def test_main_requires_pr_body(monkeypatch, capsys):
-    monkeypatch.setattr(check_governance_gate, "get_changed_paths", lambda refspec: [])
+    monkeypatch.setattr(governance_resolver, "get_changed_paths", lambda refspec: [])
     monkeypatch.delenv("PR_BODY", raising=False)
     monkeypatch.delenv("GITHUB_EVENT_PATH", raising=False)
 
