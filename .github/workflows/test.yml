@@ -41,6 +41,18 @@ jobs:
           else
             echo "{\"name\":\"lint\",\"status\":\"skip\",\"duration_ms\":0}" >> workflow-cookbook/logs/test.jsonl
           fi
+
+      - uses: actions/setup-python@v6
+        with: { python-version: '3.11' }
+
+      - name: Ruff lint (Python)
+        if: ${{ hashFiles('pyproject.toml') != '' || hashFiles('**/*.py') != '' }}
+        run: |
+          set -Eeuo pipefail
+          start=$(date +%s%3N)
+          if pipx run ruff check .; then s=pass; else s=fail; fi
+          echo "{\"name\":\"ruff-lint\",\"status\":\"$s\",\"duration_ms\":$(( $(date +%s%3N)-start ))}" >> workflow-cookbook/logs/test.jsonl
+
       - uses: actions/upload-artifact@v4
         if: ${{ always() }}
         with:
@@ -75,6 +87,19 @@ jobs:
           else
             echo "{\"name\":\"typecheck\",\"status\":\"skip\",\"duration_ms\":0}" >> workflow-cookbook/logs/test.jsonl
           fi
+
+      - uses: actions/setup-python@v6
+        with: { python-version: '3.11' }
+
+      - name: Mypy (Python)
+        if: ${{ hashFiles('pyproject.toml') != '' || hashFiles('**/*.py') != '' }}
+        run: |
+          set -Eeuo pipefail
+          pip install mypy || true
+          start=$(date +%s%3N)
+          if mypy . --ignore-missing-imports; then s=pass; else s=fail; fi
+          echo "{\"name\":\"mypy\",\"status\":\"$s\",\"duration_ms\":$(( $(date +%s%3N)-start ))}" >> workflow-cookbook/logs/test.jsonl
+
       - uses: actions/upload-artifact@v4
         if: ${{ always() }}
         with:
