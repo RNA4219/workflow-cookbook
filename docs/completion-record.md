@@ -54,7 +54,7 @@ RUNBOOK は日常運用と現在の判断に集中させ、完了済みの長い
 
 | 項目 | 状態 | 正本 |
 |---|---|---|
-| stale reflection checker | 完了 | `tools/ci/check_stale_self_improvement.py` |
+| stale reflection checker | 完了 | [docs/acceptance/AC-20260502-02.md](acceptance/AC-20260502-02.md) |
 | stale skill draft checker | 完了 | `tools/ci/check_stale_self_improvement.py` |
 | nudge checker test | 完了 | `tests/test_check_stale_self_improvement.py` |
 | Session reflection | 完了 | `.workflow-cache/reflections/SESSION-20260502-002.json` |
@@ -67,7 +67,7 @@ RUNBOOK は日常運用と現在の判断に集中させ、完了済みの長い
 
 | 項目 | 状態 | 正本 |
 |---|---|---|
-| markdown.ymlしきい値変更 | 完了 | `.github/workflows/markdown.yml` L24-26 |
+| markdown.ymlしきい値変更 | 完了 | [docs/acceptance/AC-20260503-01.md](acceptance/AC-20260503-01.md) |
 | RUNBOOK段階計画更新 | 完了 | `RUNBOOK.md` L112-114 |
 
 判定: go
@@ -77,7 +77,7 @@ RUNBOOK は日常運用と現在の判断に集中させ、完了済みの長い
 
 | 項目 | 状態 | 正本 |
 |---|---|---|
-| propagation checker | 完了 | `tools/ci/check_task_completion_propagation.py` |
+| propagation checker | 完了 | [docs/acceptance/AC-20260503-02.md](acceptance/AC-20260503-02.md) |
 | propagation checker test | 完了 | `tests/test_check_task_completion_propagation.py` |
 
 判定: go
@@ -87,7 +87,7 @@ RUNBOOK は日常運用と現在の判断に集中させ、完了済みの長い
 
 | 項目 | 状態 | 正本 |
 |---|---|---|
-| RG-006 gate追加 | 完了 | `.github/workflows/markdown.yml` |
+| RG-006 gate追加 | 完了 | [docs/acceptance/AC-20260503-03.md](acceptance/AC-20260503-03.md) |
 | ci-config.md更新 | 完了 | `docs/ci-config.md` |
 | UserModelSnapshot sample | 完了 | `examples/user-model-snapshot.sample.json` |
 | WorkspaceModelSnapshot sample | 完了 | `examples/workspace-model-snapshot.sample.json` |

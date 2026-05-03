@@ -17,6 +17,7 @@ code-to-gate 分析で検出された技術的債務の記録と対応計画。
 ### 1.1 tools/perf/collect_metrics/types.py → rules.py + helpers.py + extractor.py (分割済み: 2026-05-03)
 
 **分割後**:
+
 | Module | 行数 | 内容 |
 |---|---|---|
 | collect_metrics/rules.py | 231 | Rule dataclasses, Protocols |
@@ -28,14 +29,15 @@ code-to-gate 分析で検出された技術的債務の記録と対応計画。
 ### 1.2 tools/ci/check_governance_gate.py → governance_gate/ package (分割済み: 2026-05-03)
 
 **分割後**:
+
 | Module | 行数 | 内容 |
 |---|---|---|
 | governance_gate/resolver.py | 246 | PRBodyResolver, CategoryHintResolver, resolution helpers |
 | governance_gate/rules.py | 194 | ValidationRule classes, patterns, constants |
 | governance_gate/validator.py | 126 | ValidationContext, ValidationOutcome, PRBodyValidator |
 | governance_gate/cli.py | 64 | parse_arguments, main |
-| governance_gate/__init__.py | 83 | Package exports |
-| governance_gate/__main__.py | 7 | python -m entry point |
+| governance_gate/`__init__.py` | 83 | Package exports |
+| governance_gate/`__main__.py` | 7 | python -m entry point |
 
 **判定**: 完了 - tests 33件 全てパス
 
