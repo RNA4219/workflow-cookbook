@@ -31,6 +31,19 @@ RUNBOOK は日常運用と現在の判断に集中させ、完了済みの長い
 補足: <RUNBOOK に残す必要がない短い補足>
 ```
 
+## 2026-05-03 v1.2.0 Release
+
+| 項目 | 状態 | 正本 |
+|---|---|---|
+| INT-IMPROVEMENT-006 完全実装 | 完了 | [docs/releases/v1.2.0.md](releases/v1.2.0.md) |
+| Version consistency checker | 完了 | [docs/acceptance/AC-20260503-05.md](acceptance/AC-20260503-05.md) |
+| Stable CLI entrypoints | 完了 | [docs/acceptance/AC-20260503-06.md](acceptance/AC-20260503-06.md) |
+| Docs gate escalation policy | 完了 | [docs/acceptance/AC-20260503-07.md](acceptance/AC-20260503-07.md) |
+| Plugin capability catalog | 完了 | [docs/acceptance/AC-20260503-08.md](acceptance/AC-20260503-08.md) |
+
+判定: go
+補足: 549 tests passing、技術負債解消完了、Topics更新済み
+
 ## 運用ルール
 
 - 完了済みの詳細表は RUNBOOK に増やさず、本書へ索引として追記する。
