@@ -520,7 +520,8 @@ def test_main_accepts_pr_body_env(monkeypatch, capsys):
     )
     monkeypatch.delenv("GITHUB_EVENT_PATH", raising=False)
 
-    exit_code = check_governance_gate.main()
+    # Pass empty argv to avoid pytest args being parsed
+    exit_code = check_governance_gate.main(argv=())
 
     assert exit_code == 0
     captured = capsys.readouterr()
@@ -549,7 +550,8 @@ def test_main_requires_pr_body(monkeypatch, capsys):
     monkeypatch.delenv("PR_BODY", raising=False)
     monkeypatch.delenv("GITHUB_EVENT_PATH", raising=False)
 
-    exit_code = check_governance_gate.main()
+    # Pass empty argv to avoid pytest args being parsed
+    exit_code = check_governance_gate.main(argv=())
 
     assert exit_code == 1
     captured = capsys.readouterr()

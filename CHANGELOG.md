@@ -16,6 +16,10 @@ next_review_due: 2025-11-14
   - `tools/ci/check_version_consistency.py`: pyproject.toml / README badge / CHANGELOG / git tag / docs/releases 整合確認
   - `tests/test_check_version_consistency.py`: 11 tests
   - `docs/ci-config.md`: RG-007 checker 対応表追加
+- Stable CLI entrypoints 実装 (INT-IMPROVEMENT-006 step 2):
+  - `pyproject.toml`: `[project.scripts]` 追加 (wfc-governance-gate, wfc-collect-metrics, wfc-codemap-update, wfc-context-pack)
+  - `tests/test_cli_entrypoints.py`: 6 smoke tests
+  - `tools/ci/governance_gate/cli.py`: parse_arguments修正 (--help対応)
 - RUNBOOK slimming、Task/Acceptance/Completion trace、agent-tools-hub 境界の要件・仕様を追加。
 - 先行改善案として、version consistency、stable CLI entrypoint、docs gate escalation、
   plugin capability catalog、large module split policy を要件・仕様・Blueprint へ追加。

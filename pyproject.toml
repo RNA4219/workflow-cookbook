@@ -39,6 +39,13 @@ dev = [
     "pip-audit==2.10.0",
 ]
 
+[project.scripts]
+# Stable CLI entrypoints (thin wrappers around existing modules)
+wfc-governance-gate = "tools.ci.governance_gate.cli:main"
+wfc-collect-metrics = "tools.perf.collect_metrics.cli:main"
+wfc-codemap-update = "tools.codemap.update.cli:main"
+wfc-context-pack = "tools.context.pack.cli:main"
+
 [tool.setuptools.packages.find]
 where = ["."]
 include = ["tools*", "security_headers*"]

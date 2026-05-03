@@ -18,7 +18,7 @@ from .resolver import PRBodyResolver
 from .validator import collect_validation_outcome
 
 
-def parse_arguments(argv: Sequence[str]) -> argparse.Namespace:
+def parse_arguments(argv: Sequence[str] | None = None) -> argparse.Namespace:
     """Parse CLI arguments."""
     parser = argparse.ArgumentParser(description="Run governance gate checks")
     parser.add_argument("--pr-body", help="PR本文を直接指定")
@@ -27,6 +27,8 @@ def parse_arguments(argv: Sequence[str]) -> argparse.Namespace:
         type=Path,
         help="PR本文が含まれるファイルパスを指定",
     )
+    if argv is None:
+        return parser.parse_args()
     return parser.parse_args(list(argv))
 
 
@@ -37,7 +39,8 @@ def main(
     hint_resolver: Callable[[], Sequence[str] | None] | None = None,
 ) -> int:
     """Run governance gate validation and return exit code."""
-    args = parse_arguments(argv or ())
+    # Parse arguments first so --help works before resolver
+    args = parse_arguments(argv)
     resolver = PRBodyResolver()
     resolution = resolver.resolve(
         cli_body=args.pr_body,
