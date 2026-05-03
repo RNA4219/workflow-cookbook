@@ -2,7 +2,7 @@
 task_id: 20260503-05
 intent_id: INT-IMPROVEMENT-006
 owner: docs-core
-status: planned
+status: completed
 last_reviewed_at: 2026-05-03
 next_review_due: 2026-06-03
 ---

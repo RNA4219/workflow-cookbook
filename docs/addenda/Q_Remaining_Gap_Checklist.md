@@ -2,8 +2,8 @@
 intent_id: INT-001
 owner: docs-core
 status: active
-last_reviewed_at: 2026-04-11
-next_review_due: 2026-05-11
+last_reviewed_at: 2026-05-03
+next_review_due: 2026-06-03
 ---
 
 # Q. Remaining Gap Checklist
