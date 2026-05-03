@@ -40,9 +40,10 @@ RUNBOOK は日常運用と現在の判断に集中させ、完了済みの長い
 | Stable CLI entrypoints | 完了 | [docs/acceptance/AC-20260503-06.md](acceptance/AC-20260503-06.md) |
 | Docs gate escalation policy | 完了 | [docs/acceptance/AC-20260503-07.md](acceptance/AC-20260503-07.md) |
 | Plugin capability catalog | 完了 | [docs/acceptance/AC-20260503-08.md](acceptance/AC-20260503-08.md) |
+| Post-release validation | 完了 | [docs/tasks/task-release-v1.2.0-post-validation-20260503.md](tasks/task-release-v1.2.0-post-validation-20260503.md) / [docs/acceptance/AC-20260503-09.md](acceptance/AC-20260503-09.md) |
 
 判定: go
-補足: 549 tests passing、技術負債解消完了、Topics更新済み
+補足: 549 tests passing、技術負債解消完了、Topics更新済み。task_id: 20260503-09
 
 ## 運用ルール
 

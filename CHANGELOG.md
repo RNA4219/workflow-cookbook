@@ -80,6 +80,8 @@ next_review_due: 2025-11-14
   - `tests/test_check_task_completion_propagation.py`: propagation checker test (13 tests)
   - `.github/workflows/markdown.yml`: RG-006 task completion propagation gate追加
   - `docs/ci-config.md`: RG-006 checker対応表追加
+- v1.2.0 リリース後検収 record `AC-20260503-09` を追加し、
+  full pytest 549 passed と release evidence / version consistency の pass を記録。
 - 自己改善ループ sample config追加:
   - `examples/user-model-snapshot.sample.json`
   - `examples/workspace-model-snapshot.sample.json`

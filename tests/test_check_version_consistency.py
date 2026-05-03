@@ -102,8 +102,8 @@ class TestValidateVersionConsistency:
         assert result.is_success
         assert len(result.errors) == 0
 
-    def test_validation_detects_changelog_without_tag(self) -> None:
-        """Test CHANGELOG entry without git tag is detected as warning."""
+    def test_validation_reports_no_changelog_warning_for_tagged_release(self) -> None:
+        """Test tagged CHANGELOG entries do not produce missing-tag warnings."""
         result = validate_version_consistency(
             repo_root=_REPO_ROOT,
             pyproject_path=_REPO_ROOT / "pyproject.toml",
@@ -111,5 +111,4 @@ class TestValidateVersionConsistency:
             changelog_path=_REPO_ROOT / "CHANGELOG.md",
             releases_dir=_REPO_ROOT / "docs" / "releases",
         )
-        # CHANGELOG has 1.2.0 but no git tag - should be warning
-        assert any("1.2.0" in w for w in result.warnings)
+        assert not any("1.2.0" in w and "no git tag" in w for w in result.warnings)

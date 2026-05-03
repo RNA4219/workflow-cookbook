@@ -128,6 +128,7 @@ next_review_due: 2026-06-03
 
 | Date | Scope | Result | Record | Follow-up |
 |---|---|---|---|---|
+| 2026-05-03 | v1.2.0 post-release validation | approved | [AC-20260503-09](docs/acceptance/AC-20260503-09.md) | none |
 | 2026-05-03 | Improvement spec expansion | approved | [AC-20260503-04](docs/acceptance/AC-20260503-04.md) | [task-next-improvement-implementation-20260503](docs/tasks/task-next-improvement-implementation-20260503.md) |
 
 ## Operational Readiness Backlog
