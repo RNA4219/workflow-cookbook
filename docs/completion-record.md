@@ -96,3 +96,147 @@ RUNBOOK は日常運用と現在の判断に集中させ、完了済みの長い
 
 判定: go
 補足: SKILL-DRAFT-002手順3完了。sample config 4件作成。
+
+## 2026-04-10 Autosave project locks
+
+| 項目 | 状態 | 正本 |
+|---|---|---|
+| autosave project locks | 完了 | [docs/tasks/task-autosave-project-locks.md](tasks/task-autosave-project-locks.md) |
+
+判定: go
+
+## 2026-04-11 Gate hardening metrics birdseye
+
+| 項目 | 状態 | 正本 |
+|---|---|---|
+| gate hardening metrics | 完了 | [docs/tasks/task-gate-hardening-metrics-birdseye.md](tasks/task-gate-hardening-metrics-birdseye.md) |
+
+判定: go
+
+## 2026-04-11 Gate hardening followup
+
+| 項目 | 状態 | 正本 |
+|---|---|---|
+| gate hardening followup | 完了 | [docs/tasks/task-gate-hardening-followup.md](tasks/task-gate-hardening-followup.md) |
+
+判定: go
+
+## 2026-04-11 Gate hardening finalization
+
+| 項目 | 状態 | 正本 |
+|---|---|---|
+| gate hardening finalization | 完了 | [docs/tasks/task-gate-hardening-finalization.md](tasks/task-gate-hardening-finalization.md) |
+
+判定: go
+
+## 2026-04-11 Metrics harvest operationalization
+
+| 項目 | 状態 | 正本 |
+|---|---|---|
+| metrics harvest | 完了 | [docs/tasks/task-metrics-harvest-operationalization.md](tasks/task-metrics-harvest-operationalization.md) |
+
+判定: go
+
+## 2026-04-11 Birdseye freshness tightening
+
+| 項目 | 状態 | 正本 |
+|---|---|---|
+| birdseye freshness | 完了 | [docs/tasks/task-birdseye-freshness-tightening.md](tasks/task-birdseye-freshness-tightening.md) |
+
+判定: go
+
+## 2026-04-11 Cross repo status review
+
+| 項目 | 状態 | 正本 |
+|---|---|---|
+| cross repo status | 完了 | [docs/tasks/task-cross-repo-status-review.md](tasks/task-cross-repo-status-review.md) |
+
+判定: go
+
+## 2026-04-11 Acceptance normalization
+
+| 項目 | 状態 | 正本 |
+|---|---|---|
+| acceptance normalization | 完了 | [docs/tasks/task-acceptance-normalization-ac-20260411-01.md](tasks/task-acceptance-normalization-ac-20260411-01.md) |
+
+判定: go
+
+## 2026-04-11 Product readiness implementation
+
+| 項目 | 状態 | 正本 |
+|---|---|---|
+| product readiness | 完了 | [docs/tasks/task-product-readiness-implementation.md](tasks/task-product-readiness-implementation.md) |
+
+判定: go
+
+## 2026-04-11 Improvement backlog complete
+
+| 項目 | 状態 | 正本 |
+|---|---|---|
+| improvement backlog | 完了 | [docs/tasks/task-improvement-backlog-complete.md](tasks/task-improvement-backlog-complete.md) |
+
+判定: go
+
+## 2026-04-15 Security priority response
+
+| 項目 | 状態 | 正本 |
+|---|---|---|
+| security priority | 完了 | [docs/tasks/task-security-priority-response-20260415.md](tasks/task-security-priority-response-20260415.md) |
+
+判定: go
+
+## 2026-04-17 Enterprise supply chain hardening
+
+| 項目 | 状態 | 正本 |
+|---|---|---|
+| supply chain hardening | 完了 | [docs/tasks/task-enterprise-supply-chain-hardening-20260417.md](tasks/task-enterprise-supply-chain-hardening-20260417.md) |
+
+判定: go
+
+## 2026-04-17 Enterprise release operations evidence
+
+| 項目 | 状態 | 正本 |
+|---|---|---|
+| release operations | 完了 | [docs/tasks/task-enterprise-release-operations-evidence-20260417.md](tasks/task-enterprise-release-operations-evidence-20260417.md) |
+
+判定: go
+
+## 2026-04-17 Enterprise security governance hardening
+
+| 項目 | 状態 | 正本 |
+|---|---|---|
+| security governance | 完了 | [docs/tasks/task-enterprise-security-governance-hardening-20260417.md](tasks/task-enterprise-security-governance-hardening-20260417.md) |
+
+判定: go
+
+## 2026-04-17 CI gate matrix alignment
+
+| 項目 | 状態 | 正本 |
+|---|---|---|
+| CI gate matrix | 完了 | [docs/tasks/task-ci-gate-matrix-alignment-20260417.md](tasks/task-ci-gate-matrix-alignment-20260417.md) |
+
+判定: go
+
+## 2026-04-17 Branch protection enablement
+
+| 項目 | 状態 | 正本 |
+|---|---|---|
+| branch protection | 完了 | [docs/tasks/task-branch-protection-enablement-20260417.md](tasks/task-branch-protection-enablement-20260417.md) |
+
+判定: go
+
+## 2026-04-17 Release evidence operational drill
+
+| 項目 | 状態 | 正本 |
+|---|---|---|
+| release evidence drill | 完了 | [docs/tasks/task-release-evidence-operational-drill-20260417.md](tasks/task-release-evidence-operational-drill-20260417.md) |
+
+判定: go
+
+## 2026-04-17 Supply chain reproducibility followup
+
+| 項目 | 状態 | 正本 |
+|---|---|---|
+| supply chain followup | 完了 | [docs/tasks/task-supply-chain-reproducibility-followup-20260417.md](tasks/task-supply-chain-reproducibility-followup-20260417.md) |
+
+判定: go
