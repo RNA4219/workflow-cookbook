@@ -8,29 +8,40 @@ next_review_due: 2025-11-14
 
 # Changelog
 
+## 1.2.0 - 2026-05-03
+
+### Added
+
+- Version consistency checker (INT-IMPROVEMENT-006 step 1):
+  - `tools/ci/check_version_consistency.py`: 11 tests
+  - RG-007 added to docs/ci-config.md
+- Stable CLI entrypoints (INT-IMPROVEMENT-006 step 2):
+  - `pyproject.toml`: `[project.scripts]` (wfc-governance-gate, wfc-collect-metrics, wfc-codemap-update, wfc-context-pack)
+  - 6 smoke tests
+- Docs gate escalation policy (INT-IMPROVEMENT-006 step 3):
+  - `governance/policy.yaml`: `ci.checker_stages` (RG-002: enforce, RG-003-007: warn)
+  - Escalation Policy section in docs/ci-config.md
+  - 4 new tests
+- Plugin capability catalog (INT-IMPROVEMENT-006 step 4):
+  - `schemas/plugin-capability-catalog.schema.json`
+  - `examples/plugin-capability-catalog.sample.json`: 5 capabilities
+  - 7 tests
+
+### Changed
+
+- Tech debt resolution: split large modules
+  - `tools/perf/collect_metrics/types.py` (572 lines) → rules.py, helpers.py, extractor.py
+  - `tools/ci/check_governance_gate.py` (503 lines) → governance_gate/ package
+  - docstrings added to evidence_bridge.py, allowlist_guard.py
+- pyproject.toml version fixed (0.1.0 → 1.1.3)
+- Birdseye freshness threshold: 365 days → 90 days
+- Self-improvement loop: nudge checker, propagation checker, sample configs
+- docs/releases/v1.2.0.md removed (no git tag) → CHANGELOG section removed
+
 ## Unreleased
 
 ### Added
 
-- Version consistency checker 実装 (INT-IMPROVEMENT-006 step 1):
-  - `tools/ci/check_version_consistency.py`: pyproject.toml / README badge / CHANGELOG / git tag / docs/releases 整合確認
-  - `tests/test_check_version_consistency.py`: 11 tests
-  - `docs/ci-config.md`: RG-007 checker 対応表追加
-- Stable CLI entrypoints 実装 (INT-IMPROVEMENT-006 step 2):
-  - `pyproject.toml`: `[project.scripts]` 追加 (wfc-governance-gate, wfc-collect-metrics, wfc-codemap-update, wfc-context-pack)
-  - `tests/test_cli_entrypoints.py`: 6 smoke tests
-  - `tools/ci/governance_gate/cli.py`: parse_arguments修正 (--help対応)
-- Docs gate escalation policy 実装 (INT-IMPROVEMENT-006 step 3):
-  - `governance/policy.yaml`: `ci.checker_stages` 追加 (RG-002: enforce, RG-003-007: warn)
-  - `docs/ci-config.md`: Escalation Policy section 追加 (stage定義、昇格条件、rollback条件)
-  - `tools/ci/check_ci_gate_matrix.py`: checker_stages 検証追加
-  - `tests/test_check_ci_gate_matrix.py`: 4 new tests for checker_stages
-- Plugin capability catalog 実装 (INT-IMPROVEMENT-006 step 4):
-  - `schemas/plugin-capability-catalog.schema.json`: capability catalog schema
-  - `examples/plugin-capability-catalog.sample.json`: sample catalog with 5 capabilities
-  - `tools/ci/check_plugin_capability_catalog.py`: catalog/interfaces.py 整合検証
-  - `tests/test_check_plugin_capability_catalog.py`: 7 tests
-  - `tools/workflow_plugins/README.md`: capabilities table更新
 - RUNBOOK slimming、Task/Acceptance/Completion trace、agent-tools-hub 境界の要件・仕様を追加。
 - 先行改善案として、version consistency、stable CLI entrypoint、docs gate escalation、
   plugin capability catalog、large module split policy を要件・仕様・Blueprint へ追加。
