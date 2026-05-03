@@ -41,7 +41,7 @@ jobs:
           else
             echo "{\"name\":\"lint\",\"status\":\"skip\",\"duration_ms\":0}" >> workflow-cookbook/logs/test.jsonl
           fi
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: ${{ always() }}
         with:
           name: test-logs-${{ github.job }}
@@ -75,7 +75,7 @@ jobs:
           else
             echo "{\"name\":\"typecheck\",\"status\":\"skip\",\"duration_ms\":0}" >> workflow-cookbook/logs/test.jsonl
           fi
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: ${{ always() }}
         with:
           name: test-logs-${{ github.job }}
@@ -164,7 +164,7 @@ jobs:
 
       - name: Upload logs
         if: ${{ always() }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: test-logs-${{ github.job }}
           path: 'workflow-cookbook/logs/*'
@@ -198,13 +198,13 @@ jobs:
           else
             echo "{\"name\":\"build\",\"status\":\"skip\",\"duration_ms\":0}" >> workflow-cookbook/logs/test.jsonl
           fi
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: ${{ always() }}
         with:
           name: build-output
           path: dist/**
           if-no-files-found: ignore
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: ${{ always() }}
         with:
           name: test-logs-${{ github.job }}
@@ -238,7 +238,7 @@ jobs:
           npx playwright install --with-deps
           if npm run -s test:e2e; then s=pass; else s=fail; fi
           echo "{\"name\":\"e2e\",\"status\":\"$s\",\"duration_ms\":$(( $(date +%s%3N)-start ))}" >> workflow-cookbook/logs/test.jsonl
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: ${{ always() }}
         with:
           name: test-logs-${{ github.job }}
