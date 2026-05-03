@@ -57,7 +57,7 @@ def load_prometheus(metrics_url: str, extractor: MetricExtractor) -> Mapping[str
     """Load metrics from Prometheus HTTP endpoint."""
     validate_url(metrics_url, context="metrics_url")
     try:
-        with urllib.request.urlopen(metrics_url) as response:
+        with urllib.request.urlopen(metrics_url) as response:  # nosec B310  # URL validated by validate_url above, HTTPS enforced
             payload = response.read()
     except OSError as exc:
         raise MetricsCollectionError(f"Failed to read metrics from {metrics_url}: {exc}") from exc

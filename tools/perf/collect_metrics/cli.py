@@ -137,7 +137,7 @@ class MetricsRunner:
             request = urllib.request.Request(self.plan.pushgateway_url, data=payload, method="PUT")
             request.add_header("Content-Type", "text/plain; version=0.0.4")
             try:
-                with urllib.request.urlopen(request) as response:
+                with urllib.request.urlopen(request) as response:  # nosec B310  # URL validated by security.py, HTTPS enforced
                     response.read()
             except OSError as exc:
                 raise MetricsCollectionError(
