@@ -2,8 +2,8 @@
 intent_id: DOC-LEGACY
 owner: docs-core
 status: active
-last_reviewed_at: 2026-04-10
-next_review_due: 2026-05-10
+last_reviewed_at: 2026-05-03
+next_review_due: 2026-06-03
 ---
 
 # O. Adaptive Improvement Loop
@@ -154,9 +154,9 @@ next_review_due: 2026-05-10
 - user model や long-term memory を無審査で永続化しない
 - skill 自動生成結果を review 無しで公開しない
 
-## 8. 次の実装候補
+## 8. 完了済み実装
 
-- `ReflectionSummary` / `SkillDraftRecord` / `RecallResponse` の schema 化
-- self-improvement plugin capability の追加
-- acceptance / evidence と skill draft の関連付け checker
-- stale reflection に対する nudge checker
+- ✓ `ReflectionSummary` / `SkillDraftRecord` / `RecallResponse` / `UserModelSnapshot` / `WorkspaceModelSnapshot` / `PeriodicNudge` の schema 化 (2026-05-02)
+- ✓ stale reflection / skill draft に対する nudge checker (2026-05-02)
+- ✓ Task Seed完了propagation checker (2026-05-03)
+- ✓ sample config 4件作成 (2026-05-03)
