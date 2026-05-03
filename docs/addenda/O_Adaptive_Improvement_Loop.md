@@ -156,7 +156,8 @@ next_review_due: 2026-06-03
 
 ## 8. 完了済み実装
 
-- ✓ `ReflectionSummary` / `SkillDraftRecord` / `RecallResponse` / `UserModelSnapshot` / `WorkspaceModelSnapshot` / `PeriodicNudge` の schema 化 (2026-05-02)
+- ✓ `ReflectionSummary` / `SkillDraftRecord` / `RecallResponse` / `UserModelSnapshot`
+  / `WorkspaceModelSnapshot` / `PeriodicNudge` schema化 (2026-05-02)
 - ✓ stale reflection / skill draft に対する nudge checker (2026-05-02)
 - ✓ Task Seed完了propagation checker (2026-05-03)
 - ✓ sample config 4件作成 (2026-05-03)
