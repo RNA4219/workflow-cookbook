@@ -20,6 +20,11 @@ next_review_due: 2025-11-14
   - `pyproject.toml`: `[project.scripts]` 追加 (wfc-governance-gate, wfc-collect-metrics, wfc-codemap-update, wfc-context-pack)
   - `tests/test_cli_entrypoints.py`: 6 smoke tests
   - `tools/ci/governance_gate/cli.py`: parse_arguments修正 (--help対応)
+- Docs gate escalation policy 実装 (INT-IMPROVEMENT-006 step 3):
+  - `governance/policy.yaml`: `ci.checker_stages` 追加 (RG-002: enforce, RG-003-007: warn)
+  - `docs/ci-config.md`: Escalation Policy section 追加 (stage定義、昇格条件、rollback条件)
+  - `tools/ci/check_ci_gate_matrix.py`: checker_stages 検証追加
+  - `tests/test_check_ci_gate_matrix.py`: 4 new tests for checker_stages
 - RUNBOOK slimming、Task/Acceptance/Completion trace、agent-tools-hub 境界の要件・仕様を追加。
 - 先行改善案として、version consistency、stable CLI entrypoint、docs gate escalation、
   plugin capability catalog、large module split policy を要件・仕様・Blueprint へ追加。

@@ -9,6 +9,22 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Sequence
 
+try:
+    import yaml
+except ModuleNotFoundError:
+    class _MiniYamlModule:
+        @staticmethod
+        def safe_load(content: str) -> dict:
+            result: dict = {}
+            for line in content.splitlines():
+                stripped = line.strip()
+                if not stripped or stripped.startswith("#"):
+                    continue
+                key, _, value = stripped.partition(":")
+                result[key.strip()] = value.strip()
+            return result
+    yaml = _MiniYamlModule()
+
 _REPO_ROOT = Path(__file__).resolve().parents[2]
 if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
@@ -18,6 +34,8 @@ from tools.ci.check_branch_protection import LOGICAL_TO_REPO_CHECK, load_policy_
 
 _DEFAULT_POLICY = _REPO_ROOT / "governance" / "policy.yaml"
 _DEFAULT_CI_CONFIG = _REPO_ROOT / "docs" / "ci-config.md"
+
+VALID_CHECKER_STAGES = ("observe", "warn", "enforce")
 
 LOGICAL_TO_WORKFLOW = {
     "governance-gate": ".github/workflows/governance-gate.yml",
@@ -49,6 +67,27 @@ class ValidationResult:
             print(message, file=sys.stderr)
         for message in self.warnings:
             print(message, file=sys.stderr)
+
+
+def load_checker_stages(policy_path: Path) -> dict[str, str]:
+    """Load checker stages from governance/policy.yaml."""
+    try:
+        content = policy_path.read_text(encoding="utf-8")
+    except FileNotFoundError:
+        return {}
+    try:
+        loaded = yaml.safe_load(content)
+    except Exception:
+        return {}
+    if loaded is None or not isinstance(loaded, dict):
+        return {}
+    ci_section = loaded.get("ci")
+    if ci_section is None or not isinstance(ci_section, dict):
+        return {}
+    stages = ci_section.get("checker_stages")
+    if stages is None or not isinstance(stages, dict):
+        return {}
+    return {str(k): str(v) for k, v in stages.items()}
 
 
 def validate_ci_gate_matrix(
@@ -95,6 +134,18 @@ def validate_ci_gate_matrix(
                 result.errors.append(
                     f"docs/ci-config.md does not mention concrete check/job '{concrete_check}' for '{logical_id}'."
                 )
+
+    # Validate checker_stages
+    checker_stages = load_checker_stages(policy_path)
+    for gate_id, stage in checker_stages.items():
+        if stage not in VALID_CHECKER_STAGES:
+            result.errors.append(
+                f"Invalid stage '{stage}' for '{gate_id}' in policy.yaml. Must be one of: {', '.join(VALID_CHECKER_STAGES)}"
+            )
+        if gate_id not in ci_config_text:
+            result.warnings.append(
+                f"Checker '{gate_id}' in policy.yaml is not documented in docs/ci-config.md."
+            )
 
     return result
 

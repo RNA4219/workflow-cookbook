@@ -23,6 +23,16 @@ ci:
     - python-ci
     - docs-gate
 
+  # Docs gate checker stages: observe -> warn -> enforce
+  # See docs/ci-config.md for escalation criteria and rollback conditions.
+  checker_stages:
+    RG-002: enforce  # Birdseye freshness - now enforced after 90-day threshold
+    RG-003: warn     # Runbook slimming - observe for 30 days, then warn
+    RG-004: warn     # Completion trace - warning with optional --require-acceptance-for-done
+    RG-005: warn     # Agent-tools-hub boundary - routing duplication detection
+    RG-006: warn     # Task completion propagation - nudge for missing completion-record
+    RG-007: warn     # Version consistency - new checker, observe first
+
 slo:
   lead_time_p95_hours: 24
   mttr_p95_minutes: 30

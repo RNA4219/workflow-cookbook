@@ -41,6 +41,50 @@ next_review_due: 2026-05-09
 | RG-006 | `check_task_completion_propagation.py` | warning | done Task Seedのcompletion-record未反映をnudge。 |
 | RG-007 | `check_version_consistency.py` | warning | pyproject.toml / README badge / CHANGELOG / git tag / docs/releases 整合確認。 |
 
+## Docs Gate Escalation Policy
+
+checker ごとの stage は `governance/policy.yaml` の `ci.checker_stages` で定義。
+
+### Stage 定義
+
+| Stage | 挙動 | 目的 |
+| --- | --- | --- |
+| `observe` | 検出のみ、CI pass | 新規 checker の導入期間。実績収集。 |
+| `warn` | stderr に警告出力、CI pass | 修正促進。担当者に通知。 |
+| `enforce` | stderr にエラー出力、CI fail | 必須対応。merge block。 |
+
+### 昇格条件
+
+| 昇格パス | 条件 |
+| --- | --- |
+| `observe` → `warn` | 30日経過 + 検出率 < 5% (安定動作確認) |
+| `warn` → `enforce` | 30日経過 + 検出率 < 1% (ほぼ解消) + 担当者同意 |
+
+### Rollback 条件
+
+| Rollback | 条件 |
+| --- | --- |
+| `enforce` → `warn` | 検出率 > 10% (大量誤検出) + 48h以内 |
+| `warn` → `observe` | 検出率 > 20% (根本原因未解決) + 担当者判断 |
+
+### 現行 Stage 状態
+
+| Gate ID | Stage | 昇格履歴 |
+| --- | --- | --- |
+| RG-002 | enforce | 365日(warn) → 90日(enforce) 2026-05-03 |
+| RG-003 | warn | 2026-05-02導入、observe期間終了 |
+| RG-004 | warn | 2026-05-02導入、--require-acceptance-for-done で error 昇格可 |
+| RG-005 | warn | 2026-05-02導入 |
+| RG-006 | warn | 2026-05-03導入 |
+| RG-007 | warn | 2026-05-03導入 (新規) |
+
+### Stage 変更手順
+
+1. `governance/policy.yaml` の `checker_stages` を更新
+2. `docs/ci-config.md` の「現行 Stage 状態」を更新
+3. 対応 workflow で `--check` フラグ調整 (enforce の場合は必須)
+4. PR 作成、reviewer に stage 変更理由を明記
+
 ## Branch Protection 検証
 
 - GitHub API から branch protection JSON を取得できる環境では、
