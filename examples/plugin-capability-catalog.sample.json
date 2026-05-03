@@ -1,0 +1,34 @@
+{
+  "capabilities": [
+    {
+      "id": "task_state.sync",
+      "method_name": "sync_task_acceptance",
+      "description": "Synchronize Task and Acceptance state",
+      "result_type": "TaskAcceptanceSyncReport"
+    },
+    {
+      "id": "acceptance.index",
+      "method_name": "build_acceptance_index",
+      "description": "Build acceptance index markdown",
+      "result_type": "AcceptanceIndexResult"
+    },
+    {
+      "id": "docs.resolve",
+      "method_name": "resolve_docs",
+      "description": "Resolve required/recommended docs for a task",
+      "result_type": "DocsResolveResult"
+    },
+    {
+      "id": "docs.ack",
+      "method_name": "ack_docs",
+      "description": "Acknowledge docs read by a reader",
+      "result_type": "DocsAckResult"
+    },
+    {
+      "id": "docs.stale_check",
+      "method_name": "stale_check",
+      "description": "Check stale docs for a task",
+      "result_type": "DocsStaleResult"
+    }
+  ]
+}

@@ -1,0 +1,81 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://rna4219.dev/workflow-cookbook/schemas/plugin-capability-catalog.schema.json",
+  "title": "Plugin Capability Catalog",
+  "description": "Catalog of capabilities provided by workflow plugins.",
+  "type": "object",
+  "required": ["capabilities"],
+  "properties": {
+    "capabilities": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/capability"
+      }
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "capability": {
+      "type": "object",
+      "required": ["id", "method_name"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z_]+\\.[a-z_]+$",
+          "description": "Capability identifier in namespace.name format."
+        },
+        "method_name": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Method name that implements this capability."
+        },
+        "description": {
+          "type": "string",
+          "description": "Short description of what this capability does."
+        },
+        "result_type": {
+          "type": "string",
+          "description": "Expected result dataclass type."
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "examples": [
+    {
+      "capabilities": [
+        {
+          "id": "task_state.sync",
+          "method_name": "sync_task_acceptance",
+          "description": "Synchronize Task and Acceptance state",
+          "result_type": "TaskAcceptanceSyncReport"
+        },
+        {
+          "id": "acceptance.index",
+          "method_name": "build_acceptance_index",
+          "description": "Build acceptance index markdown",
+          "result_type": "AcceptanceIndexResult"
+        },
+        {
+          "id": "docs.resolve",
+          "method_name": "resolve_docs",
+          "description": "Resolve required/recommended docs for a task",
+          "result_type": "DocsResolveResult"
+        },
+        {
+          "id": "docs.ack",
+          "method_name": "ack_docs",
+          "description": "Acknowledge docs read by a reader",
+          "result_type": "DocsAckResult"
+        },
+        {
+          "id": "docs.stale_check",
+          "method_name": "stale_check",
+          "description": "Check stale docs for a task",
+          "result_type": "DocsStaleResult"
+        }
+      ]
+    }
+  ]
+}

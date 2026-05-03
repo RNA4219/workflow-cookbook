@@ -25,6 +25,12 @@ next_review_due: 2025-11-14
   - `docs/ci-config.md`: Escalation Policy section 追加 (stage定義、昇格条件、rollback条件)
   - `tools/ci/check_ci_gate_matrix.py`: checker_stages 検証追加
   - `tests/test_check_ci_gate_matrix.py`: 4 new tests for checker_stages
+- Plugin capability catalog 実装 (INT-IMPROVEMENT-006 step 4):
+  - `schemas/plugin-capability-catalog.schema.json`: capability catalog schema
+  - `examples/plugin-capability-catalog.sample.json`: sample catalog with 5 capabilities
+  - `tools/ci/check_plugin_capability_catalog.py`: catalog/interfaces.py 整合検証
+  - `tests/test_check_plugin_capability_catalog.py`: 7 tests
+  - `tools/workflow_plugins/README.md`: capabilities table更新
 - RUNBOOK slimming、Task/Acceptance/Completion trace、agent-tools-hub 境界の要件・仕様を追加。
 - 先行改善案として、version consistency、stable CLI entrypoint、docs gate escalation、
   plugin capability catalog、large module split policy を要件・仕様・Blueprint へ追加。
