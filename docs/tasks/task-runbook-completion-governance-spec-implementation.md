@@ -1,6 +1,6 @@
 ---
 task_id: 20260502-01
-intent_id: INT-001
+intent_id: INT-IMPROVEMENT-001
 owner: docs-core
 status: planned
 last_reviewed_at: 2026-05-02
