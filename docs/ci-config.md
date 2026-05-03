@@ -39,6 +39,7 @@ next_review_due: 2026-05-09
 | RG-004 | `check_completion_trace.py` | warning (default) | `--require-acceptance-for-done` で error 昇格可。 |
 | RG-005 | `check_agent_tools_hub_boundary.py` | warning | routing table 複製を検出。 |
 | RG-006 | `check_task_completion_propagation.py` | warning | done Task Seedのcompletion-record未反映をnudge。 |
+| RG-007 | `check_version_consistency.py` | warning | pyproject.toml / README badge / CHANGELOG / git tag / docs/releases 整合確認。 |
 
 ## Branch Protection 検証
 

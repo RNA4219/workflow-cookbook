@@ -41,6 +41,16 @@ RUNBOOK は日常運用と現在の判断に集中させ、完了済みの長い
 - 大きな機能分割やドキュメント分割を終えた場合は、「何をどこへ分けたか」
   を本書に明示する。
 
+## 2026-05-03 改善仕様拡充の検収
+
+| 項目 | 状態 | 正本 |
+|---|---|---|
+| improvement spec acceptance | 完了 | [docs/tasks/task-improvement-spec-acceptance-20260503.md](tasks/task-improvement-spec-acceptance-20260503.md) / [docs/acceptance/AC-20260503-04.md](acceptance/AC-20260503-04.md) |
+| next implementation prompt | planned | [docs/tasks/task-next-improvement-implementation-20260503.md](tasks/task-next-improvement-implementation-20260503.md) |
+
+判定: go
+補足: 文書仕様の検収結果は RUNBOOK に短く記録し、詳細は acceptance record に分離。
+
 ## 2026-05-02 自己改善ループ schema 定義
 
 | 項目 | 状態 | 正本 |

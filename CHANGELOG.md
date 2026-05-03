@@ -12,6 +12,10 @@ next_review_due: 2025-11-14
 
 ### Added
 
+- Version consistency checker 実装 (INT-IMPROVEMENT-006 step 1):
+  - `tools/ci/check_version_consistency.py`: pyproject.toml / README badge / CHANGELOG / git tag / docs/releases 整合確認
+  - `tests/test_check_version_consistency.py`: 11 tests
+  - `docs/ci-config.md`: RG-007 checker 対応表追加
 - RUNBOOK slimming、Task/Acceptance/Completion trace、agent-tools-hub 境界の要件・仕様を追加。
 - 先行改善案として、version consistency、stable CLI entrypoint、docs gate escalation、
   plugin capability catalog、large module split policy を要件・仕様・Blueprint へ追加。
@@ -60,6 +64,8 @@ next_review_due: 2025-11-14
   - `tests/test_check_stale_self_improvement.py`: nudge checker test (12 tests)
 - `.workflow-cache/reflections/SESSION-20260502-002.json`: セッションreflection記録
 - `.workflow-cache/skill-drafts/SKILL-DRAFT-002.json`: Task Seed完了自動反映skill draft
+- 改善仕様拡充の検収 record `AC-20260503-04` と次実装用 Task Seed
+  `task-next-improvement-implementation-20260503` を追加し、RUNBOOK に結果参照を記録。
 
 ### Changed
 

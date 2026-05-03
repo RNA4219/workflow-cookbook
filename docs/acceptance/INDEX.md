@@ -1,20 +1,58 @@
 # Acceptance Index
 
-| Acceptance | Task | Intent | Status | Reviewed | File |
-|---|---|---|---|---|---|
-| AC-20260417-02 | 20260417-02 | INT-SEC-004 | approved | 2026-04-19 | [AC-20260417-02.md](docs/acceptance/AC-20260417-02.md) |
-| AC-20260417-05 | 20260417-05 | INT-SEC-005 | approved | 2026-04-17 | [AC-20260417-05.md](docs/acceptance/AC-20260417-05.md) |
-| AC-20260417-04 | 20260417-04 | INT-SEC-001 | approved | 2026-04-17 | [AC-20260417-04.md](docs/acceptance/AC-20260417-04.md) |
-| AC-20260417-03 | 20260417-03 | INT-SEC-002 | approved | 2026-04-17 | [AC-20260417-03.md](docs/acceptance/AC-20260417-03.md) |
-| AC-20260417-01 | 20260417-01 | INT-SEC-003 | approved | 2026-04-17 | [AC-20260417-01.md](docs/acceptance/AC-20260417-01.md) |
-| AC-20260415-01 | 20260415-01 | INT-SEC-000 | approved | 2026-04-15 | [AC-20260415-01.md](docs/acceptance/AC-20260415-01.md) |
-| AC-20260411-08 | 20260411-06 | INT-001 | approved | 2026-04-11 | [AC-20260411-08.md](docs/acceptance/AC-20260411-08.md) |
-| AC-20260411-07 | 20260411-05 | INT-001 | approved | 2026-04-11 | [AC-20260411-07.md](docs/acceptance/AC-20260411-07.md) |
-| AC-20260411-06 | 20260411-04 | INT-001 | approved | 2026-04-11 | [AC-20260411-06.md](docs/acceptance/AC-20260411-06.md) |
-| AC-20260411-05 | 20260411-08 | INT-001 | approved | 2026-04-11 | [AC-20260411-05.md](docs/acceptance/AC-20260411-05.md) |
-| AC-20260411-04 | 20260411-07 | INT-001 | approved | 2026-04-11 | [AC-20260411-04.md](docs/acceptance/AC-20260411-04.md) |
-| AC-20260411-03 | 20260411-03 | INT-001 | approved | 2026-04-11 | [AC-20260411-03.md](docs/acceptance/AC-20260411-03.md) |
-| AC-20260411-02 | 20260411-02 | INT-001 | approved | 2026-04-11 | [AC-20260411-02.md](docs/acceptance/AC-20260411-02.md) |
-| AC-20260411-01 | 20260411-01 | INT-001 | approved | 2026-04-11 | [AC-20260411-01.md](docs/acceptance/AC-20260411-01.md) |
-| AC-20260410-02 | 20260410-02 | INT-001 | approved | 2026-04-10 | [AC-20260410-02.md](docs/acceptance/AC-20260410-02.md) |
-| AC-20260410-01 | 20260410-01 | INT-001 | approved | 2026-04-10 | [AC-20260410-01.md](docs/acceptance/AC-20260410-01.md) |
+## Gate Hardening Notes
+
+- **Gate Hardening** (RG-001〜RG-006): AC-20260411-01〜03 で完了
+  - AC-20260411-01: RG-002〜RG-006 (docs/Birdseye)
+  - AC-20260411-02: RG-001 (metrics gate必須化)
+  - AC-20260411-03: RG-002/RG-003 最終調整
+
+## Summary
+
+| Status | Count | Percentage |
+| --- | --- | --- |
+| approved | 22 | 100.0% |
+| rejected | 0 | 0.0% |
+| draft | 0 | 0.0% |
+| unknown | 0 | 0.0% |
+| **Total** | **22** | **100%** |
+
+## Release Mapping
+
+| Release | Acceptances | Docs |
+| --- | --- | --- |
+| [v1.1.3](../releases/v1.1.3.md) | AC-20260411-01, AC-20260411-02, AC-20260411-03, AC-20260411-04, AC-20260411-05, AC-20260411-06, AC-20260411-07, AC-20260411-08 | 2026-04-11 |
+| [v1.2.0](../releases/v1.2.0.md) | AC-20260410-01, AC-20260410-02 | 2026-04-10 |
+| [v1.1.2](../releases/v1.1.2.md) | - | 2026-04-09 |
+| [v1.1.1](../releases/v1.1.1.md) | - | 2026-04-09 |
+| [v1.1.0](../releases/v1.1.0.md) | - | 2026-04-09 |
+| [v1.0.0](../releases/v1.0.0.md) | - | 2025-10-16 |
+| [v0.1.0](../releases/v0.1.0.md) | - | 2025-10-13 |
+| unreleased | AC-20260415-01, AC-20260417-01, AC-20260417-02, AC-20260417-03, AC-20260417-04, AC-20260417-05, AC-20260502-01, AC-20260502-02, AC-20260503-01, AC-20260503-02, AC-20260503-03, AC-20260503-04 | - |
+
+## Records
+
+| Acceptance | Task | Intent | Status | Reviewed | Release | File |
+| --- | --- | --- | --- | --- | --- | --- |
+| AC-20260503-04 | 20260503-04 | INT-IMPROVEMENT-005 | approved | 2026-05-03 | unreleased | [AC-20260503-04.md](AC-20260503-04.md) |
+| AC-20260503-03 | 20260503-03 | INT-IMPROVEMENT-004 | approved | 2026-05-03 | unreleased | [AC-20260503-03.md](AC-20260503-03.md) |
+| AC-20260503-02 | 20260503-02 | INT-IMPROVEMENT-003 | approved | 2026-05-03 | unreleased | [AC-20260503-02.md](AC-20260503-02.md) |
+| AC-20260503-01 | 20260503-01 | INT-OPS-001 | approved | 2026-05-03 | unreleased | [AC-20260503-01.md](AC-20260503-01.md) |
+| AC-20260502-02 | 20260502-02 | INT-IMPROVEMENT-002 | approved | 2026-05-02 | unreleased | [AC-20260502-02.md](AC-20260502-02.md) |
+| AC-20260502-01 | 20260502-01 | INT-IMPROVEMENT-001 | approved | 2026-05-02 | unreleased | [AC-20260502-01.md](AC-20260502-01.md) |
+| AC-20260417-05 | 20260417-05 | INT-SEC-010 | approved | 2026-04-17 | unreleased | [AC-20260417-05.md](AC-20260417-05.md) |
+| AC-20260417-04 | 20260417-04 | INT-SEC-009 | approved | 2026-04-17 | unreleased | [AC-20260417-04.md](AC-20260417-04.md) |
+| AC-20260417-03 | 20260417-03 | INT-SEC-005 | approved | 2026-04-17 | unreleased | [AC-20260417-03.md](AC-20260417-03.md) |
+| AC-20260417-02 | 20260417-02 | INT-SEC-004 | approved | 2026-04-19 | unreleased | [AC-20260417-02.md](AC-20260417-02.md) |
+| AC-20260417-01 | 20260417-01 | INT-SEC-003 | approved | 2026-04-17 | unreleased | [AC-20260417-01.md](AC-20260417-01.md) |
+| AC-20260415-01 | 20260415-01 | INT-SEC-001 | approved | 2026-04-15 | unreleased | [AC-20260415-01.md](AC-20260415-01.md) |
+| AC-20260411-08 | 20260411-06 | INT-001 | approved | 2026-04-11 | [v1.1.3](../releases/v1.1.3.md) | [AC-20260411-08.md](AC-20260411-08.md) |
+| AC-20260411-07 | 20260411-05 | INT-001 | approved | 2026-04-11 | [v1.1.3](../releases/v1.1.3.md) | [AC-20260411-07.md](AC-20260411-07.md) |
+| AC-20260411-06 | 20260411-04 | INT-001 | approved | 2026-04-11 | [v1.1.3](../releases/v1.1.3.md) | [AC-20260411-06.md](AC-20260411-06.md) |
+| AC-20260411-05 | 20260411-08 | INT-001 | approved | 2026-04-11 | [v1.1.3](../releases/v1.1.3.md) | [AC-20260411-05.md](AC-20260411-05.md) |
+| AC-20260411-04 | 20260411-07 | INT-001 | approved | 2026-04-11 | [v1.1.3](../releases/v1.1.3.md) | [AC-20260411-04.md](AC-20260411-04.md) |
+| AC-20260411-03 | 20260411-03 | INT-001 | approved | 2026-04-11 | [v1.1.3](../releases/v1.1.3.md) | [AC-20260411-03.md](AC-20260411-03.md) |
+| AC-20260411-02 | 20260411-02 | INT-001 | approved | 2026-04-11 | [v1.1.3](../releases/v1.1.3.md) | [AC-20260411-02.md](AC-20260411-02.md) |
+| AC-20260411-01 | 20260411-01 | INT-001 | approved | 2026-04-11 | [v1.1.3](../releases/v1.1.3.md) | [AC-20260411-01.md](AC-20260411-01.md) |
+| AC-20260410-02 | 20260410-02 | INT-001 | approved | 2026-04-10 | [v1.2.0](../releases/v1.2.0.md) | [AC-20260410-02.md](AC-20260410-02.md) |
+| AC-20260410-01 | 20260410-01 | INT-001 | approved | 2026-04-10 | [v1.2.0](../releases/v1.2.0.md) | [AC-20260410-01.md](AC-20260410-01.md) |

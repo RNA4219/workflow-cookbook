@@ -124,6 +124,12 @@ next_review_due: 2026-05-09
     （5 桁ゼロ埋め世代番号）を確認し、必要なら
     `CHECKLISTS.md` の [Hygiene](CHECKLISTS.md#hygiene) を更新する。
 
+## Recent Validation Results
+
+| Date | Scope | Result | Record | Follow-up |
+|---|---|---|---|---|
+| 2026-05-03 | Improvement spec expansion | approved | [AC-20260503-04](docs/acceptance/AC-20260503-04.md) | [task-next-improvement-implementation-20260503](docs/tasks/task-next-improvement-implementation-20260503.md) |
+
 ## Operational Readiness Backlog
 
 会社導入を前提にした残タスクは、以下の Task Seed を正本にする。
