@@ -33,10 +33,10 @@ dependencies = [
 # Development dependencies for testing and linting - pinned for reproducibility
 # Update versions via Dependabot PRs after vulnerability review
 dev = [
-    "pytest==9.0.3",
+    "pytest==9.1.0",
     "pytest-cov==7.1.0",
     "bandit==1.9.4",
-    "pip-audit==2.10.0",
+    "pip-audit==2.10.1",
 ]
 
 [project.scripts]
