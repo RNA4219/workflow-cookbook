@@ -15,17 +15,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout workflow-cookbook
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           path: workflow-cookbook
           fetch-depth: 0
       - name: Checkout agent-taskstate
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           repository: RNA4219/agent-taskstate
           path: agent-taskstate
       - name: Checkout memx-resolver
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           repository: RNA4219/memx-resolver
           path: memx-resolver
