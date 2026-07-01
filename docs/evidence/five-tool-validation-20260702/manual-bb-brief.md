@@ -2,7 +2,9 @@
 
 ## 1. 根拠付き観点
 
-- Release readiness report: `docs/acceptance/AC-20260702-01.md` の criteria と `generate_evidence_report.py` のテスト証跡に基づき、release/security/metrics 入力が readiness summary に反映されること。
+- Release readiness report: `docs/acceptance/AC-20260702-01.md` の criteria と
+  `generate_evidence_report.py` のテスト証跡に基づき、release/security/metrics 入力が
+  readiness summary に反映されること。
 - Security and audit CLI: `tools/audit/verify_log_chain.py` の `--hmac-key` 推奨と `--secret` 互換 alias により、運用互換と静的解析上の誤検知低減が両立すること。
 - HATE isolated execution: `tests/test_cli_entrypoints.py` が `pip` 不在の隔離 Python でも console script smoke を実行できること。
 - Traceability: Task Seed、Acceptance、requirements、spec、RUNBOOK が five-tool Gate と同じ期待値を示すこと。
@@ -38,4 +40,5 @@
 
 ## 7. Go/No-Go brief
 
-No-Go blocker は残っていない。Code-to-gate readiness、HATE real-repo、pytest、acceptance trace、QEG workflow-cookbook fixture が揃ったため、このローカル検収範囲では Go とする。
+No-Go blocker は残っていない。Code-to-gate readiness、HATE real-repo、pytest、acceptance
+trace、QEG workflow-cookbook fixture が揃ったため、このローカル検収範囲では Go とする。

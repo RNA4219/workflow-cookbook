@@ -24,13 +24,16 @@ workflow-cookbook を派生 repo に導入する際の段階基準。
 ## Tier 0: Minimal
 
 ### Purpose
+
 - 最小限の README のみ
 - プロトタイプ、実験、scratch repo 向け
 
 ### Required Files
+
 - `README.md`
 
 ### Advancement Criteria
+
 - プロジェクトが継続利用される場合 → Tier 1 へ
 - 複数エージェント/メンバーが関わる場合 → Tier 1 へ
 
@@ -39,6 +42,7 @@ workflow-cookbook を派生 repo に導入する際の段階基準。
 ## Tier 1: Foundation
 
 ### Purpose
+
 - AI エージェントが repo を自律的に読み解ける
 - プロジェクトの目的・範囲が明示される
 
@@ -51,15 +55,19 @@ workflow-cookbook を派生 repo に導入する際の段階基準。
 | `BLUEPRINT.md` | Problem statement, scope, I/O contract, constraints |
 
 ### File Locations
+
 - **Option A**: Root level (推奨)
-  ```
+
+  ```text
   repo/
   ├── README.md
   ├── HUB.codex.md
   └── BLUEPRINT.md
   ```
+
 - **Option B**: `workflow-cookbook/` directory
-  ```
+
+  ```text
   repo/
   └── workflow-cookbook/
       ├── README.md
@@ -68,6 +76,7 @@ workflow-cookbook を派生 repo に導入する際の段階基準。
   ```
 
 ### Advancement Criteria
+
 - 継続的な運用が必要 → Tier 2 へ
 - CI/CD 導入が必要 → Tier 2 へ
 - 複数メンバーでの作業 → Tier 2 へ
@@ -77,6 +86,7 @@ workflow-cookbook を派生 repo に導入する際の段階基準。
 ## Tier 2: Operational
 
 ### Purpose
+
 - 実行手順と品質基準が明示される
 - 変更時の行動指針が定義される
 - 検収基準が追跡可能
@@ -91,11 +101,13 @@ workflow-cookbook を派生 repo に導入する際の段階基準。
 | `EVALUATION.md` | Acceptance criteria, KPIs, test outline |
 
 ### Additional Recommended Files
+
 - `CHANGELOG.md` - Change history (Keep a Changelog format)
 - `CHECKLISTS.md` - Release checklists
 - `SPEC.md` - Implementation specification notes
 
 ### Advancement Criteria
+
 - 複数リリースが必要 → Tier 3 へ
 - Task 追跡が必要 → Tier 3 へ
 - ドキュメント間の依存関係を可視化したい → Tier 3 へ
@@ -105,6 +117,7 @@ workflow-cookbook を派生 repo に導入する際の段階基準。
 ## Tier 3: Full
 
 ### Purpose
+
 - 完全な traceability (Task → Acceptance → Release)
 - ドキュメント知識マップ (Birdseye)
 - インシデント追跡
@@ -121,6 +134,7 @@ workflow-cookbook を派生 repo に導入する際の段階基準。
 | `docs/birdseye/caps/*.json` | Capsule summaries per document |
 
 ### Optional Files
+
 - `docs/IN-*.md` - Incident logs
 - `docs/releases/` - Release approval records
 - `governance/policy.yaml` - Self-modification bounds, SLOs
@@ -144,7 +158,7 @@ python tools/ci/check_adoption_tier.py --repo . --json
 
 ### Expected Output
 
-```
+```text
 Repo: manual-bb-test-harness
 Current Tier: 2 (Operational)
 

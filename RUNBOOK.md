@@ -336,7 +336,12 @@ console script smoke test は、`pip` が無い隔離 Python では
     warn / fail がないことを確認する。
   - 前回成功値と比較した regression 確認を行う場合は、baseline JSON を指定する。
     例:
-    `python tools/ci/check_metrics_thresholds.py --check --metrics-json .ga/qa-metrics.json --baseline-json .ga/qa-metrics.previous.json --regression-tolerance 0.10`
+
+    ```bash
+    python tools/ci/check_metrics_thresholds.py --check --metrics-json .ga/qa-metrics.json \
+      --baseline-json .ga/qa-metrics.previous.json --regression-tolerance 0.10
+    ```
+
     既定では regression は warning として扱う。release gate で止める場合は
     `--regression-level fail` を付ける。
   - `python - <<'PY'` を実行し、以下を評価して各メトリクスの値を抽出する:
@@ -414,9 +419,15 @@ console script smoke test は、`pip` が無い隔離 Python では
     Birdseye や Git 履歴で確認する。改善作業が必要な場合は Task Seed を
     追加投入する。
   - `task_seed_cycle_time_minutes` が 1440 分を超過: 受付から着手までの待機要因（担当者アサイン、依頼内容不備など）を振り返り、対応 SLA を再共有する。
-  - `birdseye_refresh_delay_minutes` が 60 分を超過: Birdseye 更新ジョブの実行ログとスケジューラ状態を確認し、必要に応じて手動更新を実施。
+  - `birdseye_refresh_delay_minutes` が 60 分を超過: Birdseye 更新ジョブの実行ログと
+    スケジューラ状態を確認し、必要に応じて手動更新を実施。
   - release 前の横断確認:
-    `python tools/ci/generate_evidence_report.py --security-json .ga/security-posture.json --metrics-json .ga/qa-metrics.json --output docs/release_readiness.md`
+
+    ```bash
+    python tools/ci/generate_evidence_report.py --security-json .ga/security-posture.json \
+      --metrics-json .ga/qa-metrics.json --output docs/release_readiness.md
+    ```
+
   - CI Phase の棚卸し:
     `python tools/ci/check_ci_phase_doctor.py --json`
   - downstream 横展開の棚卸し:
