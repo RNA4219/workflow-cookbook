@@ -26,6 +26,53 @@ class BirdseyeFreshnessError(RuntimeError):
 class BirdseyeFreshnessReport:
     failures: list[str]
     warnings: list[str]
+    remediations: list[dict[str, str]]
+
+
+def build_remediations(failures: list[str], *, max_verified_age_days: int | None = None) -> list[dict[str, str]]:
+    """Build human-actionable remediation commands from freshness failures."""
+    remediations: list[dict[str, str]] = []
+    seen: set[tuple[str, str]] = set()
+
+    def add(reason: str, command: str) -> None:
+        key = (reason, command)
+        if key in seen:
+            return
+        seen.add(key)
+        remediations.append({"reason": reason, "command": command})
+
+    full_refresh = (
+        "python tools/codemap/update.py --targets "
+        "docs/birdseye/index.json,docs/birdseye/hot.json --emit index+caps"
+    )
+    for failure in failures:
+        if "generated_at" in failure or "nodes must be" in failure or "invalid mtime" in failure:
+            add("Regenerate Birdseye index and hot list", full_refresh)
+        elif "missing caps file" in failure:
+            match = re.search(r"node (?P<node>.+?) references missing caps file", failure)
+            target = match.group("node") if match else "docs/birdseye/index.json"
+            add(
+                f"Regenerate capsule for {target}",
+                f"python tools/codemap/update.py --targets {target} --emit index+caps --radius 1",
+            )
+        elif "last verified" in failure:
+            match = re.search(r"node (?P<node>.+?) last verified", failure)
+            target = match.group("node") if match else "docs/birdseye/hot.json"
+            threshold = f" --max-verified-age-days {max_verified_age_days}" if max_verified_age_days else ""
+            add(
+                f"Refresh stale hot-list node {target}",
+                f"python tools/codemap/update.py --targets {target} --emit index+caps --radius 1",
+            )
+            add(
+                "Re-run Birdseye freshness check",
+                f"python tools/ci/check_birdseye_freshness.py --check{threshold}",
+            )
+        elif "missing caps path" in failure:
+            add("Regenerate Birdseye hot list entries", full_refresh)
+        else:
+            add("Rebuild Birdseye artifacts", full_refresh)
+
+    return remediations
 
 
 def _load_json(path: Path) -> Mapping[str, Any]:
@@ -122,7 +169,14 @@ def evaluate_birdseye_freshness(
                             f"{max_verified_age_days} day freshness window"
                         )
 
-    return BirdseyeFreshnessReport(failures=failures, warnings=warnings)
+    return BirdseyeFreshnessReport(
+        failures=failures,
+        warnings=warnings,
+        remediations=build_remediations(
+            failures,
+            max_verified_age_days=max_verified_age_days,
+        ),
+    )
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -143,6 +197,11 @@ def main(argv: list[str] | None = None) -> int:
         help="Fail when hot list last_verified_at is older than this many days",
     )
     parser.add_argument("--check", action="store_true", help="Validate Birdseye artifacts")
+    parser.add_argument(
+        "--remediation-output",
+        type=Path,
+        help="Write remediation command suggestions as JSON.",
+    )
     args = parser.parse_args(argv)
 
     try:
@@ -162,7 +221,14 @@ def main(argv: list[str] | None = None) -> int:
         "hot_path": str(args.hot_path),
         "failures": report.failures,
         "warnings": report.warnings,
+        "remediations": report.remediations,
     }
+    if args.remediation_output:
+        args.remediation_output.parent.mkdir(parents=True, exist_ok=True)
+        args.remediation_output.write_text(
+            json.dumps(report.remediations, ensure_ascii=False, indent=2),
+            encoding="utf-8",
+        )
     print(json.dumps(summary, ensure_ascii=False))
     if report.warnings:
         print("Birdseye freshness warnings:", file=sys.stderr)

@@ -1,0 +1,17 @@
+{
+  "$schema": "../schemas/tool-request.schema.json",
+  "request_id": "REQ-CODEMAP-UPDATE-001",
+  "tool": "codemap.update",
+  "args": {
+    "targets": [
+      "docs/birdseye/index.json",
+      "docs/birdseye/hot.json"
+    ],
+    "emit": "index+caps",
+    "radius": 1
+  },
+  "issued_by": "workflow-cookbook",
+  "timeout_seconds": 120,
+  "stream": false,
+  "created_at": "2026-07-02T00:00:00Z"
+}

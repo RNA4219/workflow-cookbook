@@ -1,0 +1,11 @@
+{
+  "fixture": "workflow-cookbook-five-tool-20260702",
+  "description": "Workflow Cookbook five-tool validation evidence proves go verdict for readiness/downstream automation changes.",
+  "expectedVerdict": "go",
+  "expectedDisqualifications": [],
+  "expectedBlockers": [],
+  "expectedResidualRisks": [],
+  "expectedHumanReview": [],
+  "expectedExitCode": 0,
+  "contractRef": "RUNBOOK.md#five-tool-validation-gate"
+}

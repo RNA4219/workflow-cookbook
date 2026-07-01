@@ -12,7 +12,9 @@ if str(_REPO_ROOT) not in sys.path:
 
 from tools.ci.check_sample_docs_sync import (
     _extract_doc_refs,
+    build_schema_sample_docs_matrix,
     scan_samples,
+    validate_matrix,
     validate_sync,
 )
 
@@ -86,3 +88,29 @@ class TestValidateSync:
         # Check that there are missing refs
         assert len(report.errors) >= 1
         assert "missing" in report.errors[0].lower() or "nonexistent" in report.errors[0].lower()
+
+
+def test_schema_sample_docs_matrix_reports_coverage(tmp_path: Path) -> None:
+    schemas = tmp_path / "schemas"
+    examples = tmp_path / "examples"
+    docs = tmp_path / "docs"
+    schemas.mkdir()
+    examples.mkdir()
+    docs.mkdir()
+    (schemas / "reflection-summary.schema.json").write_text(
+        json.dumps({"title": "ReflectionSummary"}),
+        encoding="utf-8",
+    )
+    (examples / "reflection-summary.sample.json").write_text("{}", encoding="utf-8")
+    (tmp_path / "README.md").write_text("ReflectionSummary", encoding="utf-8")
+    (tmp_path / "RUNBOOK.md").write_text("", encoding="utf-8")
+    (docs / "spec.md").write_text("", encoding="utf-8")
+
+    matrix = build_schema_sample_docs_matrix(
+        repo_root=tmp_path,
+        schemas_dir=schemas,
+        examples_dir=examples,
+    )
+
+    assert matrix[0]["sample_exists"] is True
+    assert validate_matrix(matrix) == []

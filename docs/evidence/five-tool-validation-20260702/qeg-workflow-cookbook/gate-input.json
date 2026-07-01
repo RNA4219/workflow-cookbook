@@ -1,0 +1,281 @@
+{
+  "metadata": {
+    "qegVersion": "0.1",
+    "runId": "run-workflow-cookbook-five-tool-20260702",
+    "createdAt": "2026-07-02T00:00:00.000Z",
+    "profile": "ipo_controlled",
+    "inputArtifacts": [
+      {
+        "id": "artifact-rand-001",
+        "adapter": "workflow-cookbook",
+        "kind": "requirements_packet",
+        "path": "docs/evidence/five-tool-validation-20260702/requirements_audit_packet.json",
+        "revision": "working-tree"
+      },
+      {
+        "id": "artifact-ctg-001",
+        "adapter": "code-to-gate",
+        "kind": "gate_decision",
+        "path": "C:/tmp/workflow-cookbook-five-tool-rerun/ctg/release-readiness.json",
+        "revision": "working-tree"
+      },
+      {
+        "id": "artifact-hate-001",
+        "adapter": "hate",
+        "kind": "execution_evidence",
+        "path": "C:/tmp/workflow-cookbook-five-tool-rerun/hate/real-repo-evaluation-run-report.json",
+        "revision": "working-tree"
+      },
+      {
+        "id": "artifact-manual-001",
+        "adapter": "manual-bb-test-harness",
+        "kind": "release_brief",
+        "path": "docs/evidence/five-tool-validation-20260702/manual-bb-brief.md",
+        "revision": "working-tree"
+      }
+    ]
+  },
+  "graph": {
+    "metadata": {
+      "qegVersion": "0.1",
+      "runId": "run-workflow-cookbook-five-tool-20260702",
+      "createdAt": "2026-07-02T00:00:00.000Z",
+      "profile": "ipo_controlled",
+      "inputArtifacts": []
+    },
+    "nodes": [
+      {
+        "id": "claim-wfc-five-tool-go",
+        "kind": "claim",
+        "label": "Workflow Cookbook five-tool blockers resolved",
+        "priority": "P0",
+        "severity": "critical",
+        "claimed": true,
+        "evidenceGap": 0,
+        "sourceRefs": [
+          {
+            "id": "sr-rand-packet",
+            "path": "docs/evidence/five-tool-validation-20260702/requirements_audit_packet.json"
+          },
+          {
+            "id": "sr-acceptance",
+            "path": "docs/acceptance/AC-20260702-01.md"
+          },
+          {
+            "id": "sr-ctg",
+            "path": "C:/tmp/workflow-cookbook-five-tool-rerun/ctg/release-readiness.json"
+          },
+          {
+            "id": "sr-hate",
+            "path": "C:/tmp/workflow-cookbook-five-tool-rerun/hate/real-repo-evaluation-run-report.json"
+          },
+          {
+            "id": "sr-manual-bb",
+            "path": "docs/evidence/five-tool-validation-20260702/manual-bb-brief.md"
+          }
+        ]
+      }
+    ],
+    "edges": [],
+    "completeness": {
+      "score": 1,
+      "partial": false,
+      "parserFailures": [],
+      "unsupportedClaims": []
+    }
+  },
+  "policy": {
+    "policyId": "policy-workflow-cookbook-five-tool-20260702",
+    "policyHash": "sha256:workflow-cookbook-five-tool-20260702",
+    "profile": "ipo_controlled",
+    "effectiveDate": "2026-07-02T00:00:00.000Z",
+    "approver": "local-five-tool-validation",
+    "sourceRefs": [
+      {
+        "id": "sr-policy-runbook",
+        "path": "RUNBOOK.md#five-tool-validation-gate"
+      }
+    ],
+    "dqScope": [
+      "DQ-01",
+      "DQ-02",
+      "DQ-03",
+      "DQ-04",
+      "DQ-05",
+      "DQ-06",
+      "DQ-07",
+      "DQ-08",
+      "DQ-09",
+      "DQ-10",
+      "DQ-11",
+      "DQ-12",
+      "DQ-13",
+      "DQ-14",
+      "DQ-15",
+      "DQ-16",
+      "DQ-17"
+    ],
+    "exitCodePolicy": {
+      "go": 0,
+      "conditional_go": 2,
+      "no_go": 2,
+      "disqualified": 2
+    }
+  },
+  "waivers": [],
+  "evidencePackage": {
+    "id": "ep-workflow-cookbook-five-tool-20260702",
+    "createdAt": "2026-07-02T00:00:00.000Z",
+    "createdBy": "Codex",
+    "inputArtifactHashes": [
+      {
+        "artifactId": "artifact-rand-001",
+        "hash": "sha256:requirements-audit-packet-local"
+      },
+      {
+        "artifactId": "artifact-ctg-001",
+        "hash": "sha256:ctg-readiness-local"
+      },
+      {
+        "artifactId": "artifact-hate-001",
+        "hash": "sha256:hate-report-local"
+      },
+      {
+        "artifactId": "artifact-manual-001",
+        "hash": "sha256:manual-bb-brief-local"
+      }
+    ],
+    "qegOutputs": {
+      "qegBundle": {
+        "id": "qeg-workflow-cookbook-001",
+        "adapter": "qeg-native",
+        "kind": "quality_evidence_record",
+        "path": "output-record.json"
+      },
+      "testPlacementPlan": {
+        "id": "tpp-workflow-cookbook-001",
+        "adapter": "qeg-native",
+        "kind": "test_model",
+        "path": "placement-plan.json"
+      },
+      "gateVerdict": {
+        "id": "gv-workflow-cookbook-001",
+        "adapter": "qeg-native",
+        "kind": "gate_decision",
+        "path": "gate-verdict.json"
+      },
+      "qualityEvidenceRecord": {
+        "id": "qer-workflow-cookbook-001",
+        "adapter": "qeg-native",
+        "kind": "quality_evidence_record",
+        "path": "output-record.json"
+      }
+    },
+    "gatePolicy": {
+      "policyId": "policy-workflow-cookbook-five-tool-20260702",
+      "policyHash": "sha256:workflow-cookbook-five-tool-20260702",
+      "profile": "ipo_controlled",
+      "effectiveDate": "2026-07-02T00:00:00.000Z",
+      "approver": "local-five-tool-validation",
+      "sourceRefs": [
+        {
+          "id": "sr-policy-runbook",
+          "path": "RUNBOOK.md#five-tool-validation-gate"
+        }
+      ],
+      "dqScope": [
+        "DQ-01",
+        "DQ-02",
+        "DQ-03",
+        "DQ-04",
+        "DQ-05",
+        "DQ-06",
+        "DQ-07",
+        "DQ-08",
+        "DQ-09",
+        "DQ-10",
+        "DQ-11",
+        "DQ-12",
+        "DQ-13",
+        "DQ-14",
+        "DQ-15",
+        "DQ-16",
+        "DQ-17"
+      ],
+      "exitCodePolicy": {
+        "go": 0,
+        "conditional_go": 2,
+        "no_go": 2,
+        "disqualified": 2
+      }
+    },
+    "waivers": [],
+    "approvalEvidence": [
+      {
+        "id": "approval-workflow-cookbook-five-tool-20260702",
+        "policyId": "policy-workflow-cookbook-five-tool-20260702",
+        "policyHash": "sha256:workflow-cookbook-five-tool-20260702",
+        "evidencePackageHash": "sha256:workflow-cookbook-five-tool-package-local",
+        "approvedBy": "Codex",
+        "approvedAt": "2026-07-02T00:00:00.000Z",
+        "sourceRefs": [
+          {
+            "id": "sr-acceptance-approval",
+            "path": "docs/acceptance/AC-20260702-01.md"
+          }
+        ]
+      }
+    ],
+    "manualEvidence": [],
+    "retention": {
+      "retentionPeriod": "working-tree evidence until release packaging",
+      "retentionOwner": "docs-core",
+      "storageLocation": "docs/evidence/five-tool-validation-20260702",
+      "contentHash": "sha256:workflow-cookbook-five-tool-package-local",
+      "capturedAt": "2026-07-02T00:00:00.000Z",
+      "tamperEvidence": "git working tree diff and QEG output-record.json",
+      "reverificationMethod": "rerun five-tool validation commands",
+      "sourceRefs": [
+        {
+          "id": "sr-evidence-dir",
+          "path": "docs/evidence/five-tool-validation-20260702"
+        }
+      ],
+      "storageClassification": "immutable"
+    },
+    "sourceRefs": [
+      {
+        "id": "sr-ep-task",
+        "path": "docs/tasks/task-readiness-downstream-automation-extensions-20260702.md"
+      },
+      {
+        "id": "sr-ep-acceptance",
+        "path": "docs/acceptance/AC-20260702-01.md"
+      },
+      {
+        "id": "sr-ep-runbook",
+        "path": "RUNBOOK.md#five-tool-validation-gate"
+      }
+    ],
+    "phase": "release_decision",
+    "evidencePackageHash": "sha256:workflow-cookbook-five-tool-package-local",
+    "controlRoles": {
+      "producer": "Codex",
+      "reviewer": "Codex",
+      "approver": "Codex",
+      "waiverApprover": "docs-core",
+      "releaseOwner": "docs-core"
+    }
+  },
+  "placementPlan": {
+    "metadata": {
+      "qegVersion": "0.1",
+      "runId": "run-workflow-cookbook-five-tool-20260702",
+      "createdAt": "2026-07-02T00:00:00.000Z",
+      "profile": "ipo_controlled",
+      "inputArtifacts": []
+    },
+    "obligations": [],
+    "placements": []
+  }
+}

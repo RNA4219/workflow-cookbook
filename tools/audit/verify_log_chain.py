@@ -46,12 +46,12 @@ def parse_log_entries(log_file: Path) -> Iterable[LogEntry]:
                 raise VerificationFailure(f"Line {index}: missing field {exc.args[0]}") from exc
 
 
-def compute_expected_signature(secret: bytes, previous_signature: str, payload: str) -> str:
-    return hmac.new(secret, f"{previous_signature}:{payload}".encode("utf-8"), sha256).hexdigest()
+def compute_expected_signature(hmac_key: bytes, previous_signature: str, payload: str) -> str:
+    return hmac.new(hmac_key, f"{previous_signature}:{payload}".encode("utf-8"), sha256).hexdigest()
 
 
-def verify_log_entries(log_file: Path, secret: str, initial_signature: str = "") -> None:
-    secret_bytes = secret.encode("utf-8")
+def verify_log_entries(log_file: Path, hmac_key: str, initial_signature: str = "") -> None:
+    hmac_key_bytes = hmac_key.encode("utf-8")
     expected_previous = initial_signature
     for entry in parse_log_entries(log_file):
         if entry.previous_signature != expected_previous:
@@ -59,7 +59,7 @@ def verify_log_entries(log_file: Path, secret: str, initial_signature: str = "")
                 "previous signature mismatch: expected "
                 f"{expected_previous or '<initial>'}, received {entry.previous_signature}"
             )
-        expected_signature = compute_expected_signature(secret_bytes, entry.previous_signature, entry.payload)
+        expected_signature = compute_expected_signature(hmac_key_bytes, entry.previous_signature, entry.payload)
         if entry.signature != expected_signature:
             raise VerificationFailure(
                 "signature mismatch: expected "
@@ -71,7 +71,13 @@ def verify_log_entries(log_file: Path, secret: str, initial_signature: str = "")
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Verify JSONL audit log chains with HMAC signatures.")
     parser.add_argument("log_file", type=Path, help="Path to the JSONL audit log.")
-    parser.add_argument("--secret", required=True, help="Shared secret used for HMAC verification.")
+    parser.add_argument(
+        "--hmac-key",
+        "--secret",
+        dest="hmac_key",
+        required=True,
+        help="HMAC verification key supplied by the operator.",
+    )
     parser.add_argument("--initial-signature", default="", help="Initial signature seed for the first entry.")
     return parser
 
@@ -80,7 +86,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
     try:
-        verify_log_entries(args.log_file, args.secret, args.initial_signature)
+        verify_log_entries(args.log_file, args.hmac_key, args.initial_signature)
     except VerificationFailure as exc:
         print(f"Verification failed: {exc}", file=sys.stderr)
         return 1

@@ -95,6 +95,28 @@ class TestScanEvidences:
         assert evidences[0].evidence_id == "my-evidence"
 
 
+class TestScanReleases:
+    def test_scans_release_refs(self, tmp_path: Path) -> None:
+        release_dir = tmp_path / "releases"
+        release_dir.mkdir()
+        (release_dir / "v1.md").write_text(
+            dedent("""
+                ---
+                release_id: v1
+                status: approved
+                ---
+                # v1
+                Supported by AC-001 and EV-001.
+                """).strip(),
+            encoding="utf-8",
+        )
+
+        releases = ev_module.scan_releases(release_dir)
+
+        assert releases[0].release_id == "v1"
+        assert "AC-001" in releases[0].references
+
+
 class TestGenerateReport:
     def test_links_by_task_id(self, tmp_path: Path) -> None:
         # Create actual files to avoid relative_to error
@@ -190,6 +212,37 @@ class TestGenerateReport:
         ev_module._REPO_ROOT = original_repo_root
 
         assert len(report.unlinked_evidences) == 1
+
+    def test_generates_release_readiness(self, tmp_path: Path) -> None:
+        acc_file = tmp_path / "docs" / "acceptance" / "AC-001.md"
+        acc_file.parent.mkdir(parents=True)
+        acc_file.write_text("---\n---")
+        ev_file = tmp_path / ".workflow-cache" / "ev.json"
+        ev_file.parent.mkdir(parents=True)
+        ev_file.write_text("{}")
+        release_file = tmp_path / "docs" / "releases" / "v1.md"
+        release_file.parent.mkdir(parents=True)
+        release_file.write_text("# v1\nAC-001\nEV-001\n")
+
+        original_repo_root = ev_module._REPO_ROOT
+        ev_module._REPO_ROOT = tmp_path
+        report = ev_module.generate_report(
+            [
+                ev_module.AcceptanceSummary("AC-001", "TASK-001", "approved", acc_file),
+            ],
+            [
+                ev_module.EvidenceSummary("EV-001", "TASK-001", "", "model", ev_file),
+            ],
+            releases=[
+                ev_module.ReleaseSummary("v1", "v1", "approved", release_file, ["AC-001", "EV-001"]),
+            ],
+            security={"errors": []},
+            metrics={"errors": []},
+        )
+        ev_module._REPO_ROOT = original_repo_root
+
+        assert report.readiness["status"] == "ready"
+        assert len(report.release_links) == 2
 
 
 class TestFormatMarkdownReport:

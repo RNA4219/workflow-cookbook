@@ -31,6 +31,34 @@ RUNBOOK は日常運用と現在の判断に集中させ、完了済みの長い
 補足: <RUNBOOK に残す必要がない短い補足>
 ```
 
+## 2026-07-01 Operations automation extensions
+
+| 項目 | 状態 | 正本 |
+|---|---|---|
+| docs review due automation | 完了 | [docs/acceptance/AC-20260701-01.md](acceptance/AC-20260701-01.md) |
+| adoption tier enablement | 完了 | [docs/tasks/task-ops-automation-extensions-20260701.md](tasks/task-ops-automation-extensions-20260701.md) |
+| plugin runtime timeout / trace | 完了 | [docs/acceptance/AC-20260701-01.md](acceptance/AC-20260701-01.md) |
+| metrics regression checker | 完了 | [CHANGELOG.md#unreleased](../CHANGELOG.md#unreleased) |
+
+判定: go
+補足: Focused tests 39 passed、full pytest 561 passed。plugin trace Evidence は local JSON Lines まで対応。
+
+## 2026-07-02 Readiness and downstream automation extensions
+
+| 項目 | 状態 | 正本 |
+|---|---|---|
+| release readiness report | 完了 | [docs/acceptance/AC-20260702-01.md](acceptance/AC-20260702-01.md) |
+| security posture diff | 完了 | [docs/tasks/task-readiness-downstream-automation-extensions-20260702.md](tasks/task-readiness-downstream-automation-extensions-20260702.md) |
+| Birdseye remediation helper | 完了 | [docs/acceptance/AC-20260702-01.md](acceptance/AC-20260702-01.md) |
+| CI Phase doctor | 完了 | [CHANGELOG.md#unreleased](../CHANGELOG.md#unreleased) |
+| adaptive improvement ops | 完了 | [docs/tasks/task-readiness-downstream-automation-extensions-20260702.md](tasks/task-readiness-downstream-automation-extensions-20260702.md) |
+| schema/sample/docs matrix | 完了 | [docs/acceptance/AC-20260702-01.md](acceptance/AC-20260702-01.md) |
+| branch protection weekly audit | 完了 | [docs/acceptance/AC-20260702-01.md](acceptance/AC-20260702-01.md) |
+| downstream onboarding doctor | 完了 | [docs/tasks/task-readiness-downstream-automation-extensions-20260702.md](tasks/task-readiness-downstream-automation-extensions-20260702.md) |
+
+判定: go
+補足: Focused tests 66 passed、full pytest 573 passed。
+
 ## 2026-05-03 v1.2.0 Release
 
 | 項目 | 状態 | 正本 |

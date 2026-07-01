@@ -10,6 +10,9 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from tools.ci.check_branch_protection import (  # noqa: E402
+    build_task_seed,
+    build_weekly_audit_report,
+    build_weekly_nudge,
     extract_required_check_names,
     load_policy_required_jobs,
     main,
@@ -111,6 +114,23 @@ def test_validate_branch_protection_warns_for_unmapped_logical_id() -> None:
     assert result.warnings == [
         "No concrete check mapping is defined for logical gate ID 'future-gate'."
     ]
+
+
+def test_build_weekly_branch_protection_artifacts() -> None:
+    payload = {"required_status_checks": {"contexts": ["governance"]}}
+    result = validate_branch_protection(payload, required_jobs=["governance-gate"])
+
+    report = build_weekly_audit_report(
+        payload=payload,
+        required_jobs=["governance-gate"],
+        result=result,
+    )
+    nudge = build_weekly_nudge(report)
+    task_seed = build_task_seed(report)
+
+    assert report["result"]["status"] == "pass"
+    assert nudge["target_kind"] == "branch_protection"
+    assert "Task Seed" in task_seed
 
 
 def test_main_returns_success_for_matching_payload(tmp_path: Path, capsys) -> None:

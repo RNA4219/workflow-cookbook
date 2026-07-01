@@ -100,7 +100,16 @@ next_review_due: 2026-06-03
 - docs review due 確認
   - `python tools/ci/check_docs_review_due.py --check --max-days-overdue 30`
     を実行し、review overdue docs を確認する。
-  - overdue docs がある場合は `next_review_due` を更新日付へ延ばし commit/push。
+  - owner 別棚卸し:
+    `python tools/ci/check_docs_review_due.py --owner-summary-json .ga/docs-review-owner-summary.json`
+  - nudge 生成:
+    `python tools/ci/check_docs_review_due.py --nudge-output .ga/docs-review-nudges.json`
+  - Task Seed 下書き:
+    `python tools/ci/check_docs_review_due.py --task-seed-output docs/tasks/task-docs-review-remediation-YYYYMMDD.md`
+  - review 更新補助:
+    `python tools/ci/check_docs_review_due.py --review-update-plan-output .ga/docs-review-update-plan.json`
+  - overdue docs がある場合は、内容確認後に `last_reviewed_at` と
+    `next_review_due` を更新する。単に期限だけを延ばさない。
   - 定期運用では週次で実行し、critical (>30日 overdue) docs を更新する。
   - JSON output: `python tools/ci/check_docs_review_due.py --json` で一覧取得。
 - Birdseye / codemap 更新
@@ -109,6 +118,8 @@ next_review_due: 2026-06-03
   - 構造確認: `python tools/ci/check_birdseye_freshness.py --check`
   - 鮮度警告を有効にする場合:
     `python tools/ci/check_birdseye_freshness.py --check --max-verified-age-days 90`
+  - 復旧提案を保存する場合:
+    `python tools/ci/check_birdseye_freshness.py --check --remediation-output .ga/birdseye-remediation.json`
   - **Freshness しきい値段階計画**:
     - 現行: 90日 (2026-05-03移行完了)
     - 最終: 30日 (習慣化された点検後)
@@ -130,6 +141,31 @@ next_review_due: 2026-06-03
 |---|---|---|---|---|
 | 2026-05-03 | v1.2.0 post-release validation | approved | [AC-20260503-09](docs/acceptance/AC-20260503-09.md) | none |
 | 2026-05-03 | Improvement spec expansion | approved | [AC-20260503-04](docs/acceptance/AC-20260503-04.md) | [task-next-improvement-implementation-20260503](docs/tasks/task-next-improvement-implementation-20260503.md) |
+
+## Five-tool Validation Gate
+
+リリース前または大きめの automation 追加後は、RanD → Code-to-gate → HATE →
+manual-bb-test-harness → QEG の順で検収する。途中の tool が `blocked` / `hold`
+を返した場合は、下流 Gate へその判定を伝播し、pytest 単体の成功だけで
+release approval を出さない。
+
+最小ローカル確認:
+
+```bash
+uv run pytest -q --junitxml C:\tmp\workflow-cookbook-five-tool\pytest-junit.xml
+node C:\Users\ryo-n\Codex_dev\code-to-gate\dist\cli.js analyze C:\Users\ryo-n\Codex_dev\workflow-cookbook --emit all --out C:\tmp\workflow-cookbook-five-tool\ctg
+node C:\Users\ryo-n\Codex_dev\code-to-gate\dist\cli.js readiness C:\Users\ryo-n\Codex_dev\workflow-cookbook --policy C:\Users\ryo-n\Codex_dev\code-to-gate\.github\ctg-policy.yaml --from C:\tmp\workflow-cookbook-five-tool\ctg --out C:\tmp\workflow-cookbook-five-tool\ctg
+```
+
+HATE の `real-repo run` へ pytest を渡す場合は、隔離環境で console script や
+`pip` が存在しないことがあるため、roster の command は次の形を推奨する。
+
+```json
+["uv", "run", "--with", "PyYAML", "--with", "pytest", "python", "-m", "pytest", "-q"]
+```
+
+console script smoke test は、`pip` が無い隔離 Python では
+`uv pip install --python <interpreter> -e .` へフォールバックすること。
 
 ## Operational Readiness Backlog
 
@@ -178,6 +214,10 @@ next_review_due: 2026-06-03
 - 残タスク完了時は、`CHECKLISTS.md` の該当項目と検収記録を同時に更新する
 - branch protection / release evidence / supply chain のいずれかを変更した場合は、
   `docs/reports/enterprise-readiness-assessment-20260417.md` の再評価要否を確認する
+- security posture は `--export-json` で現状 snapshot を保存し、
+  `--baseline-json` で前回成功時との差分を確認する。
+- branch protection の週次監査では、`--report-output`、`--nudge-output`、
+  `--task-seed-output` を併用し、差分があれば Task Seed として処理する。
 
 ## Observability
 
@@ -294,6 +334,11 @@ next_review_due: 2026-06-03
     `python tools/ci/check_metrics_thresholds.py --check --metrics-json .ga/qa-metrics.json`
     を実行し、`governance/metrics_thresholds.yaml` の KPI 基準に対して
     warn / fail がないことを確認する。
+  - 前回成功値と比較した regression 確認を行う場合は、baseline JSON を指定する。
+    例:
+    `python tools/ci/check_metrics_thresholds.py --check --metrics-json .ga/qa-metrics.json --baseline-json .ga/qa-metrics.previous.json --regression-tolerance 0.10`
+    既定では regression は warning として扱う。release gate で止める場合は
+    `--regression-level fail` を付ける。
   - `python - <<'PY'` を実行し、以下を評価して各メトリクスの値を抽出する:
 
     ```python
@@ -370,6 +415,14 @@ next_review_due: 2026-06-03
     追加投入する。
   - `task_seed_cycle_time_minutes` が 1440 分を超過: 受付から着手までの待機要因（担当者アサイン、依頼内容不備など）を振り返り、対応 SLA を再共有する。
   - `birdseye_refresh_delay_minutes` が 60 分を超過: Birdseye 更新ジョブの実行ログとスケジューラ状態を確認し、必要に応じて手動更新を実施。
+  - release 前の横断確認:
+    `python tools/ci/generate_evidence_report.py --security-json .ga/security-posture.json --metrics-json .ga/qa-metrics.json --output docs/release_readiness.md`
+  - CI Phase の棚卸し:
+    `python tools/ci/check_ci_phase_doctor.py --json`
+  - downstream 横展開の棚卸し:
+    `python tools/ci/check_downstream_onboarding.py --repo ../agent-taskstate --json`
+  - 自己改善ループの任意操作:
+    `python tools/ci/self_improvement_ops.py export-memory --output .ga/curated-memory.json`
 
 ## Outbound Request Approval
 

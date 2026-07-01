@@ -115,6 +115,12 @@ python tools/codemap/update.py --since --radius 1 --emit caps
 
 # Freshness check
 python tools/ci/check_birdseye_freshness.py --check --max-verified-age-days 90
+
+# Freshness remediation suggestions
+python tools/ci/check_birdseye_freshness.py --check --remediation-output .ga/birdseye-remediation.json
+
+# CI phase rollout doctor
+python tools/ci/check_ci_phase_doctor.py --json
 ```
 
 ### Metrics / KPI
@@ -125,6 +131,9 @@ python -m tools.perf.collect_metrics --suite qa --metrics-url <url> --log-path <
 
 # Threshold validation
 python tools/ci/check_metrics_thresholds.py --check --metrics-json .ga/qa-metrics.json
+
+# Regression check against previous-good metrics
+python tools/ci/check_metrics_thresholds.py --check --metrics-json .ga/qa-metrics.json --baseline-json .ga/qa-metrics.previous.json
 ```
 
 ### Acceptance / Task
@@ -149,17 +158,30 @@ python tools/ci/generate_acceptance_index.py --plugin-config examples/workflow_p
 # Security posture check
 python tools/ci/check_security_posture.py --check --github-repo owner/name
 
+# Security posture snapshot and diff
+python tools/ci/check_security_posture.py --export-json .ga/security-posture.json
+python tools/ci/check_security_posture.py --baseline-json .ga/security-posture.previous.json --json
+
 # Release evidence check
 python tools/ci/check_release_evidence.py --check --github-repo owner/name
 
 # Branch protection validation
 python tools/ci/check_branch_protection.py --protection-json <json>
 
+# Branch protection weekly audit artifacts
+python tools/ci/check_branch_protection.py --protection-json <json> --report-output .ga/branch-protection-weekly.json --nudge-output .ga/branch-protection-nudge.json
+
 # Security docs freshness check
 python tools/ci/check_security_docs_freshness.py --check
 
 # Sample/docs sync check
 python tools/ci/check_sample_docs_sync.py --check
+
+# Schema/sample/docs matrix check
+python tools/ci/check_sample_docs_sync.py --matrix-check --json
+
+# Docs review automation
+python tools/ci/check_docs_review_due.py --owner-summary-json .ga/docs-review-owner-summary.json --nudge-output .ga/docs-review-nudges.json
 ```
 
 ### Evidence / Reporting
@@ -167,6 +189,9 @@ python tools/ci/check_sample_docs_sync.py --check
 ```sh
 # Generate evidence report
 python tools/ci/generate_evidence_report.py --output docs/evidence_report.md
+
+# Generate release readiness report
+python tools/ci/generate_evidence_report.py --security-json .ga/security-posture.json --metrics-json .ga/qa-metrics.json --output docs/release_readiness.md
 
 # Generate acceptance index
 python tools/ci/generate_acceptance_index_standalone.py --output docs/acceptance_index.md
@@ -176,6 +201,16 @@ python tools/ci/extract_upstream_changes.py --upstream-md docs/UPSTREAM.md --wee
 
 # Export task state
 python tools/ci/export_task_state.py --output task_state.json
+
+# Assess downstream adoption tier
+python tools/ci/check_adoption_tier.py --repo ../agent-taskstate --json
+
+# Assess downstream onboarding readiness
+python tools/ci/check_downstream_onboarding.py --repo ../agent-taskstate --json
+
+# Adaptive improvement utilities
+python tools/ci/self_improvement_ops.py export-memory --output .ga/curated-memory.json
+python tools/ci/self_improvement_ops.py build-recall --query "release readiness" --output .ga/recall-response.json
 ```
 
 ---
@@ -243,6 +278,8 @@ python tools/workflow_plugins/validate_workflow_plugin_config.py --config exampl
 | Ops | [`docs/ROADMAP_AND_SPECS.md`](docs/ROADMAP_AND_SPECS.md), [`CHANGELOG.md`](CHANGELOG.md) |
 | Security | [`docs/security/SAC.md`](docs/security/SAC.md), [`docs/security/Security_Review_Checklist.md`](docs/security/Security_Review_Checklist.md) |
 | Extension | [`docs/addenda/N_Improvement_Backlog.md`](docs/addenda/N_Improvement_Backlog.md), [`docs/addenda/P_Expansion_Candidates.md`](docs/addenda/P_Expansion_Candidates.md) |
+| Adoption | [`docs/adoption-tiers.md`](docs/adoption-tiers.md), [`docs/adoption-guide.md`](docs/adoption-guide.md), [`templates/`](templates/) |
+| Schemas | [`schemas/`](schemas/) including `tool-request`, plugin config, and self-improvement DTO contracts |
 
 ---
 

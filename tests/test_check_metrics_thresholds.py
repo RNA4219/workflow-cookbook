@@ -292,3 +292,86 @@ def test_metrics_thresholds_fail_when_required_metric_missing(tmp_path: Path) ->
     assert result.returncode == 1
     payload = json.loads(result.stdout)
     assert payload["failures"] == ["checklist_compliance_rate: metric is missing"]
+
+
+def test_metrics_regression_warns_against_previous_good_baseline(tmp_path: Path) -> None:
+    metrics_path = tmp_path / "metrics.json"
+    baseline_path = tmp_path / "baseline.json"
+    thresholds_path = tmp_path / "thresholds.yaml"
+    metrics_path.write_text(json.dumps({"semantic_retention": 0.86}), encoding="utf-8")
+    baseline_path.write_text(json.dumps({"semantic_retention": 0.99}), encoding="utf-8")
+    thresholds_path.write_text(
+        textwrap.dedent(
+            """
+            semantic_retention:
+              comparator: min
+              threshold: 0.85
+              level: fail
+              unit: ratio
+            """
+        ).strip()
+        + "\n",
+        encoding="utf-8",
+    )
+
+    result = _run_cli(
+        "--check",
+        "--metrics-json",
+        str(metrics_path),
+        "--thresholds",
+        str(thresholds_path),
+        "--baseline-json",
+        str(baseline_path),
+        "--regression-tolerance",
+        "0.05",
+    )
+
+    assert result.returncode == 0, result.stderr
+    payload = json.loads(result.stdout)
+    assert payload["failures"] == []
+    assert payload["regression_level"] == "warn"
+    assert payload["regressions"] == [
+        "semantic_retention: 0.86 ratio dropped below baseline 0.99 ratio by more than 5%"
+    ]
+
+
+def test_metrics_regression_can_fail_gate(tmp_path: Path) -> None:
+    metrics_path = tmp_path / "metrics.json"
+    baseline_path = tmp_path / "baseline.json"
+    thresholds_path = tmp_path / "thresholds.yaml"
+    metrics_path.write_text(json.dumps({"review_latency": 11.0}), encoding="utf-8")
+    baseline_path.write_text(json.dumps({"review_latency": 6.0}), encoding="utf-8")
+    thresholds_path.write_text(
+        textwrap.dedent(
+            """
+            review_latency:
+              comparator: max
+              threshold: 12
+              level: fail
+              unit: hours
+            """
+        ).strip()
+        + "\n",
+        encoding="utf-8",
+    )
+
+    result = _run_cli(
+        "--check",
+        "--metrics-json",
+        str(metrics_path),
+        "--thresholds",
+        str(thresholds_path),
+        "--baseline-json",
+        str(baseline_path),
+        "--regression-tolerance",
+        "0.10",
+        "--regression-level",
+        "fail",
+    )
+
+    assert result.returncode == 1
+    payload = json.loads(result.stdout)
+    assert payload["failures"] == []
+    assert payload["regressions"] == [
+        "review_latency: 11 hours rose above baseline 6 hours by more than 10%"
+    ]

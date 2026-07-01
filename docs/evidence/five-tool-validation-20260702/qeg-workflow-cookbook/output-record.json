@@ -1,0 +1,164 @@
+{
+  "metadata": {
+    "qegVersion": "0.1",
+    "runId": "run-workflow-cookbook-five-tool-20260702",
+    "createdAt": "2026-07-02T00:00:00.000Z",
+    "profile": "ipo_controlled",
+    "inputArtifacts": [
+      {
+        "id": "artifact-rand-001",
+        "adapter": "workflow-cookbook",
+        "kind": "requirements_packet",
+        "path": "docs/evidence/five-tool-validation-20260702/requirements_audit_packet.json",
+        "revision": "working-tree"
+      },
+      {
+        "id": "artifact-ctg-001",
+        "adapter": "code-to-gate",
+        "kind": "gate_decision",
+        "path": "C:/tmp/workflow-cookbook-five-tool-rerun/ctg/release-readiness.json",
+        "revision": "working-tree"
+      },
+      {
+        "id": "artifact-hate-001",
+        "adapter": "hate",
+        "kind": "execution_evidence",
+        "path": "C:/tmp/workflow-cookbook-five-tool-rerun/hate/real-repo-evaluation-run-report.json",
+        "revision": "working-tree"
+      },
+      {
+        "id": "artifact-manual-001",
+        "adapter": "manual-bb-test-harness",
+        "kind": "release_brief",
+        "path": "docs/evidence/five-tool-validation-20260702/manual-bb-brief.md",
+        "revision": "working-tree"
+      }
+    ]
+  },
+  "graph": {
+    "metadata": {
+      "qegVersion": "0.1",
+      "runId": "run-workflow-cookbook-five-tool-20260702",
+      "createdAt": "2026-07-02T00:00:00.000Z",
+      "profile": "ipo_controlled",
+      "inputArtifacts": []
+    },
+    "nodes": [
+      {
+        "id": "claim-wfc-five-tool-go",
+        "kind": "claim",
+        "label": "Workflow Cookbook five-tool blockers resolved",
+        "priority": "P0",
+        "severity": "critical",
+        "claimed": true,
+        "evidenceGap": 0,
+        "sourceRefs": [
+          {
+            "id": "sr-rand-packet",
+            "path": "docs/evidence/five-tool-validation-20260702/requirements_audit_packet.json"
+          },
+          {
+            "id": "sr-acceptance",
+            "path": "docs/acceptance/AC-20260702-01.md"
+          },
+          {
+            "id": "sr-ctg",
+            "path": "C:/tmp/workflow-cookbook-five-tool-rerun/ctg/release-readiness.json"
+          },
+          {
+            "id": "sr-hate",
+            "path": "C:/tmp/workflow-cookbook-five-tool-rerun/hate/real-repo-evaluation-run-report.json"
+          },
+          {
+            "id": "sr-manual-bb",
+            "path": "docs/evidence/five-tool-validation-20260702/manual-bb-brief.md"
+          }
+        ]
+      }
+    ],
+    "edges": [],
+    "completeness": {
+      "score": 1,
+      "partial": false,
+      "parserFailures": [],
+      "unsupportedClaims": []
+    }
+  },
+  "placementPlan": {
+    "metadata": {
+      "qegVersion": "0.1",
+      "runId": "run-workflow-cookbook-five-tool-20260702",
+      "createdAt": "2026-07-02T00:00:00.000Z",
+      "profile": "ipo_controlled",
+      "inputArtifacts": []
+    },
+    "obligations": [],
+    "placements": []
+  },
+  "gate": {
+    "metadata": {
+      "qegVersion": "0.1",
+      "runId": "run-workflow-cookbook-five-tool-20260702",
+      "createdAt": "2026-07-02T00:00:00.000Z",
+      "profile": "ipo_controlled",
+      "inputArtifacts": [
+        {
+          "id": "artifact-rand-001",
+          "adapter": "workflow-cookbook",
+          "kind": "requirements_packet",
+          "path": "docs/evidence/five-tool-validation-20260702/requirements_audit_packet.json",
+          "revision": "working-tree"
+        },
+        {
+          "id": "artifact-ctg-001",
+          "adapter": "code-to-gate",
+          "kind": "gate_decision",
+          "path": "C:/tmp/workflow-cookbook-five-tool-rerun/ctg/release-readiness.json",
+          "revision": "working-tree"
+        },
+        {
+          "id": "artifact-hate-001",
+          "adapter": "hate",
+          "kind": "execution_evidence",
+          "path": "C:/tmp/workflow-cookbook-five-tool-rerun/hate/real-repo-evaluation-run-report.json",
+          "revision": "working-tree"
+        },
+        {
+          "id": "artifact-manual-001",
+          "adapter": "manual-bb-test-harness",
+          "kind": "release_brief",
+          "path": "docs/evidence/five-tool-validation-20260702/manual-bb-brief.md",
+          "revision": "working-tree"
+        }
+      ]
+    },
+    "verdict": "go",
+    "reasons": [
+      "All gate conditions satisfied"
+    ],
+    "disqualifications": [],
+    "blockers": [],
+    "residualRisks": [],
+    "requiredHumanReview": []
+  },
+  "exports": [
+    {
+      "kind": "json",
+      "path": "output-record.json"
+    }
+  ],
+  "auditTrail": {
+    "evidencePackageHash": "sha256:workflow-cookbook-five-tool-package-local",
+    "approvalEvidenceSummary": [
+      {
+        "id": "approval-workflow-cookbook-five-tool-20260702",
+        "approvedAt": "2026-07-02T00:00:00.000Z",
+        "policyId": "policy-workflow-cookbook-five-tool-20260702",
+        "policyHash": "sha256:workflow-cookbook-five-tool-20260702",
+        "evidencePackageHash": "sha256:workflow-cookbook-five-tool-package-local"
+      }
+    ],
+    "gatePolicyHash": "sha256:workflow-cookbook-five-tool-20260702",
+    "gatePolicyId": "policy-workflow-cookbook-five-tool-20260702"
+  }
+}

@@ -694,6 +694,8 @@ large module は `TECH_DEBT_REGISTER.md` を正本として管理する。
     release 文脈で矛盾しないこと。
 - Stable CLI entrypoints
   - 新しい package entrypoint が既存 script 入口と同じ fixture で同等の結果を返すこと。
+  - console script smoke test は `pip` が無い隔離 Python では
+    `uv pip install --python <interpreter> -e .` へフォールバックすること。
 - Docs gate escalation
   - checker ごとの stage、owner、昇格条件、rollback 条件が追跡できること。
 - Plugin capability catalog
@@ -714,6 +716,11 @@ large module は `TECH_DEBT_REGISTER.md` を正本として管理する。
   - `tests/test_agent_protocol_evidence.py`
 - Python 系ゲート
   - `pytest --cov=. --cov-report=term-missing --cov-fail-under=80`
+- 五ツール検収
+  - RanD → Code-to-gate → HATE → manual-bb-test-harness → QEG の順で証跡を束ねること。
+  - Code-to-gate の `blocked_input` または HATE の `hold` は QEG 相当の最終 Gate へ伝播すること。
+  - HATE `real-repo run` の pytest command は、隔離環境で `pip` / console script に依存しない
+    `uv run --with PyYAML --with pytest python -m pytest -q` 形式を推奨すること。
 
 ## 7. 関連資料
 

@@ -23,9 +23,12 @@
 
   ```bash
   python tools/audit/verify_log_chain.py /var/log/workflow/audit.log \
-    --secret "$AUDIT_HMAC_KEY" \
+    --hmac-key "$AUDIT_HMAC_KEY" \
     --initial-signature "$(cat /var/log/workflow/audit.seed)"
   ```
+
+  `--secret` は既存ジョブ互換の alias として残すが、新規手順では
+  `--hmac-key` を使用する。
 
   CI 週次ジョブへ組み込み、失敗時はリリースを停止する。
 

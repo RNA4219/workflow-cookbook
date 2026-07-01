@@ -88,6 +88,25 @@ class ThresholdRule:
         )
 
 
+@dataclass(frozen=True)
+class RegressionResult:
+    metric: str
+    current: float
+    baseline: float
+    comparator: str
+    tolerance: float
+    unit: str = ""
+
+    def message(self) -> str:
+        unit_suffix = f" {self.unit}" if self.unit else ""
+        percent = self.tolerance * 100
+        direction = "dropped below" if self.comparator == "min" else "rose above"
+        return (
+            f"{self.metric}: {self.current:g}{unit_suffix} {direction} baseline "
+            f"{self.baseline:g}{unit_suffix} by more than {percent:g}%"
+        )
+
+
 def _load_thresholds(path: Path) -> list[ThresholdRule]:
     try:
         raw = yaml.safe_load(path.read_text(encoding="utf-8"))
@@ -155,6 +174,44 @@ def evaluate_thresholds(
     return failures, warnings
 
 
+def evaluate_regressions(
+    metrics: Mapping[str, object],
+    baseline: Mapping[str, object],
+    rules: list[ThresholdRule],
+    *,
+    tolerance: float,
+) -> list[str]:
+    regressions: list[str] = []
+    for rule in rules:
+        if rule.metric not in metrics or rule.metric not in baseline:
+            continue
+        try:
+            current_value = float(metrics[rule.metric])
+            baseline_value = float(baseline[rule.metric])
+        except (TypeError, ValueError) as exc:
+            raise MetricsThresholdError(f"{rule.metric}: current and baseline values must be numeric") from exc
+        if baseline_value == 0:
+            continue
+        if rule.comparator == "min":
+            regressed = current_value < baseline_value * (1 - tolerance)
+        elif rule.comparator == "max":
+            regressed = current_value > baseline_value * (1 + tolerance)
+        else:  # pragma: no cover - protected by parser validation
+            raise MetricsThresholdError(f"{rule.metric}: unknown comparator {rule.comparator!r}")
+        if regressed:
+            regressions.append(
+                RegressionResult(
+                    metric=rule.metric,
+                    current=current_value,
+                    baseline=baseline_value,
+                    comparator=rule.comparator,
+                    tolerance=tolerance,
+                    unit=rule.unit,
+                ).message()
+            )
+    return regressions
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         description="Validate collected QA metrics against governance thresholds"
@@ -176,12 +233,40 @@ def main(argv: list[str] | None = None) -> int:
         action="store_true",
         help="Validate metrics and return non-zero when fail-level thresholds are violated",
     )
+    parser.add_argument(
+        "--baseline-json",
+        type=Path,
+        help="Optional previous-good metrics JSON used to detect regression inside threshold bounds.",
+    )
+    parser.add_argument(
+        "--regression-tolerance",
+        type=float,
+        default=0.10,
+        help="Relative tolerance allowed against --baseline-json before reporting regression.",
+    )
+    parser.add_argument(
+        "--regression-level",
+        choices=("warn", "fail"),
+        default="warn",
+        help="Whether baseline regressions are warnings or failures.",
+    )
     args = parser.parse_args(argv)
 
     try:
         metrics = _load_metrics(args.metrics_json)
         rules = _load_thresholds(args.thresholds)
         failures, warnings = evaluate_thresholds(metrics, rules)
+        regressions: list[str] = []
+        if args.baseline_json:
+            if args.regression_tolerance < 0:
+                raise MetricsThresholdError("--regression-tolerance must be >= 0")
+            baseline = _load_metrics(args.baseline_json)
+            regressions = evaluate_regressions(
+                metrics,
+                baseline,
+                rules,
+                tolerance=args.regression_tolerance,
+            )
     except MetricsThresholdError as exc:
         print(str(exc), file=sys.stderr)
         return 1
@@ -191,6 +276,8 @@ def main(argv: list[str] | None = None) -> int:
         "thresholds": str(args.thresholds),
         "failures": failures,
         "warnings": warnings,
+        "regressions": regressions,
+        "regression_level": args.regression_level if args.baseline_json else None,
     }
     print(json.dumps(summary, ensure_ascii=False))
     if warnings:
@@ -202,6 +289,13 @@ def main(argv: list[str] | None = None) -> int:
         for failure in failures:
             print(f"- {failure}", file=sys.stderr)
         return 1
+    if regressions:
+        label = "Regression failures" if args.regression_level == "fail" else "Regression warnings"
+        print(f"{label}:", file=sys.stderr)
+        for regression in regressions:
+            print(f"- {regression}", file=sys.stderr)
+        if args.regression_level == "fail":
+            return 1
     return 0
 
 

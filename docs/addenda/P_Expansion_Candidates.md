@@ -25,23 +25,33 @@
 - release / acceptance / evidence の横断レポート
   - 1 回の release がどの acceptance record と evidence に支えられているかを
     1 枚で可視化する
+  - 2026-07-02: `generate_evidence_report.py` に release / security / metrics
+    readiness summary を追加済み
 - security posture の差分サマリ
   - 前回成功時からの security settings 変更を比較できるようにする
+  - 2026-07-02: `check_security_posture.py --export-json` / `--baseline-json`
+    で実装済み
 - branch protection export の定期監査
   - `check_branch_protection.py` の結果を週次レポート化する
+  - 2026-07-02: weekly audit report、nudge、Task Seed 下書き出力を追加済み
 - docs 更新期限の自動棚卸し
   - front matter の `next_review_due` が近い docs を一覧化する
+  - 2026-07-01: owner summary、PeriodicNudge、Task Seed 下書き、
+    review update plan の出力に着手済み
 
 ### 3.2 Quality / Observability
 
 - metrics regression checker
   - 閾値内でも、前回成功値から悪化した指標を warn する
+  - 2026-07-01: `check_metrics_thresholds.py --baseline-json` で実装済み
 - acceptance / task / release の品質サマリ生成
   - coverage、検収、security、release evidence の結果をまとめる
 - Birdseye stale remediation helper
   - stale 検知後に次の標準コマンドを提案する wrapper を追加する
+  - 2026-07-02: `check_birdseye_freshness.py` の remediation 出力として実装済み
 - docs / sample / schema の同期チェック
   - `examples/`、schema、README / Runbook の記述ずれを検出する
+  - 2026-07-02: `check_sample_docs_sync.py --matrix-check` で実装済み
 
 ### 3.3 Cross-Repo Plugins
 
@@ -49,10 +59,12 @@
   - capability ごとに timeout と失敗隔離ルールを持てるようにする
 - plugin tracing / structured diagnostics
   - host と plugin の呼び出し履歴を Evidence へ流せるようにする
+  - 2026-07-01: thread isolation timeout と trace JSON export を runtime に追加済み
 - plugin capability catalog
   - どの repo がどの capability を提供しているかを自動列挙する
 - downstream config doctor
   - plugin config と repo layout から導入可否を診断する CLI を追加する
+  - 2026-07-01: adoption tier 判定 CLI を下流導入診断の初期版として追加済み
 
 ### 3.4 Adaptive Improvement Loop
 
@@ -60,8 +72,10 @@
   - release 後 reflection の最小 DTO を定義する
 - curated memory snapshot
   - reviewed な判断だけを downstream software へ渡す export 形式を定義する
+  - 2026-07-02: `self_improvement_ops.py export-memory` で実装済み
 - optional skill draft generator
   - reflection 結果から下書き skill を提案するが、自動適用はしない
+  - 2026-07-02: `self_improvement_ops.py generate-skill-draft` で実装済み
 - workspace model review flow
   - user/workspace model を reviewed 状態でのみ公開できる運用を定義する
 
@@ -76,6 +90,15 @@
   - 日本語 / 英語 / 中国語でどこまで同期するかをルール化する
 - skill / README / About の同期チェック
   - 公開メタデータと docs のズレを継続検出する
+
+### 3.6 Downstream Readiness
+
+- CI Phase doctor
+  - workflow / policy / docs-ci-config から現在 Phase と昇格候補を診断する
+  - 2026-07-02: `check_ci_phase_doctor.py` で実装済み
+- downstream onboarding doctor
+  - Adoption Tier と CI/acceptance/security onboarding signals をまとめて診断する
+  - 2026-07-02: `check_downstream_onboarding.py` で実装済み
 
 ## 4. repo 連携で特に効く項目
 

@@ -52,10 +52,34 @@ import / instantiate まで確認する:
 python tools/workflow_plugins/validate_workflow_plugin_config.py --plugin-config examples/workflow_plugins.cross_repo.sample.json --instantiate --emit-json
 ```
 
+## Runtime policy / tracing
+
+`WorkflowPluginRuntime` は capability ごとに `PluginPolicy` を指定できる。
+
+| Field | Default | Description |
+| --- | --- | --- |
+| `timeout_seconds` | `30.0` | plugin 呼び出しが戻るまでの上限秒数。`0` 以下で無効。 |
+| `retry_count` | `0` | 失敗後の再試行回数。 |
+| `retry_delay_seconds` | `1.0` | 再試行間隔。 |
+| `continue_on_error` | `false` | 失敗時に例外ではなく `None` 結果として継続する。 |
+| `trace_enabled` | `false` | 呼び出し trace を runtime に蓄積する。 |
+| `isolation_mode` | `thread` | timeout を実時間で返すための thread isolation。`inline` も指定可能。 |
+
+trace は `runtime.trace_payload()` で JSON 化でき、`runtime.write_traces_json(path)`
+でファイルへ書き出せる。timeout や retry の診断証跡を release / evidence の
+補助資料として残す用途を想定する。
+
+`agent-protocols` 互換の Evidence JSON Lines が必要な場合は
+`runtime.write_trace_evidence_jsonl(...)` を使う。`task_seed_id`、`base_commit`、
+`head_commit`、`actor` を渡すことで、各 trace を `kind: Evidence` の record として
+出力できる。
+
 ## 実装メモ
 
 - host 側は `interfaces.py` の Protocol / coercion helper を正本にする
 - `runtime.py` の `invoke_first` / `invoke_all` で capability dispatch を共通化している
+- timeout を使う運用では `PluginPolicy.isolation_mode="thread"` を既定とし、
+  長時間 plugin から runtime が戻れるようにする
 - `agent-taskstate` plugin は markdown scan を `store.py` に切り出している
 - `agent-taskstate` plugin は result dataclass と acceptance renderer を分離している
 - `memx-resolver` plugin は docs selection policy、receipt store、resolve cache store を分離している

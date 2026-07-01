@@ -42,6 +42,50 @@ next_review_due: 2025-11-14
 
 ### Added
 
+- Docs review due automation:
+  - `tools/ci/check_docs_review_due.py` に owner summary、PeriodicNudge 出力、
+    Task Seed 下書き、review update plan 出力を追加
+  - `tests/test_check_docs_review_due.py` を追加
+- Adoption tier enablement:
+  - `tools/ci/check_adoption_tier.py`
+  - `templates/*.template`
+  - `docs/adoption-guide.md`
+  - `docs/adoption-tiers.md`
+  - `tests/test_check_adoption_tier.py`
+- Plugin runtime diagnostics:
+  - `PluginPolicy.isolation_mode`
+  - thread isolation timeout
+  - trace JSON export
+  - trace Evidence JSON Lines export
+- Metrics regression check:
+  - `check_metrics_thresholds.py --baseline-json`
+  - `--regression-tolerance`
+  - `--regression-level`
+- Stable CLI smoke coverage for `wfc-codemap-update` and `wfc-context-pack`
+- Release readiness reporting:
+  - `generate_evidence_report.py` now scans `docs/releases/` and can include
+    security posture / metrics JSON inputs in a readiness summary.
+- Security posture diff:
+  - `check_security_posture.py --export-json` and `--baseline-json` snapshot
+    current checks and report regressions from a previous posture export.
+- Birdseye remediation helper:
+  - `check_birdseye_freshness.py` emits remediation command suggestions and
+    can write them with `--remediation-output`.
+- CI Phase doctor:
+  - `tools/ci/check_ci_phase_doctor.py` reports the current rollout phase,
+    next promotion gaps, and optional CodeQL / metrics-gate candidates.
+- Adaptive improvement operations:
+  - `tools/ci/self_improvement_ops.py` exports curated memory snapshots,
+    generates review-only skill draft records, and builds recall responses.
+- Schema/sample/docs sync matrix:
+  - `check_sample_docs_sync.py --matrix-check` validates schema sample and
+    README/RUNBOOK/spec coverage.
+- Branch protection weekly audit outputs:
+  - `check_branch_protection.py` can write weekly audit report, nudge, and
+    Task Seed draft outputs.
+- Downstream onboarding doctor:
+  - `tools/ci/check_downstream_onboarding.py` combines adoption tier with
+    CI/onboarding signals for downstream repositories.
 - RUNBOOK slimming、Task/Acceptance/Completion trace、agent-tools-hub 境界の要件・仕様を追加。
 - 先行改善案として、version consistency、stable CLI entrypoint、docs gate escalation、
   plugin capability catalog、large module split policy を要件・仕様・Blueprint へ追加。
@@ -97,6 +141,19 @@ next_review_due: 2025-11-14
 
 ### Changed
 
+- Five-tool validation gate remediation:
+  - `tools/audit/verify_log_chain.py` now prefers `--hmac-key` while retaining
+    `--secret` as a compatibility alias, avoiding a Code-to-gate hardcoded-secret
+    false positive in help text.
+  - `tests/test_cli_entrypoints.py` console script smoke tests now fall back to
+    `uv pip install --python <interpreter> -e .` when isolated Python
+    environments do not provide `pip`.
+  - `RUNBOOK.md`, `docs/requirements.md`, `docs/spec.md`, Task Seed, and
+    Acceptance Record now document five-tool Gate propagation and HATE isolated
+    pytest command requirements.
+  - Dedicated five-tool evidence pack added under
+    `docs/evidence/five-tool-validation-20260702/`, including RanD-style
+    requirements audit, manual-bb brief, QEG fixture, and QEG output record.
 - `docs/tasks/task-release-evidence-operational-drill-20260417.md`: 例外理由追記
 - `docs/tasks/task-supply-chain-reproducibility-followup-20260417.md`: 例外理由追記
 - `HUB.codex.md`: Evidence 手順参照追加

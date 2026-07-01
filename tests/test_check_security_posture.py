@@ -16,6 +16,7 @@ spec.loader.exec_module(module)
 
 validate_security_posture = module.validate_security_posture
 ValidationResult = module.ValidationResult
+diff_security_posture = module.diff_security_posture
 
 
 def _seed_repo(root: Path) -> None:
@@ -145,3 +146,20 @@ def test_validate_security_posture_warns_without_github_token(tmp_path: Path) ->
 
     assert len(result.warnings) > 0
     assert any("token" in w.lower() for w in result.warnings)
+
+
+def test_security_posture_snapshot_and_diff_detect_regression(tmp_path: Path) -> None:
+    _seed_repo(tmp_path)
+    result = validate_security_posture(repo_root=tmp_path)
+    current = result.to_dict()
+    baseline = {
+        "checks": {**current["checks"], "readme.security": "pass"},
+        "remote": {"secret_scanning": "enabled"},
+    }
+    current["checks"]["readme.security"] = "fail"
+    current["remote"] = {"secret_scanning": "disabled"}
+
+    diff = diff_security_posture(current, baseline)
+
+    assert diff["status"] == "regressed"
+    assert len(diff["regressions"]) == 2

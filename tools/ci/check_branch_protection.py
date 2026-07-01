@@ -7,6 +7,7 @@ import argparse
 import json
 import sys
 from dataclasses import dataclass, field
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import Iterable, Mapping, Sequence
 
@@ -38,6 +39,13 @@ class ValidationResult:
             print(message, file=sys.stderr)
         for message in self.warnings:
             print(message, file=sys.stderr)
+
+    def to_dict(self) -> dict[str, object]:
+        return {
+            "status": "pass" if self.is_success else "fail",
+            "errors": self.errors,
+            "warnings": self.warnings,
+        }
 
 
 def load_policy_required_jobs(path: Path) -> list[str]:
@@ -138,6 +146,81 @@ def validate_branch_protection(
     return result
 
 
+def build_weekly_audit_report(
+    *,
+    payload: Mapping[str, object],
+    required_jobs: Iterable[str],
+    result: ValidationResult,
+    generated_at: datetime | None = None,
+) -> dict[str, object]:
+    generated_at = generated_at or datetime.now(UTC)
+    return {
+        "kind": "BranchProtectionWeeklyAudit",
+        "generated_at": generated_at.isoformat().replace("+00:00", "Z"),
+        "next_review_due": (generated_at + timedelta(days=7)).date().isoformat(),
+        "required_jobs": sorted(required_jobs),
+        "configured_checks": sorted(extract_required_check_names(payload)),
+        "result": result.to_dict(),
+    }
+
+
+def build_weekly_nudge(report: Mapping[str, object]) -> dict[str, object]:
+    result = report.get("result") if isinstance(report.get("result"), Mapping) else {}
+    errors = result.get("errors") if isinstance(result.get("errors"), list) else []
+    return {
+        "nudge_id": f"NUDGE-branch-protection-{str(report.get('generated_at', 'unknown'))[:10]}",
+        "reason": (
+            f"Branch protection weekly audit has {len(errors)} error(s)"
+            if errors else "Branch protection weekly audit passed; record review evidence"
+        ),
+        "target_kind": "branch_protection",
+        "target_ref": "docs/security/Branch_Protection_Operation.md",
+        "suggested_action": "Review branch protection export against governance/policy.yaml.",
+        "created_at": report.get("generated_at"),
+        "priority": "high" if errors else "low",
+        "category": "weekly_audit",
+        "blocking": bool(errors),
+    }
+
+
+def build_task_seed(report: Mapping[str, object]) -> str:
+    generated = str(report.get("generated_at", datetime.now(UTC).isoformat()))[:10]
+    result = report.get("result") if isinstance(report.get("result"), Mapping) else {}
+    errors = result.get("errors") if isinstance(result.get("errors"), list) else []
+    lines = [
+        "---",
+        f"task_id: task-branch-protection-weekly-audit-{generated.replace('-', '')}",
+        "status: planned",
+        "owner: security",
+        f"last_reviewed_at: {generated}",
+        f"next_review_due: {report.get('next_review_due', generated)}",
+        "---",
+        "",
+        "# Task Seed: Branch Protection Weekly Audit",
+        "",
+        "## Objective",
+        "",
+        "Review branch protection settings against governance policy and docs.",
+        "",
+        "## Findings",
+        "",
+    ]
+    if errors:
+        lines.extend(f"- {error}" for error in errors)
+    else:
+        lines.append("- No blocking branch protection mismatches detected.")
+    lines.extend([
+        "",
+        "## Commands",
+        "",
+        "```sh",
+        "python tools/ci/check_branch_protection.py --protection-json branch-protection.json",
+        "```",
+        "",
+    ])
+    return "\n".join(lines)
+
+
 def main(argv: Sequence[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         description="Validate a GitHub branch protection export against governance/policy.yaml."
@@ -154,11 +237,37 @@ def main(argv: Sequence[str] | None = None) -> int:
         default=_DEFAULT_POLICY,
         help="Path to governance/policy.yaml.",
     )
+    parser.add_argument("--report-output", type=Path, help="Write weekly audit JSON report.")
+    parser.add_argument("--nudge-output", type=Path, help="Write PeriodicNudge-style JSON.")
+    parser.add_argument("--task-seed-output", type=Path, help="Write remediation Task Seed draft.")
+    parser.add_argument("--json", action="store_true", help="Print validation result as JSON.")
     args = parser.parse_args(argv)
 
     payload = json.loads(args.protection_json.read_text(encoding="utf-8"))
     required_jobs = load_policy_required_jobs(args.policy)
     result = validate_branch_protection(payload, required_jobs=required_jobs)
+    weekly_report = build_weekly_audit_report(
+        payload=payload,
+        required_jobs=required_jobs,
+        result=result,
+    )
+    if args.report_output:
+        args.report_output.parent.mkdir(parents=True, exist_ok=True)
+        args.report_output.write_text(
+            json.dumps(weekly_report, ensure_ascii=False, indent=2),
+            encoding="utf-8",
+        )
+    if args.nudge_output:
+        args.nudge_output.parent.mkdir(parents=True, exist_ok=True)
+        args.nudge_output.write_text(
+            json.dumps(build_weekly_nudge(weekly_report), ensure_ascii=False, indent=2),
+            encoding="utf-8",
+        )
+    if args.task_seed_output:
+        args.task_seed_output.parent.mkdir(parents=True, exist_ok=True)
+        args.task_seed_output.write_text(build_task_seed(weekly_report), encoding="utf-8")
+    if args.json:
+        print(json.dumps(weekly_report, ensure_ascii=False, indent=2))
     result.emit()
     if result.is_success:
         print(

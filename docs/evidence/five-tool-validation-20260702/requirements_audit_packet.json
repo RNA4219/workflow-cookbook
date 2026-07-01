@@ -1,0 +1,151 @@
+{
+  "schema_version": "1.0",
+  "document_id": "REQDOC-WFC-20260702-001",
+  "summary": "workflow-cookbook readiness/downstream automation changes and five-tool remediation requirements audit.",
+  "requirements": [
+    {
+      "requirement_id": "REQ-WFC-001",
+      "original_text": "Release readiness, security posture diffing, Birdseye remediation, CI phase diagnosis, adaptive improvement utilities, schema/sample/docs matrix, branch protection weekly artifacts, and downstream onboarding must be implemented and traceable to acceptance evidence.",
+      "kano_estimate": "must_be",
+      "confidence": 0.95,
+      "evidence": [
+        {
+          "evidence_id": "EV-WFC-001",
+          "source_type": "official",
+          "source_tier": "primary",
+          "source_ref": "docs/tasks/task-readiness-downstream-automation-extensions-20260702.md",
+          "summary": "Task Seed lists the feature scope, requirements, affected paths, and acceptance link.",
+          "weight": 0.95,
+          "freshness_days": 0,
+          "locale": "ja-JP"
+        },
+        {
+          "evidence_id": "EV-WFC-002",
+          "source_type": "official",
+          "source_tier": "primary",
+          "source_ref": "docs/acceptance/AC-20260702-01.md",
+          "summary": "Acceptance record marks the automation criteria and evidence complete.",
+          "weight": 0.95,
+          "freshness_days": 0,
+          "locale": "ja-JP"
+        }
+      ],
+      "testability": "high",
+      "implementation_alignment": "high",
+      "risks": [],
+      "issues": [],
+      "suggested_action": "Maintain generated evidence in CI artifacts for downstream reuse.",
+      "gate_verdict": "go"
+    },
+    {
+      "requirement_id": "REQ-WFC-002",
+      "original_text": "Five-tool validation blockers must be resolved or explicitly reflected into the release Gate verdict before approval.",
+      "kano_estimate": "must_be",
+      "confidence": 0.94,
+      "evidence": [
+        {
+          "evidence_id": "EV-WFC-003",
+          "source_type": "official",
+          "source_tier": "primary",
+          "source_ref": "RUNBOOK.md#five-tool-validation-gate",
+          "summary": "Runbook defines RanD -> Code-to-gate -> HATE -> manual-bb -> QEG propagation rules.",
+          "weight": 0.95,
+          "freshness_days": 0,
+          "locale": "ja-JP"
+        },
+        {
+          "evidence_id": "EV-WFC-004",
+          "source_type": "tool_output",
+          "source_tier": "implementation",
+          "source_ref": "C:/tmp/workflow-cookbook-five-tool-rerun/ctg/release-readiness.json",
+          "summary": "Code-to-gate readiness passed with no critical/high blockers.",
+          "weight": 0.9,
+          "freshness_days": 0,
+          "locale": "ja-JP"
+        },
+        {
+          "evidence_id": "EV-WFC-005",
+          "source_type": "tool_output",
+          "source_tier": "implementation",
+          "source_ref": "C:/tmp/workflow-cookbook-five-tool-rerun/hate/real-repo-evaluation-run-report.json",
+          "summary": "HATE real-repo evidence passed with 573 executed records and no held repos.",
+          "weight": 0.9,
+          "freshness_days": 0,
+          "locale": "ja-JP"
+        }
+      ],
+      "testability": "high",
+      "implementation_alignment": "high",
+      "risks": [],
+      "issues": [],
+      "suggested_action": "Keep QEG fixture and record with the same release evidence pack.",
+      "gate_verdict": "go"
+    },
+    {
+      "requirement_id": "REQ-WFC-003",
+      "original_text": "Console script smoke tests must work in isolated HATE real-repo environments where pip is not installed in the active Python interpreter.",
+      "kano_estimate": "must_be",
+      "confidence": 0.93,
+      "evidence": [
+        {
+          "evidence_id": "EV-WFC-006",
+          "source_type": "implementation",
+          "source_tier": "primary",
+          "source_ref": "tests/test_cli_entrypoints.py",
+          "summary": "Editable install helper falls back to uv pip install --python when pip is unavailable.",
+          "weight": 0.9,
+          "freshness_days": 0,
+          "locale": "ja-JP"
+        },
+        {
+          "evidence_id": "EV-WFC-007",
+          "source_type": "tool_output",
+          "source_tier": "implementation",
+          "source_ref": "C:/tmp/workflow-cookbook-five-tool-rerun/pytest-junit.xml",
+          "summary": "Full pytest suite passed with 573 tests.",
+          "weight": 0.9,
+          "freshness_days": 0,
+          "locale": "ja-JP"
+        }
+      ],
+      "testability": "high",
+      "implementation_alignment": "high",
+      "risks": [],
+      "issues": [],
+      "suggested_action": "Retain python -m pytest style in HATE rosters for isolated execution.",
+      "gate_verdict": "go"
+    }
+  ],
+  "gate_summary": {
+    "go": 3,
+    "conditional_go": 0,
+    "no_go": 0,
+    "total": 3,
+    "verdict_distribution": {
+      "go": [
+        "REQ-WFC-001",
+        "REQ-WFC-002",
+        "REQ-WFC-003"
+      ],
+      "conditional_go": [],
+      "no_go": []
+    },
+    "overall_assessment": "go",
+    "overall_reason": "All audited requirements are source-backed, testable, implemented, and covered by current tool evidence."
+  },
+  "source_refs": {
+    "audited_document": "docs/tasks/task-readiness-downstream-automation-extensions-20260702.md",
+    "external_evidence": [],
+    "implementation_evidence": [
+      "docs/acceptance/AC-20260702-01.md",
+      "RUNBOOK.md#five-tool-validation-gate",
+      "C:/tmp/workflow-cookbook-five-tool-rerun/ctg/release-readiness.json",
+      "C:/tmp/workflow-cookbook-five-tool-rerun/hate/real-repo-evaluation-run-report.json",
+      "C:/tmp/workflow-cookbook-five-tool-rerun/pytest-junit.xml"
+    ]
+  },
+  "assumptions": [
+    "Kano classification is used as a RanD-style audit hypothesis, not as a formal user survey.",
+    "Local C:/tmp tool outputs are the current validation evidence for this workstation run."
+  ]
+}
