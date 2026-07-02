@@ -1,0 +1,85 @@
+{
+  "manifest_id": "five-tool:workflow-cookbook-20260703",
+  "run_id": "workflow-cookbook-five-tool-20260703",
+  "target": {
+    "repo": "workflow-cookbook",
+    "scope": "chain run manifest and cross-repo contract evidence"
+  },
+  "repos": [
+    {
+      "tool": "rand",
+      "name": "RanD",
+      "path": "../RanD",
+      "required": true
+    },
+    {
+      "tool": "code-to-gate",
+      "name": "code-to-gate",
+      "path": "../code-to-gate",
+      "required": true
+    },
+    {
+      "tool": "hate",
+      "name": "harness-auto-test-evidence",
+      "path": "../harness-auto-test-evidence",
+      "required": true
+    },
+    {
+      "tool": "manual-bb",
+      "name": "manual-bb-test-harness",
+      "path": "../manual-bb-test-harness",
+      "required": true
+    },
+    {
+      "tool": "qeg",
+      "name": "quality-evidence-graph",
+      "path": "../quality-evidence-graph",
+      "required": true
+    }
+  ],
+  "artifacts": [
+    {
+      "tool": "rand",
+      "role": "requirements_audit_packet",
+      "direction": "input",
+      "path": "docs/evidence/five-tool-validation-20260702/requirements_audit_packet.json",
+      "required": true
+    },
+    {
+      "tool": "manual-bb",
+      "role": "go_no_go_brief",
+      "direction": "input",
+      "path": "docs/evidence/five-tool-validation-20260702/manual-bb-brief.md",
+      "required": true
+    },
+    {
+      "tool": "qeg",
+      "role": "gate_input",
+      "direction": "input",
+      "path": "docs/evidence/five-tool-validation-20260702/qeg-workflow-cookbook/gate-input.json",
+      "required": true
+    },
+    {
+      "tool": "qeg",
+      "role": "output_record",
+      "direction": "output",
+      "path": "docs/evidence/five-tool-validation-20260702/qeg-workflow-cookbook/output-record.json",
+      "required": true
+    }
+  ],
+  "qeg_policy_hash": "sha256:workflow-cookbook-five-tool-20260702",
+  "final_verdict": "go",
+  "degraded": [
+    {
+      "tool": "code-to-gate",
+      "reason": "Static analysis artifacts are referenced from the requirements audit packet rather than copied into this evidence pack.",
+      "impact": "Manifest still records the code-to-gate repository commit."
+    },
+    {
+      "tool": "hate",
+      "reason": "HATE real-repo output is referenced from the requirements audit packet rather than copied into this evidence pack.",
+      "impact": "Manifest still records the HATE repository commit."
+    }
+  ],
+  "skipped": []
+}

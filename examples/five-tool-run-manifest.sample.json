@@ -1,0 +1,95 @@
+{
+  "artifacts": [
+    {
+      "bytes": 128,
+      "direction": "input",
+      "exists": true,
+      "path": "docs/evidence/five-tool-validation-20260702/requirements_audit_packet.json",
+      "policy_hashes": [],
+      "required": true,
+      "role": "requirements_audit_packet",
+      "schema_version": "1.0",
+      "sha256": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+      "tool": "rand",
+      "trace_ids": {
+        "evidence": [
+          "rand:ev-1"
+        ],
+        "nodes": [],
+        "requirements": [
+          "rand:req-1"
+        ],
+        "runs": [
+          "run:sample"
+        ]
+      },
+      "verdicts": [
+        "go"
+      ]
+    },
+    {
+      "bytes": 128,
+      "direction": "output",
+      "exists": true,
+      "path": "docs/evidence/five-tool-validation-20260702/qeg-workflow-cookbook/output-record.json",
+      "policy_hashes": [
+        "sha256:sample-policy"
+      ],
+      "required": true,
+      "role": "output_record",
+      "schema_version": "1.0",
+      "sha256": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+      "tool": "qeg",
+      "trace_ids": {
+        "evidence": [],
+        "nodes": [
+          "qeg:node-1"
+        ],
+        "requirements": [],
+        "runs": [
+          "run:sample"
+        ]
+      },
+      "verdicts": [
+        "go"
+      ]
+    }
+  ],
+  "chain": [
+    "rand",
+    "code-to-gate",
+    "hate",
+    "manual-bb",
+    "qeg"
+  ],
+  "contract": {
+    "direct_gate_policy_allowed_tools": [
+      "qeg"
+    ],
+    "manifest_config": "five-tool-chain-manifest.sample.json"
+  },
+  "degraded": [],
+  "final_verdict": "go",
+  "generated_at": "2026-07-03T00:00:00Z",
+  "manifest_id": "five-tool:sample",
+  "qeg_policy_hash": "sha256:sample-policy",
+  "repos": [
+    {
+      "branch": "main",
+      "commit": "0000000000000000000000000000000000000000",
+      "dirty": false,
+      "dirty_count": 0,
+      "name": "RanD",
+      "path": "../RanD",
+      "required": true,
+      "tool": "rand",
+      "upstream": "origin/main"
+    }
+  ],
+  "run_id": "run:sample",
+  "schema_version": "1.0",
+  "skipped": [],
+  "target": {
+    "repo": "workflow-cookbook"
+  }
+}

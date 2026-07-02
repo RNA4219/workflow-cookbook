@@ -1,0 +1,191 @@
+{
+  "artifacts": [
+    {
+      "bytes": 5900,
+      "direction": "input",
+      "exists": true,
+      "has_direct_gate_policy": false,
+      "path": "C:\\Users\\ryo-n\\Codex_dev\\workflow-cookbook\\docs\\evidence\\five-tool-validation-20260702\\requirements_audit_packet.json",
+      "policy_hashes": [],
+      "required": true,
+      "role": "requirements_audit_packet",
+      "schema_version": "1.0",
+      "sha256": "sha256:92c26cd7c36a9e981f673e45c8c13ecfb1b83288874d525c33defda795ee9ce4",
+      "tool": "rand",
+      "trace_ids": {
+        "evidence": [
+          "EV-WFC-001",
+          "EV-WFC-002",
+          "EV-WFC-003",
+          "EV-WFC-004",
+          "EV-WFC-005",
+          "EV-WFC-006",
+          "EV-WFC-007"
+        ],
+        "nodes": [],
+        "requirements": [
+          "REQ-WFC-001",
+          "REQ-WFC-002",
+          "REQ-WFC-003"
+        ],
+        "runs": []
+      },
+      "verdicts": [
+        "go"
+      ]
+    },
+    {
+      "bytes": 2274,
+      "direction": "input",
+      "exists": true,
+      "path": "C:\\Users\\ryo-n\\Codex_dev\\workflow-cookbook\\docs\\evidence\\five-tool-validation-20260702\\manual-bb-brief.md",
+      "required": true,
+      "role": "go_no_go_brief",
+      "sha256": "sha256:0fd61a1d193845f101a79c4066cc19a0c285e37c7a16a9cad095b5872321c609",
+      "tool": "manual-bb"
+    },
+    {
+      "bytes": 7947,
+      "direction": "input",
+      "exists": true,
+      "has_direct_gate_policy": false,
+      "path": "C:\\Users\\ryo-n\\Codex_dev\\workflow-cookbook\\docs\\evidence\\five-tool-validation-20260702\\qeg-workflow-cookbook\\gate-input.json",
+      "policy_hashes": [
+        "sha256:workflow-cookbook-five-tool-20260702"
+      ],
+      "required": true,
+      "role": "gate_input",
+      "schema_version": null,
+      "sha256": "sha256:f67cc6b4ccc71229bc73eef2626a820a0830884270496388e11f905e58d3940b",
+      "tool": "qeg",
+      "trace_ids": {
+        "evidence": [],
+        "nodes": [],
+        "requirements": [],
+        "runs": [
+          "run-workflow-cookbook-five-tool-20260702"
+        ]
+      },
+      "verdicts": []
+    },
+    {
+      "bytes": 5123,
+      "direction": "output",
+      "exists": true,
+      "has_direct_gate_policy": false,
+      "path": "C:\\Users\\ryo-n\\Codex_dev\\workflow-cookbook\\docs\\evidence\\five-tool-validation-20260702\\qeg-workflow-cookbook\\output-record.json",
+      "policy_hashes": [
+        "sha256:workflow-cookbook-five-tool-20260702"
+      ],
+      "required": true,
+      "role": "output_record",
+      "schema_version": null,
+      "sha256": "sha256:fb3f81a49668ebf370be52c5ca0ccf7f7c9f5fd6856e71a17ea25daa89a9dffd",
+      "tool": "qeg",
+      "trace_ids": {
+        "evidence": [],
+        "nodes": [],
+        "requirements": [],
+        "runs": [
+          "run-workflow-cookbook-five-tool-20260702"
+        ]
+      },
+      "verdicts": [
+        "go"
+      ]
+    }
+  ],
+  "chain": [
+    "rand",
+    "code-to-gate",
+    "hate",
+    "manual-bb",
+    "qeg"
+  ],
+  "contract": {
+    "direct_gate_policy_allowed_tools": [
+      "qeg"
+    ],
+    "manifest_config": "examples\\five-tool-chain-manifest.sample.json"
+  },
+  "degraded": [
+    {
+      "impact": "Manifest still records the code-to-gate repository commit.",
+      "reason": "Static analysis artifacts are referenced from the requirements audit packet rather than copied into this evidence pack.",
+      "tool": "code-to-gate"
+    },
+    {
+      "impact": "Manifest still records the HATE repository commit.",
+      "reason": "HATE real-repo output is referenced from the requirements audit packet rather than copied into this evidence pack.",
+      "tool": "hate"
+    }
+  ],
+  "final_verdict": "go",
+  "generated_at": "2026-07-02T22:15:11.119391Z",
+  "manifest_id": "five-tool:workflow-cookbook-20260703",
+  "qeg_policy_hash": "sha256:workflow-cookbook-five-tool-20260702",
+  "repos": [
+    {
+      "branch": "main",
+      "commit": "ab528c5095a961526c6df1bd26b93c76b66e0845",
+      "dirty": false,
+      "dirty_count": 0,
+      "name": "RanD",
+      "path": "C:\\Users\\ryo-n\\Codex_dev\\RanD",
+      "required": true,
+      "tool": "rand",
+      "upstream": "origin/main"
+    },
+    {
+      "branch": "main",
+      "commit": "da61787cc128757a53b53491d4244eea3807c483",
+      "dirty": false,
+      "dirty_count": 0,
+      "name": "code-to-gate",
+      "path": "C:\\Users\\ryo-n\\Codex_dev\\code-to-gate",
+      "required": true,
+      "tool": "code-to-gate",
+      "upstream": "origin/main"
+    },
+    {
+      "branch": "main",
+      "commit": "a5beb039c8f0a998f162e2d783457357fb1ce6ab",
+      "dirty": true,
+      "dirty_count": 44,
+      "name": "harness-auto-test-evidence",
+      "path": "C:\\Users\\ryo-n\\Codex_dev\\harness-auto-test-evidence",
+      "required": true,
+      "tool": "hate",
+      "upstream": ""
+    },
+    {
+      "branch": "main",
+      "commit": "1c0e635b96d9b1ababd40486c6b5e1f5f06ed065",
+      "dirty": false,
+      "dirty_count": 0,
+      "name": "manual-bb-test-harness",
+      "path": "C:\\Users\\ryo-n\\Codex_dev\\manual-bb-test-harness",
+      "required": true,
+      "tool": "manual-bb",
+      "upstream": "origin/main"
+    },
+    {
+      "branch": "main",
+      "commit": "0835903963d973a9b2095cc301014326c850d494",
+      "dirty": false,
+      "dirty_count": 0,
+      "name": "quality-evidence-graph",
+      "path": "C:\\Users\\ryo-n\\Codex_dev\\quality-evidence-graph",
+      "required": true,
+      "tool": "qeg",
+      "upstream": "origin/main"
+    }
+  ],
+  "run_id": "workflow-cookbook-five-tool-20260703",
+  "schema_version": "1.0",
+  "skipped": [],
+  "target": {
+    "repo": "workflow-cookbook",
+    "scope": "chain run manifest and cross-repo contract evidence"
+  }
+}

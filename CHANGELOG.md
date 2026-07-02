@@ -86,6 +86,13 @@ next_review_due: 2025-11-14
 - Downstream onboarding doctor:
   - `tools/ci/check_downstream_onboarding.py` combines adoption tier with
     CI/onboarding signals for downstream repositories.
+- Five-tool run manifest:
+  - `tools/ci/five_tool_manifest.py` generates and validates a cross-repo
+    manifest for RanD, Code-to-gate, HATE, manual-bb-test-harness, and QEG.
+  - `schemas/five-tool-run-manifest.schema.json` and
+    `examples/five-tool-chain-manifest.sample.json` define the contract.
+  - Validation records repo commits, artifact hashes, QEG policyHash, final
+    verdict, and rejects non-QEG direct `gate_policy` artifacts.
 - RUNBOOK slimming、Task/Acceptance/Completion trace、agent-tools-hub 境界の要件・仕様を追加。
 - 先行改善案として、version consistency、stable CLI entrypoint、docs gate escalation、
   plugin capability catalog、large module split policy を要件・仕様・Blueprint へ追加。

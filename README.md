@@ -211,6 +211,10 @@ python tools/ci/check_downstream_onboarding.py --repo ../agent-taskstate --json
 # Adaptive improvement utilities
 python tools/ci/self_improvement_ops.py export-memory --output .ga/curated-memory.json
 python tools/ci/self_improvement_ops.py build-recall --query "release readiness" --output .ga/recall-response.json
+
+# Five-tool validation manifest
+python tools/ci/five_tool_manifest.py generate --config examples/five-tool-chain-manifest.sample.json --out docs/evidence/five-tool-validation-20260703/five-tool-run-manifest.json --validate
+python tools/ci/five_tool_manifest.py validate --manifest docs/evidence/five-tool-validation-20260703/five-tool-run-manifest.json --json
 ```
 
 ---
@@ -241,6 +245,11 @@ Reusable workflows:
 | [`agent-protocols`](https://github.com/RNA4219/agent-protocols) | Contract schemas (Evidence, TaskSeed, Acceptance, etc.) | Schema reference |
 | [`agent-taskstate`](https://github.com/RNA4219/agent-taskstate) | Task state management, typed_ref, context bundle | Workflow plugin |
 | [`memx-resolver`](https://github.com/RNA4219/memx-resolver) | Docs resolve, ack, stale check | Workflow plugin |
+| [`RanD`](https://github.com/RNA4219/RanD) | Requirements audit packet | Five-tool validation manifest |
+| [`code-to-gate`](https://github.com/RNA4219/code-to-gate) | Static gate signals | Five-tool validation manifest |
+| [`harness-auto-test-evidence`](https://github.com/RNA4219/harness-auto-test-evidence) | Automated test evidence | Five-tool validation manifest |
+| [`manual-bb-test-harness`](https://github.com/RNA4219/manual-bb-test-harness) | Manual black-box Go/No-Go brief | Five-tool validation manifest |
+| [`quality-evidence-graph`](https://github.com/RNA4219/quality-evidence-graph) | QEG policyHash and final verdict | Five-tool validation manifest |
 
 ### Evidence Plugin
 

@@ -668,6 +668,58 @@ large module は `TECH_DEBT_REGISTER.md` を正本として管理する。
 - 分割計画には対象 module、分割先、優先度、期限、関連テスト、抑制 expiry を含める。
 - suppression は永続化せず、期限切れ時に再評価する。
 
+### 4.18 Five-tool run manifest
+
+`five-tool-run-manifest` は RanD、Code-to-gate、HATE、manual-bb-test-harness、QEG の
+検収 run を1つの証跡として束ねる JSON artifact である。schema 正本は
+`schemas/five-tool-run-manifest.schema.json`、sample config は
+`examples/five-tool-chain-manifest.sample.json` とする。
+
+#### 4.18.1 CLI
+
+入口は次の2系統を維持する。
+
+| 入口 | 用途 |
+|---|---|
+| `python tools/ci/five_tool_manifest.py generate --config <json> --out <json> --validate` | config から manifest を生成し、その場で契約検証する |
+| `python tools/ci/five_tool_manifest.py validate --manifest <json> --json` | 既存 manifest を再検証する |
+| `wfc-five-tool-manifest` | package entrypoint。既存 script 入口と同じ exit code を返す |
+
+#### 4.18.2 Manifest DTO
+
+manifest は少なくとも次を保持する。
+
+| field | 内容 |
+|---|---|
+| `schema_version` | manifest schema version。現行は `1.0` |
+| `manifest_id` | `five-tool:` prefix を持つ manifest ID |
+| `run_id` | 検収 run ID |
+| `chain` | `rand`, `code-to-gate`, `hate`, `manual-bb`, `qeg` の順序 |
+| `repos[]` | 各 repo の path、branch、commit、upstream、dirty 状態 |
+| `artifacts[]` | 入出力 artifact の path、SHA-256、schema version、verdict、trace id、policy hash |
+| `qeg_policy_hash` | QEG policy 正本を識別する `sha256:` hash |
+| `final_verdict` | `go`, `conditional_go`, `no_go`, `needs_review`, `disqualified` |
+| `degraded[]` | 参照のみ、欠落、内包など完全証跡でない場合の理由と影響 |
+
+#### 4.18.3 Contract validation
+
+validation は少なくとも次を検出する。
+
+- required repo に commit が無い場合は fail。
+- required artifact が無い場合は fail。
+- manifest 内の artifact hash と現在のファイル hash が異なる場合は fail。
+- QEG 以外の artifact が直接 `gate_policy` を持つ場合は fail。
+- `qeg_policy_hash` が QEG artifact の `policyHash` に存在しない場合は fail。
+- QEG artifact が `no_go` または `disqualified` を含むのに final verdict が `go` の場合は fail。
+- required repo が dirty の場合、または joinable trace id が無い主要 artifact は warning。
+
+#### 4.18.4 Evidence pack
+
+五ツール検収の evidence pack は、生成された manifest と validation report を
+`docs/evidence/five-tool-validation-YYYYMMDD/` に保存できること。
+通常の acceptance 正本は既存どおり fixture / cached corpus を優先し、manifest は
+cross-repo contract と証跡束ねの観測点として扱う。
+
 ## 5. 互換性と変更管理
 
 - ドキュメント、Birdseye 生成物、参照実装、CI テンプレートは相互に矛盾してはならない。
@@ -719,6 +771,8 @@ large module は `TECH_DEBT_REGISTER.md` を正本として管理する。
 - 五ツール検収
   - RanD → Code-to-gate → HATE → manual-bb-test-harness → QEG の順で証跡を束ねること。
   - Code-to-gate の `blocked_input` または HATE の `hold` は QEG 相当の最終 Gate へ伝播すること。
+  - five-tool run manifest が repo commit、artifact hash、QEG policyHash、final verdict を記録し、
+    QEG 以外の direct `gate_policy` と QEG No-Go の見落としを検出すること。
   - HATE `real-repo run` の pytest command は、隔離環境で `pip` / console script に依存しない
     `uv run --with PyYAML --with pytest python -m pytest -q` 形式を推奨すること。
 

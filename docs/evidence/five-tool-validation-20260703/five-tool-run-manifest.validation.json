@@ -1,0 +1,8 @@
+{
+  "errors": [],
+  "status": "ok",
+  "warnings": [
+    "repo is dirty: hate (44 changes)",
+    "artifact has no joinable trace ids: manual-bb:go_no_go_brief"
+  ]
+}

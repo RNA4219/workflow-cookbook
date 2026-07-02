@@ -45,6 +45,7 @@ wfc-governance-gate = "tools.ci.governance_gate.cli:main"
 wfc-collect-metrics = "tools.perf.collect_metrics.cli:main"
 wfc-codemap-update = "tools.codemap.update.cli:main"
 wfc-context-pack = "tools.context.pack.cli:main"
+wfc-five-tool-manifest = "tools.ci.five_tool_manifest:main"
 
 [tool.setuptools.packages.find]
 where = ["."]

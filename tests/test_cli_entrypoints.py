@@ -102,6 +102,20 @@ class TestContextPackEntrypoint:
         assert result.returncode == 0
 
 
+class TestFiveToolManifestEntrypoint:
+    """Test five-tool manifest CLI entry points."""
+
+    def test_python_m_five_tool_manifest_help(self) -> None:
+        result = subprocess.run(
+            [sys.executable, "-m", "tools.ci.five_tool_manifest", "--help"],
+            cwd=_REPO_ROOT,
+            capture_output=True,
+            text=True,
+        )
+        assert result.returncode == 0
+        assert "five-tool" in result.stdout.lower()
+
+
 class TestConsoleScripts:
     """Test installed console script entry points."""
 
@@ -147,3 +161,14 @@ class TestConsoleScripts:
             text=True,
         )
         assert result.returncode == 0
+
+    def test_wfc_five_tool_manifest_help(self) -> None:
+        _install_editable()
+        result = subprocess.run(
+            [_console_script("wfc-five-tool-manifest"), "--help"],
+            cwd=_REPO_ROOT,
+            capture_output=True,
+            text=True,
+        )
+        assert result.returncode == 0
+        assert "five-tool" in result.stdout.lower()

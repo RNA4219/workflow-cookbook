@@ -1,0 +1,99 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://rna4219.github.io/workflow-cookbook/schemas/five-tool-run-manifest.schema.json",
+  "title": "FiveToolRunManifest",
+  "type": "object",
+  "additionalProperties": true,
+  "required": [
+    "schema_version",
+    "manifest_id",
+    "run_id",
+    "generated_at",
+    "chain",
+    "repos",
+    "artifacts",
+    "qeg_policy_hash",
+    "final_verdict"
+  ],
+  "properties": {
+    "schema_version": { "const": "1.0" },
+    "manifest_id": { "type": "string", "pattern": "^five-tool:" },
+    "run_id": { "type": "string" },
+    "generated_at": { "type": "string" },
+    "chain": {
+      "type": "array",
+      "items": { "type": "string", "enum": ["rand", "code-to-gate", "hate", "manual-bb", "qeg"] },
+      "minItems": 5
+    },
+    "target": { "type": "object" },
+    "repos": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/repo" }
+    },
+    "artifacts": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/artifact" }
+    },
+    "qeg_policy_hash": { "type": "string", "pattern": "^sha256:" },
+    "final_verdict": {
+      "type": "string",
+      "enum": ["go", "conditional_go", "no_go", "needs_review", "disqualified"]
+    },
+    "degraded": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/status_note" }
+    },
+    "skipped": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/status_note" }
+    }
+  },
+  "$defs": {
+    "repo": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["tool", "path", "branch", "commit", "dirty", "required"],
+      "properties": {
+        "tool": { "type": "string" },
+        "name": { "type": "string" },
+        "path": { "type": "string" },
+        "branch": { "type": "string" },
+        "commit": { "type": "string" },
+        "upstream": { "type": "string" },
+        "dirty": { "type": "boolean" },
+        "dirty_count": { "type": "integer" },
+        "required": { "type": "boolean" }
+      }
+    },
+    "artifact": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["tool", "role", "direction", "path", "required", "exists"],
+      "properties": {
+        "tool": { "type": "string" },
+        "role": { "type": "string" },
+        "direction": { "type": "string", "enum": ["input", "output"] },
+        "path": { "type": "string" },
+        "required": { "type": "boolean" },
+        "exists": { "type": "boolean" },
+        "sha256": { "type": "string", "pattern": "^sha256:" },
+        "bytes": { "type": "integer" },
+        "schema_version": { "type": ["string", "null"] },
+        "policy_hashes": { "type": "array", "items": { "type": "string" } },
+        "verdicts": { "type": "array", "items": { "type": "string" } },
+        "trace_ids": { "type": "object" },
+        "has_direct_gate_policy": { "type": "boolean" }
+      }
+    },
+    "status_note": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["tool", "reason"],
+      "properties": {
+        "tool": { "type": "string" },
+        "reason": { "type": "string" },
+        "impact": { "type": "string" }
+      }
+    }
+  }
+}
