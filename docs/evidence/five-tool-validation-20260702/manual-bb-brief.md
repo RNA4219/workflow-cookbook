@@ -11,7 +11,7 @@
 
 ## 2. リスク
 
-- P1: workstation-local `C:/tmp` evidence は長期保全ではないため、release 時は CI artifact へ昇格が必要。
+- P1: workstation-local `.tmp` evidence は長期保全ではないため、release 時は CI artifact へ昇格が必要。
 - P2: `--secret` alias は互換のため残るため、将来 release note で非推奨化方針を明示する余地がある。
 
 ## 3. 優先度

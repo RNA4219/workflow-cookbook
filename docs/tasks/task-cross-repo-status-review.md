@@ -68,10 +68,10 @@ next_review_due: 2026-05-11
 
 ## 参照
 
-- [C:/Users/ryo-n/Codex_dev/Agent_tools/README.md](C:/Users/ryo-n/Codex_dev/Agent_tools/README.md)
-- [C:/Users/ryo-n/Codex_dev/Agent_tools/HUB.codex.md](C:/Users/ryo-n/Codex_dev/Agent_tools/HUB.codex.md)
-- [C:/Users/ryo-n/Codex_dev/agent-taskstate/README.md](C:/Users/ryo-n/Codex_dev/agent-taskstate/README.md)
-- [C:/Users/ryo-n/Codex_dev/memx-resolver/README.md](C:/Users/ryo-n/Codex_dev/memx-resolver/README.md)
+- [../README.md](../../../README.md)
+- [../HUB.codex.md](../../../HUB.codex.md)
+- [../agent-taskstate/README.md](../../../agent-taskstate/README.md)
+- [../memx-resolver/README.md](../../../memx-resolver/README.md)
 
 ## Review Findings (2026-04-11)
 

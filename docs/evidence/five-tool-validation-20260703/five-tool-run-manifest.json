@@ -5,7 +5,7 @@
       "direction": "input",
       "exists": true,
       "has_direct_gate_policy": false,
-      "path": "C:\\Users\\ryo-n\\Codex_dev\\workflow-cookbook\\docs\\evidence\\five-tool-validation-20260702\\requirements_audit_packet.json",
+      "path": "docs\\evidence\\five-tool-validation-20260702\\requirements_audit_packet.json",
       "policy_hashes": [],
       "required": true,
       "role": "requirements_audit_packet",
@@ -38,7 +38,7 @@
       "bytes": 2274,
       "direction": "input",
       "exists": true,
-      "path": "C:\\Users\\ryo-n\\Codex_dev\\workflow-cookbook\\docs\\evidence\\five-tool-validation-20260702\\manual-bb-brief.md",
+      "path": "docs\\evidence\\five-tool-validation-20260702\\manual-bb-brief.md",
       "required": true,
       "role": "go_no_go_brief",
       "sha256": "sha256:0fd61a1d193845f101a79c4066cc19a0c285e37c7a16a9cad095b5872321c609",
@@ -49,7 +49,7 @@
       "direction": "input",
       "exists": true,
       "has_direct_gate_policy": false,
-      "path": "C:\\Users\\ryo-n\\Codex_dev\\workflow-cookbook\\docs\\evidence\\five-tool-validation-20260702\\qeg-workflow-cookbook\\gate-input.json",
+      "path": "docs\\evidence\\five-tool-validation-20260702\\qeg-workflow-cookbook\\gate-input.json",
       "policy_hashes": [
         "sha256:workflow-cookbook-five-tool-20260702"
       ],
@@ -73,7 +73,7 @@
       "direction": "output",
       "exists": true,
       "has_direct_gate_policy": false,
-      "path": "C:\\Users\\ryo-n\\Codex_dev\\workflow-cookbook\\docs\\evidence\\five-tool-validation-20260702\\qeg-workflow-cookbook\\output-record.json",
+      "path": "docs\\evidence\\five-tool-validation-20260702\\qeg-workflow-cookbook\\output-record.json",
       "policy_hashes": [
         "sha256:workflow-cookbook-five-tool-20260702"
       ],
@@ -131,7 +131,7 @@
       "dirty": false,
       "dirty_count": 0,
       "name": "RanD",
-      "path": "C:\\Users\\ryo-n\\Codex_dev\\RanD",
+      "path": "..\\..\\RanD",
       "required": true,
       "tool": "rand",
       "upstream": "origin/main"
@@ -142,7 +142,7 @@
       "dirty": false,
       "dirty_count": 0,
       "name": "code-to-gate",
-      "path": "C:\\Users\\ryo-n\\Codex_dev\\code-to-gate",
+      "path": "..\\..\\code-to-gate",
       "required": true,
       "tool": "code-to-gate",
       "upstream": "origin/main"
@@ -153,7 +153,7 @@
       "dirty": true,
       "dirty_count": 44,
       "name": "harness-auto-test-evidence",
-      "path": "C:\\Users\\ryo-n\\Codex_dev\\harness-auto-test-evidence",
+      "path": "..\\..\\harness-auto-test-evidence",
       "required": true,
       "tool": "hate",
       "upstream": ""
@@ -164,7 +164,7 @@
       "dirty": false,
       "dirty_count": 0,
       "name": "manual-bb-test-harness",
-      "path": "C:\\Users\\ryo-n\\Codex_dev\\manual-bb-test-harness",
+      "path": "..\\..\\manual-bb-test-harness",
       "required": true,
       "tool": "manual-bb",
       "upstream": "origin/main"
@@ -175,7 +175,7 @@
       "dirty": false,
       "dirty_count": 0,
       "name": "quality-evidence-graph",
-      "path": "C:\\Users\\ryo-n\\Codex_dev\\quality-evidence-graph",
+      "path": "..\\..\\quality-evidence-graph",
       "required": true,
       "tool": "qeg",
       "upstream": "origin/main"

@@ -152,9 +152,9 @@ release approval を出さない。
 最小ローカル確認:
 
 ```bash
-uv run pytest -q --junitxml C:\tmp\workflow-cookbook-five-tool\pytest-junit.xml
-node C:\Users\ryo-n\Codex_dev\code-to-gate\dist\cli.js analyze C:\Users\ryo-n\Codex_dev\workflow-cookbook --emit all --out C:\tmp\workflow-cookbook-five-tool\ctg
-node C:\Users\ryo-n\Codex_dev\code-to-gate\dist\cli.js readiness C:\Users\ryo-n\Codex_dev\workflow-cookbook --policy C:\Users\ryo-n\Codex_dev\code-to-gate\.github\ctg-policy.yaml --from C:\tmp\workflow-cookbook-five-tool\ctg --out C:\tmp\workflow-cookbook-five-tool\ctg
+uv run pytest -q --junitxml .tmp\workflow-cookbook-five-tool\pytest-junit.xml
+node ..\..\code-to-gate\dist\cli.js analyze ..\workflow-cookbook --emit all --out .tmp\workflow-cookbook-five-tool\ctg
+node ..\..\code-to-gate\dist\cli.js readiness ..\workflow-cookbook --policy ..\..\code-to-gate\.github\ctg-policy.yaml --from .tmp\workflow-cookbook-five-tool\ctg --out .tmp\workflow-cookbook-five-tool\ctg
 ```
 
 HATE の `real-repo run` へ pytest を渡す場合は、隔離環境で console script や

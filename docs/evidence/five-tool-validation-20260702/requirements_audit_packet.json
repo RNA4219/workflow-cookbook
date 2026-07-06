@@ -57,7 +57,7 @@
           "evidence_id": "EV-WFC-004",
           "source_type": "tool_output",
           "source_tier": "implementation",
-          "source_ref": "C:/tmp/workflow-cookbook-five-tool-rerun/ctg/release-readiness.json",
+          "source_ref": ".tmp/workflow-cookbook-five-tool-rerun/ctg/release-readiness.json",
           "summary": "Code-to-gate readiness passed with no critical/high blockers.",
           "weight": 0.9,
           "freshness_days": 0,
@@ -67,7 +67,7 @@
           "evidence_id": "EV-WFC-005",
           "source_type": "tool_output",
           "source_tier": "implementation",
-          "source_ref": "C:/tmp/workflow-cookbook-five-tool-rerun/hate/real-repo-evaluation-run-report.json",
+          "source_ref": ".tmp/workflow-cookbook-five-tool-rerun/hate/real-repo-evaluation-run-report.json",
           "summary": "HATE real-repo evidence passed with 573 executed records and no held repos.",
           "weight": 0.9,
           "freshness_days": 0,
@@ -101,7 +101,7 @@
           "evidence_id": "EV-WFC-007",
           "source_type": "tool_output",
           "source_tier": "implementation",
-          "source_ref": "C:/tmp/workflow-cookbook-five-tool-rerun/pytest-junit.xml",
+          "source_ref": ".tmp/workflow-cookbook-five-tool-rerun/pytest-junit.xml",
           "summary": "Full pytest suite passed with 573 tests.",
           "weight": 0.9,
           "freshness_days": 0,
@@ -139,13 +139,13 @@
     "implementation_evidence": [
       "docs/acceptance/AC-20260702-01.md",
       "RUNBOOK.md#five-tool-validation-gate",
-      "C:/tmp/workflow-cookbook-five-tool-rerun/ctg/release-readiness.json",
-      "C:/tmp/workflow-cookbook-five-tool-rerun/hate/real-repo-evaluation-run-report.json",
-      "C:/tmp/workflow-cookbook-five-tool-rerun/pytest-junit.xml"
+      ".tmp/workflow-cookbook-five-tool-rerun/ctg/release-readiness.json",
+      ".tmp/workflow-cookbook-five-tool-rerun/hate/real-repo-evaluation-run-report.json",
+      ".tmp/workflow-cookbook-five-tool-rerun/pytest-junit.xml"
     ]
   },
   "assumptions": [
     "Kano classification is used as a RanD-style audit hypothesis, not as a formal user survey.",
-    "Local C:/tmp tool outputs are the current validation evidence for this workstation run."
+    "Local .tmp tool outputs are the current validation evidence for this workstation run."
   ]
 }

@@ -16,14 +16,14 @@
         "id": "artifact-ctg-001",
         "adapter": "code-to-gate",
         "kind": "gate_decision",
-        "path": "C:/tmp/workflow-cookbook-five-tool-rerun/ctg/release-readiness.json",
+        "path": ".tmp/workflow-cookbook-five-tool-rerun/ctg/release-readiness.json",
         "revision": "working-tree"
       },
       {
         "id": "artifact-hate-001",
         "adapter": "hate",
         "kind": "execution_evidence",
-        "path": "C:/tmp/workflow-cookbook-five-tool-rerun/hate/real-repo-evaluation-run-report.json",
+        "path": ".tmp/workflow-cookbook-five-tool-rerun/hate/real-repo-evaluation-run-report.json",
         "revision": "working-tree"
       },
       {
@@ -63,11 +63,11 @@
           },
           {
             "id": "sr-ctg",
-            "path": "C:/tmp/workflow-cookbook-five-tool-rerun/ctg/release-readiness.json"
+            "path": ".tmp/workflow-cookbook-five-tool-rerun/ctg/release-readiness.json"
           },
           {
             "id": "sr-hate",
-            "path": "C:/tmp/workflow-cookbook-five-tool-rerun/hate/real-repo-evaluation-run-report.json"
+            "path": ".tmp/workflow-cookbook-five-tool-rerun/hate/real-repo-evaluation-run-report.json"
           },
           {
             "id": "sr-manual-bb",

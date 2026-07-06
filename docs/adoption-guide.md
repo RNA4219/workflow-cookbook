@@ -60,8 +60,8 @@ Use a JSON list when assessing several repositories:
 
 ```json
 [
-  "C:/Users/ryo-n/Codex_dev/workflow-cookbook",
-  {"repo": "C:/Users/ryo-n/Codex_dev/agent-taskstate"}
+  "../workflow-cookbook",
+  {"repo": "../agent-taskstate"}
 ]
 ```
 
