@@ -133,7 +133,7 @@ def load_git_tag_versions(repo_root: Path) -> set[str]:
     )
     for command in commands:
         try:
-            completed = subprocess.run(  # nosec B603,B607  # git command with fixed args, no shell=True
+            completed = subprocess.run(  # nosec B603  # git command with fixed args, no shell=True
                 command,
                 cwd=repo_root,
                 capture_output=True,

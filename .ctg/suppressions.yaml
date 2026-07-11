@@ -5,53 +5,33 @@ suppressions:
   - rule_id: UNSAFE_DELETE
     path: tools/workflow_plugins/runtime.py
     reason: "_traces.clear() is trace log cleanup, not actual data deletion. False positive."
-    expiry: 2027-05-02
+    expiry: 2026-08-10
 
   # purge_logs.py - legitimate audit tool with safety checks
   - rule_id: UNSAFE_DELETE
     path: tools/audit/purge_logs.py
     reason: "Audit log purging tool with explicit safety: older_than_days > 0 validation, cutoff_timestamp filtering."
-    expiry: 2027-05-02
+    expiry: 2026-08-10
 
-  # LARGE_MODULE suppressions - documented in TECH_DEBT_REGISTER.md for Q2/Q3 split
-  # These modules are large but functional, split planned but not urgent
-
-  - rule_id: LARGE_MODULE
-    path: tools/perf/collect_metrics.py
-    reason: "Metrics collection hub consolidating 15+ metric types. Split planned Q2 2026 per TECH_DEBT_REGISTER.md. Currently stable and tested."
-    expiry: 2027-05-02
-
-  - rule_id: LARGE_MODULE
-    path: tools/codemap/update.py
-    reason: "Codemap update orchestrates 3 sub-operations (scan/analyze/export). Split into separate command handlers planned Q3 2026."
-    expiry: 2027-05-02
-
-  - rule_id: LARGE_MODULE
-    path: tools/context/pack.py
-    reason: "Context packing handles multiple format outputs (json/yaml/markdown). Split into format-specific packers planned Q3 2026."
-    expiry: 2027-05-02
+  # Remaining LARGE_MODULE suppressions are reviewed against TECH_DEBT_REGISTER.md.
+  # Re-evaluate these exceptions at the next monthly debt review.
 
   - rule_id: LARGE_MODULE
     path: tools/autosave/project_lock_service.py
-    reason: "Project lock service with 22 methods for lock lifecycle. Acceptable for service class, documented for review."
-    expiry: 2027-05-02
-
-  - rule_id: LARGE_MODULE
-    path: tools/ci/check_governance_gate.py
-    reason: "Governance gate checker with comprehensive validation. Refactor into sub-checkers planned Q3 2026."
-    expiry: 2027-05-02
+    reason: "Project lock service with 22 methods for lock lifecycle. Refactor deferred; review due 2026-08-10."
+    expiry: 2026-08-10
 
   - rule_id: LARGE_MODULE
     path: tools/perf/context_trimmer.py
-    reason: "Context trimming with 21 trimming strategies. Strategy pattern refactoring planned Q3 2026."
-    expiry: 2027-05-02
+    reason: "Context trimming with 21 trimming strategies. Strategy pattern refactoring deferred; review due 2026-08-10."
+    expiry: 2026-08-10
 
   - rule_id: LARGE_MODULE
     path: tools/protocols/evidence_bridge.py
-    reason: "Evidence bridge consolidates 35 protocol methods. Split into protocol-specific bridges planned Q3 2026."
-    expiry: 2027-05-02
+    reason: "Evidence bridge consolidates 35 protocol methods. Split into protocol-specific bridges deferred; review due 2026-08-10."
+    expiry: 2026-08-10
 
   - rule_id: LARGE_MODULE
     path: tools/security/allowlist_guard.py
-    reason: "Allowlist guard with 22 validation methods. Refactor into rule-specific validators planned Q3 2026."
-    expiry: 2027-05-02
+    reason: "Allowlist guard with 22 validation methods. Refactor into rule-specific validators deferred; review due 2026-08-10."
+    expiry: 2026-08-10

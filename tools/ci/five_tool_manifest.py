@@ -53,7 +53,7 @@ def _resolve_path(value: str, base_dir: Path) -> Path:
 
 
 def _git(repo: Path, *args: str) -> str:
-    result = subprocess.run(
+    result = subprocess.run(  # nosec B607  # executable is the fixed git command
         ["git", "-c", f"safe.directory={repo}", "-C", str(repo), *args],
         check=True,
         capture_output=True,

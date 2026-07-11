@@ -22,6 +22,9 @@ from typing import Any
 _REPO_ROOT = Path(__file__).resolve().parents[2]
 _TASKS_DIR = _REPO_ROOT / "docs" / "tasks"
 _ACCEPTANCE_DIR = _REPO_ROOT / "docs" / "acceptance"
+_TERMINAL_TASK_STATUSES = frozenset(
+    {"done", "completed", "resolved", "approved", "deployed", "rolled_back"}
+)
 
 
 @dataclass
@@ -29,6 +32,7 @@ class TaskRecord:
     task_id: str
     status: str
     file_path: Path
+    acceptance_exempt: bool = False
 
 
 @dataclass
@@ -91,12 +95,17 @@ def _scan_tasks(tasks_dir: Path) -> list[TaskRecord]:
         fm = _parse_front_matter(content)
         task_id = fm.get("task_id", "")
         status = fm.get("status", "unknown").lower()
+        acceptance_exempt = (
+            "\u4f8b\u5916\u7406\u7531" in content
+            and "Acceptance record \u4e0d\u8981" in content
+        )
 
         if task_id:
             tasks.append(TaskRecord(
                 task_id=task_id,
                 status=status,
                 file_path=task_file,
+                acceptance_exempt=acceptance_exempt,
             ))
 
     return tasks
@@ -140,19 +149,19 @@ def validate_bidirectional_sync(
         if acc.task_id:
             acceptance_by_task_id.setdefault(acc.task_id, []).append(acc)
 
-    # Check 1: All done tasks have an approved acceptance
+    # Check 1: All completed tasks have an approved acceptance unless exempt.
     for task in tasks:
-        if task.status == "done":
+        if task.status in _TERMINAL_TASK_STATUSES and not task.acceptance_exempt:
             accs = acceptance_by_task_id.get(task.task_id, [])
             approved_accs = [a for a in accs if a.status == "approved"]
             if not approved_accs:
                 if not accs:
                     report.errors.append(
-                        f"Done task '{task.task_id}' has no acceptance record"
+                        f"Completed task '{task.task_id}' has no acceptance record"
                     )
                 else:
                     report.warnings.append(
-                        f"Done task '{task.task_id}' has acceptance record(s) but none approved"
+                        f"Completed task '{task.task_id}' has acceptance record(s) but none approved"
                     )
 
     # Check 2: All approved acceptances reference a valid task
@@ -170,7 +179,7 @@ def validate_bidirectional_sync(
                     f"Approved acceptance '{acc.acceptance_id}' references "
                     f"non-existent task '{acc.task_id}'"
                 )
-            elif referenced_task.status != "done":
+            elif referenced_task.status not in _TERMINAL_TASK_STATUSES:
                 report.warnings.append(
                     f"Approved acceptance '{acc.acceptance_id}' references "
                     f"task '{acc.task_id}' with status '{referenced_task.status}' (expected 'done')"

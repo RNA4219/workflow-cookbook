@@ -40,6 +40,7 @@ def test_metrics_workflow_does_not_present_fixture_as_real_evidence() -> None:
     assert "real - RG-001" not in workflow
     assert "check_version_consistency.py --check" in workflow
     assert "check_docs_review_due.py --check" in workflow
+    assert "check_task_acceptance_bidirectional.py" in workflow
 
 
 def test_external_actions_are_pinned_to_commit_sha() -> None:

@@ -41,6 +41,14 @@ next_review_due: 2026-05-17
 - [Enterprise Readiness Checklist](../security/Enterprise_Readiness_Checklist.md)
 - [Enterprise Readiness Assessment](../reports/enterprise-readiness-assessment-20260417.md)
 
+## 完了証跡
+
+- dev依存は `pyproject.toml` と `uv.lock` で固定管理
+- transitive dependency は [Dependency Tree](../security/Dependency_Tree.md) で確認可能
+- 例外周期は [Dependency Governance](../security/Dependency_Governance.md) と
+  [dependency_exceptions.md](../security/dependency_exceptions.md) に反映
+- `check_dependency_exceptions.py --check` を定期ゲートとして実行
+
 ## 例外理由
 
 Acceptance record 不要: Operational Readiness Backlog の項目。

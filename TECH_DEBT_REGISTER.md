@@ -72,7 +72,7 @@ code-to-gate 分析で検出された技術的債務の記録と対応計画。
 - `cutoff_timestamp` 明示的期限判定
 - audit log 用ツールとして設計
 
-**対応**: 抑制設定 `.ctg-suppressions.yaml` で `status: reviewed-safe` 記録
+**対応**: 抑制設定 `.ctg/suppressions.yaml` で `status: reviewed-safe` 記録
 
 ### 3.2 tools/workflow_plugins/runtime.py
 
@@ -93,12 +93,21 @@ code-to-gate 分析で検出された技術的債務の記録と対応計画。
 
 ### 抑制ファイル
 
-`.ctg-suppressions.yaml` で管理。
+`.ctg/suppressions.yaml` で管理。
 
 ## 5. 定期再評価
 
-2026-07-11 再評価: strict mypy 100 files、Ruff、full pytest、coverage gate が通過し、
-新規の未解決項目はなし。次回再評価日は 2026-08-10。
+2026-07-11 再評価: strict mypy 100 files、Ruff、full pytest、coverage gate が通過。
+Code-to-gate の既存改善候補として、次の4モジュールを未解決台帳へ再登録した。
+
+| Module | Finding | Follow-up |
+| --- | --- | --- |
+| `tools/ci/check_docs_review_due.py` | 538行 | review checkerの責務分割を検討 |
+| `tools/codemap/update/session.py` | 24関数 | codemap session処理の分割を検討 |
+| `tools/context/pack/resolver.py` | 29関数 | resolver責務の分割を検討 |
+| `tools/workflow_plugins/runtime.py` | 24関数 | runtime trace/plugin責務の分割を検討 |
+
+次回再評価日は 2026-08-10。抑制対象は `.ctg/suppressions.yaml` の期限までに再判定する。
 
 ```bash
 code-to-gate analyze . --config ctg.config.yaml --emit all --out .qh

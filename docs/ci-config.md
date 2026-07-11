@@ -57,6 +57,7 @@ installs.
 | RG-005 | `check_agent_tools_hub_boundary.py` | warning | routing table 複製を検出。 |
 | RG-006 | `check_task_completion_propagation.py` | warning | done Task Seedのcompletion-record未反映をnudge。 |
 | RG-007 | `check_version_consistency.py` | warning | pyproject.toml / README badge / CHANGELOG / git tag / docs/releases 整合確認。 |
+| RG-008 | `check_task_acceptance_bidirectional.py` | enforce | 完了Taskと承認済みAcceptanceの相互参照を検証。Acceptance例外を許容。 |
 
 ## Docs Gate Escalation Policy
 

@@ -36,6 +36,8 @@ jobs:
         run: python tools/ci/check_agent_tools_hub_boundary.py --check
       - name: Check task completion propagation (RG-006)
         run: python tools/ci/check_task_completion_propagation.py --check
+      - name: Check Task/Acceptance bidirectional sync (RG-008)
+        run: python tools/ci/check_task_acceptance_bidirectional.py
       - name: Check version consistency (RG-007 warning)
         continue-on-error: true
         run: python tools/ci/check_version_consistency.py --check

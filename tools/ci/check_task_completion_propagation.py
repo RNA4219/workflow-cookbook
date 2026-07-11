@@ -97,7 +97,7 @@ def _get_recorded_task_ids(completion_path: Path) -> set[str]:
         for match in re.finditer(pattern, content):
             # Extract task_id from link
             link = match.group()
-            # task_id from file name: task-xxx-yyy.md -> xxx-yyy
+            # task_id from file name: task-example-name.md -> example-name
             task_match = re.search(r"task-([^\.)]+)", link)
             if task_match:
                 recorded.add(task_match.group(1))

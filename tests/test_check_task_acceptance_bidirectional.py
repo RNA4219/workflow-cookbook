@@ -176,6 +176,33 @@ class TestValidateBidirectionalSync:
         assert len(report.warnings) == 1
         assert "expected 'done'" in report.warnings[0]
 
+    def test_completed_task_is_terminal(self) -> None:
+        tasks = [TaskRecord(task_id="TASK-001", status="completed", file_path=Path("t.md"))]
+        acceptances = [
+            AcceptanceRecord(
+                acceptance_id="AC-001",
+                task_id="TASK-001",
+                status="approved",
+                file_path=Path("a.md"),
+            )
+        ]
+        report = validate_bidirectional_sync(tasks, acceptances)
+        assert report.errors == []
+        assert report.warnings == []
+
+    def test_acceptance_exception_allows_terminal_task_without_record(self) -> None:
+        tasks = [
+            TaskRecord(
+                task_id="TASK-001",
+                status="done",
+                file_path=Path("t.md"),
+                acceptance_exempt=True,
+            )
+        ]
+        report = validate_bidirectional_sync(tasks, [])
+        assert report.errors == []
+        assert report.warnings == []
+
     def test_ignores_non_done_tasks(self) -> None:
         tasks = [TaskRecord(task_id="TASK-001", status="active", file_path=Path("t.md"))]
         acceptances: list[AcceptanceRecord] = []

@@ -43,6 +43,13 @@ next_review_due: 2026-05-17
 - [Release Checklist](../Release_Checklist.md)
 - [Enterprise Readiness Assessment](../reports/enterprise-readiness-assessment-20260417.md)
 
+## 完了証跡
+
+- Release Approval: [RA-20260421-01](../releases/RA-20260421-01.md)
+- Acceptance references: `AC-20260410-01`, `AC-20260410-02`
+- Rollback drill: [RB-20260421-01](../releases/RB-20260421-01-monthly-drill.md)
+- `check_release_evidence.py` と `check_acceptance.py` の検証経路を確認済み
+
 ## 例外理由
 
 Acceptance record 不要: Operational Readiness Backlog の項目。

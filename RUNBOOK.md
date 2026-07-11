@@ -190,12 +190,14 @@ console script smoke test は、`pip` が無い隔離 Python では
      または ruleset export を取得し、
      `python tools/ci/check_branch_protection.py --protection-json <json>` を通す
 
-2. Release approval / rollback 証跡の実運用 drill
+2. Release approval / rollback 証跡の実運用 drill **[完了: 2026-04-21]**
    - [task-release-evidence-operational-drill-20260417](docs/tasks/task-release-evidence-operational-drill-20260417.md)
-   - 実施タイミング:
+   - 完了証跡:
+     [RA-20260421-01](docs/releases/RA-20260421-01.md)、
+     [RB-20260421-01](docs/releases/RB-20260421-01-monthly-drill.md)
+   - 次回実施タイミング:
      次回 release または rehearsal 実施時
    - 実行確認:
-     `docs/releases/RA-YYYYMMDD-XX.md` 作成、
      `python tools/ci/check_release_evidence.py --check --github-repo <owner/name>`,
      `python tools/ci/check_acceptance.py --check`
 
