@@ -10,17 +10,18 @@ Scans all markdown files with front matter and checks if review is overdue.
 from __future__ import annotations
 
 import argparse
+import json
 import re
 import sys
-import json
+from collections.abc import Sequence
 from dataclasses import dataclass
 from datetime import date, datetime, timedelta
 from pathlib import Path
-from typing import Any, Sequence
-
+from typing import Any
 
 _REPO_ROOT = Path(__file__).resolve().parents[2]
-_EXCLUDED_DIRS = {"_old_docs", "memx_spec_v3", "artifacts", "datasets"}
+_EXCLUDED_DIRS = {"_old_docs", "memx_spec_v3", "artifacts", "datasets", "examples"}
+_TERMINAL_STATUSES = {"done", "completed", "resolved", "approved", "deployed", "rolled_back"}
 _EXCLUDED_FILES = {"README.md", "CHANGELOG.md", "LICENSE", "SECURITY.md", "CODE_OF_CONDUCT.md"}
 
 
@@ -97,6 +98,11 @@ def _scan_docs(root: Path, *, today: date | None = None) -> list[DocReviewStatus
 
         content = md_file.read_text(encoding="utf-8")
         fm = _parse_front_matter(content)
+
+        # Immutable completion/release/incident records do not need recurring review.
+        status = str(fm.get("status", "")).split("#", 1)[0].strip().lower()
+        if status in _TERMINAL_STATUSES:
+            continue
 
         # Only check files that have next_review_due field
         next_review_due = fm.get("next_review_due")
@@ -484,7 +490,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     print()
 
     if overdue_critical:
-        print("## CRITICAL - Review overdue > {} days".format(args.max_days_overdue))
+        print(f"## CRITICAL - Review overdue > {args.max_days_overdue} days")
         print()
         for r in overdue_critical:
             print(f"- {r.rel_path}")
@@ -505,7 +511,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         print()
 
     if upcoming:
-        print("## UPCOMING - Review within {} days".format(args.warn_days))
+        print(f"## UPCOMING - Review within {args.warn_days} days")
         print()
         for r in upcoming:
             print(f"- {r.rel_path}")

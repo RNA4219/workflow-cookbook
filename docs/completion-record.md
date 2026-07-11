@@ -292,3 +292,16 @@ RUNBOOK は日常運用と現在の判断に集中させ、完了済みの長い
 | supply chain followup | 完了 | [docs/tasks/task-supply-chain-reproducibility-followup-20260417.md](tasks/task-supply-chain-reproducibility-followup-20260417.md) |
 
 判定: go
+
+## 2026-07-11 OSS distribution and CI hardening
+
+| Item | Status | Canonical record |
+|---|---|---|
+| fail-closed Python CI and 80% coverage | completed | [AC-20260711-01](acceptance/AC-20260711-01.md) |
+| non-editable wheel CLI verification | completed | [task-oss-hardening-20260711.md](tasks/task-oss-hardening-20260711.md) |
+| Actions SHA pinning and OSS hygiene | completed | [CHANGELOG.md](../CHANGELOG.md#unreleased) |
+| Birdseye refresh | completed | [docs/birdseye/hot.json](birdseye/hot.json) |
+
+Verdict: go
+
+Documentation follow-up: [docs-review-audit-20260711.md](reports/docs-review-audit-20260711.md) records the resolved mypy and recurring-review debt.

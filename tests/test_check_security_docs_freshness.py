@@ -11,11 +11,10 @@ if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
 from tools.ci.check_security_docs_freshness import (
-    _parse_front_matter,
     _count_releases_since_date,
+    _parse_front_matter,
     check_security_docs,
     main,
-    DocFreshness,
 )
 
 

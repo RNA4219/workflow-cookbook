@@ -10,11 +10,11 @@ import hashlib
 import json
 import subprocess
 import sys
+from collections.abc import Sequence
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any, Sequence
-
+from typing import Any
 
 ROOT = Path(__file__).resolve().parents[2]
 VALID_FINAL_VERDICTS = {"go", "conditional_go", "no_go", "needs_review", "disqualified"}
@@ -34,7 +34,10 @@ class ValidationResult:
 
 
 def _read_json(path: Path) -> dict[str, Any]:
-    return json.loads(path.read_text(encoding="utf-8"))
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    if not isinstance(payload, dict):
+        raise ValueError("Expected a JSON object in " + str(path))
+    return payload
 
 
 def _write_json(path: Path, payload: dict[str, Any]) -> None:
@@ -164,9 +167,9 @@ def artifact_snapshot(entry: dict[str, Any], base_dir: Path) -> dict[str, Any]:
     return snapshot
 
 
-def generate_manifest(config_path: Path) -> dict[str, Any]:
+def generate_manifest(config_path: Path, base_dir: Path | None = None) -> dict[str, Any]:
     config = _read_json(config_path)
-    base_dir = ROOT
+    base_dir = ROOT if base_dir is None else base_dir.resolve()
     repos = [repo_snapshot(entry, base_dir) for entry in config.get("repos", [])]
     artifacts = [artifact_snapshot(entry, base_dir) for entry in config.get("artifacts", [])]
     qeg_policy_hashes = sorted(
@@ -183,7 +186,7 @@ def generate_manifest(config_path: Path) -> dict[str, Any]:
         "schema_version": "1.0",
         "manifest_id": config.get("manifest_id", "five-tool:run-manifest"),
         "run_id": config.get("run_id", config.get("manifest_id", "five-tool-run")),
-        "generated_at": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
+        "generated_at": datetime.now(UTC).isoformat().replace("+00:00", "Z"),
         "chain": ["rand", "code-to-gate", "hate", "manual-bb", "qeg"],
         "target": config.get("target", {}),
         "repos": repos,
@@ -260,6 +263,12 @@ def _result_payload(result: ValidationResult) -> dict[str, Any]:
 
 def main(argv: Sequence[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Generate or validate a five-tool run manifest.")
+    parser.add_argument(
+        "--repo-root",
+        type=Path,
+        default=Path.cwd(),
+        help="Base repository for relative config paths (default: current working directory).",
+    )
     subparsers = parser.add_subparsers(dest="command", required=True)
 
     generate = subparsers.add_parser("generate")
@@ -273,7 +282,7 @@ def main(argv: Sequence[str] | None = None) -> int:
 
     args = parser.parse_args(argv)
     if args.command == "generate":
-        manifest = generate_manifest(args.config)
+        manifest = generate_manifest(args.config, args.repo_root)
         _write_json(args.out, manifest)
         if args.validate:
             result = validate_manifest(manifest)

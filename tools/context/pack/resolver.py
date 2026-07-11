@@ -9,23 +9,23 @@ from __future__ import annotations
 
 import math
 from collections import Counter, deque
-from datetime import datetime, timezone
-from typing import Dict, Iterable, List, Mapping, Sequence, cast
+from collections.abc import Iterable, Mapping, Sequence
+from datetime import UTC, datetime
+from typing import cast
 
 from .types import (
-    GraphNode,
-    GraphEdge,
-    IntentProfile,
     BaseSignals,
-    GraphView,
     CandidateRanking,
-    DEFAULT_CONFIG,
+    GraphEdge,
+    GraphNode,
+    GraphView,
+    IntentProfile,
 )
 
 
 def _as_mapping(value: object) -> Mapping[str, object]:
     if isinstance(value, Mapping):
-        return cast(Mapping[str, object], value)
+        return cast("Mapping[str, object]", value)
     return {}
 
 
@@ -63,7 +63,7 @@ def _token_set(*parts: str) -> set[str]:
     return tokens
 
 
-def _intent_profile(intent: str, halflife: int) -> Dict[str, object]:
+def _intent_profile(intent: str, halflife: int) -> dict[str, object]:
     tokens = _token_set(intent)
     role = next((r for r in ["impl", "ops", "risk", "spec"] if r in tokens), None)
     keywords = sorted(tokens - {"int", "intent"})
@@ -72,18 +72,18 @@ def _intent_profile(intent: str, halflife: int) -> Dict[str, object]:
 
 def _recency_score(iso_ts: str, halflife: int) -> float:
     mt = datetime.fromisoformat(iso_ts.replace("Z", "+00:00"))
-    age = max(0.0, (datetime.now(timezone.utc) - mt).total_seconds() / 86400)
+    age = max(0.0, (datetime.now(UTC) - mt).total_seconds() / 86400)
     return math.exp(-age / max(halflife, 1))
 
 
-def _hub_scores(nodes: Sequence[GraphNode], edges: Sequence[GraphEdge]) -> Dict[str, float]:
+def _hub_scores(nodes: Sequence[GraphNode], edges: Sequence[GraphEdge]) -> dict[str, float]:
     degree: Counter[str] = Counter()
     for edge in edges:
         src = edge.get("src")
         if isinstance(src, str):
             degree[src] += 1
     max_deg = max(degree.values(), default=1)
-    result: Dict[str, float] = {}
+    result: dict[str, float] = {}
     for node in nodes:
         node_id = node.get("id")
         if not isinstance(node_id, str):
@@ -133,8 +133,8 @@ def _token_budget(node: Mapping[str, object]) -> int:
 
 def _candidate_ids(
     hits: Iterable[str],
-    adjacency: Dict[str, List[str]],
-    reverse_adj: Dict[str, List[str]],
+    adjacency: dict[str, list[str]],
+    reverse_adj: dict[str, list[str]],
     max_hops: int,
 ) -> set[str]:
     seen: set[str] = set()
@@ -158,9 +158,9 @@ def personalize_scores(
     lam: float,
     iters: int,
     tol: float,
-) -> Dict[str, float]:
-    indexed_nodes: List[GraphNode] = []
-    node_ids: List[str] = []
+) -> dict[str, float]:
+    indexed_nodes: list[GraphNode] = []
+    node_ids: list[str] = []
     for node in nodes:
         node_id = node.get("id")
         if isinstance(node_id, str):
@@ -170,7 +170,7 @@ def personalize_scores(
     if n == 0:
         return {}
     id_to_index = {node_id: idx for idx, node_id in enumerate(node_ids)}
-    adjacency: List[List[int]] = [[] for _ in range(n)]
+    adjacency: list[list[int]] = [[] for _ in range(n)]
     outdeg = [0] * n
     for edge in edges:
         src = edge.get("src")
@@ -219,17 +219,17 @@ class GraphViewBuilder:
         self._diff_paths = [str(path) for path in diff_paths]
         self._config = _as_mapping(config)
 
-    def normalize_nodes(self) -> List[GraphNode]:
+    def normalize_nodes(self) -> list[GraphNode]:
         nodes_raw = self._graph.get("nodes", [])
         if not isinstance(nodes_raw, list):
             return []
-        return [cast(GraphNode, node) for node in nodes_raw]
+        return [cast("GraphNode", node) for node in nodes_raw]
 
-    def normalize_edges(self) -> List[GraphEdge]:
+    def normalize_edges(self) -> list[GraphEdge]:
         edges_raw = self._graph.get("edges", [])
         if not isinstance(edges_raw, list):
             return []
-        return [cast(GraphEdge, edge) for edge in edges_raw]
+        return [cast("GraphEdge", edge) for edge in edges_raw]
 
     def build_intent_profile(self) -> IntentProfile:
         halflife = _config_int(self._config, "recency_halflife_days", 45)
@@ -246,9 +246,9 @@ class GraphViewBuilder:
 
     def build_adjacency(
         self, edges: Sequence[GraphEdge]
-    ) -> tuple[Dict[str, List[str]], Dict[str, List[str]]]:
-        adjacency: Dict[str, List[str]] = {}
-        reverse_adj: Dict[str, List[str]] = {}
+    ) -> tuple[dict[str, list[str]], dict[str, list[str]]]:
+        adjacency: dict[str, list[str]] = {}
+        reverse_adj: dict[str, list[str]] = {}
         for edge in edges:
             src = edge.get("src")
             dst = edge.get("dst")
@@ -262,7 +262,7 @@ class GraphViewBuilder:
         nodes: Sequence[GraphNode],
         edges: Sequence[GraphEdge],
         intent_profile: IntentProfile,
-    ) -> tuple[Dict[str, BaseSignals], Dict[str, float], List[str]]:
+    ) -> tuple[dict[str, BaseSignals], dict[str, float], list[str]]:
         hub_scores = _hub_scores(nodes, edges)
         weights_map = _as_mapping(self._config.get("weights"))
         weight_intent = _config_float(weights_map, "intent", 0.0)
@@ -270,9 +270,9 @@ class GraphViewBuilder:
         weight_recency = _config_float(weights_map, "recency", 0.0)
         weight_hub = _config_float(weights_map, "hub", 0.0)
         weight_role = _config_float(weights_map, "role", 0.0)
-        base_signals: Dict[str, BaseSignals] = {}
-        base_scores: Dict[str, float] = {}
-        hits: List[str] = []
+        base_signals: dict[str, BaseSignals] = {}
+        base_scores: dict[str, float] = {}
+        hits: list[str] = []
         for node in nodes:
             node_id = node.get("id")
             if not isinstance(node_id, str):
@@ -286,7 +286,7 @@ class GraphViewBuilder:
             mtime = (
                 mtime_value
                 if isinstance(mtime_value, str)
-                else datetime.now(timezone.utc).isoformat()
+                else datetime.now(UTC).isoformat()
             )
             recency = _recency_score(mtime, intent_profile.halflife)
             hub = hub_scores.get(node_id, 0.0)
@@ -336,7 +336,7 @@ class CandidateSelector:
         self.view = view
         self.config = config
 
-    def select(self) -> List[GraphNode]:
+    def select(self) -> list[GraphNode]:
         candidate_ids = self._collect_candidate_ids()
         sorted_candidates = sorted(
             candidate_ids,
@@ -361,8 +361,8 @@ class CandidateSelector:
             )
         return set(self.view.base_scores.keys())
 
-    def _filter_nodes(self, allowed: set[str] | None) -> List[GraphNode]:
-        result: List[GraphNode] = []
+    def _filter_nodes(self, allowed: set[str] | None) -> list[GraphNode]:
+        result: list[GraphNode] = []
         for node in self.view.nodes:
             node_id = node.get("id")
             if not isinstance(node_id, str):
@@ -400,7 +400,7 @@ class PPRRanker:
             _config_float(limits, "tol", 1e-6),
         )
         theta = _config_float(pagerank_cfg, "theta", 0.6)
-        scores: Dict[str, float] = {}
+        scores: dict[str, float] = {}
         for node in candidates:
             node_id = node.get("id")
             if not isinstance(node_id, str):

@@ -3,12 +3,11 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
-
 ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from tools.ci.check_ci_gate_matrix import main, validate_ci_gate_matrix, load_checker_stages  # noqa: E402
+from tools.ci.check_ci_gate_matrix import load_checker_stages, main, validate_ci_gate_matrix  # noqa: E402
 
 
 def test_validate_ci_gate_matrix_pass(tmp_path: Path) -> None:

@@ -5,23 +5,20 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 from textwrap import dedent
-from types import SimpleNamespace
-
-import pytest
 
 _REPO_ROOT = Path(__file__).resolve().parents[2]
 if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
 from tools.ci.generate_slo_badges import (
-    generate_badge_markdown,
-    generate_badges,
-    update_readme,
     _format_failure_rate,
     _format_lead_time,
     _format_mttr,
     _get_badge_color,
     _get_failure_rate_color,
+    generate_badge_markdown,
+    generate_badges,
+    update_readme,
 )
 
 

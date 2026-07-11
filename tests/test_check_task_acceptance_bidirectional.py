@@ -6,8 +6,6 @@ import sys
 from pathlib import Path
 from textwrap import dedent
 
-import pytest
-
 _REPO_ROOT = Path(__file__).resolve().parents[2]
 if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
@@ -15,10 +13,9 @@ if str(_REPO_ROOT) not in sys.path:
 from tools.ci.check_task_acceptance_bidirectional import (
     AcceptanceRecord,
     TaskRecord,
-    SyncReport,
     _parse_front_matter,
-    _scan_tasks,
     _scan_acceptances,
+    _scan_tasks,
     validate_bidirectional_sync,
 )
 

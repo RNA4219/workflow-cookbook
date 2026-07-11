@@ -64,14 +64,14 @@ ALLOWED_INTENT_CATEGORIES = {
 class ValidationRule:
     """Base class for validation rules."""
 
-    def evaluate(self, context: "ValidationContext", outcome: "ValidationOutcome") -> None:
+    def evaluate(self, context: ValidationContext, outcome: ValidationOutcome) -> None:
         raise NotImplementedError()
 
 
 class IntentPresenceRule(ValidationRule):
     """Validates that PR body contains an Intent reference."""
 
-    def evaluate(self, context: "ValidationContext", outcome: "ValidationOutcome") -> None:
+    def evaluate(self, context: ValidationContext, outcome: ValidationOutcome) -> None:
         has_intent = bool(INTENT_PATTERN.search(context.normalized_body))
         context.intent_present = has_intent
         if not has_intent:
@@ -81,7 +81,7 @@ class IntentPresenceRule(ValidationRule):
 class IntentCategoryRule(ValidationRule):
     """Validates that Intent has a valid category."""
 
-    def evaluate(self, context: "ValidationContext", outcome: "ValidationOutcome") -> None:
+    def evaluate(self, context: ValidationContext, outcome: ValidationOutcome) -> None:
         if not context.intent_present:
             return
 
@@ -117,7 +117,7 @@ class IntentCategoryRule(ValidationRule):
 class EvaluationReferenceRule(ValidationRule):
     """Validates that PR references an EVALUATION anchor."""
 
-    def evaluate(self, context: "ValidationContext", outcome: "ValidationOutcome") -> None:
+    def evaluate(self, context: ValidationContext, outcome: ValidationOutcome) -> None:
         normalized_body = context.normalized_body
         has_evaluation_heading = bool(EVALUATION_HEADING_PATTERN.search(normalized_body))
         has_evaluation_anchor = bool(EVALUATION_ANCHOR_PATTERN.search(normalized_body))
@@ -128,7 +128,7 @@ class EvaluationReferenceRule(ValidationRule):
 class PriorityScoreRule(ValidationRule):
     """Warns if PR lacks a Priority Score."""
 
-    def evaluate(self, context: "ValidationContext", outcome: "ValidationOutcome") -> None:
+    def evaluate(self, context: ValidationContext, outcome: ValidationOutcome) -> None:
         if not PRIORITY_PATTERN.search(context.normalized_body):
             outcome.add_warning(
                 "Consider adding 'Priority Score: <number>' based on prioritization.yaml"
@@ -138,7 +138,7 @@ class PriorityScoreRule(ValidationRule):
 class AcceptanceRecordRule(ValidationRule):
     """Validates that PR references an acceptance record."""
 
-    def evaluate(self, context: "ValidationContext", outcome: "ValidationOutcome") -> None:
+    def evaluate(self, context: ValidationContext, outcome: ValidationOutcome) -> None:
         if not ACCEPTANCE_RECORD_PATTERN.search(context.normalized_body):
             outcome.add_error(
                 "PR must reference an acceptance record under docs/acceptance/ (AC-YYYYMMDD-xx.md)"
@@ -148,7 +148,7 @@ class AcceptanceRecordRule(ValidationRule):
 class DocsMatrixRule(ValidationRule):
     """Validates Docs matrix selections are properly marked."""
 
-    def evaluate(self, context: "ValidationContext", outcome: "ValidationOutcome") -> None:
+    def evaluate(self, context: ValidationContext, outcome: ValidationOutcome) -> None:
         for label, pattern in DOCS_MATRIX_PATTERN.items():
             match = pattern.search(context.normalized_body)
             if match is None:

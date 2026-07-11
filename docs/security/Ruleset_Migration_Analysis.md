@@ -2,8 +2,8 @@
 intent_id: INT-SEC-013
 owner: security
 status: active
-last_reviewed_at: 2026-04-19
-next_review_due: 2026-05-19
+last_reviewed_at: 2026-07-11
+next_review_due: 2026-08-10
 ---
 
 # Ruleset Migration Analysis

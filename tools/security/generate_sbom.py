@@ -6,16 +6,16 @@ from __future__ import annotations
 
 import argparse
 import json
-import sys
 import uuid
-from datetime import datetime, timezone
+from collections.abc import Sequence
+from datetime import UTC, datetime
 from pathlib import Path
-from typing import Sequence
+from typing import Any
 
 
-def parse_requirements(requirements_path: Path) -> list[dict]:
+def parse_requirements(requirements_path: Path) -> list[dict[str, Any]]:
     """Parse requirements.txt and return component list."""
-    components = []
+    components: list[dict[str, Any]] = []
     if not requirements_path.exists():
         return components
 
@@ -51,7 +51,7 @@ def generate_sbom(requirements_path: Path, output_path: Path, project_name: str,
         "serialNumber": f"urn:uuid:{uuid.uuid4()}",
         "version": 1,
         "metadata": {
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
             "component": {
                 "type": "application",
                 "name": project_name,

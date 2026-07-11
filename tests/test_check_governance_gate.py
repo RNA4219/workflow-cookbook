@@ -8,8 +8,6 @@ import pytest
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
 from tools.ci import governance_gate as check_governance_gate
-from tools.ci.governance_gate import resolver as governance_resolver
-from tools.ci.governance_gate import validator as governance_validator
 from tools.ci.governance_gate import (
     AcceptanceRecordRule,
     CategoryHintResolver,
@@ -24,6 +22,8 @@ from tools.ci.governance_gate import (
     ValidationContext,
     validate_pr_body,
 )
+from tools.ci.governance_gate import resolver as governance_resolver
+from tools.ci.governance_gate import validator as governance_validator
 
 
 def _run_rules(
@@ -678,7 +678,5 @@ def test_pr_body_resolver_collects_failure_reasons(tmp_path):
     buffer = io.StringIO()
     result.emit_errors(stream=buffer)
     assert buffer.getvalue() == (
-        "PR body file not found: {0}\nPR body data is unavailable. Set PR_BODY or GITHUB_EVENT_PATH.\n".format(
-            missing_path
-        )
+        f"PR body file not found: {missing_path}\nPR body data is unavailable. Set PR_BODY or GITHUB_EVENT_PATH.\n"
     )

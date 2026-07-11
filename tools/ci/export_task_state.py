@@ -11,10 +11,11 @@ from __future__ import annotations
 
 import argparse
 import json
-import sys
-from dataclasses import dataclass, field, asdict
+from collections.abc import Sequence
+from dataclasses import asdict, dataclass, field
+from datetime import UTC
 from pathlib import Path
-from typing import Any, Sequence
+from typing import Any
 
 _REPO_ROOT = Path(__file__).resolve().parents[2]
 _TASKS_DIR = _REPO_ROOT / "docs" / "tasks"
@@ -91,7 +92,7 @@ def _parse_front_matter(content: str) -> dict[str, Any]:
 
 def scan_tasks(tasks_dir: Path) -> list[TaskState]:
     """Scan task files."""
-    tasks = []
+    tasks: list[TaskState] = []
     if not tasks_dir.exists():
         return tasks
 
@@ -115,7 +116,7 @@ def scan_tasks(tasks_dir: Path) -> list[TaskState]:
 
 def scan_acceptances(acceptance_dir: Path) -> list[AcceptanceState]:
     """Scan acceptance files."""
-    acceptances = []
+    acceptances: list[AcceptanceState] = []
     if not acceptance_dir.exists():
         return acceptances
 
@@ -140,7 +141,7 @@ def scan_acceptances(acceptance_dir: Path) -> list[AcceptanceState]:
 
 def scan_evidences(evidence_dir: Path) -> list[EvidenceState]:
     """Scan evidence files."""
-    evidences = []
+    evidences: list[EvidenceState] = []
     if not evidence_dir.exists():
         return evidences
 
@@ -166,10 +167,10 @@ def build_export(
     evidences: list[EvidenceState],
 ) -> TaskStateExport:
     """Build export with relationships."""
-    from datetime import datetime, timezone
+    from datetime import datetime
 
     export = TaskStateExport(
-        exported_at=datetime.now(timezone.utc).isoformat(),
+        exported_at=datetime.now(UTC).isoformat(),
     )
 
     # Build lookup maps

@@ -7,16 +7,14 @@ from __future__ import annotations
 
 from pathlib import Path
 
-import pytest
-
 from tools.ci.check_version_consistency import (
+    ValidationResult,
     load_changelog_versions,
     load_git_tag_versions,
     load_pyproject_version,
     load_readme_badge_version,
     load_release_doc_versions,
     validate_version_consistency,
-    ValidationResult,
 )
 
 _REPO_ROOT = Path(__file__).resolve().parents[1]

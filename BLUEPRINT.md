@@ -1,9 +1,9 @@
 ---
 intent_id: INT-001
-owner: your-handle
+owner: RNA4219
 status: active   # draft|active|deprecated
-last_reviewed_at: 2025-10-14
-next_review_due: 2025-11-14
+last_reviewed_at: 2026-07-11
+next_review_due: 2026-08-11
 ---
 
 # Blueprint
@@ -81,7 +81,7 @@ flowchart LR
 ## 6. Interfaces
 
 - CLI:
-  - 既存: `python tools/codemap/update.py`, `python tools/ci/*.py`
+  - 既存: `python -m tools.codemap.update`, `python tools/ci/*.py`
   - 将来: package entrypoint 経由の `workflow-cookbook ...`
 - Files:
   - `docs/requirements.md`: 要件正本

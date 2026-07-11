@@ -1,15 +1,16 @@
 from __future__ import annotations
 
 import json
+from collections.abc import Mapping, Sequence
 from pathlib import Path
-from typing import Any, Mapping, Sequence
+from typing import Any
 
 from tools.workflow_plugins.plugin_loader import WorkflowPluginSpec
 
 try:
     import yaml
 except ModuleNotFoundError:  # pragma: no cover - optional dependency
-    yaml = None  # type: ignore[assignment]
+    yaml = None
 
 
 class WorkflowPluginConfigError(ValueError):
@@ -71,7 +72,7 @@ def load_workflow_plugin_specs_from_path(path: str | Path) -> list[WorkflowPlugi
     elif suffix in {".yaml", ".yml"}:
         if yaml is None:
             raise WorkflowPluginConfigError("YAML plugin config requires PyYAML to be installed")
-        payload = yaml.safe_load(raw)  # type: ignore[union-attr]
+        payload = yaml.safe_load(raw)
     else:
         raise WorkflowPluginConfigError(f"Unsupported workflow plugin config format: {suffix}")
     if not isinstance(payload, (Mapping, Sequence)) or isinstance(payload, (str, bytes)):

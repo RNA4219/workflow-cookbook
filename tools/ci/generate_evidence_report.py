@@ -12,11 +12,11 @@ from __future__ import annotations
 
 import argparse
 import json
-import sys
+from collections.abc import Sequence
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Sequence
+from typing import Any
 
 _REPO_ROOT = Path(__file__).resolve().parents[2]
 _ACCEPTANCE_DIR = _REPO_ROOT / "docs" / "acceptance"
@@ -96,7 +96,7 @@ def _parse_front_matter(content: str) -> dict[str, Any]:
 
 def scan_acceptances(acceptance_dir: Path) -> list[AcceptanceSummary]:
     """Scan acceptance records."""
-    acceptances = []
+    acceptances: list[AcceptanceSummary] = []
     if not acceptance_dir.exists():
         return acceptances
 
@@ -117,7 +117,7 @@ def scan_acceptances(acceptance_dir: Path) -> list[AcceptanceSummary]:
 
 def scan_evidences(evidence_dir: Path) -> list[EvidenceSummary]:
     """Scan evidence files."""
-    evidences = []
+    evidences: list[EvidenceSummary] = []
     if not evidence_dir.exists():
         return evidences
 
@@ -158,7 +158,7 @@ def _extract_markdown_refs(content: str) -> list[str]:
 
 def scan_releases(release_dir: Path) -> list[ReleaseSummary]:
     """Scan release records and collect lightweight traceability references."""
-    releases = []
+    releases: list[ReleaseSummary] = []
     if not release_dir.exists():
         return releases
 

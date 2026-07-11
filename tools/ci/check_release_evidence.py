@@ -11,9 +11,9 @@ import subprocess
 import sys
 import urllib.error
 import urllib.request
+from collections.abc import Iterable, Sequence
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Iterable, Sequence
 
 _REPO_ROOT = Path(__file__).resolve().parents[2]
 _DEFAULT_CHANGELOG = _REPO_ROOT / "CHANGELOG.md"

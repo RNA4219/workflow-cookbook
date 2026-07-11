@@ -2,8 +2,8 @@
 intent_id: DOC-LEGACY
 owner: docs-core
 status: active
-last_reviewed_at: 2026-04-09
-next_review_due: 2026-05-09
+last_reviewed_at: 2026-07-11
+next_review_due: 2026-08-11
 ---
 
 # CI 設定ガイド
@@ -28,7 +28,24 @@ next_review_due: 2026-05-09
 | `python-ci` | `.github/workflows/test.yml` | job `unit` | `python-ci` は論理名。downstream では caller 側 job 名を使ってよいが、本 repo では `test.yml` の `unit` job を concrete check として扱う。 |
 | `security-ci` | `.github/workflows/security.yml` | `Allowlist Guard`, `Semgrep`, `Bandit`, `Gitleaks`, `Dependency Audit & SBOM` | `security-ci` は論理名。branch protection では `security.yml` の複数 job を concrete checks として扱う。 |
 | `docs-gate` | `.github/workflows/markdown.yml` | job `docs-gate` | RG-002〜RG-005 の docs governance checker を集約。内部 steps は front matter, acceptance, birdseye, runbook slimming (RG-003), completion trace (RG-004), agent-tools-hub boundary (RG-005)。 |
-| `metrics-gate` | `.github/workflows/markdown.yml` | job `metrics-gate` | RG-001 metrics thresholds gate。独立 job として status 可視化。 |
+| `metrics-contract-smoke` | `.github/workflows/markdown.yml` | job `metrics-contract-smoke` | Sample data validates only the metrics contract; it is not production evidence. |
+
+## Python CI contract
+
+The `.github/workflows/test.yml` workflow is fail-closed:
+
+- `lint` runs pinned Ruff.
+- `typecheck` runs strict mypy. Narrow legacy exceptions are enumerated in
+  `pyproject.toml` and tracked in `TECH_DEBT.md`.
+- `unit` is the stable required check name and enforces combined coverage for
+  `tools` and `security_headers` at 80 percent.
+- `python-312` verifies compatibility with the second supported runtime.
+- `build` creates wheel and sdist artifacts, installs the wheel non-editably in
+  a clean virtual environment, and runs `--help` for all console entrypoints.
+
+Development dependencies are synchronized with
+`uv sync --locked --extra dev`. CI must not use unpinned linter or type-checker
+installs.
 
 ## Docs Gate 内部 checker 対応
 

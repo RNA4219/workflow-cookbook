@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from typing import Optional
-
 from tools.autosave.project_lock_service import (
     AutoSaveRequest,
     AutoSaveResult,
@@ -34,7 +32,7 @@ class MergeAutosaveOrchestrator:
 
         precision_mode = self._flag_state.merge_precision_mode()
         max_attempts = 2 if precision_mode == "strict" else 1
-        last_error: Optional[LockTokenInvalidError] = None
+        last_error: LockTokenInvalidError | None = None
         for attempt in range(max_attempts):
             try:
                 result = self._service.apply_snapshot(request)

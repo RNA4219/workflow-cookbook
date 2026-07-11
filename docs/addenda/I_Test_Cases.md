@@ -28,7 +28,7 @@
 
 - **前提条件**
   - ドキュメントやコードの構造差分が Birdseye に影響する可能性がある。
-  - `python tools/codemap/update.py` を実行できる環境が整備されている。
+  - `python -m tools.codemap.update` を実行できる環境が整備されている。
 - **手順**
   1. `tools/codemap/update.py --since --emit index+caps` を実行し、生成物を `docs/birdseye/` 配下に出力する。
   2. `git status` で生成物の差分を確認し、意図しない削除や大規模変更がないか検査する。

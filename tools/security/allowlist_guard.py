@@ -2,14 +2,15 @@ from __future__ import annotations
 
 import argparse
 import subprocess
+from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Iterable, Mapping, Sequence
+from typing import Any
 
 try:
-    import yaml  # type: ignore
+    import yaml
 except ModuleNotFoundError:  # pragma: no cover - fallback for minimal env
-    yaml = None  # type: ignore[assignment]
+    yaml = None
 
 
 @dataclass(frozen=True)
@@ -19,13 +20,13 @@ class Purpose:
     fields: tuple[tuple[str, Any], ...] = field(default_factory=tuple)
 
     @classmethod
-    def from_mapping(cls, mapping: Mapping[str, Any]) -> "Purpose":
+    def from_mapping(cls, mapping: Mapping[str, Any]) -> Purpose:
         identifier = mapping.get("id")
         if not isinstance(identifier, str):
             raise ValueError("purpose id must be a string")
         return cls(id=identifier, fields=_normalize_fields(mapping, {"id"}))
 
-    def field_differences(self, other: "Purpose") -> list[str]:
+    def field_differences(self, other: Purpose) -> list[str]:
         return _diff_fields(dict(self.fields), dict(other.fields))
 
 
@@ -37,7 +38,7 @@ class AllowlistEntry:
     purposes: tuple[Purpose, ...] = field(default_factory=tuple)
 
     @classmethod
-    def from_mapping(cls, mapping: Mapping[str, Any]) -> "AllowlistEntry":
+    def from_mapping(cls, mapping: Mapping[str, Any]) -> AllowlistEntry:
         domain = mapping.get("domain")
         if not isinstance(domain, str):
             raise ValueError("allowlist entry missing domain")
@@ -55,13 +56,13 @@ class AllowlistEntry:
             purposes=tuple(sorted(purposes, key=lambda item: item.id)),
         )
 
-    def field_differences(self, other: "AllowlistEntry") -> list[str]:
+    def field_differences(self, other: AllowlistEntry) -> list[str]:
         return _diff_fields(dict(self.fields), dict(other.fields))
 
     def purposes_by_id(self) -> dict[str, Purpose]:
         return {purpose.id: purpose for purpose in self.purposes}
 
-    def compare_purposes(self, other: "AllowlistEntry") -> tuple[list[str], list[str]]:
+    def compare_purposes(self, other: AllowlistEntry) -> tuple[list[str], list[str]]:
         base_ids = set(p.id for p in self.purposes)
         current_ids = set(p.id for p in other.purposes)
         added = sorted(current_ids - base_ids)
@@ -90,7 +91,7 @@ class AllowlistLoader:
 
     def load(self, content: str) -> AllowlistDocument:
         if self._yaml_module is not None:
-            loaded = self._yaml_module.safe_load(content)  # type: ignore[attr-defined]
+            loaded = self._yaml_module.safe_load(content)
             mapping = loaded if isinstance(loaded, Mapping) else {}
             return _document_from_raw(mapping)
         return self._load_with_fallback(content)

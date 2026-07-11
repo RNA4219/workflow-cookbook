@@ -11,18 +11,25 @@ from __future__ import annotations
 
 import argparse
 import sys
+from collections.abc import Iterable
 from dataclasses import replace
 from pathlib import Path
-from typing import Iterable
 
-from .types import UpdateOptions, TargetResolutionError
+from . import constants
 from .diff import GitDiffResolver
-from .session import run_update, _normalise_target
+from .session import _normalise_target, run_update
+from .types import TargetResolutionError, UpdateOptions
 
 
 def parse_args(argv: Iterable[str] | None = None) -> UpdateOptions:
     parser = argparse.ArgumentParser(
         description="Regenerate Birdseye index and capsules.",
+    )
+    parser.add_argument(
+        "--repo-root",
+        type=Path,
+        default=constants._REPO_ROOT.get(),
+        help="Repository to update (default: current working directory).",
     )
     parser.add_argument(
         "--targets",
@@ -57,6 +64,10 @@ def parse_args(argv: Iterable[str] | None = None) -> UpdateOptions:
     args = parser.parse_args(list(argv) if argv is not None else None)
     if args.radius < 0:
         parser.error("--radius must be 0 or greater")
+    repo_root = args.repo_root.resolve()
+    if not repo_root.is_dir():
+        parser.error(f"--repo-root is not a directory: {repo_root}")
+    constants._REPO_ROOT.value = repo_root
     target_paths: list[Path] = []
     if args.targets:
         target_paths.extend(

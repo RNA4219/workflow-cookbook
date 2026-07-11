@@ -12,7 +12,6 @@ import sys
 from pathlib import Path
 from typing import Any
 
-
 _REPO_ROOT = Path(__file__).resolve().parents[2]
 _POLICY_PATH = _REPO_ROOT / "governance" / "policy.yaml"
 _README_PATH = _REPO_ROOT / "README.md"
@@ -71,7 +70,7 @@ def _parse_simple_yaml(content: str) -> dict[str, Any]:
     return result
 
 
-def _ensure_nested(data: dict, path: list[str]) -> None:
+def _ensure_nested(data: dict[str, Any], path: list[str]) -> None:
     """Ensure nested dict exists at path."""
     current = data
     for key in path:
@@ -80,7 +79,7 @@ def _ensure_nested(data: dict, path: list[str]) -> None:
         current = current[key]
 
 
-def _set_nested(data: dict, path: list[str], value: Any) -> None:
+def _set_nested(data: dict[str, Any], path: list[str], value: Any) -> None:
     """Set a value at a nested path."""
     current = data
     for key in path[:-1]:

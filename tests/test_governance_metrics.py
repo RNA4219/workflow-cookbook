@@ -2,11 +2,12 @@
 import importlib
 import sys
 from pathlib import Path
-from typing import Dict
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 if (repo_root := str(REPO_ROOT)) not in sys.path:
     sys.path.insert(0, repo_root)
+
+import pytest
 
 import tools.perf.collect_metrics as collect_metrics
 
@@ -15,8 +16,8 @@ try:
 except ModuleNotFoundError:  # pragma: no cover - fallback for minimal env
     class _MiniYamlModule:
         @staticmethod
-        def safe_load(content: str) -> Dict[str, str]:
-            result: Dict[str, str] = {}
+        def safe_load(content: str) -> dict[str, str]:
+            result: dict[str, str] = {}
             for line in content.splitlines():
                 stripped = line.strip()
                 if not stripped or stripped.startswith("#"):

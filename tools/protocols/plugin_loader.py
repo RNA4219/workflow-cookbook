@@ -1,8 +1,9 @@
 from __future__ import annotations
 
 import importlib
+from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
-from typing import Any, Callable, Mapping, Sequence
+from typing import Any, cast
 
 from tools.perf.structured_logger import InferenceLogPlugin
 
@@ -36,7 +37,7 @@ def load_plugin_factory(import_path: str) -> Callable[..., Any]:
         ) from exc
     if not callable(factory):
         raise InferencePluginLoadError(f"Plugin factory is not callable: {import_path}")
-    return factory
+    return cast(Callable[..., Any], factory)
 
 
 def instantiate_inference_plugin(
@@ -50,7 +51,7 @@ def instantiate_inference_plugin(
         raise InferencePluginLoadError(
             f"Instantiated plugin does not implement handle_inference(): {spec.factory}"
         )
-    return plugin
+    return cast(InferenceLogPlugin, plugin)
 
 
 def instantiate_inference_plugins(

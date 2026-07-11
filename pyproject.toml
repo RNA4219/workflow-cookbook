@@ -10,7 +10,7 @@ name = "workflow-cookbook"
 version = "1.2.0"
 description = "Workflow automation toolkit for governance and CI operations"
 readme = "README.md"
-license = {text = "MIT"}
+license = "MIT"
 authors = [
     {name = "RNA4219"}
 ]
@@ -18,7 +18,6 @@ requires-python = ">=3.11"
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
-    "License :: OSI Approved :: MIT License",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
@@ -29,14 +28,24 @@ dependencies = [
     "pyyaml>=6.0",  # Optional but recommended for YAML configuration files
 ]
 
+[project.urls]
+Repository = "https://github.com/RNA4219/workflow-cookbook"
+Issues = "https://github.com/RNA4219/workflow-cookbook/issues"
+Changelog = "https://github.com/RNA4219/workflow-cookbook/blob/main/CHANGELOG.md"
+Documentation = "https://github.com/RNA4219/workflow-cookbook#readme"
+
 [project.optional-dependencies]
 # Development dependencies for testing and linting - pinned for reproducibility
 # Update versions via Dependabot PRs after vulnerability review
 dev = [
     "pytest==9.0.3",
     "pytest-cov==7.1.0",
+    "coverage==7.13.5",
     "bandit==1.9.4",
     "pip-audit==2.10.0",
+    "ruff==0.15.21",
+    "mypy==2.2.0",
+    "build==1.5.1",
 ]
 
 [project.scripts]
@@ -67,23 +76,39 @@ select = [
     "E",      # pycodestyle errors
     "F",      # pyflakes
     "I",      # isort
-    "UP",     # pyupgrade
     "B",      # flake8-bugbear
-    "SIM",    # flake8-simplify
-    "TCH",    # flake8-type-checking
 ]
 ignore = [
     "E501",   # line too long (handled by formatter)
 ]
 
+[tool.ruff.lint.per-file-ignores]
+"tests/**/*.py" = ["E402"]
+"tools/ci/*.py" = ["E402"]
+"tools/context/workflow_docs.py" = ["E402"]
+"tools/workflow_plugins/validate_workflow_plugin_config.py" = ["E402"]
+
 [tool.ruff.lint.isort]
 known-first-party = ["tools", "security_headers"]
+
+
+[tool.coverage.run]
+patch = ["subprocess"]
+parallel = true
+
+[tool.coverage.paths]
+source = [
+    ".",
+    "*/site-packages/workflow-cookbook",
+]
 
 [tool.mypy]
 python_version = "3.11"
 ignore_missing_imports = true
 strict = true
 exclude = ["tests"]
+
+
 
 [tool.bandit]
 exclude_dirs = ["tests"]

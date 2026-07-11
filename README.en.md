@@ -2,8 +2,8 @@
 intent_id: DOC-README
 owner: docs-core
 status: active
-last_reviewed_at: 2026-04-11
-next_review_due: 2026-05-11
+last_reviewed_at: 2026-07-11
+next_review_due: 2026-08-10
 ---
 
 # Workflow Cookbook / Workflow Operations Kit
@@ -51,7 +51,7 @@ Focus procedure:
 2. Refresh Birdseye:
 
    ```sh
-   python tools/codemap/update.py --since --emit index+caps
+   python -m tools.codemap.update --since --emit index+caps
    ```
 
 3. Record an acceptance result:
@@ -75,6 +75,17 @@ Focus procedure:
 
 > **Windows users**: The `python` command may invoke the Windows Store stub.
 > Use `py -3` or `uv run python` instead of `python` in the examples above.
+
+## Install the public CLI package
+
+Use a normal, non-editable install pinned to a commit:
+
+```sh
+python -m pip install "workflow-cookbook @ git+https://github.com/RNA4219/workflow-cookbook.git@<commit-sha>"
+```
+
+The package exposes five `wfc-*` console entrypoints. Repository-aware commands accept
+`--repo-root PATH`; metrics configuration uses `--metrics-config PATH`.
 
 ## Navigation
 
@@ -113,9 +124,9 @@ Focus procedure:
 ### Birdseye / Codemap
 
 ```sh
-python tools/codemap/update.py --since --emit index+caps
-python tools/codemap/update.py --since --radius 1 --emit caps
-python tools/codemap/update.py --targets docs/birdseye/index.json,docs/birdseye/hot.json --emit index+caps
+python -m tools.codemap.update --since --emit index+caps
+python -m tools.codemap.update --since --radius 1 --emit caps
+python -m tools.codemap.update --targets docs/birdseye/index.json,docs/birdseye/hot.json --emit index+caps
 python tools/ci/check_birdseye_freshness.py --check
 ```
 

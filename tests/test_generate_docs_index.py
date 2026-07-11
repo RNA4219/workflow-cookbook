@@ -11,12 +11,12 @@ if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
 from tools.ci.generate_docs_index import (
-    _parse_front_matter,
-    _extract_title,
-    _check_links,
-    scan_directory,
-    generate_index_markdown,
     DocInfo,
+    _check_links,
+    _extract_title,
+    _parse_front_matter,
+    generate_index_markdown,
+    scan_directory,
 )
 
 

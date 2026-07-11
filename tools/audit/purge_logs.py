@@ -4,9 +4,9 @@
 from __future__ import annotations
 
 import argparse
-from datetime import datetime, timezone
+from collections.abc import Iterable, Sequence
+from datetime import UTC, datetime
 from pathlib import Path
-from typing import Iterable, Sequence
 
 
 def _resolve_targets(target: Path) -> Iterable[Path]:
@@ -23,7 +23,7 @@ def _resolve_targets(target: Path) -> Iterable[Path]:
 def purge_expired_logs(directory: Path, older_than_days: int, now: datetime | None = None) -> list[Path]:
     if older_than_days <= 0:
         raise ValueError("older_than_days must be a positive integer")
-    reference = now or datetime.now(timezone.utc)
+    reference = now or datetime.now(UTC)
     cutoff_timestamp = reference.timestamp() - older_than_days * 24 * 60 * 60
     removed: list[Path] = []
     for candidate in _resolve_targets(directory):

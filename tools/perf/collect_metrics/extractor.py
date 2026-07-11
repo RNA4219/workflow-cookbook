@@ -10,13 +10,12 @@ Defines MetricDefinition, MetricDefinitionRegistry, and MetricExtractor.
 from __future__ import annotations
 
 import logging
+from collections.abc import Mapping, MutableMapping, Sequence
 from dataclasses import dataclass
-from typing import Mapping, MutableMapping, Sequence
 
 from .helpers import OVERWRITE_KEYS
 from .rules import NumericRule, StructuredRule
 from .security import MetricsCollectionError
-
 
 LOGGER = logging.getLogger(__name__)
 
@@ -24,6 +23,7 @@ LOGGER = logging.getLogger(__name__)
 @dataclass(frozen=True)
 class MetricDefinition:
     """Definition of a metric with extraction rules."""
+
     key: str
     structured_rules: tuple[StructuredRule, ...]
     numeric_rules: tuple[NumericRule, ...]
@@ -102,9 +102,7 @@ class MetricExtractor:
         combined: dict[str, float] = {}
         reported_unexpected: set[str] = set()
         for mapping in sources:
-            unexpected = [
-                key for key in mapping if key not in self._key_set and key not in reported_unexpected
-            ]
+            unexpected = [key for key in mapping if key not in self._key_set and key not in reported_unexpected]
             if unexpected:
                 reported_unexpected.update(unexpected)
                 LOGGER.warning(

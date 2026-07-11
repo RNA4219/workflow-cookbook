@@ -1,17 +1,16 @@
 import asyncio
-from typing import Any, Dict, List, Tuple
+from typing import Any
 
 import pytest
-
 
 pytestmark = pytest.mark.security_headers
 
 
-Headers = List[Tuple[bytes, bytes]]
+Headers = list[tuple[bytes, bytes]]
 
 
 async def call_app(app: Any) -> Headers:
-    scope: Dict[str, Any] = {
+    scope: dict[str, Any] = {
         "type": "http",
         "http_version": "1.1",
         "method": "GET",
@@ -20,18 +19,18 @@ async def call_app(app: Any) -> Headers:
     }
     messages: Headers = []
 
-    async def send(message: Dict[str, Any]) -> None:
+    async def send(message: dict[str, Any]) -> None:
         if message["type"] == "http.response.start":
             messages.extend(message.get("headers", []))
 
-    async def receive() -> Dict[str, Any]:
+    async def receive() -> dict[str, Any]:
         return {"type": "http.request"}
 
     await app(scope, receive, send)
     return messages
 
 
-async def bare_app(scope: Dict[str, Any], receive: Any, send: Any) -> None:
+async def bare_app(scope: dict[str, Any], receive: Any, send: Any) -> None:
     await send(
         {
             "type": "http.response.start",

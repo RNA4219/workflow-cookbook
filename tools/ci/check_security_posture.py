@@ -9,9 +9,10 @@ import os
 import sys
 import urllib.error
 import urllib.request
+from collections.abc import Sequence
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Sequence
+from typing import cast
 
 _REPO_ROOT = Path(__file__).resolve().parents[2]
 
@@ -47,7 +48,7 @@ def _read_text(path: Path) -> str:
     return path.read_text(encoding="utf-8")
 
 
-def _fetch_repo_security(repo: str, token: str) -> dict:
+def _fetch_repo_security(repo: str, token: str) -> dict[str, object]:
     request = urllib.request.Request(
         f"https://api.github.com/repos/{repo}",
         headers={
@@ -57,7 +58,10 @@ def _fetch_repo_security(repo: str, token: str) -> dict:
         },
     )
     with urllib.request.urlopen(request, timeout=20) as response:  # nosec B310  # GitHub API with fixed host, token auth
-        return json.loads(response.read().decode("utf-8"))
+        payload = json.loads(response.read().decode("utf-8"))
+        if not isinstance(payload, dict):
+            raise ValueError("GitHub repository response must be an object")
+        return cast(dict[str, object], payload)
 
 
 def _vulnerability_alerts_enabled(repo: str, token: str) -> bool:
@@ -72,11 +76,22 @@ def _vulnerability_alerts_enabled(repo: str, token: str) -> bool:
     )
     try:
         with urllib.request.urlopen(request, timeout=20) as response:  # nosec B310  # GitHub API with fixed host, token auth
-            return response.status == 204
+            return bool(response.status == 204)
     except urllib.error.HTTPError as exc:
         if exc.code == 404:
             return False
         raise
+
+
+def _security_status(payload: dict[str, object], key: str) -> str | None:
+    security = payload.get("security_and_analysis")
+    if not isinstance(security, dict):
+        return None
+    feature = security.get(key)
+    if not isinstance(feature, dict):
+        return None
+    status = feature.get("status")
+    return str(status) if status is not None else None
 
 
 def validate_security_posture(
@@ -169,10 +184,9 @@ def validate_security_posture(
             return result
         try:
             repo_payload = _fetch_repo_security(github_repo, github_token)
-            security = repo_payload.get("security_and_analysis", {})
-            dependabot_updates = security.get("dependabot_security_updates", {}).get("status")
-            secret_scanning = security.get("secret_scanning", {}).get("status")
-            push_protection = security.get("secret_scanning_push_protection", {}).get("status")
+            dependabot_updates = _security_status(repo_payload, "dependabot_security_updates")
+            secret_scanning = _security_status(repo_payload, "secret_scanning")
+            push_protection = _security_status(repo_payload, "secret_scanning_push_protection")
             result.remote["dependabot_security_updates"] = str(dependabot_updates)
             result.remote["secret_scanning"] = str(secret_scanning)
             result.remote["secret_scanning_push_protection"] = str(push_protection)
@@ -193,15 +207,20 @@ def validate_security_posture(
     return result
 
 
+def _mapping_field(payload: dict[str, object], key: str) -> dict[str, object]:
+    value = payload.get(key)
+    return cast(dict[str, object], value) if isinstance(value, dict) else {}
+
+
 def diff_security_posture(
     current: dict[str, object],
     baseline: dict[str, object],
 ) -> dict[str, object]:
     """Compare two exported security posture snapshots."""
-    current_checks = current.get("checks") if isinstance(current.get("checks"), dict) else {}
-    baseline_checks = baseline.get("checks") if isinstance(baseline.get("checks"), dict) else {}
-    current_remote = current.get("remote") if isinstance(current.get("remote"), dict) else {}
-    baseline_remote = baseline.get("remote") if isinstance(baseline.get("remote"), dict) else {}
+    current_checks = _mapping_field(current, "checks")
+    baseline_checks = _mapping_field(baseline, "checks")
+    current_remote = _mapping_field(current, "remote")
+    baseline_remote = _mapping_field(baseline, "remote")
 
     changes: list[dict[str, str]] = []
     for section, now_values, then_values in (

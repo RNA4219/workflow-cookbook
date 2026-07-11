@@ -16,10 +16,9 @@ Creates a single page with entry points for:
 from __future__ import annotations
 
 import argparse
+from collections.abc import Sequence
 from datetime import datetime
 from pathlib import Path
-from typing import Sequence
-
 
 _REPO_ROOT = Path(__file__).resolve().parents[2]
 _DOCS_DIR = _REPO_ROOT / "docs"
@@ -135,7 +134,7 @@ def generate_hub() -> str:
     lines.append("")
     lines.append("```sh")
     lines.append("# Birdseye update")
-    lines.append("python tools/codemap/update.py --since --emit index+caps")
+    lines.append("python -m tools.codemap.update --since --emit index+caps")
     lines.append("")
     lines.append("# Run tests")
     lines.append("uv run pytest tests/ -q")

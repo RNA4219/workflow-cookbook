@@ -150,7 +150,6 @@ class TestUrlValidationEdgeCases:
 
     def test_ipv6_public_allowed(self) -> None:
         """IPv6 public addresses should be allowed."""
-        url = "http://[2001:db8:1234::1]/metrics"
         # Note: 2001:db8::/32 is documentation range, treated as reserved
         # Use a truly public IPv6 address
         public_url = "http://[2606:4700:4700::1111]/metrics"

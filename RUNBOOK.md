@@ -2,8 +2,8 @@
 intent_id: INT-001
 owner: RNA4219
 status: active
-last_reviewed_at: 2026-05-03
-next_review_due: 2026-06-03
+last_reviewed_at: 2026-07-11
+next_review_due: 2026-08-11
 ---
 
 # Runbook
@@ -37,10 +37,16 @@ next_review_due: 2026-06-03
     「何をどこへ分けたか」を `docs/completion-record.md` に明示する。
 - テスト工程
   - 単体テストと結合テストを分けて `TASK.codex.md` と検収記録へ記載する。
-  - Python 系は `pytest --cov=. --cov-report=term-missing --cov-fail-under=80`
+  - Python 系は `pytest --cov=tools --cov=security_headers --cov-report=term-missing --cov-fail-under=80`
     を既定ゲートとして実行する。
   - coverage が 80% 未満なら、検収記録へ理由とフォローアップを残さない限り
     完了扱いにしない。
+  - Distribution verification uses `uv build`, followed by
+    `python tools/ci/smoke_wheel.py dist/*.whl`. The smoke runner creates an
+    isolated virtual environment, performs a normal non-editable install, changes
+    away from the source tree, and runs `--help` for every public entrypoint.
+  - Metrics sample files may be used only for parser and schema contract smoke
+    tests. They must not be copied or labeled as harvested production evidence.
 - CI / Governance 確認
   - `governance/policy.yaml` の `ci.required_jobs` を確認し、論理 gate ID
     (`governance-gate` / `python-ci` / `security-ci`) を基準にする。
@@ -113,8 +119,8 @@ next_review_due: 2026-06-03
   - 定期運用では週次で実行し、critical (>30日 overdue) docs を更新する。
   - JSON output: `python tools/ci/check_docs_review_due.py --json` で一覧取得。
 - Birdseye / codemap 更新
-  - 全体更新: `python tools/codemap/update.py --targets docs/birdseye/index.json,docs/birdseye/hot.json --emit index+caps`
-  - 局所更新: `python tools/codemap/update.py --since --radius 1 --emit caps`
+  - 全体更新: `python -m tools.codemap.update --targets docs/birdseye/index.json,docs/birdseye/hot.json --emit index+caps`
+  - 局所更新: `python -m tools.codemap.update --since --radius 1 --emit caps`
   - 構造確認: `python tools/ci/check_birdseye_freshness.py --check`
   - 鮮度警告を有効にする場合:
     `python tools/ci/check_birdseye_freshness.py --check --max-verified-age-days 90`
@@ -125,7 +131,7 @@ next_review_due: 2026-06-03
     - 最終: 30日 (習慣化された点検後)
   - **Stale failure 復旧手順**:
     1. CI failure 通知を受け取る
-    2. `python tools/codemap/update.py --targets docs/birdseye/index.json,docs/birdseye/hot.json --emit index+caps` を実行
+    2. `python -m tools.codemap.update --targets docs/birdseye/index.json,docs/birdseye/hot.json --emit index+caps` を実行
     3. `python tools/ci/check_birdseye_freshness.py --check --max-verified-age-days <現在のしきい値>` で確認
     4. `hot.json` の該当ノードの `last_verified_at` を更新日付へ更新
     5. 変更を commit / push

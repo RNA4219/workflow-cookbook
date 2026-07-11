@@ -11,11 +11,11 @@ if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
 from tools.ci.generate_release_notes import (
+    ReleaseInfo,
     _parse_changelog,
-    scan_releases_dir,
     generate_release_notes,
     main,
-    ReleaseInfo,
+    scan_releases_dir,
 )
 
 

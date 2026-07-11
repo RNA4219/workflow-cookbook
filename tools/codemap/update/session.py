@@ -10,22 +10,23 @@ Provides timestamp handling, serial allocation, and update session.
 from __future__ import annotations
 
 import re
-from datetime import datetime, timezone
+from collections.abc import Iterable, Mapping, Sequence
+from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any, Iterable, Mapping, Sequence
+from typing import Any
 
-from .types import (
-    CapsuleState,
-    UpdateOptions,
-    BirdseyePlan,
-    PlannedWrite,
-    BirdseyeRootPlan,
-)
 from .constants import _REPO_ROOT
+from .types import (
+    BirdseyePlan,
+    CapsuleState,
+    PlannedWrite,
+    UpdateOptions,
+    UpdateReport,
+)
 
 
 def utc_now() -> datetime:
-    return datetime.now(timezone.utc)
+    return datetime.now(UTC)
 
 
 def _format_timestamp(moment: datetime) -> str:
@@ -152,8 +153,7 @@ class BirdseyeUpdateSession:
             writes=tuple(self._writes),
         )
 
-    def execute(self, plan: BirdseyePlan) -> "UpdateReport":
-        from .types import UpdateReport
+    def execute(self, plan: BirdseyePlan) -> UpdateReport:
         planned_paths = {write.path for write in plan.writes}
         performed: set[Path] = set()
         if not self.options.dry_run:
@@ -259,7 +259,7 @@ class BirdseyeUpdateSession:
             self._generated_at = value
 
 
-def run_update(options: UpdateOptions) -> "UpdateReport":
+def run_update(options: UpdateOptions) -> UpdateReport:
     timestamp = _format_timestamp(utc_now())
     session = BirdseyeUpdateSession(options=options, timestamp=timestamp)
     plan = session.plan()

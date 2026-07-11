@@ -18,8 +18,8 @@ from __future__ import annotations
 import argparse
 import re
 import sys
+from collections.abc import Sequence
 from pathlib import Path
-from typing import Sequence
 
 _REPO_ROOT = Path(__file__).resolve().parents[2]
 if str(_REPO_ROOT) not in sys.path:
@@ -181,8 +181,8 @@ def _check_duplicate_detail(
     runbook_tables = _extract_tables(runbook_content)
     completion_tables = _extract_tables(completion_content)
 
-    for rb_start, rb_end, rb_rows in runbook_tables:
-        for c_start, c_end, c_rows in completion_tables:
+    for rb_start, _rb_end, rb_rows in runbook_tables:
+        for _c_start, _c_end, c_rows in completion_tables:
             # Compare row content (excluding separator lines)
             rb_data_rows = [r for r in rb_rows if not re.match(r"^\|[-:]+\|", r.strip())]
             c_data_rows = [r for r in c_rows if not re.match(r"^\|[-:]+\|", r.strip())]
@@ -236,12 +236,12 @@ def _is_current_ops_exception(rows: list[str], section_title: str | None) -> boo
     return False
 
 
-def check_runbook_slimming(repo_root: Path) -> dict[str, list[str]]:
+def check_runbook_slimming(repo_root: Path) -> dict[Path, list[str]]:
     """Check RUNBOOK for slimming violations.
 
     Returns dict mapping file paths to list of warning messages.
     """
-    warnings: dict[str, list[str]] = {}
+    warnings: dict[Path, list[str]] = {}
 
     runbook_path = repo_root / "RUNBOOK.md"
     if not runbook_path.exists():
@@ -257,7 +257,7 @@ def check_runbook_slimming(repo_root: Path) -> dict[str, list[str]]:
 
     # Extract tables and check for completed tables
     tables = _extract_tables(runbook_content)
-    for start, end, rows in tables:
+    for start, _end, rows in tables:
         # Skip small tables (likely headers/links)
         data_rows = [r for r in rows if not re.match(r"^\|[-:]+\|", r.strip())]
         if len(data_rows) < 3:

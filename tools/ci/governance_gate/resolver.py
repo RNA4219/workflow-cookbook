@@ -13,15 +13,15 @@ import json
 import os
 import subprocess
 import sys
+from collections.abc import Callable, Iterable, Sequence
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Callable, Iterable, List, Sequence, TextIO
-
+from typing import TextIO
 
 _REPO_ROOT = Path(__file__).resolve().parents[3]
 
 
-def get_changed_paths(refspec: str) -> List[str]:
+def get_changed_paths(refspec: str) -> list[str]:
     """Get list of changed file paths from git diff."""
     result = subprocess.run(  # nosec B603,B607  # git command with fixed args, no shell=True, refspec validated by caller
         ["git", "diff", "--name-only", refspec],
@@ -143,7 +143,7 @@ def resolve_pr_body(
     return result.body
 
 
-def infer_categories_from_paths(paths: Iterable[str]) -> List[str]:
+def infer_categories_from_paths(paths: Iterable[str]) -> list[str]:
     """Infer intent category hints from changed file paths."""
     import re
     suggestions: list[str] = []
@@ -195,7 +195,7 @@ class CategoryHintResolver:
         base_ref: str | None = None,
         head_ref: str = "HEAD",
         fallback_refspec: str | None = None,
-    ) -> List[str]:
+    ) -> list[str]:
         resolved_base = (base_ref or self._env_getter("GITHUB_BASE_REF") or "").strip()
         effective_fallback = fallback_refspec or self._fallback_refspec
 
@@ -225,7 +225,7 @@ def collect_recent_category_hints(
     base_ref: str | None = None,
     head_ref: str = "HEAD",
     fallback_refspec: str = "HEAD^..HEAD",
-) -> List[str]:
+) -> list[str]:
     """Convenience function to collect category hints using default resolver."""
     resolver = CategoryHintResolver()
     return resolver.resolve(

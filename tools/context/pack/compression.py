@@ -9,18 +9,17 @@ from __future__ import annotations
 
 import math
 from collections import Counter
-from typing import Dict, List, Mapping, Sequence
+from collections.abc import Mapping
 
+from .resolver import _as_mapping, _config_float, _token_budget
 from .types import (
-    GraphNode,
-    GraphView,
+    AssemblyResult,
     CandidateRanking,
+    GraphView,
+    PackMetrics,
     SectionEntry,
     SectionSelection,
-    PackMetrics,
-    AssemblyResult,
 )
-from .resolver import _as_mapping, _config_float, _token_budget
 
 
 def _diversity_penalty(
@@ -59,8 +58,8 @@ class SectionSelector:
         self._role_counter: Counter[str] = Counter()
 
     def select(self) -> SectionSelection:
-        sections: List[SectionEntry] = []
-        penalties: List[float] = []
+        sections: list[SectionEntry] = []
+        penalties: list[float] = []
         token_in = 0
         for node in self._ranking.ranked_nodes:
             node_id = node.get("id")
@@ -121,7 +120,7 @@ class PackMetricsBuilder:
         if sections:
             unique_paths = {str(section["id"]).split("#", 1)[0] for section in sections}
             dup_rate = 1.0 - len(unique_paths) / len(sections)
-        ppr_values: List[float] = []
+        ppr_values: list[float] = []
         for node in self._ranking.candidate_nodes:
             node_id = node.get("id")
             if isinstance(node_id, str):

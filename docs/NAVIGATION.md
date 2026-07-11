@@ -93,7 +93,7 @@ Core documentation
 
 ```sh
 # Birdseye update
-python tools/codemap/update.py --since --emit index+caps
+python -m tools.codemap.update --since --emit index+caps
 
 # Run tests
 uv run pytest tests/ -q

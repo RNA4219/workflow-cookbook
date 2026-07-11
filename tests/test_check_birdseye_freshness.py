@@ -301,4 +301,4 @@ def test_birdseye_freshness_fails_when_last_verified_is_stale(tmp_path: Path) ->
         "hot.json: node README.md last verified at 2025-01-01T00:00:00Z exceeds 90 day freshness window"
     ]
     assert payload["remediations"]
-    assert "tools/codemap/update.py" in payload["remediations"][0]["command"]
+    assert "python -m tools.codemap.update" in payload["remediations"][0]["command"]

@@ -6,13 +6,14 @@ from __future__ import annotations
 
 import argparse
 import sys
-from datetime import datetime, timedelta
+from datetime import datetime
 from pathlib import Path
+from typing import Any
 
 import yaml
 
 
-def parse_front_matter(content: str) -> dict:
+def parse_front_matter(content: str) -> dict[str, Any]:
     """Parse YAML front matter from markdown content."""
     if not content.startswith("---"):
         return {}
@@ -21,21 +22,22 @@ def parse_front_matter(content: str) -> dict:
         return {}
     fm_content = content[3:end]
     try:
-        return yaml.safe_load(fm_content) or {}
+        payload = yaml.safe_load(fm_content) or {}
+        return payload if isinstance(payload, dict) else {}
     except yaml.YAMLError:
         return {}
 
 
-def parse_exception_blocks(content: str) -> list[dict]:
+def parse_exception_blocks(content: str) -> list[dict[str, Any]]:
     """Parse exception blocks from dependency_exceptions.md."""
-    exceptions = []
+    exceptions: list[dict[str, Any]] = []
     lines = content.split("\n")
 
     i = 0
     while i < len(lines):
         line = lines[i]
         if line.startswith("### EXC-"):
-            exc = {
+            exc: dict[str, Any] = {
                 "id": line.split(":")[0].replace("### ", "").strip(),
                 "lines": [line],
             }
@@ -48,7 +50,7 @@ def parse_exception_blocks(content: str) -> list[dict]:
             i += 1
 
     # Extract fields from each exception block
-    parsed = []
+    parsed: list[dict[str, Any]] = []
     for exc in exceptions:
         data = {"id": exc["id"]}
         for line in exc["lines"]:

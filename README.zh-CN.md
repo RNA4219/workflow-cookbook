@@ -2,8 +2,8 @@
 intent_id: DOC-README
 owner: docs-core
 status: active
-last_reviewed_at: 2026-04-11
-next_review_due: 2026-05-11
+last_reviewed_at: 2026-07-11
+next_review_due: 2026-08-10
 ---
 
 # Workflow Cookbook
@@ -53,7 +53,7 @@ next_review_due: 2026-05-11
 
 ```sh
 # 1. 更新 Birdseye
-python tools/codemap/update.py --since --emit index+caps
+python -m tools.codemap.update --since --emit index+caps
 
 # 2. 运行测试
 uv run pytest tests/ -q
@@ -66,6 +66,17 @@ python tools/ci/check_birdseye_freshness.py --check
 ```
 
 ---
+
+## 安装公共 CLI 包
+
+请固定 commit，并使用普通的 non-editable install。
+
+```sh
+python -m pip install "workflow-cookbook @ git+https://github.com/RNA4219/workflow-cookbook.git@<commit-sha>"
+```
+
+软件包提供五个 `wfc-*` console entrypoint。仓库相关命令支持
+`--repo-root PATH`，metrics 配置支持 `--metrics-config PATH`。
 
 ## 文档导航
 
@@ -112,10 +123,10 @@ python tools/ci/check_birdseye_freshness.py --check
 
 ```sh
 # 全量更新
-python tools/codemap/update.py --targets docs/birdseye/index.json,docs/birdseye/hot.json --emit index+caps
+python -m tools.codemap.update --targets docs/birdseye/index.json,docs/birdseye/hot.json --emit index+caps
 
 # 局部更新（radius 1）
-python tools/codemap/update.py --since --radius 1 --emit caps
+python -m tools.codemap.update --since --radius 1 --emit caps
 
 # 新鲜度检查
 python tools/ci/check_birdseye_freshness.py --check --max-verified-age-days 90

@@ -2,12 +2,12 @@ from __future__ import annotations
 
 import json
 import re
-from dataclasses import replace
-from datetime import datetime, timezone
-from pathlib import Path
 import sys
+from collections.abc import Iterable, Mapping, Sequence
+from dataclasses import replace
+from datetime import UTC, datetime
+from pathlib import Path
 from types import SimpleNamespace
-from typing import Iterable, Mapping, Sequence
 
 import pytest
 
@@ -340,7 +340,7 @@ def test_next_generated_at_handles_non_serial_inputs():
 
 _HOT_INDEX_SNAPSHOT = "docs/birdseye/index.json"
 _HOT_REFRESH_COMMAND = (
-    "python tools/codemap/update.py --targets docs/birdseye/index.json,docs/birdseye/hot.json --emit index+caps"
+    "python -m tools.codemap.update --targets docs/birdseye/index.json,docs/birdseye/hot.json --emit index+caps"
 )
 _HOT_CURATION_NOTES = "Birdseye ホットノードのサンプルノート"
 
@@ -819,7 +819,7 @@ def test_run_update_refreshes_metadata_and_dependencies(tmp_path, monkeypatch, d
     base_serial = baseline_index["generated_at"]
     expected_serial = _next_serial(base_serial)
 
-    frozen_now = datetime(2025, 1, 1, 9, 30, tzinfo=timezone.utc)
+    frozen_now = datetime(2025, 1, 1, 9, 30, tzinfo=UTC)
     monkeypatch.setattr(update, "utc_now", lambda: frozen_now)
 
     snapshots = None
@@ -938,7 +938,7 @@ def test_run_update_preserves_hot_nodes_structure(tmp_path, monkeypatch):
         assert node["index_snapshot"] == _HOT_INDEX_SNAPSHOT
         assert node["curation_notes"] == _HOT_CURATION_NOTES
 
-    frozen_now = datetime(2025, 1, 1, 12, 0, tzinfo=timezone.utc)
+    frozen_now = datetime(2025, 1, 1, 12, 0, tzinfo=UTC)
     monkeypatch.setattr(update, "utc_now", lambda: frozen_now)
 
     report = update.run_update(
@@ -996,7 +996,7 @@ def test_run_update_limits_caps_to_two_hop_scope(tmp_path, monkeypatch):
     baseline_hot = json.loads(hot_path.read_text(encoding="utf-8"))
     assert baseline_hot["nodes"] == []
 
-    frozen_now = datetime(2025, 1, 2, tzinfo=timezone.utc)
+    frozen_now = datetime(2025, 1, 2, tzinfo=UTC)
     monkeypatch.setattr(update, "utc_now", lambda: frozen_now)
 
     report = update.run_update(
@@ -1038,7 +1038,7 @@ def test_run_update_respects_radius_one_scope(tmp_path, monkeypatch):
         hot_entries=[],
     )
 
-    frozen_now = datetime(2025, 1, 2, tzinfo=timezone.utc)
+    frozen_now = datetime(2025, 1, 2, tzinfo=UTC)
     monkeypatch.setattr(update, "utc_now", lambda: frozen_now)
 
     report = update.run_update(
@@ -1102,7 +1102,7 @@ def test_run_update_refreshes_caps_generated_at(tmp_path, monkeypatch):
 
     assert json.loads(hot_path.read_text(encoding="utf-8"))["nodes"] == []
 
-    frozen_now = datetime(2025, 1, 5, tzinfo=timezone.utc)
+    frozen_now = datetime(2025, 1, 5, tzinfo=UTC)
     monkeypatch.setattr(update, "utc_now", lambda: frozen_now)
 
     expected_serial = _next_serial(base_serial)
@@ -1207,7 +1207,7 @@ def test_run_update_accepts_caps_directory_target(tmp_path, monkeypatch):
 
     monkeypatch.chdir(tmp_path)
 
-    frozen_now = datetime(2025, 1, 4, tzinfo=timezone.utc)
+    frozen_now = datetime(2025, 1, 4, tzinfo=UTC)
     monkeypatch.setattr(update, "utc_now", lambda: frozen_now)
 
     report = update.run_update(
@@ -1293,7 +1293,7 @@ def test_parse_args_supports_since_and_limits_scope(tmp_path, monkeypatch):
         root=root_base,
     )
 
-    frozen_now = datetime(2025, 1, 3, tzinfo=timezone.utc)
+    frozen_now = datetime(2025, 1, 3, tzinfo=UTC)
     monkeypatch.setattr(update, "utc_now", lambda: frozen_now)
 
     monkeypatch.chdir(tmp_path)

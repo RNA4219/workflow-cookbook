@@ -1,9 +1,9 @@
 ---
 intent_id: INT-001
-owner: your-handle
+owner: RNA4219
 status: active   # draft|active|deprecated
-last_reviewed_at: 2026-04-09
-next_review_due: 2026-05-09
+last_reviewed_at: 2026-07-11
+next_review_due: 2026-08-11
 ---
 
 # Evaluation

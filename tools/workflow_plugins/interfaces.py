@@ -3,10 +3,10 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable, Mapping, Sequence
 from dataclasses import asdict, dataclass, is_dataclass
 from pathlib import Path
-from typing import Any, Callable, Mapping, Protocol, Sequence, runtime_checkable
-
+from typing import Any, Protocol, cast, runtime_checkable
 
 CAPABILITY_METHOD_NAMES: dict[str, str] = {
     "task_state.sync": "sync_task_acceptance",
@@ -99,8 +99,8 @@ class DocsStalePluginProtocol(WorkflowPluginProtocol, Protocol):
 
 
 def as_jsonable(value: Any) -> Any:
-    if is_dataclass(value):
-        return asdict(value)
+    if is_dataclass(value) and not isinstance(value, type):
+        return asdict(cast(Any, value))
     return value
 
 

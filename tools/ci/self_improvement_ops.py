@@ -4,10 +4,10 @@ from __future__ import annotations
 
 import argparse
 import json
+from collections.abc import Iterable, Sequence
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any, Iterable, Sequence
-
+from typing import Any
 
 _REPO_ROOT = Path(__file__).resolve().parents[2]
 _REFLECTIONS_DIR = _REPO_ROOT / ".workflow-cache" / "reflections"

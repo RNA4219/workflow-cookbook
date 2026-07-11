@@ -8,17 +8,16 @@ from pathlib import Path
 
 import pytest
 
-
 PROJECT_ROOT = Path(__file__).resolve().parents[3]
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
+from tools.audit.purge_logs import purge_expired_logs
 from tools.audit.verify_log_chain import (
     VerificationFailure,
     compute_expected_signature,
     verify_log_entries,
 )
-from tools.audit.purge_logs import purge_expired_logs
 
 
 def _write_jsonl(path: Path, entries: list[dict[str, str]]) -> None:

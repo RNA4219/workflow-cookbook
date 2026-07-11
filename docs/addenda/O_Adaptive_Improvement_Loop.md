@@ -2,8 +2,8 @@
 intent_id: DOC-LEGACY
 owner: docs-core
 status: active
-last_reviewed_at: 2026-05-03
-next_review_due: 2026-06-03
+last_reviewed_at: 2026-07-11
+next_review_due: 2026-08-10
 ---
 
 # O. Adaptive Improvement Loop

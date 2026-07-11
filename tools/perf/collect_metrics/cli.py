@@ -15,13 +15,15 @@ import json
 import logging
 import os
 import sys
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Mapping, Sequence, cast
+from typing import cast
 
 try:
     import yaml
 except ModuleNotFoundError:
+
     class _MiniYamlModule:
         @staticmethod
         def safe_load(content: str) -> dict[str, str]:
@@ -33,18 +35,19 @@ except ModuleNotFoundError:
                 key, _, value = stripped.partition(":")
                 result[key.strip()] = value.strip()
             return result
+
     yaml = _MiniYamlModule()
 
-from .security import MetricsCollectionError
-from .helpers import coerce_optional_path
-from .extractor import MetricExtractor
 from .definitions import build_default_metric_registry
+from .extractor import MetricDefinition, MetricExtractor
+from .helpers import coerce_optional_path
 from .prometheus import load_prometheus, load_structured_log
+from .security import MetricsCollectionError
 
 LOGGER = logging.getLogger(__name__)
 
 _METRICS_PATH_ENV = "GOVERNANCE_METRICS_PATH"
-_DEFAULT_METRICS_PATH = Path(__file__).resolve().parents[3] / "governance/metrics.yaml"
+_DEFAULT_METRICS_PATH = Path("governance/metrics.yaml")
 _METRICS_URL_ENV = "GOVERNANCE_METRICS_URL"
 _LOG_PATH_ENV = "GOVERNANCE_METRICS_LOG_PATH"
 _PUSHGATEWAY_URL_ENV = "GOVERNANCE_PUSHGATEWAY_URL"
@@ -54,6 +57,7 @@ MISSING_SOURCE_ERROR = "No metrics input configured: provide --metrics-url or --
 @dataclass(frozen=True)
 class SuiteConfig:
     """Configuration preset for a metrics collection suite."""
+
     metrics_url: str | None = None
     log_path: str | None = None
     output: str | None = None
@@ -68,6 +72,7 @@ SUITES: dict[str, SuiteConfig] = {
 @dataclass(frozen=True)
 class MetricsCollectionPlan:
     """Resolved plan for metrics collection."""
+
     metrics_url: str | None
     log_path: Path | None
     pushgateway_url: str | None
@@ -79,24 +84,20 @@ class MetricsCollectionPlan:
         *,
         env: Mapping[str, str] | None = None,
         suites: Mapping[str, SuiteConfig] | None = None,
-    ) -> "MetricsCollectionPlan":
+    ) -> MetricsCollectionPlan:
         env = env or {}
         suites = suites or SUITES
         suite_name = getattr(args, "suite", None)
         suite = suites.get(suite_name) if suite_name else None
         metrics_url = cast(
-            str | None,
-            getattr(args, "metrics_url", None)
-            or env.get(_METRICS_URL_ENV)
-            or (suite.metrics_url if suite else None),
+            "str | None",
+            getattr(args, "metrics_url", None) or env.get(_METRICS_URL_ENV) or (suite.metrics_url if suite else None),
         )
         log_path = coerce_optional_path(
-            getattr(args, "log_path", None)
-            or env.get(_LOG_PATH_ENV)
-            or (suite.log_path if suite else None)
+            getattr(args, "log_path", None) or env.get(_LOG_PATH_ENV) or (suite.log_path if suite else None)
         )
         pushgateway_url = cast(
-            str | None,
+            "str | None",
             getattr(args, "pushgateway_url", None)
             or env.get(_PUSHGATEWAY_URL_ENV)
             or (suite.pushgateway_url if suite else None),
@@ -114,6 +115,7 @@ class MetricsCollectionPlan:
 @dataclass(frozen=True)
 class MetricsRunner:
     """Runner for executing metrics collection."""
+
     plan: MetricsCollectionPlan
     output_path: Path | None
     extractor: MetricExtractor
@@ -128,13 +130,14 @@ class MetricsRunner:
 
     def finalize(self, metrics: Mapping[str, float], keys: tuple[str, ...]) -> None:
         import urllib.request
+
         from .security import validate_url
 
         if self.plan.pushgateway_url:
             validate_url(self.plan.pushgateway_url, context="pushgateway_url")
             lines = [f"{key} {format(metrics[key], 'g')}" for key in keys if key in metrics]
-            payload = ("\n".join(lines) + "\n").encode("utf-8")
-            request = urllib.request.Request(self.plan.pushgateway_url, data=payload, method="PUT")
+            prometheus_payload = ("\n".join(lines) + "\n").encode("utf-8")
+            request = urllib.request.Request(self.plan.pushgateway_url, data=prometheus_payload, method="PUT")
             request.add_header("Content-Type", "text/plain; version=0.0.4")
             try:
                 with urllib.request.urlopen(request) as response:  # nosec B310  # URL validated by security.py, HTTPS enforced
@@ -144,30 +147,31 @@ class MetricsRunner:
                     f"Failed to push metrics to PushGateway at {self.plan.pushgateway_url}: {exc}"
                 ) from exc
 
-        payload = json.dumps(metrics, ensure_ascii=False)
-        sys.stdout.write(payload + "\n")
+        json_payload = json.dumps(metrics, ensure_ascii=False)
+        sys.stdout.write(json_payload + "\n")
         if self.output_path:
             self.output_path.parent.mkdir(parents=True, exist_ok=True)
-            self.output_path.write_text(payload + "\n", encoding="utf-8")
+            self.output_path.write_text(json_payload + "\n", encoding="utf-8")
 
 
 @dataclass(frozen=True)
 class LoadedMetrics:
     """Loaded metrics configuration."""
+
     extractor: MetricExtractor
     keys: tuple[str, ...]
 
 
-@functools.lru_cache(maxsize=1)
-def load_metric_config() -> LoadedMetrics:
-    """Load metrics configuration from YAML file."""
+@functools.cache
+def load_metric_config(explicit_path: Path | None = None) -> LoadedMetrics:
+    """Load metrics configuration using CLI, environment, then cwd precedence."""
     registry = build_default_metric_registry()
-    override = os.environ.get(_METRICS_PATH_ENV)
-    if override:
-        candidate = Path(override)
-        path = candidate if candidate.is_absolute() else (_DEFAULT_METRICS_PATH.parent / candidate)
+    if explicit_path is not None:
+        candidate = explicit_path
     else:
-        path = _DEFAULT_METRICS_PATH
+        override = os.environ.get(_METRICS_PATH_ENV)
+        candidate = Path(override) if override else _DEFAULT_METRICS_PATH
+    path = candidate if candidate.is_absolute() else Path.cwd() / candidate
     try:
         content = path.read_text(encoding="utf-8")
     except FileNotFoundError as exc:
@@ -182,7 +186,7 @@ def load_metric_config() -> LoadedMetrics:
         raise MetricsCollectionError(f"Metrics definition in {path} must be a mapping")
     keys: list[str] = []
     percentage_keys: list[str] = []
-    definitions: list = []
+    definitions: list[MetricDefinition] = []
     missing: list[str] = []
     for raw_key, raw_description in loaded.items():
         key = str(raw_key)
@@ -196,9 +200,7 @@ def load_metric_config() -> LoadedMetrics:
         else:
             definitions.append(definition)
     if missing:
-        raise MetricsCollectionError(
-            "Missing metric extractor definitions for: " + ", ".join(sorted(missing))
-        )
+        raise MetricsCollectionError("Missing metric extractor definitions for: " + ", ".join(sorted(missing)))
     extractor = MetricExtractor(tuple(definitions), percentage_keys=tuple(percentage_keys))
     return LoadedMetrics(extractor=extractor, keys=tuple(keys))
 
@@ -228,6 +230,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     """CLI entry point."""
     parser = argparse.ArgumentParser(description="Collect performance metrics for post-processing")
     parser.add_argument("--suite", choices=sorted(SUITES), help="Preset input/output configuration")
+    parser.add_argument("--metrics-config", type=Path, help="Metrics definition YAML path")
     parser.add_argument("--metrics-url", help="Prometheus metrics endpoint URL")
     parser.add_argument("--log-path", type=Path, help="Path to structured operations log")
     parser.add_argument("--output", type=Path, help="File path to write collected metrics JSON")
@@ -235,16 +238,14 @@ def main(argv: Sequence[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     suite = SUITES.get(args.suite) if args.suite else None
-    output_path = args.output if args.output is not None else (
-        Path(suite.output) if suite and suite.output else None
-    )
+    output_path = args.output if args.output is not None else (Path(suite.output) if suite and suite.output else None)
     try:
         plan = MetricsCollectionPlan.from_namespace(args, env=os.environ, suites=SUITES)
     except MetricsCollectionError as exc:
         print(str(exc), file=sys.stderr)
         return 1
 
-    loaded = load_metric_config()
+    loaded = load_metric_config(args.metrics_config)
     runner = MetricsRunner(plan, output_path, loaded.extractor)
 
     try:

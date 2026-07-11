@@ -4,14 +4,14 @@ from __future__ import annotations
 
 import importlib
 import sys
+from collections.abc import Iterable, Mapping, Sequence
 from itertools import zip_longest
 from math import isclose, sqrt
 from pathlib import Path
 from types import SimpleNamespace
-from typing import Any, Dict, Iterable, List, Mapping, Sequence
+from typing import Any
 
 import pytest
-
 
 _PROJECT_ROOT = Path(__file__).resolve().parents[1]
 if str(_PROJECT_ROOT) not in sys.path:
@@ -29,7 +29,7 @@ def _reload_context_trimmer(fake_tiktoken: Any | None) -> Any:
     return importlib.import_module("tools.perf.context_trimmer")
 
 
-def _messages() -> List[Dict[str, str]]:
+def _messages() -> list[dict[str, str]]:
     return [
         {"role": "system", "content": "stay concise"},
         {"role": "user", "content": "hello"},
@@ -38,7 +38,7 @@ def _messages() -> List[Dict[str, str]]:
     ]
 
 
-def _messages_text(messages: Iterable[Dict[str, Any]]) -> str:
+def _messages_text(messages: Iterable[dict[str, Any]]) -> str:
     return "\n".join(str(message.get("content", "")) for message in messages)
 
 
@@ -134,7 +134,7 @@ def test_trim_messages_reports_legacy_compression_ratio_key() -> None:
 def test_trim_messages_records_semantic_retention() -> None:
     module = _reload_context_trimmer(fake_tiktoken=None)
 
-    def embedder(text: str) -> List[float]:
+    def embedder(text: str) -> list[float]:
         return [float(len(text)) or 1.0]
 
     result = module.trim_messages(
@@ -151,7 +151,7 @@ def test_trim_messages_records_semantic_retention() -> None:
 def test_trim_messages_semantic_retention_matches_cosine_similarity() -> None:
     module = _reload_context_trimmer(fake_tiktoken=None)
 
-    def embedder(text: str) -> List[float]:
+    def embedder(text: str) -> list[float]:
         return [float(len(text)), float(len(text) % 3 + 1)]
 
     messages = _messages()
@@ -201,7 +201,7 @@ def test_cosine_similarity_treats_near_zero_norms_as_zero() -> None:
 def test_trim_messages_semantic_retention_zero_vector() -> None:
     module = _reload_context_trimmer(fake_tiktoken=None)
 
-    def embedder(_: str) -> List[float]:
+    def embedder(_: str) -> list[float]:
         return [0.0, 0.0]
 
     result = module.trim_messages(
@@ -245,32 +245,32 @@ def test_context_trim_session_allows_component_overrides() -> None:
     module = _reload_context_trimmer(fake_tiktoken=None)
     messages = _messages()
     class StubCounter:
-        def count_message(self, message: Dict[str, Any]) -> int:
+        def count_message(self, message: dict[str, Any]) -> int:
             assert "content" in message
             return 7
 
-        def meta(self) -> Dict[str, Any]:
+        def meta(self) -> dict[str, Any]:
             return {"strategy": "stub"}
 
     counter = StubCounter()
-    measurement_calls: List[Sequence[Dict[str, Any]]] = []
-    selector_calls: List[Sequence[int]] = []
-    semantic_calls: List[tuple[Sequence[Dict[str, Any]], Sequence[Dict[str, Any]]]] = []
-    def measurement(_: StubCounter, payload: Sequence[Dict[str, Any]]) -> Any:
+    measurement_calls: list[Sequence[dict[str, Any]]] = []
+    selector_calls: list[Sequence[int]] = []
+    semantic_calls: list[tuple[Sequence[dict[str, Any]], Sequence[dict[str, Any]]]] = []
+    def measurement(_: StubCounter, payload: Sequence[dict[str, Any]]) -> Any:
         measurement_calls.append(tuple(payload))
         tokens = tuple(3 for _ in payload)
         return module.TokenCounterResult(per_message_tokens=tokens, total_tokens=3 * len(payload))
 
-    def selector(payload: Sequence[Dict[str, Any]], per_message_tokens: Sequence[int], *, max_tokens: int) -> List[Dict[str, Any]]:
+    def selector(payload: Sequence[dict[str, Any]], per_message_tokens: Sequence[int], *, max_tokens: int) -> list[dict[str, Any]]:
         selector_calls.append(tuple(per_message_tokens))
         assert max_tokens == 9
         return [dict(payload[0]), dict(payload[-1])]
 
     def semantics(
-        original_messages: Sequence[Dict[str, Any]],
-        trimmed_messages: Sequence[Dict[str, Any]],
+        original_messages: Sequence[dict[str, Any]],
+        trimmed_messages: Sequence[dict[str, Any]],
         semantic_options: Mapping[str, Any] | None,
-    ) -> tuple[Dict[str, Any], float | None]:
+    ) -> tuple[dict[str, Any], float | None]:
         semantic_calls.append((tuple(original_messages), tuple(trimmed_messages)))
         assert semantic_options == {"flag": True}
         return {"flag": True}, 0.5

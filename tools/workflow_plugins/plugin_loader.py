@@ -2,9 +2,10 @@ from __future__ import annotations
 
 import importlib
 import sys
+from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Callable, Mapping, Sequence
+from typing import Any, cast
 
 from .errors import WorkflowPluginCapabilityError, WorkflowPluginLoadError
 from .interfaces import CAPABILITY_METHOD_NAMES
@@ -59,7 +60,7 @@ def load_plugin_factory(
         ) from exc
     if not callable(factory):
         raise WorkflowPluginLoadError(f"Plugin factory is not callable: {import_path}")
-    return factory
+    return cast(Callable[..., Any], factory)
 
 
 def instantiate_workflow_plugin(

@@ -4,8 +4,9 @@
 
 from __future__ import annotations
 
+from collections.abc import Mapping, MutableMapping
 from dataclasses import dataclass
-from typing import Dict, Mapping, MutableMapping, overload
+from typing import overload
 
 _MetricKey = tuple[str, tuple[tuple[str, str], ...]]
 
@@ -73,7 +74,7 @@ class MetricsRegistry:
 
     def __init__(self, *, default_labels: Mapping[str, str] | None = None) -> None:
         self._default_labels: Mapping[str, str] = dict(default_labels or {})
-        self._series: Dict[_MetricKey, _Stats] = {}
+        self._series: dict[_MetricKey, _Stats] = {}
 
     @overload
     def observe_trim(
@@ -142,7 +143,7 @@ class MetricsRegistry:
             ordered = sorted(entries, key=lambda item: item[0])
             payload: list[dict[str, object]] = []
             for label_items, values in ordered:
-                record = dict(values)
+                record: dict[str, object] = dict(values)
                 record["labels"] = dict(label_items)
                 payload.append(record)
             result[metric_name] = payload
@@ -167,6 +168,8 @@ class MetricsRegistry:
                         lines.append(f"# TYPE {series_name} gauge")
                         emitted.add(series_name)
                     value = entry[suffix]
+                    if not isinstance(value, (int, float)):
+                        raise RuntimeError(f"Snapshot value for {suffix} must be numeric")
                     lines.append(f"{series_name}{label_text} {format(float(value), 'g')}")
                 gauge_name = _COMPAT_FROM_SOURCE.get(metric_name)
                 if gauge_name is not None:
@@ -200,7 +203,7 @@ class MetricsRegistry:
     def _normalize_labels(
         self, labels: Mapping[str, str] | None
     ) -> tuple[tuple[str, str], ...]:
-        combined: Dict[str, str] = dict(self._default_labels)
+        combined: dict[str, str] = dict(self._default_labels)
         if labels:
             combined.update(labels)
         return tuple(sorted(combined.items()))

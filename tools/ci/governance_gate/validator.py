@@ -10,8 +10,9 @@ Defines ValidationContext, ValidationOutcome, and PRBodyValidator.
 from __future__ import annotations
 
 import sys
+from collections.abc import Callable, Iterator, Sequence
 from dataclasses import dataclass, field
-from typing import Callable, Iterator, Sequence, TextIO, Tuple
+from typing import TextIO
 
 from .resolver import collect_recent_category_hints
 from .rules import DEFAULT_VALIDATION_RULES, ValidationRule
@@ -20,9 +21,10 @@ from .rules import DEFAULT_VALIDATION_RULES, ValidationRule
 @dataclass
 class ValidationOutcome:
     """Aggregated validation errors and warnings."""
+
     errors: list[str] = field(default_factory=list)
     warnings: list[str] = field(default_factory=list)
-    _messages: list[Tuple[str, str]] = field(default_factory=list, repr=False)
+    _messages: list[tuple[str, str]] = field(default_factory=list, repr=False)
 
     @property
     def is_success(self) -> bool:
@@ -36,7 +38,7 @@ class ValidationOutcome:
         self.warnings.append(message)
         self._messages.append(("warning", message))
 
-    def iter_messages(self) -> Iterator[Tuple[str, str]]:
+    def iter_messages(self) -> Iterator[tuple[str, str]]:
         return iter(self._messages)
 
     def emit(self, *, stream: TextIO = sys.stderr) -> None:
@@ -47,6 +49,7 @@ class ValidationOutcome:
 @dataclass
 class ValidationContext:
     """Context for PR body validation."""
+
     body: str
     category_hints: Sequence[str] | None = None
     hint_resolver: Callable[[], Sequence[str] | None] | None = None
@@ -62,11 +65,10 @@ class ValidationContext:
 
     def resolve_category_hints(self) -> list[str]:
         if self._resolved_hints is None:
-            if self.category_hints is not None:
-                hints: Sequence[str] | None = self.category_hints
-            else:
+            hints = self.category_hints
+            if hints is None:
                 resolver = self.hint_resolver or collect_recent_category_hints
-                hints = resolver() or []
+                hints = resolver() or ()
             self._resolved_hints = [hint for hint in hints if hint]
         return list(self._resolved_hints)
 

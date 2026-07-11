@@ -7,7 +7,6 @@ on:
 
 permissions:
   contents: read
-  security-events: write
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
@@ -18,10 +17,10 @@ jobs:
     name: Allowlist Guard
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
         with:
           fetch-depth: 0
-      - uses: actions/setup-python@v6
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
         with:
           python-version: "3.11"
       - name: Validate network allowlist changes
@@ -34,8 +33,8 @@ jobs:
     needs: allowlist_guard
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
-      - uses: returntocorp/semgrep-action@v1
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+      - uses: returntocorp/semgrep-action@713efdd345f3035192eaa63f56867b88e63e4e5d # v1
         with:
           config: p/ci
 
@@ -44,11 +43,11 @@ jobs:
     needs: semgrep
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
-      - uses: actions/setup-python@v6
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
         with:
           python-version: "3.11"
-      - run: pip install bandit
+      - run: pip install bandit==1.9.4
       - run: bandit -q -r tools security_headers -s B101,B105,B106,B107,B108,B404,B603
         # B101 (assert): excluded for test code; B105-108 (hardcoded passwords): review needed
         # B404 (import subprocess), B603 (subprocess call): git commands validated at call sites
@@ -59,10 +58,10 @@ jobs:
     needs: bandit
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
         with:
           fetch-depth: 0
-      - uses: gitleaks/gitleaks-action@v2
+      - uses: gitleaks/gitleaks-action@dcedce43c6f43de0b836d1fe38946645c9c638dc # v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE }}
@@ -72,12 +71,12 @@ jobs:
     needs: gitleaks
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
-      - uses: actions/setup-python@v6
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
         with:
           python-version: "3.11"
       - name: Install audit tools
-        run: pip install pip-audit
+        run: pip install pip-audit==2.10.0
       - name: Audit fixed dependencies
         # Use requirements.txt for reproducible, environment-independent auditing
         run: pip-audit -r requirements.txt
@@ -85,7 +84,7 @@ jobs:
         # Generate CycloneDX SBOM from requirements.txt for supply chain visibility
         run: python -m tools.security.generate_sbom --output .ga/sbom.json
       - name: Upload SBOM artifact
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
         with:
           name: sbom-cyclonedx
           path: .ga/sbom.json

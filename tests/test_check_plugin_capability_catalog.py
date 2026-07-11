@@ -15,8 +15,8 @@ if str(ROOT) not in sys.path:
 from tools.ci.check_plugin_capability_catalog import (
     load_catalog_capabilities,
     load_interfaces_capabilities,
-    validate_plugin_capability_catalog,
     main,
+    validate_plugin_capability_catalog,
 )
 
 

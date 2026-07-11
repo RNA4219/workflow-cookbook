@@ -5,8 +5,8 @@ from __future__ import annotations
 
 import argparse
 import sys
+from collections.abc import Iterable, Sequence
 from pathlib import Path
-from typing import Dict, Iterable, List, Sequence
 
 REQUIRED_FIELDS: Sequence[str] = (
     "acceptance_id",
@@ -32,7 +32,7 @@ EXCLUDED_FILES: Sequence[str] = (
 )
 
 
-def _extract_front_matter_lines(path: Path) -> List[str]:
+def _extract_front_matter_lines(path: Path) -> list[str]:
     lines = path.read_text(encoding="utf-8").splitlines()
     if lines[:1] != ["---"]:
         return []
@@ -43,8 +43,8 @@ def _extract_front_matter_lines(path: Path) -> List[str]:
     return lines[1:end]
 
 
-def _parse_fields(front_matter_lines: Iterable[str]) -> Dict[str, str]:
-    data: Dict[str, str] = {}
+def _parse_fields(front_matter_lines: Iterable[str]) -> dict[str, str]:
+    data: dict[str, str] = {}
     for raw in front_matter_lines:
         stripped = raw.strip()
         if not stripped or stripped.startswith("#") or ":" not in stripped:
@@ -59,9 +59,9 @@ def _parse_fields(front_matter_lines: Iterable[str]) -> Dict[str, str]:
     return data
 
 
-def validate_acceptance_docs(root: Path) -> Dict[Path, List[str]]:
+def validate_acceptance_docs(root: Path) -> dict[Path, list[str]]:
     docs_root = root / "docs" / "acceptance"
-    missing: Dict[Path, List[str]] = {}
+    missing: dict[Path, list[str]] = {}
     if not docs_root.is_dir():
         return {docs_root: ["docs/acceptance directory is missing"]}
 
@@ -86,7 +86,7 @@ def validate_acceptance_docs(root: Path) -> Dict[Path, List[str]]:
     return missing
 
 
-def _format_missing(missing: Dict[Path, List[str]]) -> str:
+def _format_missing(missing: dict[Path, list[str]]) -> str:
     return "\n".join(f"{path}: missing {', '.join(items)}" for path, items in missing.items())
 
 

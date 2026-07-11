@@ -5,9 +5,9 @@ from __future__ import annotations
 import argparse
 import json
 import sys
+from collections.abc import Mapping
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Mapping
 
 try:
     import yaml
@@ -35,13 +35,13 @@ except ModuleNotFoundError:  # pragma: no cover - fallback for minimal env
                     pass
                 else:
                     try:
-                        parsed = float(parsed)
+                        parsed = float(value.strip())
                     except ValueError:
                         pass  # Keep as string
                 result[current_key][key.strip()] = parsed
             return result
 
-    yaml = _MiniYamlModule()  # type: ignore[assignment]
+    yaml = _MiniYamlModule()
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -51,6 +51,12 @@ DEFAULT_THRESHOLDS = ROOT / "governance/metrics_thresholds.yaml"
 
 class MetricsThresholdError(RuntimeError):
     """Raised when metrics threshold validation could not run."""
+
+
+def _as_float(value: object) -> float:
+    if isinstance(value, (str, int, float)):
+        return float(value)
+    raise TypeError(f"Expected a numeric value, got {type(value).__name__}")
 
 
 @dataclass(frozen=True)
@@ -66,7 +72,7 @@ class ThresholdRule:
             return f"{self.metric}: metric is missing"
         raw_value = metrics[self.metric]
         try:
-            value = float(raw_value)
+            value = _as_float(raw_value)
         except (TypeError, ValueError) as exc:
             raise MetricsThresholdError(
                 f"{self.metric}: metric value must be numeric, got {raw_value!r}"
@@ -186,8 +192,8 @@ def evaluate_regressions(
         if rule.metric not in metrics or rule.metric not in baseline:
             continue
         try:
-            current_value = float(metrics[rule.metric])
-            baseline_value = float(baseline[rule.metric])
+            current_value = _as_float(metrics[rule.metric])
+            baseline_value = _as_float(baseline[rule.metric])
         except (TypeError, ValueError) as exc:
             raise MetricsThresholdError(f"{rule.metric}: current and baseline values must be numeric") from exc
         if baseline_value == 0:

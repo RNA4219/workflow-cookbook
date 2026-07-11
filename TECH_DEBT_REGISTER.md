@@ -2,8 +2,8 @@
 intent_id: DOC-LEGACY
 owner: docs-core
 status: active
-last_reviewed_at: 2026-05-03
-next_review_due: 2026-06-03
+last_reviewed_at: 2026-07-11
+next_review_due: 2026-08-10
 ---
 
 # Technical Debt Register
@@ -97,7 +97,8 @@ code-to-gate 分析で検出された技術的債務の記録と対応計画。
 
 ## 5. 定期再評価
 
-次回 code-to-gate 実行: 2026-06-03 (月次)
+2026-07-11 再評価: strict mypy 100 files、Ruff、full pytest、coverage gate が通過し、
+新規の未解決項目はなし。次回再評価日は 2026-08-10。
 
 ```bash
 code-to-gate analyze . --config ctg.config.yaml --emit all --out .qh

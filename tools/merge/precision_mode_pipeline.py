@@ -1,7 +1,8 @@
 from __future__ import annotations
 
+from collections.abc import Callable, Mapping
 from dataclasses import dataclass
-from typing import Callable, Dict, Mapping, Protocol, Literal
+from typing import Literal, Protocol
 
 from tools.autosave.project_lock_service import LockTokenInvalidError, ProjectLockCoordinator
 from tools.perf.structured_logger import StructuredLogger
@@ -113,11 +114,11 @@ class MergeMetricsTracker:
     ) -> None:
         self._telemetry = telemetry
         self._logger = logger
-        self._totals: Dict[str, int] = {}
-        self._successes: Dict[str, int] = {}
-        self._conflicts: Dict[str, int] = {}
-        self._lag_ms: Dict[str, float] = {}
-        self._mode_gauges: Dict[str, float] = {"baseline": 0.0, "strict": 0.0}
+        self._totals: dict[str, int] = {}
+        self._successes: dict[str, int] = {}
+        self._conflicts: dict[str, int] = {}
+        self._lag_ms: dict[str, float] = {}
+        self._mode_gauges: dict[str, float] = {"baseline": 0.0, "strict": 0.0}
 
     def record_outcome(
         self,
@@ -140,7 +141,7 @@ class MergeMetricsTracker:
             key: 1.0 if key == precision_mode else 0.0 for key in self._mode_gauges
         }
         success_rates, conflict_rates, lag = self._compose_metrics()
-        payload: Dict[str, object] = {
+        payload: dict[str, object] = {
             "precision_mode": precision_mode,
             "status": status,
             "merge.success.rate": success_rates.get(precision_mode, 0.0),
@@ -155,13 +156,13 @@ class MergeMetricsTracker:
             payload["lock_wait_ms"] = request.lock_wait_ms
         self._telemetry.emit("merge.pipeline.metrics", payload)
 
-        metrics_payload: Dict[str, Mapping[str, float] | str] = {
+        metrics_payload: dict[str, Mapping[str, float] | str] = {
             "merge.precision_mode": precision_mode,
             "merge.success.rate": success_rates,
             "merge.conflict.rate": conflict_rates,
             "merge.autosave.lag_ms": lag,
         }
-        extra: Dict[str, object] = {
+        extra: dict[str, object] = {
             "status": status,
             "project_id": request.project_id,
             "request_id": request.request_id,
@@ -175,7 +176,7 @@ class MergeMetricsTracker:
 
     def snapshot(self) -> Mapping[str, float]:
         success_rates, conflict_rates, lag = self._compose_metrics()
-        snapshot: Dict[str, float] = {}
+        snapshot: dict[str, float] = {}
         for mode, value in success_rates.items():
             snapshot[f"merge.success.rate|precision_mode={mode}"] = value
         for mode, value in conflict_rates.items():
@@ -186,9 +187,9 @@ class MergeMetricsTracker:
             snapshot[f"merge.precision_mode|precision_mode={mode}"] = gauge
         return snapshot
 
-    def _compose_metrics(self) -> tuple[Dict[str, float], Dict[str, float], Dict[str, float]]:
-        success_rates: Dict[str, float] = {}
-        conflict_rates: Dict[str, float] = {}
+    def _compose_metrics(self) -> tuple[dict[str, float], dict[str, float], dict[str, float]]:
+        success_rates: dict[str, float] = {}
+        conflict_rates: dict[str, float] = {}
         for mode, total in self._totals.items():
             if total == 0:
                 continue

@@ -6,14 +6,15 @@ from __future__ import annotations
 import argparse
 import json
 import sys
+from collections.abc import Sequence
 from pathlib import Path
-from typing import Sequence
 
 _REPO_ROOT = Path(__file__).resolve().parents[2]
 if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
 from tools.workflow_plugins.interfaces import (
+    TaskAcceptanceSyncReport,
     as_jsonable,
     coerce_task_acceptance_sync_report,
 )
@@ -28,7 +29,9 @@ def _is_missing_acceptance_message(message: str) -> bool:
     )
 
 
-def _collect_report_errors(report, *, require_acceptance_for_done: bool) -> list[str]:
+def _collect_report_errors(
+    report: TaskAcceptanceSyncReport, *, require_acceptance_for_done: bool
+) -> list[str]:
     seen: set[str] = set()
     errors: list[str] = []
     for item in report.errors:
@@ -42,7 +45,9 @@ def _collect_report_errors(report, *, require_acceptance_for_done: bool) -> list
     return errors
 
 
-def _collect_missing_acceptance_errors(report, *, require_acceptance_for_done: bool) -> list[str]:
+def _collect_missing_acceptance_errors(
+    report: TaskAcceptanceSyncReport, *, require_acceptance_for_done: bool
+) -> list[str]:
     if not require_acceptance_for_done:
         return []
     errors: list[str] = []
@@ -58,19 +63,22 @@ def _collect_missing_acceptance_errors(report, *, require_acceptance_for_done: b
     return errors
 
 
-def _merge_reports(reports) -> dict[str, object]:
-    merged_report: dict[str, object] = {
-        "tasks": [],
-        "acceptances": [],
-        "errors": [],
-        "warnings": [],
-    }
+def _merge_reports(reports: Sequence[TaskAcceptanceSyncReport]) -> dict[str, object]:
+    tasks: list[dict[str, object]] = []
+    acceptances: list[dict[str, object]] = []
+    errors: list[str] = []
+    warnings: list[str] = []
     for report in reports:
-        merged_report["tasks"].extend(report.tasks)
-        merged_report["acceptances"].extend(report.acceptances)
-        merged_report["errors"].extend(report.errors)
-        merged_report["warnings"].extend(report.warnings)
-    return merged_report
+        tasks.extend(report.tasks)
+        acceptances.extend(report.acceptances)
+        errors.extend(report.errors)
+        warnings.extend(report.warnings)
+    return {
+        "tasks": tasks,
+        "acceptances": acceptances,
+        "errors": errors,
+        "warnings": warnings,
+    }
 
 
 def main(argv: Sequence[str] | None = None) -> int:

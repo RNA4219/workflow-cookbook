@@ -110,5 +110,5 @@ def test_sample_plugin_config_can_drive_runtime_with_fake_sibling_repos(tmp_path
     sync_result = runtime.invoke_first("task_state.sync", repo_root=cookbook_root)
     resolve_result = runtime.invoke_first("docs.resolve", repo_root=cookbook_root, task_id="20260410-01")
 
-    assert getattr(sync_result, "tasks")[0]["task_id"] == "20260410-01"
-    assert getattr(resolve_result, "required")[0]["doc_id"] == "README.md"
+    assert sync_result.tasks[0]["task_id"] == "20260410-01"
+    assert resolve_result.required[0]["doc_id"] == "README.md"

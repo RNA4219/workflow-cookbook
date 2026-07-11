@@ -6,11 +6,10 @@ from __future__ import annotations
 import argparse
 import json
 import sys
+from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import dataclass, field
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
-from typing import Iterable, Mapping, Sequence
-
 
 _REPO_ROOT = Path(__file__).resolve().parents[2]
 _DEFAULT_POLICY = _REPO_ROOT / "governance" / "policy.yaml"
@@ -164,9 +163,23 @@ def build_weekly_audit_report(
     }
 
 
+def _report_result(report: Mapping[str, object]) -> Mapping[str, object]:
+    value = report.get("result")
+    if not isinstance(value, Mapping):
+        return {}
+    return {str(key): item for key, item in value.items()}
+
+
+def _string_list_field(payload: Mapping[str, object], key: str) -> list[str]:
+    value = payload.get(key)
+    if not isinstance(value, list):
+        return []
+    return [str(item) for item in value]
+
+
 def build_weekly_nudge(report: Mapping[str, object]) -> dict[str, object]:
-    result = report.get("result") if isinstance(report.get("result"), Mapping) else {}
-    errors = result.get("errors") if isinstance(result.get("errors"), list) else []
+    result = _report_result(report)
+    errors = _string_list_field(result, "errors")
     return {
         "nudge_id": f"NUDGE-branch-protection-{str(report.get('generated_at', 'unknown'))[:10]}",
         "reason": (
@@ -185,8 +198,8 @@ def build_weekly_nudge(report: Mapping[str, object]) -> dict[str, object]:
 
 def build_task_seed(report: Mapping[str, object]) -> str:
     generated = str(report.get("generated_at", datetime.now(UTC).isoformat()))[:10]
-    result = report.get("result") if isinstance(report.get("result"), Mapping) else {}
-    errors = result.get("errors") if isinstance(result.get("errors"), list) else []
+    result = _report_result(report)
+    errors = _string_list_field(result, "errors")
     lines = [
         "---",
         f"task_id: task-branch-protection-weekly-audit-{generated.replace('-', '')}",

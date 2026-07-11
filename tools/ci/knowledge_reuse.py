@@ -14,10 +14,10 @@ import argparse
 import json
 import re
 import sys
+from collections.abc import Sequence
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Sequence
-
+from typing import Any
 
 _REPO_ROOT = Path(__file__).resolve().parents[2]
 _RELEASES_DIR = _REPO_ROOT / "docs" / "releases"
@@ -77,7 +77,7 @@ def _extract_title(content: str) -> str:
 
 def scan_releases() -> list[KnowledgeEntry]:
     """Scan release files."""
-    entries = []
+    entries: list[KnowledgeEntry] = []
     if not _RELEASES_DIR.exists():
         return entries
 
@@ -99,7 +99,7 @@ def scan_releases() -> list[KnowledgeEntry]:
 
 def scan_acceptances() -> list[KnowledgeEntry]:
     """Scan acceptance files."""
-    entries = []
+    entries: list[KnowledgeEntry] = []
     if not _ACCEPTANCE_DIR.exists():
         return entries
 
@@ -157,7 +157,7 @@ def build_knowledge_index() -> dict[str, Any]:
             task_to_acceptance[related] = acc.entry_id
 
     # Build index
-    index = {
+    index: dict[str, Any] = {
         "entries": [],
         "by_type": {
             "release": [],
@@ -192,11 +192,7 @@ def search_knowledge(index: dict[str, Any], query: str) -> list[dict[str, Any]]:
     query_lower = query.lower()
 
     for entry in index["entries"]:
-        if query_lower in entry["title"].lower():
-            results.append(entry)
-        elif query_lower in entry["id"].lower():
-            results.append(entry)
-        elif any(query_lower in tag.lower() for tag in entry["tags"]):
+        if query_lower in entry["title"].lower() or query_lower in entry["id"].lower() or any(query_lower in tag.lower() for tag in entry["tags"]):
             results.append(entry)
 
     return results

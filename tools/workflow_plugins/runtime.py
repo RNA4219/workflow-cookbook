@@ -8,14 +8,15 @@ import hashlib
 import json
 import platform
 import time
+from collections.abc import Callable, Iterable, Sequence
 from dataclasses import asdict, dataclass
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any, Callable, Iterable, Sequence
+from typing import Any
 
-from .plugin_config import load_workflow_plugin_specs
-from .errors import WorkflowPluginCapabilityError, WorkflowPluginTimeoutError, WorkflowPluginExecutionError
+from .errors import WorkflowPluginCapabilityError, WorkflowPluginExecutionError, WorkflowPluginTimeoutError
 from .interfaces import CAPABILITY_METHOD_NAMES
+from .plugin_config import load_workflow_plugin_specs
 from .plugin_loader import instantiate_workflow_plugins
 
 
@@ -86,7 +87,7 @@ class WorkflowPluginRuntime:
         *,
         default_policy: PluginPolicy | None = None,
         capability_policies: dict[str, PluginPolicy] | None = None,
-    ) -> "WorkflowPluginRuntime":
+    ) -> WorkflowPluginRuntime:
         target = Path(config_path).expanduser().resolve()
         specs = load_workflow_plugin_specs(target)
         plugins = instantiate_workflow_plugins(specs, base_path=target.parent)
@@ -385,7 +386,7 @@ def _sha256_json(value: Any) -> str:
 
 
 def _timestamp_from_epoch(value: float) -> str:
-    return datetime.fromtimestamp(value, tz=timezone.utc).isoformat()
+    return datetime.fromtimestamp(value, tz=UTC).isoformat()
 
 
 def _runtime_environment() -> dict[str, str]:

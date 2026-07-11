@@ -10,10 +10,10 @@ import argparse
 import json
 import re
 import sys
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Mapping, Sequence
-
+from typing import Any
 
 ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_TEMPLATE_ROOT = ROOT / "templates"

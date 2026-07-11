@@ -8,8 +8,8 @@ from __future__ import annotations
 
 import logging
 from collections import defaultdict
-from datetime import datetime, timezone
-from typing import Any, Dict, List
+from datetime import UTC, datetime
+from typing import Any
 
 import pytest
 
@@ -18,28 +18,28 @@ from tools.autosave.project_lock_service import (
     AutoSaveSnapshotSession,
     AutoSaveSnapshotValidator,
     LockTokenInvalidError,
+    ProjectLockCoordinator,
+    ProjectLockService,
     SnapshotOrderViolation,
     StaticFlagState,
     TelemetryEmitter,
-    ProjectLockCoordinator,
-    ProjectLockService,
 )
 from tools.merge import MergeAutosaveOrchestrator
 
 
 class StubTelemetry(TelemetryEmitter):
     def __init__(self) -> None:
-        self.events: List[tuple[str, Dict[str, Any]]] = []
+        self.events: list[tuple[str, dict[str, Any]]] = []
 
-    def emit(self, event: str, payload: Dict[str, Any]) -> None:  # type: ignore[override]
+    def emit(self, event: str, payload: dict[str, Any]) -> None:  # type: ignore[override]
         self.events.append((event, payload))
 
 
 class StubCoordinator(ProjectLockCoordinator):
     def __init__(self) -> None:
-        self._valid_tokens: Dict[str, str] = {}
-        self.release_events: List[tuple[str, str]] = []
-        self._attempts: Dict[tuple[str, str], int] = defaultdict(int)
+        self._valid_tokens: dict[str, str] = {}
+        self.release_events: list[tuple[str, str]] = []
+        self._attempts: dict[tuple[str, str], int] = defaultdict(int)
 
     def set_token(self, project_id: str, token: str) -> None:
         self._valid_tokens[project_id] = token
@@ -119,7 +119,7 @@ def _request(
         snapshot_delta={"key": "value"},
         lock_token=token,
         snapshot_id=snapshot_id,
-        timestamp=datetime.now(tz=timezone.utc),
+        timestamp=datetime.now(tz=UTC),
         precision_mode="strict",
         latency_ms=latency_ms,
         lock_wait_ms=lock_wait_ms,

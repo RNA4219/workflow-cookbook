@@ -9,44 +9,43 @@ Validates PR bodies against governance requirements.
 
 from __future__ import annotations
 
+from .cli import main, parse_arguments
 from .resolver import (
-    ResolutionResult,
-    PRBodyResolver,
-    resolve_pr_body,
+    PATH_CATEGORY_HINTS,
     CategoryHintResolver,
+    PRBodyResolver,
+    ResolutionResult,
     collect_recent_category_hints,
     get_changed_paths,
     infer_categories_from_paths,
-    PATH_CATEGORY_HINTS,
+    resolve_pr_body,
 )
 from .rules import (
-    ValidationRule,
-    IntentPresenceRule,
-    IntentCategoryRule,
-    EvaluationReferenceRule,
-    PriorityScoreRule,
-    AcceptanceRecordRule,
-    DocsMatrixRule,
+    ACCEPTANCE_RECORD_PATTERN,
+    ALLOWED_INTENT_CATEGORIES,
     DEFAULT_VALIDATION_RULES,
-    INTENT_PATTERN,
+    DOCS_MATRIX_PATTERN,
+    EVALUATION_ANCHOR_PATTERN,
+    EVALUATION_HEADING_PATTERN,
     INTENT_CATEGORY_PATTERN,
     INTENT_ID_PATTERN,
-    EVALUATION_HEADING_PATTERN,
-    EVALUATION_ANCHOR_PATTERN,
-    ACCEPTANCE_RECORD_PATTERN,
+    INTENT_PATTERN,
     PRIORITY_PATTERN,
-    DOCS_MATRIX_PATTERN,
-    ALLOWED_INTENT_CATEGORIES,
+    AcceptanceRecordRule,
+    DocsMatrixRule,
+    EvaluationReferenceRule,
+    IntentCategoryRule,
+    IntentPresenceRule,
+    PriorityScoreRule,
+    ValidationRule,
 )
 from .validator import (
-    ValidationOutcome,
-    ValidationContext,
     PRBodyValidator,
+    ValidationContext,
+    ValidationOutcome,
     collect_validation_outcome,
     validate_pr_body,
 )
-from .cli import main, parse_arguments
-
 
 __all__ = [
     "ResolutionResult",

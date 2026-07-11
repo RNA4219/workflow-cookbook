@@ -11,14 +11,9 @@ if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
 from tools.ci.knowledge_reuse import (
-    _parse_front_matter,
     _extract_title,
-    scan_releases,
-    scan_acceptances,
-    scan_incidents,
-    build_knowledge_index,
+    _parse_front_matter,
     search_knowledge,
-    KnowledgeEntry,
 )
 
 

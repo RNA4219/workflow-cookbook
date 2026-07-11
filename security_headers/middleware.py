@@ -1,14 +1,15 @@
 from __future__ import annotations
 
+from collections.abc import Awaitable, Callable, Iterable, Mapping, MutableMapping
 from dataclasses import dataclass, field
-from typing import Awaitable, Callable, Dict, Iterable, Mapping, MutableMapping, Tuple
+from typing import cast
 
-ASGIApp = Callable[[Dict[str, object], Callable[[], Awaitable[Dict[str, object]]], Callable[[Dict[str, object]], Awaitable[None]]], Awaitable[None]]
-SendCallable = Callable[[Dict[str, object]], Awaitable[None]]
-ReceiveCallable = Callable[[], Awaitable[Dict[str, object]]]
-Scope = Dict[str, object]
-Message = Dict[str, object]
-HeaderTuple = Tuple[bytes, bytes]
+ASGIApp = Callable[[dict[str, object], Callable[[], Awaitable[dict[str, object]]], Callable[[dict[str, object]], Awaitable[None]]], Awaitable[None]]
+SendCallable = Callable[[dict[str, object]], Awaitable[None]]
+ReceiveCallable = Callable[[], Awaitable[dict[str, object]]]
+Scope = dict[str, object]
+Message = dict[str, object]
+HeaderTuple = tuple[bytes, bytes]
 
 
 @dataclass(frozen=True)
@@ -56,7 +57,8 @@ class SecurityHeadersMiddleware:
     async def __call__(self, scope: Scope, receive: ReceiveCallable, send: SendCallable) -> None:
         async def send_wrapper(message: Message) -> None:
             if message.get("type") == "http.response.start":
-                headers: list[HeaderTuple] = list(message.get("headers", []))
+                raw_headers = message.get("headers", [])
+                headers = list(cast(Iterable[HeaderTuple], raw_headers))
                 header_map: MutableMapping[bytes, HeaderTuple] = {
                     key.lower(): (key, value) for key, value in headers
                 }

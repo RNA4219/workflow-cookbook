@@ -7,10 +7,10 @@ import argparse
 import hmac
 import json
 import sys
+from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import dataclass
 from hashlib import sha256
 from pathlib import Path
-from typing import Iterable, Mapping, Sequence
 
 
 class VerificationFailure(RuntimeError):
@@ -47,7 +47,7 @@ def parse_log_entries(log_file: Path) -> Iterable[LogEntry]:
 
 
 def compute_expected_signature(hmac_key: bytes, previous_signature: str, payload: str) -> str:
-    return hmac.new(hmac_key, f"{previous_signature}:{payload}".encode("utf-8"), sha256).hexdigest()
+    return hmac.new(hmac_key, f"{previous_signature}:{payload}".encode(), sha256).hexdigest()
 
 
 def verify_log_entries(log_file: Path, hmac_key: str, initial_signature: str = "") -> None:

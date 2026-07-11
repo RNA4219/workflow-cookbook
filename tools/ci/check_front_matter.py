@@ -5,8 +5,8 @@ from __future__ import annotations
 
 import argparse
 import sys
+from collections.abc import Iterable, Sequence
 from pathlib import Path
-from typing import Dict, Iterable, List, Sequence
 
 REQUIRED_FIELDS: Sequence[str] = (
     "intent_id",
@@ -37,7 +37,7 @@ TASK_REQUIRED_FIELDS: Sequence[str] = (
 )
 
 
-def _extract_front_matter_lines(path: Path) -> List[str]:
+def _extract_front_matter_lines(path: Path) -> list[str]:
     lines = path.read_text(encoding="utf-8").splitlines()
     if lines[:1] != ["---"]:
         return []
@@ -48,8 +48,8 @@ def _extract_front_matter_lines(path: Path) -> List[str]:
     return lines[1:end]
 
 
-def _parse_fields(front_matter_lines: Iterable[str]) -> Dict[str, str]:
-    data: Dict[str, str] = {}
+def _parse_fields(front_matter_lines: Iterable[str]) -> dict[str, str]:
+    data: dict[str, str] = {}
     for raw in front_matter_lines:
         stripped = raw.strip()
         if not stripped or stripped.startswith("#") or ":" not in stripped:
@@ -64,8 +64,8 @@ def _parse_fields(front_matter_lines: Iterable[str]) -> Dict[str, str]:
     return data
 
 
-def validate_markdown_front_matter(root: Path) -> Dict[Path, List[str]]:
-    missing: Dict[Path, List[str]] = {}
+def validate_markdown_front_matter(root: Path) -> dict[Path, list[str]]:
+    missing: dict[Path, list[str]] = {}
     for md_path in sorted(root.glob("*.md")):
         if md_path.name in EXCLUDED_TOP_LEVEL_MARKDOWN:
             continue
@@ -76,8 +76,8 @@ def validate_markdown_front_matter(root: Path) -> Dict[Path, List[str]]:
     return missing
 
 
-def validate_incident_front_matter(root: Path) -> Dict[Path, List[str]]:
-    missing: Dict[Path, List[str]] = {}
+def validate_incident_front_matter(root: Path) -> dict[Path, list[str]]:
+    missing: dict[Path, list[str]] = {}
     docs_dir = root / "docs"
     if not docs_dir.is_dir():
         return missing
@@ -89,8 +89,8 @@ def validate_incident_front_matter(root: Path) -> Dict[Path, List[str]]:
     return missing
 
 
-def validate_task_seed_front_matter(root: Path) -> Dict[Path, List[str]]:
-    missing: Dict[Path, List[str]] = {}
+def validate_task_seed_front_matter(root: Path) -> dict[Path, list[str]]:
+    missing: dict[Path, list[str]] = {}
     tasks_dir = root / "docs" / "tasks"
     if not tasks_dir.is_dir():
         return missing
@@ -102,7 +102,7 @@ def validate_task_seed_front_matter(root: Path) -> Dict[Path, List[str]]:
     return missing
 
 
-def _format_missing(missing: Dict[Path, List[str]]) -> str:
+def _format_missing(missing: dict[Path, list[str]]) -> str:
     return "\n".join(f"{path}: missing {', '.join(fields)}" for path, fields in missing.items())
 
 
@@ -112,7 +112,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser.add_argument("root", nargs="?", default=Path.cwd(), type=Path, help="Repository root to scan (default: cwd).")
     args = parser.parse_args(argv)
     root = args.root.resolve()
-    missing: Dict[Path, List[str]] = {}
+    missing: dict[Path, list[str]] = {}
     missing.update(validate_markdown_front_matter(root))
     missing.update(validate_incident_front_matter(root))
     missing.update(validate_task_seed_front_matter(root))

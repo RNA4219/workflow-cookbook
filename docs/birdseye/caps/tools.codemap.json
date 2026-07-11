@@ -19,7 +19,7 @@
     "スクリプト未整備だとBirdseyeの鮮度を保てない"
   ],
   "tests": [
-    "python tools/codemap/update.py --help"
+    "python -m tools.codemap.update --help"
   ],
-  "generated_at": "00049"
+  "generated_at": "00052"
 }

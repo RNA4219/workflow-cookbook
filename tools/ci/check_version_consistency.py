@@ -9,9 +9,9 @@ import argparse
 import re
 import subprocess
 import sys
+from collections.abc import Sequence
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Sequence
 
 _REPO_ROOT = Path(__file__).resolve().parents[2]
 _DEFAULT_PYPROJECT = _REPO_ROOT / "pyproject.toml"

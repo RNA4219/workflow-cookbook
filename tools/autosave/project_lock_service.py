@@ -8,9 +8,10 @@ The service fulfils the I/O contract and exception policy described in
 from __future__ import annotations
 
 import logging
+from collections.abc import Callable, Mapping, MutableMapping
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Any, Callable, Mapping, MutableMapping, Optional, Protocol
+from typing import Any, Protocol
 
 from tools.provider_spi import ensure_autosave_rollout_enabled
 
@@ -66,8 +67,8 @@ class AutoSaveResult:
     """Output payload expected by the AutoSave I/O contract."""
 
     status: str
-    applied_snapshot_id: Optional[int]
-    next_retry_at: Optional[datetime]
+    applied_snapshot_id: int | None
+    next_retry_at: datetime | None
 
 
 class ProjectLockError(RuntimeError):
@@ -166,7 +167,7 @@ class AutoSaveSnapshotSession:
         *,
         request: AutoSaveRequest,
         flag_state: FlagState,
-        validator: "AutoSaveSnapshotValidator",
+        validator: AutoSaveSnapshotValidator,
         audit: Callable[[str, AutoSaveRequest], None],
     ) -> None:
         self._request = request
@@ -178,7 +179,7 @@ class AutoSaveSnapshotSession:
     def request(self) -> AutoSaveRequest:
         return self._request
 
-    def plan(self) -> Optional[AutoSaveResult]:
+    def plan(self) -> AutoSaveResult | None:
         """Evaluate rollout gates and return a skip result when inactive."""
 
         flag_enabled = self._flag_state.autosave_project_lock_enabled()
@@ -206,7 +207,7 @@ class AutoSaveSnapshotSession:
 
         return None
 
-    def validate_lock(self) -> Optional[ProjectLockError]:
+    def validate_lock(self) -> ProjectLockError | None:
         """Return an error when Merge lock validation fails."""
 
         if not self._request.lock_token:
@@ -218,7 +219,7 @@ class AutoSaveSnapshotSession:
             self._audit("lock_token_invalid", self._request)
         return error
 
-    def validate_snapshot_order(self) -> Optional[SnapshotOrderViolation]:
+    def validate_snapshot_order(self) -> SnapshotOrderViolation | None:
         """Return an error when snapshot IDs are not strictly increasing."""
 
         error = self._validator.validate_snapshot_order(self._request)
@@ -252,12 +253,12 @@ class AutoSaveSnapshotValidator:
         self._telemetry = telemetry
         self._snapshots = snapshots
 
-    def validate_lock_token(self, request: AutoSaveRequest) -> Optional[LockTokenInvalidError]:
+    def validate_lock_token(self, request: AutoSaveRequest) -> LockTokenInvalidError | None:
         if not self._coordinator.validate_token(request.project_id, request.lock_token):
             return LockTokenInvalidError("Merge supplied an invalid or expired lock_token")
         return None
 
-    def validate_snapshot_order(self, request: AutoSaveRequest) -> Optional[SnapshotOrderViolation]:
+    def validate_snapshot_order(self, request: AutoSaveRequest) -> SnapshotOrderViolation | None:
         last_snapshot = self._snapshots.get(request.project_id)
         if last_snapshot is None or request.snapshot_id > last_snapshot:
             return None

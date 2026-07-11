@@ -3,11 +3,11 @@ release_approval_id: RA-YYYYMMDD-XX
 release_version: vX.Y.Z
 intent_id: INT-XXX
 status: draft  # draft|approved|deployed|rolled_back
-owner: your-handle
+owner: ops-core
 approved_at: null
 approved_by: null
-last_reviewed_at: 2026-04-17
-next_review_due: 2026-05-17
+last_reviewed_at: 2026-07-11
+next_review_due: 2026-08-10
 ---
 
 # Release Approval Record Template

@@ -36,7 +36,7 @@ def _install_editable() -> None:
         )
     else:
         result.check_returncode()
-    setattr(_install_editable, "_done", True)
+    _install_editable._done = True
 
 
 def _console_script(name: str) -> str:

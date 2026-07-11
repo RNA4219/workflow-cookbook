@@ -14,10 +14,10 @@ from __future__ import annotations
 import argparse
 import re
 import sys
+from collections.abc import Sequence
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Sequence
-
+from typing import Any
 
 _REPO_ROOT = Path(__file__).resolve().parents[2]
 _TASKS_DIR = _REPO_ROOT / "docs" / "tasks"
@@ -82,7 +82,7 @@ def _parse_front_matter(content: str) -> dict[str, Any]:
 
 def _scan_tasks(tasks_dir: Path) -> list[TaskRecord]:
     """Scan all task files in the tasks directory."""
-    tasks = []
+    tasks: list[TaskRecord] = []
     if not tasks_dir.exists():
         return tasks
 
@@ -104,7 +104,7 @@ def _scan_tasks(tasks_dir: Path) -> list[TaskRecord]:
 
 def _scan_acceptances(acceptance_dir: Path) -> list[AcceptanceRecord]:
     """Scan all acceptance files in the acceptance directory."""
-    acceptances = []
+    acceptances: list[AcceptanceRecord] = []
     if not acceptance_dir.exists():
         return acceptances
 
@@ -164,16 +164,16 @@ def validate_bidirectional_sync(
                 )
                 continue
 
-            task = task_by_id.get(acc.task_id)
-            if not task:
+            referenced_task = task_by_id.get(acc.task_id)
+            if not referenced_task:
                 report.errors.append(
                     f"Approved acceptance '{acc.acceptance_id}' references "
                     f"non-existent task '{acc.task_id}'"
                 )
-            elif task.status != "done":
+            elif referenced_task.status != "done":
                 report.warnings.append(
                     f"Approved acceptance '{acc.acceptance_id}' references "
-                    f"task '{acc.task_id}' with status '{task.status}' (expected 'done')"
+                    f"task '{acc.task_id}' with status '{referenced_task.status}' (expected 'done')"
                 )
 
     return report

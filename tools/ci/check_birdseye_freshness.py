@@ -6,11 +6,11 @@ import argparse
 import json
 import re
 import sys
+from collections.abc import Mapping
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
-from typing import Any, Mapping
-
+from typing import Any
 
 ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_INDEX_PATH = ROOT / "docs/birdseye/index.json"
@@ -42,7 +42,7 @@ def build_remediations(failures: list[str], *, max_verified_age_days: int | None
         remediations.append({"reason": reason, "command": command})
 
     full_refresh = (
-        "python tools/codemap/update.py --targets "
+        "python -m tools.codemap.update --targets "
         "docs/birdseye/index.json,docs/birdseye/hot.json --emit index+caps"
     )
     for failure in failures:
@@ -53,7 +53,7 @@ def build_remediations(failures: list[str], *, max_verified_age_days: int | None
             target = match.group("node") if match else "docs/birdseye/index.json"
             add(
                 f"Regenerate capsule for {target}",
-                f"python tools/codemap/update.py --targets {target} --emit index+caps --radius 1",
+                f"python -m tools.codemap.update --targets {target} --emit index+caps --radius 1",
             )
         elif "last verified" in failure:
             match = re.search(r"node (?P<node>.+?) last verified", failure)
@@ -61,7 +61,7 @@ def build_remediations(failures: list[str], *, max_verified_age_days: int | None
             threshold = f" --max-verified-age-days {max_verified_age_days}" if max_verified_age_days else ""
             add(
                 f"Refresh stale hot-list node {target}",
-                f"python tools/codemap/update.py --targets {target} --emit index+caps --radius 1",
+                f"python -m tools.codemap.update --targets {target} --emit index+caps --radius 1",
             )
             add(
                 "Re-run Birdseye freshness check",

@@ -4,12 +4,11 @@ from __future__ import annotations
 
 import argparse
 import json
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Mapping, Sequence
 
 from tools.ci.check_branch_protection import load_policy_required_jobs
-
 
 _REPO_ROOT = Path(__file__).resolve().parents[2]
 

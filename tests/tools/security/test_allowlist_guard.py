@@ -22,7 +22,6 @@ from tools.security.allowlist_guard import (
     detect_violations,
 )
 
-
 BASE_ALLOWLIST = textwrap.dedent(
     """
     allowlist:

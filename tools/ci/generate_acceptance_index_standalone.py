@@ -15,11 +15,11 @@ from __future__ import annotations
 import argparse
 import re
 from collections import Counter
+from collections.abc import Sequence
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Sequence
-
+from typing import Any
 
 _REPO_ROOT = Path(__file__).resolve().parents[2]
 _ACCEPTANCE_DIR = _REPO_ROOT / "docs" / "acceptance"
@@ -76,7 +76,7 @@ def _parse_front_matter(content: str) -> dict[str, Any]:
 
 def _parse_changelog_releases(changelog_path: Path) -> list[ReleaseInfo]:
     """Parse CHANGELOG.md and extract release versions with dates."""
-    releases = []
+    releases: list[ReleaseInfo] = []
     if not changelog_path.exists():
         return releases
 
@@ -133,7 +133,7 @@ def scan_acceptances(
     acceptance_dir: Path, releases: list[ReleaseInfo] | None = None
 ) -> list[AcceptanceInfo]:
     """Scan all acceptance files and map to releases."""
-    acceptances = []
+    acceptances: list[AcceptanceInfo] = []
     if not acceptance_dir.exists():
         return acceptances
 

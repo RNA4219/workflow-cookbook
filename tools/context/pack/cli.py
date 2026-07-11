@@ -9,21 +9,24 @@ from __future__ import annotations
 
 import argparse
 import json
+from collections.abc import Callable, Mapping, MutableMapping, Sequence
 from pathlib import Path
-from typing import Callable, Dict, Mapping, MutableMapping, Sequence
 
-from .types import (
-    ConfigDict,
-    DEFAULT_CONFIG,
-    PackOutput,
-    ContextPackPlan,
-)
-from .resolver import build_graph_view, score_candidates
 from .compression import assemble_sections
+from .resolver import build_graph_view, score_candidates
+from .types import (
+    DEFAULT_CONFIG,
+    AssemblyResult,
+    CandidateRanking,
+    ConfigDict,
+    ContextPackPlan,
+    GraphView,
+    PackOutput,
+)
 
 
 def _parse_simple_yaml(text: str) -> ConfigDict:
-    root: Dict[str, object] = {}
+    root: dict[str, object] = {}
     stack: list[tuple[int, MutableMapping[str, object]]] = [(0, root)]
     for raw in text.splitlines():
         line = raw.split("#", 1)[0].rstrip()
@@ -45,7 +48,7 @@ def _parse_simple_yaml(text: str) -> ConfigDict:
     return root
 
 
-def _coerce_scalar(value: str):
+def _coerce_scalar(value: str) -> object:
     lowered = value.lower()
     if lowered in {"true", "false"}:
         return lowered == "true"
@@ -60,7 +63,10 @@ def _coerce_scalar(value: str):
 def load_config(path: Path | None = None) -> ConfigDict:
     target = path or Path("tools/context/config.yaml")
     if not target.exists():
-        return json.loads(json.dumps(DEFAULT_CONFIG))
+        payload = json.loads(json.dumps(DEFAULT_CONFIG))
+        if not isinstance(payload, dict):
+            raise ValueError("Default context config must be a mapping")
+        return payload
     return _parse_simple_yaml(target.read_text())
 
 
@@ -73,9 +79,9 @@ class ContextPackPlanner:
         self._config_loader = config_loader or load_config
         self.config: Mapping[str, object] | None = None
         self.graph: Mapping[str, object] | None = None
-        self.view: "GraphView | None" = None
-        self.ranking: "CandidateRanking | None" = None
-        self.assembly: "AssemblyResult | None" = None
+        self.view: GraphView | None = None
+        self.ranking: CandidateRanking | None = None
+        self.assembly: AssemblyResult | None = None
 
     def build_plan(
         self,
@@ -86,7 +92,6 @@ class ContextPackPlanner:
         diff_paths: Sequence[str],
         config: Mapping[str, object] | None = None,
     ) -> ContextPackPlan:
-        from .types import GraphView, CandidateRanking, AssemblyResult
         config_map = config if config is not None else self._config_loader(None)
         graph = json.loads(graph_path.read_text())
         view = build_graph_view(graph, intent, diff_paths, config_map)

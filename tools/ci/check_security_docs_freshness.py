@@ -12,11 +12,11 @@ from __future__ import annotations
 import argparse
 import re
 import sys
+from collections.abc import Sequence
 from dataclasses import dataclass
-from datetime import datetime, timedelta
+from datetime import datetime
 from pathlib import Path
-from typing import Any, Sequence
-
+from typing import Any
 
 _REPO_ROOT = Path(__file__).resolve().parents[2]
 _SECURITY_DIR = _REPO_ROOT / "docs" / "security"
@@ -94,7 +94,7 @@ def check_security_docs(
     max_days_overdue: int = 90,
 ) -> list[DocFreshness]:
     """Check freshness of security docs."""
-    results = []
+    results: list[DocFreshness] = []
 
     if not security_dir.exists():
         return results

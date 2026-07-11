@@ -13,8 +13,9 @@ from __future__ import annotations
 import argparse
 import subprocess  # nosec B404
 import sys
+from collections.abc import Sequence
 from pathlib import Path
-from typing import Sequence
+from typing import Any
 
 _REPO_ROOT = Path(__file__).resolve().parents[2]
 _OUTPUT_FILE = _REPO_ROOT / "docs" / "security" / "Dependency_Tree.md"
@@ -74,7 +75,7 @@ def _run_pipdeptree() -> str:
         return ""
 
 
-def _filter_deps(tree_json: str, direct_deps: list[str]) -> list[dict]:
+def _filter_deps(tree_json: str, direct_deps: list[str]) -> list[dict[str, Any]]:
     """Filter dependency tree to only include workflow-cookbook deps."""
     import json
 
@@ -84,7 +85,7 @@ def _filter_deps(tree_json: str, direct_deps: list[str]) -> list[dict]:
         return []
 
     # Find packages that match our direct dependencies
-    filtered = []
+    filtered: list[dict[str, Any]] = []
     for pkg in tree:
         pkg_name = pkg.get("package_name", "").lower().replace("-", "_")
         for direct in direct_deps:
@@ -95,7 +96,7 @@ def _filter_deps(tree_json: str, direct_deps: list[str]) -> list[dict]:
     return filtered
 
 
-def _format_dep_tree(deps: list[dict], indent: int = 0) -> str:
+def _format_dep_tree(deps: list[dict[str, Any]], indent: int = 0) -> str:
     """Format dependency tree as markdown."""
     lines = []
     for dep in deps:
@@ -120,7 +121,7 @@ def _generate_markdown(direct: dict[str, list[str]], tree_json: str) -> str:
     """Generate full markdown document."""
     import datetime
 
-    now = datetime.datetime.now(datetime.timezone.utc)
+    now = datetime.datetime.now(datetime.UTC)
 
     runtime_deps = _filter_deps(tree_json, direct["runtime"])
     dev_deps = _filter_deps(tree_json, direct["dev"])

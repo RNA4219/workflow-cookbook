@@ -17,13 +17,13 @@
 
    ```bash
    # 例: 直近の main との差分から対象カプセルを推測
-   python tools/codemap/update.py --since --emit index+caps
+   python -m tools.codemap.update --since --emit index+caps
 
    # 例: 明示的にターゲットを指定（従来挙動）
-   python tools/codemap/update.py --targets docs/birdseye/index.json,docs/birdseye/caps --emit index+caps
+   python -m tools.codemap.update --targets docs/birdseye/index.json,docs/birdseye/caps --emit index+caps
 
    # 例: 1 hop のみ再計算して局所更新
-   python tools/codemap/update.py --since --radius 1 --emit caps
+   python -m tools.codemap.update --since --radius 1 --emit caps
    ```
 
    - `--since` を指定すると `git diff --name-only <参照>...HEAD` を用いて Birdseye 配下の変更ファイルから対象を自動推定します。参照を省略すると `main` が使われます。
@@ -46,7 +46,7 @@
 詳細な処理を追加する際は、既存の例外設計・型安全方針に従って実装してください。
 Birdseye ドキュメント（`docs/BIRDSEYE.md` / `docs/birdseye/README.md`）と整合するよう、手順の更新が必要な場合は併せてメンテナンスしてください。
 
-- CLI エントリ: `python tools/codemap/update.py ...`
+- CLI エントリ: `python -m tools.codemap.update ...`
 - 追加の機能を導入する場合は、Birdseye ドキュメント（`docs/BIRDSEYE.md` / `docs/birdseye/README.md`）と整合するよう手順を更新してください。
 
 ### Birdseye 再生成の観点

@@ -1,10 +1,11 @@
 ---
 task_id: 20260502-01
 intent_id: INT-IMPROVEMENT-001
+acceptance_id: AC-20260502-01
 owner: docs-core
-status: planned
-last_reviewed_at: 2026-05-02
-next_review_due: 2026-06-02
+status: completed
+last_reviewed_at: 2026-07-11
+next_review_due: 2026-08-10
 ---
 
 # Task Seed: RUNBOOK Completion Governance Spec Implementation

@@ -4,8 +4,7 @@ import json
 import time
 from pathlib import Path
 
-from tools.workflow_plugins.errors import WorkflowPluginCapabilityError
-from tools.workflow_plugins.errors import WorkflowPluginTimeoutError
+from tools.workflow_plugins.errors import WorkflowPluginCapabilityError, WorkflowPluginTimeoutError
 from tools.workflow_plugins.runtime import PluginPolicy, WorkflowPluginRuntime
 
 

@@ -4,7 +4,7 @@ import hashlib
 import json
 import platform
 from collections.abc import Mapping, Sequence
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any, Protocol
 
@@ -87,7 +87,7 @@ def _normalize_timestamp(value: str | datetime | None, *, default: str | None = 
     """Normalize timestamp to ISO 8601 format with UTC timezone."""
     if value is None:
         if default is None:
-            value = datetime.now(timezone.utc)
+            value = datetime.now(UTC)
         else:
             return default
     if isinstance(value, datetime):
@@ -99,9 +99,9 @@ def _normalize_timestamp(value: str | datetime | None, *, default: str | None = 
         except ValueError as exc:
             raise AgentProtocolEvidenceError(f"Invalid timestamp: {value}") from exc
     if parsed.tzinfo is None:
-        parsed = parsed.replace(tzinfo=timezone.utc)
+        parsed = parsed.replace(tzinfo=UTC)
     else:
-        parsed = parsed.astimezone(timezone.utc)
+        parsed = parsed.astimezone(UTC)
     return parsed.isoformat()
 
 

@@ -6,26 +6,26 @@ import os
 import socket
 import subprocess
 import sys
-import threading
 import textwrap
-from types import SimpleNamespace
+import threading
 from collections.abc import Iterator
 from contextlib import contextmanager
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 
 from tools.perf.collect_metrics import (
+    MISSING_SOURCE_ERROR,
+    SUITES,
     MetricDefinition,
     MetricDefinitionRegistry,
     MetricExtractor,
     MetricsCollectionError,
     MetricsCollectionPlan,
-    SUITES,
-    SuiteConfig,
     NumericCallableRule,
+    SuiteConfig,
     build_default_metric_registry,
-    MISSING_SOURCE_ERROR,
 )
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -295,7 +295,7 @@ def test_collects_review_latency_from_minute_aggregates(tmp_path: Path) -> None:
 
 
 def test_cli_uses_metrics_yaml_override(
-    monkeypatch: "pytest.MonkeyPatch", tmp_path: Path
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
 ) -> None:
     metrics_yaml = tmp_path / "metrics.yaml"
     metrics_yaml.write_text(

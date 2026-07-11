@@ -7,12 +7,9 @@ Types and data classes for context pack.
 
 from __future__ import annotations
 
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from typing import (
-    Dict,
-    List,
-    Mapping,
-    Sequence,
     TypedDict,
 )
 
@@ -33,7 +30,7 @@ class GraphEdge(TypedDict, total=False):
     type: str
 
 
-ConfigDict = Dict[str, object]
+ConfigDict = dict[str, object]
 
 
 class SectionWhy(TypedDict):
@@ -49,7 +46,7 @@ class SectionWhy(TypedDict):
 class SectionEntry(TypedDict):
     id: str
     tok: int
-    filters: List[str]
+    filters: list[str]
     why: SectionWhy
 
 
@@ -64,7 +61,7 @@ class PackMetrics(TypedDict):
 class PackOutput(TypedDict):
     intent: str
     budget: str
-    sections: List[SectionEntry]
+    sections: list[SectionEntry]
     metrics: PackMetrics
 
 
@@ -98,31 +95,31 @@ class GraphView:
     nodes: Sequence[GraphNode]
     edges: Sequence[GraphEdge]
     intent_profile: IntentProfile
-    adjacency: Dict[str, List[str]]
-    reverse_adjacency: Dict[str, List[str]]
-    base_signals: Dict[str, BaseSignals]
-    base_scores: Dict[str, float]
-    hits: List[str]
+    adjacency: dict[str, list[str]]
+    reverse_adjacency: dict[str, list[str]]
+    base_signals: dict[str, BaseSignals]
+    base_scores: dict[str, float]
+    hits: list[str]
 
 
 @dataclass
 class CandidateRanking:
-    candidate_nodes: List[GraphNode]
-    ppr_scores: Dict[str, float]
-    scores: Dict[str, float]
-    ranked_nodes: List[GraphNode]
+    candidate_nodes: list[GraphNode]
+    ppr_scores: dict[str, float]
+    scores: dict[str, float]
+    ranked_nodes: list[GraphNode]
 
 
 @dataclass(frozen=True)
 class SectionSelection:
-    sections: List[SectionEntry]
+    sections: list[SectionEntry]
     token_in: int
-    penalties: List[float]
+    penalties: list[float]
 
 
 @dataclass
 class AssemblyResult:
-    sections: List[SectionEntry]
+    sections: list[SectionEntry]
     metrics: PackMetrics
 
 
@@ -138,8 +135,8 @@ class ContextPackPlan:
     assembly: AssemblyResult
 
     @property
-    def target_candidates(self) -> List[str]:
-        candidates: List[str] = []
+    def target_candidates(self) -> list[str]:
+        candidates: list[str] = []
         for node in self.ranking.ranked_nodes:
             node_id = node.get("id")
             if isinstance(node_id, str):

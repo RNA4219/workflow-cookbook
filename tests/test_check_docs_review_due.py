@@ -8,7 +8,9 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 
 
-def _write_doc(path: Path, *, owner: str, due: str, reviewed: str = "2026-01-01") -> None:
+def _write_doc(
+    path: Path, *, owner: str, due: str, reviewed: str = "2026-01-01", status: str = "active"
+) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(
         "\n".join(
@@ -16,7 +18,7 @@ def _write_doc(path: Path, *, owner: str, due: str, reviewed: str = "2026-01-01"
                 "---",
                 "intent_id: INT-TEST",
                 f"owner: {owner}",
-                "status: active",
+                f"status: {status}",
                 f"last_reviewed_at: {reviewed}",
                 f"next_review_due: {due}",
                 "---",
@@ -116,3 +118,28 @@ def test_docs_review_check_fails_only_for_critical_overdue(tmp_path: Path) -> No
 
     assert result.returncode == 1
     assert "critically overdue" in result.stderr
+
+
+def test_docs_review_ignores_terminal_records_and_examples(tmp_path: Path) -> None:
+    _write_doc(
+        tmp_path / "docs" / "completed.md",
+        owner="docs-core",
+        due="2025-01-01",
+        status="completed",
+    )
+    _write_doc(
+        tmp_path / "examples" / "fixture.md",
+        owner="sample-author",
+        due="2025-01-01",
+    )
+
+    result = _run_cli(
+        "--root",
+        str(tmp_path),
+        "--today",
+        "2026-07-11",
+        "--check",
+    )
+
+    assert result.returncode == 0, result.stderr
+    assert "Docs scanned: 0" in result.stdout

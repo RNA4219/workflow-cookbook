@@ -9,8 +9,8 @@ Utility functions for coercing values, deriving averages/ratios, and precision m
 
 from __future__ import annotations
 
+from collections.abc import Mapping, Sequence
 from pathlib import Path
-from typing import Any, Mapping, Sequence
 
 
 def coerce_float(value: object) -> float | None:
@@ -178,9 +178,7 @@ def derive_birdseye_refresh_delay_minutes(raw: Mapping[str, float]) -> float | N
     return derive_average(raw, prefixes)
 
 
-def extract_precision_mode_mapping(
-    raw: Mapping[str, object], mode: str, nested_keys: Sequence[str]
-) -> float | None:
+def extract_precision_mode_mapping(raw: Mapping[str, object], mode: str, nested_keys: Sequence[str]) -> float | None:
     """Extract value for specific mode from precision mode mapping."""
     direct = coerce_float(raw.get(mode))
     if direct is not None:
@@ -194,9 +192,7 @@ def extract_precision_mode_mapping(
     return None
 
 
-def extract_structured_precision_mode(
-    source: Mapping[str, object], mode_keys: Sequence[str]
-) -> str | None:
+def extract_structured_precision_mode(source: Mapping[str, object], mode_keys: Sequence[str]) -> str | None:
     """Extract active precision mode from structured source."""
     for key in mode_keys:
         direct = source.get(key)
@@ -210,9 +206,7 @@ def extract_structured_precision_mode(
     return None
 
 
-def extract_numeric_precision_mode(
-    source: Mapping[str, float], mode_metric_names: Sequence[str]
-) -> str | None:
+def extract_numeric_precision_mode(source: Mapping[str, float], mode_metric_names: Sequence[str]) -> str | None:
     """Extract active precision mode from numeric source."""
     best_mode: str | None = None
     best_value = float("-inf")
@@ -221,7 +215,7 @@ def extract_numeric_precision_mode(
         for key, value in source.items():
             if not key.startswith(prefix):
                 continue
-            label = key[len(prefix):]
+            label = key[len(prefix) :]
             label_key, _, label_value = label.partition("=")
             if not label_value:
                 continue

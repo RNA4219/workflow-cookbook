@@ -44,7 +44,7 @@ def _parse_front_matter(content: str) -> dict[str, str]:
 
 def _get_done_task_ids(tasks_dir: Path, repo_root: Path = _REPO_ROOT) -> list[dict[str, Any]]:
     """Get all Task Seeds with status: done."""
-    done_tasks = []
+    done_tasks: list[dict[str, Any]] = []
     if not tasks_dir.exists():
         return done_tasks
 
@@ -80,7 +80,7 @@ def _get_done_task_ids(tasks_dir: Path, repo_root: Path = _REPO_ROOT) -> list[di
 
 def _get_recorded_task_ids(completion_path: Path) -> set[str]:
     """Get task IDs already recorded in completion-record."""
-    recorded = set()
+    recorded: set[str] = set()
 
     if not completion_path.exists():
         return recorded
@@ -119,8 +119,8 @@ def check_task_completion_propagation(
 
     Returns nudges for unpropagated tasks and warnings.
     """
-    nudges = []
-    warnings = []
+    nudges: list[dict[str, Any]] = []
+    warnings: list[str] = []
 
     done_tasks = _get_done_task_ids(tasks_dir, repo_root)
     recorded_ids = _get_recorded_task_ids(completion_path)

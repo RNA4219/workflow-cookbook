@@ -9,7 +9,10 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Mapping, Protocol, Sequence
+from typing import TYPE_CHECKING, Any, Protocol
+
+if TYPE_CHECKING:
+    from .session import BirdseyeUpdateSession
 
 
 class TargetResolutionError(RuntimeError):
@@ -36,7 +39,7 @@ class UpdateOptions:
     radius: int = 2
 
     def resolve_targets(self) -> tuple[Path, ...]:
-        from .session import _normalise_target, _default_birdseye_targets
+        from .session import _default_birdseye_targets, _normalise_target
         resolved = [_normalise_target(path) for path in self.targets]
         if self.since:
             if self.diff_resolver is None:
@@ -83,7 +86,7 @@ class BirdseyeRootPlan:
     writes: tuple[PlannedWrite, ...]
     remembered: str | None = None
 
-    def apply(self, session: "BirdseyeUpdateSession") -> None:
+    def apply(self, session: BirdseyeUpdateSession) -> None:
         session._writes.extend(self.writes)
         if self.remembered is not None:
             session._remember_generated(self.remembered)

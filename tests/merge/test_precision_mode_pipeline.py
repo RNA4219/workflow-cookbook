@@ -2,18 +2,19 @@ from __future__ import annotations
 
 import io
 import json
+from collections.abc import Mapping
 from dataclasses import dataclass
-from typing import Any, Dict, List, Mapping
+from typing import Any
 
 import pytest
 
 from tools.autosave.project_lock_service import LockTokenInvalidError, ProjectLockCoordinator
 from tools.merge.precision_mode_pipeline import (
     MergeExecutionResult,
+    MergeMetricsTracker,
     MergeOperation,
     MergePipeline,
     MergePipelineRequest,
-    MergeMetricsTracker,
 )
 from tools.perf.structured_logger import StructuredLogger
 
@@ -31,9 +32,9 @@ class StubFlagState:
 
 class StubCoordinator(ProjectLockCoordinator):
     def __init__(self) -> None:
-        self.validations: List[tuple[str, str]] = []
-        self.releases: List[tuple[str, str]] = []
-        self._valid_tokens: Dict[tuple[str, str], bool] = {}
+        self.validations: list[tuple[str, str]] = []
+        self.releases: list[tuple[str, str]] = []
+        self._valid_tokens: dict[tuple[str, str], bool] = {}
 
     def allow(self, project_id: str, token: str, *, valid: bool = True) -> None:
         self._valid_tokens[(project_id, token)] = valid
@@ -48,7 +49,7 @@ class StubCoordinator(ProjectLockCoordinator):
 
 class StubTelemetry:
     def __init__(self) -> None:
-        self.events: List[tuple[str, Mapping[str, Any]]] = []
+        self.events: list[tuple[str, Mapping[str, Any]]] = []
 
     def emit(self, event: str, payload: Mapping[str, Any]) -> None:
         self.events.append((event, dict(payload)))
@@ -65,7 +66,7 @@ class StubExecutor:
         return MergeExecutionResult(status=status, resolved_snapshot_id=resolved)
 
 
-def _log_lines(stream: io.StringIO) -> List[dict[str, Any]]:
+def _log_lines(stream: io.StringIO) -> list[dict[str, Any]]:
     return [json.loads(line) for line in stream.getvalue().splitlines() if line]
 
 

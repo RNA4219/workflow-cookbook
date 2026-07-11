@@ -1,15 +1,16 @@
 from __future__ import annotations
 
 import json
+from collections.abc import Mapping, Sequence
 from pathlib import Path
-from typing import Any, Mapping, Sequence
+from typing import Any
 
 from tools.protocols.plugin_loader import InferencePluginLoadError, InferencePluginSpec
 
 try:
     import yaml
 except ModuleNotFoundError:  # pragma: no cover - optional dependency
-    yaml = None  # type: ignore[assignment]
+    yaml = None
 
 
 class InferencePluginConfigError(ValueError):
@@ -65,7 +66,7 @@ def load_inference_plugin_specs_from_path(path: str | Path) -> list[InferencePlu
             raise InferencePluginConfigError(
                 "YAML plugin config requires PyYAML to be installed"
             )
-        payload = yaml.safe_load(raw)  # type: ignore[union-attr]
+        payload = yaml.safe_load(raw)
     else:
         raise InferencePluginConfigError(
             f"Unsupported plugin config format: {target.suffix}"

@@ -16,7 +16,7 @@ from typing import Any
 import pytest
 
 try:
-    from jsonschema import validate, ValidationError, Draft202012Validator
+    from jsonschema import Draft202012Validator, validate
     HAS_JSONSCHEMA = True
 except ImportError:
     HAS_JSONSCHEMA = False

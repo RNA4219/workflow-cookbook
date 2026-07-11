@@ -11,9 +11,10 @@ from __future__ import annotations
 
 import argparse
 import sys
+from collections.abc import Callable, Sequence
 from pathlib import Path
-from typing import Callable, Sequence
 
+from . import resolver as resolver_module
 from .resolver import PRBodyResolver
 from .validator import collect_validation_outcome
 
@@ -21,15 +22,24 @@ from .validator import collect_validation_outcome
 def parse_arguments(argv: Sequence[str] | None = None) -> argparse.Namespace:
     """Parse CLI arguments."""
     parser = argparse.ArgumentParser(description="Run governance gate checks")
+    parser.add_argument(
+        "--repo-root",
+        type=Path,
+        default=Path.cwd(),
+        help="Repository to inspect (default: current working directory).",
+    )
     parser.add_argument("--pr-body", help="PR本文を直接指定")
     parser.add_argument(
         "--pr-body-path",
         type=Path,
         help="PR本文が含まれるファイルパスを指定",
     )
-    if argv is None:
-        return parser.parse_args()
-    return parser.parse_args(list(argv))
+    args = parser.parse_args() if argv is None else parser.parse_args(list(argv))
+    repo_root = args.repo_root.resolve()
+    if not repo_root.is_dir():
+        parser.error(f"--repo-root is not a directory: {repo_root}")
+    args.repo_root = repo_root
+    return args
 
 
 def main(
@@ -41,6 +51,7 @@ def main(
     """Run governance gate validation and return exit code."""
     # Parse arguments first so --help works before resolver
     args = parse_arguments(argv)
+    resolver_module._REPO_ROOT = args.repo_root
     resolver = PRBodyResolver()
     resolution = resolver.resolve(
         cli_body=args.pr_body,

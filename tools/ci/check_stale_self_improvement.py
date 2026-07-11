@@ -42,7 +42,8 @@ def parse_front_matter(content: str) -> dict[str, Any]:
 def load_json_reflection(path: Path) -> dict[str, Any] | None:
     """Load JSON reflection file."""
     try:
-        return json.loads(path.read_text(encoding="utf-8"))
+        payload = json.loads(path.read_text(encoding="utf-8"))
+        return payload if isinstance(payload, dict) else None
     except (json.JSONDecodeError, FileNotFoundError):
         return None
 
@@ -53,8 +54,8 @@ def check_stale_reflections(
     repo_root: Path = _REPO_ROOT,
 ) -> tuple[list[dict[str, Any]], list[str]]:
     """Check for stale reflections and return nudges."""
-    nudges = []
-    warnings = []
+    nudges: list[dict[str, Any]] = []
+    warnings: list[str] = []
 
     if not reflections_dir.exists():
         warnings.append(f"Reflections directory not found: {reflections_dir}")
@@ -113,8 +114,8 @@ def check_stale_skill_drafts(
     repo_root: Path = _REPO_ROOT,
 ) -> tuple[list[dict[str, Any]], list[str]]:
     """Check for stale skill drafts in review state."""
-    nudges = []
-    warnings = []
+    nudges: list[dict[str, Any]] = []
+    warnings: list[str] = []
 
     if not skill_drafts_dir.exists():
         return nudges, warnings

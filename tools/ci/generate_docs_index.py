@@ -14,11 +14,11 @@ from __future__ import annotations
 import argparse
 import re
 import sys
+from collections.abc import Sequence
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Sequence
-
+from typing import Any
 
 _REPO_ROOT = Path(__file__).resolve().parents[2]
 
@@ -103,7 +103,7 @@ def _check_links(content: str, file_path: Path, repo_root: Path) -> list[str]:
 
 def scan_directory(dir_path: Path, repo_root: Path) -> list[DocInfo]:
     """Scan a directory for markdown documents."""
-    docs = []
+    docs: list[DocInfo] = []
     if not dir_path.exists():
         return docs
 

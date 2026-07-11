@@ -9,40 +9,41 @@ Defines protocols and dataclasses for structured log and Prometheus metric extra
 
 from __future__ import annotations
 
+from collections.abc import Callable, Mapping
 from dataclasses import dataclass
-from typing import Callable, Mapping, Protocol, Sequence
+from typing import Protocol
 
 from .helpers import (
     coerce_float,
     coerce_numeric_mapping,
     derive_average,
     derive_ratio_by_suffixes,
+    extract_numeric_precision_mode,
     extract_precision_mode_mapping,
     extract_structured_precision_mode,
-    extract_numeric_precision_mode,
     precision_mode_label_key,
-    lookup_nested_value,
 )
 
 
 class StructuredRule(Protocol):
     """Protocol for structured log extraction rules."""
-    overwrite: bool
 
-    def extract(self, metric_key: str, source: Mapping[str, object]) -> float | None:
-        ...
+    @property
+    def overwrite(self) -> bool: ...
+
+    def extract(self, metric_key: str, source: Mapping[str, object]) -> float | None: ...
 
 
 class NumericRule(Protocol):
     """Protocol for Prometheus numeric extraction rules."""
 
-    def extract(self, metric_key: str, source: Mapping[str, float]) -> float | None:
-        ...
+    def extract(self, metric_key: str, source: Mapping[str, float]) -> float | None: ...
 
 
 @dataclass(frozen=True)
 class DirectValueRule:
     """Extract direct value from structured source."""
+
     keys: tuple[str, ...] | None = None
     overwrite: bool = False
 
@@ -58,6 +59,7 @@ class DirectValueRule:
 @dataclass(frozen=True)
 class MappingRatioRule:
     """Extract ratio from nested mapping."""
+
     numerator_keys: tuple[str, ...]
     denominator_keys: tuple[str, ...]
     ratio_keys: tuple[str, ...] = ("ratio",)
@@ -89,6 +91,7 @@ class MappingRatioRule:
 @dataclass(frozen=True)
 class StructuredAverageRule:
     """Extract average from structured source using prefix matching."""
+
     prefixes: tuple[tuple[str, float], ...]
     overwrite: bool = False
 
@@ -102,6 +105,7 @@ class StructuredAverageRule:
 @dataclass(frozen=True)
 class DirectNumericRule:
     """Extract direct numeric value."""
+
     keys: tuple[str, ...] | None = None
 
     def extract(self, metric_key: str, source: Mapping[str, float]) -> float | None:
@@ -116,6 +120,7 @@ class DirectNumericRule:
 @dataclass(frozen=True)
 class NumericAverageRule:
     """Extract average from numeric source using prefix matching."""
+
     prefixes: tuple[tuple[str, float], ...]
 
     def extract(self, metric_key: str, source: Mapping[str, float]) -> float | None:
@@ -125,6 +130,7 @@ class NumericAverageRule:
 @dataclass(frozen=True)
 class SuffixRatioNumericRule:
     """Extract ratio by matching suffix patterns."""
+
     numerator_suffixes: tuple[str, ...]
     denominator_suffixes: tuple[str, ...]
 
@@ -135,6 +141,7 @@ class SuffixRatioNumericRule:
 @dataclass(frozen=True)
 class NumericCallableRule:
     """Extract using custom callable function."""
+
     function: Callable[[Mapping[str, float]], float | None]
 
     def extract(self, metric_key: str, source: Mapping[str, float]) -> float | None:
@@ -144,6 +151,7 @@ class NumericCallableRule:
 @dataclass(frozen=True)
 class PrecisionModeStructuredRule:
     """Extract value for specific precision mode from structured source."""
+
     source_key: str
     mode: str
     nested_keys: tuple[str, ...] = ("rate", "modes")
@@ -160,6 +168,7 @@ class PrecisionModeStructuredRule:
 @dataclass(frozen=True)
 class PrecisionModeNumericRule:
     """Extract value for specific precision mode from numeric source."""
+
     metric_name: str
     mode: str
     fallback_keys: tuple[str, ...] = ()
@@ -179,6 +188,7 @@ class PrecisionModeNumericRule:
 @dataclass(frozen=True)
 class PrecisionModeActiveStructuredRule:
     """Extract value for active precision mode from structured source."""
+
     source_key: str
     mode_keys: tuple[str, ...] = ("merge.precision_mode", "merge_precision_mode", "precision_mode")
     nested_keys: tuple[str, ...] = ("rate", "modes")
@@ -197,6 +207,7 @@ class PrecisionModeActiveStructuredRule:
 @dataclass(frozen=True)
 class PrecisionModeActiveNumericRule:
     """Extract value for active precision mode from numeric source."""
+
     metric_name: str
     mode_metric_names: tuple[str, ...] = ("merge.precision_mode", "merge_precision_mode")
     fallback_keys: tuple[str, ...] = ()

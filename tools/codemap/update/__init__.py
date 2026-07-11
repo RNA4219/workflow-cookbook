@@ -12,52 +12,51 @@ from __future__ import annotations
 import subprocess
 import sys
 
-from . import constants
-from . import cli
-from .constants import _REPO_ROOT, _BIRDSEYE_REGENERATE_COMMAND
-from .types import (
-    CapsuleEntry,
-    CapsuleState,
-    Graph,
-    TargetResolutionError,
-    DiffResolver,
-    UpdateOptions,
-    UpdateReport,
-    PlannedWrite,
-    BirdseyePlan,
-    BirdseyeRootPlan,
+from . import cli, constants
+from .capsule import (
+    BirdseyeRootBuilder,
+    dump_json,
+    load_json,
 )
+from .cli import (
+    ensure_python_version,
+    main,
+    parse_args,
+)
+from .constants import _BIRDSEYE_REGENERATE_COMMAND, _REPO_ROOT
 from .diff import (
     GitDiffParser,
     GitDiffResolver,
     derive_targets_from_since,
 )
 from .graph import (
-    build_graph,
     BirdseyeFocusResolver,
-)
-from .capsule import (
-    BirdseyeRootBuilder,
-    load_json,
-    dump_json,
+    build_graph,
 )
 from .session import (
     BirdseyeUpdateSession,
-    run_update,
-    utc_now,
     _default_birdseye_targets,
-    _normalise_target,
+    _dump_json,
     _group_targets,
     _load_json,
-    _dump_json,
-    _sorted_unique,
+    _normalise_target,
     _SerialAllocator,
+    _sorted_unique,
     next_generated_at,
+    run_update,
+    utc_now,
 )
-from .cli import (
-    parse_args,
-    ensure_python_version,
-    main,
+from .types import (
+    BirdseyePlan,
+    BirdseyeRootPlan,
+    CapsuleEntry,
+    CapsuleState,
+    DiffResolver,
+    Graph,
+    PlannedWrite,
+    TargetResolutionError,
+    UpdateOptions,
+    UpdateReport,
 )
 
 # Internal exports for tests

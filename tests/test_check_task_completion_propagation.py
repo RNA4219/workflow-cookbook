@@ -6,7 +6,6 @@
 
 from __future__ import annotations
 
-import json
 import sys
 from pathlib import Path
 
@@ -15,9 +14,9 @@ import pytest
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
 from tools.ci.check_task_completion_propagation import (
-    _parse_front_matter,
     _get_done_task_ids,
     _get_recorded_task_ids,
+    _parse_front_matter,
     check_task_completion_propagation,
 )
 

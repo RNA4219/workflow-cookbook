@@ -1,6 +1,9 @@
 ---
-last_reviewed_at: 2026-04-10
-next_review_due: 2026-07-10
+intent_id: INT-TEST-REVIEW
+owner: docs-core
+status: active
+last_reviewed_at: 2026-07-11
+next_review_due: 2026-08-10
 ---
 
 # Test Review Checklist

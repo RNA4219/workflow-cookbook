@@ -15,10 +15,10 @@ import argparse
 import json
 import re
 import sys
+from collections.abc import Sequence
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Sequence
-
+from typing import Any
 
 _REPO_ROOT = Path(__file__).resolve().parents[2]
 _EXAMPLES_DIR = _REPO_ROOT / "examples"
@@ -82,7 +82,7 @@ def _extract_doc_refs(content: str, file_path: Path) -> list[str]:
 
 def scan_samples(examples_dir: Path, repo_root: Path) -> list[SampleRef]:
     """Scan sample files and extract doc references."""
-    samples = []
+    samples: list[SampleRef] = []
     if not examples_dir.exists():
         return samples
 

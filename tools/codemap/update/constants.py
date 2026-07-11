@@ -15,7 +15,7 @@ class _RepoRootContainer:
     __slots__ = ("value",)
 
     def __init__(self) -> None:
-        self.value = Path(__file__).resolve().parents[3]
+        self.value = Path.cwd().resolve()
 
     def __call__(self) -> Path:
         return self.value
@@ -27,6 +27,6 @@ class _RepoRootContainer:
 _REPO_ROOT = _RepoRootContainer()
 
 _BIRDSEYE_REGENERATE_COMMAND = (
-    "python tools/codemap/update.py --targets "
+    "python -m tools.codemap.update --targets "
     "docs/birdseye/index.json,docs/birdseye/hot.json --emit index+caps"
 )

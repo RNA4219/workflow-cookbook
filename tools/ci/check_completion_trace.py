@@ -19,8 +19,8 @@ import argparse
 import json
 import re
 import sys
+from collections.abc import Sequence
 from pathlib import Path
-from typing import Sequence
 
 _REPO_ROOT = Path(__file__).resolve().parents[2]
 if str(_REPO_ROOT) not in sys.path:
@@ -305,9 +305,9 @@ def check_changelog_drift(
     completion_refs: set[str] = set()
     for link in _extract_links(completion_content):
         if "docs/tasks/" in link:
-            match = re.search(r"task-.*?-\d{8}", link)
-            if match:
-                completion_refs.add(match.group())
+            task_match = re.search(r"task-.*?-\d{8}", link)
+            if task_match:
+                completion_refs.add(task_match.group())
 
     # Note: This is a simplified check. Real drift detection would need
     # more sophisticated parsing of changelog entries and completion themes.

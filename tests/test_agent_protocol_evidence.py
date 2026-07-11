@@ -142,7 +142,7 @@ def test_evidence_bridge_uses_optional_context_and_lockfile(tmp_path: Path) -> N
     assert evidence["diffHash"] == _hash_json({"files": ["docs/spec.md"]})
     assert evidence["approvalsSnapshot"][0]["actorId"] == "lead-1"
     assert evidence["environment"]["lockfileHash"] == (
-        f"sha256:{hashlib.sha256('locked-deps'.encode('utf-8')).hexdigest()}"
+        f"sha256:{hashlib.sha256(b'locked-deps').hexdigest()}"
     )
 
 

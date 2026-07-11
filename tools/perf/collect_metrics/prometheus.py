@@ -12,16 +12,16 @@ from __future__ import annotations
 import json
 import logging
 import urllib.request
+from collections.abc import Mapping
 from pathlib import Path
-from typing import Mapping
 
-from .security import MetricsCollectionError, validate_url
+from .extractor import MetricExtractor
 from .helpers import (
     coerce_float,
     parse_metric_name_and_labels,
     precision_mode_label_key,
 )
-from .extractor import MetricExtractor
+from .security import MetricsCollectionError, validate_url
 
 LOGGER = logging.getLogger(__name__)
 

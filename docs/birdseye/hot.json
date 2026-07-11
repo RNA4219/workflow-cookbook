@@ -1,7 +1,7 @@
 {
-  "generated_at": "00047",
+  "generated_at": "00052",
   "index_snapshot": "docs/birdseye/index.json",
-  "refresh_command": "python tools/codemap/update.py --targets docs/birdseye/index.json,docs/birdseye/hot.json --emit index+caps",
+  "refresh_command": "python -m tools.codemap.update --targets docs/birdseye/index.json,docs/birdseye/hot.json --emit index+caps",
   "curation_notes": "Workflow Cookbook の主要な起点ドキュメントと Birdseye 運用ノードを即時参照できるようにキュレーションしたホットリスト。index.json の更新時は同じターゲットで hot を再生成し、各ノードの鮮度をチェックする。",
   "nodes": [
     {
@@ -17,9 +17,9 @@
         "EVALUATION.md",
         "docs/birdseye/index.json"
       ],
-      "last_verified_at": "2026-04-11T00:00:00Z",
+      "last_verified_at": "2026-07-10T22:14:19Z",
       "index_snapshot": "docs/birdseye/index.json",
-      "refresh_command": "python tools/codemap/update.py --targets docs/birdseye/index.json,docs/birdseye/hot.json --emit index+caps",
+      "refresh_command": "python -m tools.codemap.update --targets docs/birdseye/index.json,docs/birdseye/hot.json --emit index+caps",
       "curation_notes": "Workflow Cookbook の主要な起点ドキュメントと Birdseye 運用ノードを即時参照できるようにキュレーションしたホットリスト。index.json の更新時は同じターゲットで hot を再生成し、各ノードの鮮度をチェックする。"
     },
     {
@@ -35,9 +35,9 @@
         "docs/birdseye/index.json",
         "docs/BIRDSEYE.md"
       ],
-      "last_verified_at": "2026-04-11T00:00:00Z",
+      "last_verified_at": "2026-07-10T22:14:19Z",
       "index_snapshot": "docs/birdseye/index.json",
-      "refresh_command": "python tools/codemap/update.py --targets docs/birdseye/index.json,docs/birdseye/hot.json --emit index+caps",
+      "refresh_command": "python -m tools.codemap.update --targets docs/birdseye/index.json,docs/birdseye/hot.json --emit index+caps",
       "curation_notes": "Workflow Cookbook の主要な起点ドキュメントと Birdseye 運用ノードを即時参照できるようにキュレーションしたホットリスト。index.json の更新時は同じターゲットで hot を再生成し、各ノードの鮮度をチェックする。"
     },
     {
@@ -53,9 +53,9 @@
         "CHECKLISTS.md",
         "docs/birdseye/index.json"
       ],
-      "last_verified_at": "2026-04-11T00:00:00Z",
+      "last_verified_at": "2026-07-10T22:14:19Z",
       "index_snapshot": "docs/birdseye/index.json",
-      "refresh_command": "python tools/codemap/update.py --targets docs/birdseye/index.json,docs/birdseye/hot.json --emit index+caps",
+      "refresh_command": "python -m tools.codemap.update --targets docs/birdseye/index.json,docs/birdseye/hot.json --emit index+caps",
       "curation_notes": "Workflow Cookbook の主要な起点ドキュメントと Birdseye 運用ノードを即時参照できるようにキュレーションしたホットリスト。index.json の更新時は同じターゲットで hot を再生成し、各ノードの鮮度をチェックする。"
     },
     {
@@ -69,9 +69,9 @@
         "EVALUATION.md",
         "docs/IN-20250115-001.md"
       ],
-      "last_verified_at": "2026-04-11T00:00:00Z",
+      "last_verified_at": "2026-07-10T22:14:19Z",
       "index_snapshot": "docs/birdseye/index.json",
-      "refresh_command": "python tools/codemap/update.py --targets docs/birdseye/index.json,docs/birdseye/hot.json --emit index+caps",
+      "refresh_command": "python -m tools.codemap.update --targets docs/birdseye/index.json,docs/birdseye/hot.json --emit index+caps",
       "curation_notes": "Workflow Cookbook の主要な起点ドキュメントと Birdseye 運用ノードを即時参照できるようにキュレーションしたホットリスト。index.json の更新時は同じターゲットで hot を再生成し、各ノードの鮮度をチェックする。"
     },
     {
@@ -85,9 +85,9 @@
         "RUNBOOK.md",
         "CHECKLISTS.md"
       ],
-      "last_verified_at": "2026-04-11T00:00:00Z",
+      "last_verified_at": "2026-07-10T22:14:19Z",
       "index_snapshot": "docs/birdseye/index.json",
-      "refresh_command": "python tools/codemap/update.py --targets docs/birdseye/index.json,docs/birdseye/hot.json --emit index+caps",
+      "refresh_command": "python -m tools.codemap.update --targets docs/birdseye/index.json,docs/birdseye/hot.json --emit index+caps",
       "curation_notes": "Workflow Cookbook の主要な起点ドキュメントと Birdseye 運用ノードを即時参照できるようにキュレーションしたホットリスト。index.json の更新時は同じターゲットで hot を再生成し、各ノードの鮮度をチェックする。"
     },
     {
@@ -100,9 +100,9 @@
         "HUB.codex.md",
         "GUARDRAILS.md"
       ],
-      "last_verified_at": "2026-04-11T00:00:00Z",
+      "last_verified_at": "2026-07-10T22:14:19Z",
       "index_snapshot": "docs/birdseye/index.json",
-      "refresh_command": "python tools/codemap/update.py --targets docs/birdseye/index.json,docs/birdseye/hot.json --emit index+caps",
+      "refresh_command": "python -m tools.codemap.update --targets docs/birdseye/index.json,docs/birdseye/hot.json --emit index+caps",
       "curation_notes": "Workflow Cookbook の主要な起点ドキュメントと Birdseye 運用ノードを即時参照できるようにキュレーションしたホットリスト。index.json の更新時は同じターゲットで hot を再生成し、各ノードの鮮度をチェックする。"
     },
     {
@@ -115,9 +115,9 @@
         "HUB.codex.md",
         "EVALUATION.md"
       ],
-      "last_verified_at": "2026-04-11T00:00:00Z",
+      "last_verified_at": "2026-07-10T22:14:19Z",
       "index_snapshot": "docs/birdseye/index.json",
-      "refresh_command": "python tools/codemap/update.py --targets docs/birdseye/index.json,docs/birdseye/hot.json --emit index+caps",
+      "refresh_command": "python -m tools.codemap.update --targets docs/birdseye/index.json,docs/birdseye/hot.json --emit index+caps",
       "curation_notes": "Workflow Cookbook の主要な起点ドキュメントと Birdseye 運用ノードを即時参照できるようにキュレーションしたホットリスト。index.json の更新時は同じターゲットで hot を再生成し、各ノードの鮮度をチェックする。"
     },
     {
@@ -131,9 +131,9 @@
         "docs/birdseye/index.json",
         "tools/codemap/README.md"
       ],
-      "last_verified_at": "2026-04-11T00:00:00Z",
+      "last_verified_at": "2026-07-10T22:14:19Z",
       "index_snapshot": "docs/birdseye/index.json",
-      "refresh_command": "python tools/codemap/update.py --targets docs/birdseye/index.json,docs/birdseye/hot.json --emit index+caps",
+      "refresh_command": "python -m tools.codemap.update --targets docs/birdseye/index.json,docs/birdseye/hot.json --emit index+caps",
       "curation_notes": "Workflow Cookbook の主要な起点ドキュメントと Birdseye 運用ノードを即時参照できるようにキュレーションしたホットリスト。index.json の更新時は同じターゲットで hot を再生成し、各ノードの鮮度をチェックする。"
     },
     {
@@ -148,9 +148,9 @@
         "docs/birdseye/caps/",
         "tools/codemap/"
       ],
-      "last_verified_at": "2026-04-11T00:00:00Z",
+      "last_verified_at": "2026-07-10T22:14:19Z",
       "index_snapshot": "docs/birdseye/index.json",
-      "refresh_command": "python tools/codemap/update.py --targets docs/birdseye/index.json,docs/birdseye/hot.json --emit index+caps",
+      "refresh_command": "python -m tools.codemap.update --targets docs/birdseye/index.json,docs/birdseye/hot.json --emit index+caps",
       "curation_notes": "Workflow Cookbook の主要な起点ドキュメントと Birdseye 運用ノードを即時参照できるようにキュレーションしたホットリスト。index.json の更新時は同じターゲットで hot を再生成し、各ノードの鮮度をチェックする。"
     },
     {
@@ -163,9 +163,9 @@
         "tools/codemap/update.py",
         "docs/birdseye/index.json"
       ],
-      "last_verified_at": "2026-04-11T00:00:00Z",
+      "last_verified_at": "2026-07-10T22:14:19Z",
       "index_snapshot": "docs/birdseye/index.json",
-      "refresh_command": "python tools/codemap/update.py --targets docs/birdseye/index.json,docs/birdseye/hot.json --emit index+caps",
+      "refresh_command": "python -m tools.codemap.update --targets docs/birdseye/index.json,docs/birdseye/hot.json --emit index+caps",
       "curation_notes": "Workflow Cookbook の主要な起点ドキュメントと Birdseye 運用ノードを即時参照できるようにキュレーションしたホットリスト。index.json の更新時は同じターゲットで hot を再生成し、各ノードの鮮度をチェックする。"
     }
   ]

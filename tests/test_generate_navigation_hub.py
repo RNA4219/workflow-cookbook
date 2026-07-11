@@ -10,9 +10,9 @@ if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
 from tools.ci.generate_navigation_hub import (
+    NAV_SECTIONS,
     generate_hub,
     main,
-    NAV_SECTIONS,
 )
 
 
@@ -33,14 +33,14 @@ class TestGenerateHub:
         content = generate_hub()
         assert "## Quick Commands" in content
         assert "pytest" in content
-        assert "update.py" in content
+        assert "python -m tools.codemap.update" in content
 
     def test_generates_entry_table(self) -> None:
         content = generate_hub()
         assert "| Entry | Path | Description |" in content
         # Check that entries are rendered
         for section in NAV_SECTIONS:
-            for name, path, desc in section["entries"]:
+            for name, _path, _desc in section["entries"]:
                 assert f"| [{name}]" in content
 
 

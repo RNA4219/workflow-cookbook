@@ -1,10 +1,10 @@
 from __future__ import annotations
 
 import json
-from datetime import datetime, timedelta, timezone
+import sys
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import cast
-import sys
 
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
@@ -16,26 +16,25 @@ from tools.context.pack import (
     CandidateRanking,
     CandidateSelector,
     ContextPackPlanner,
-    GraphNode,
     GraphEdge,
+    GraphNode,
     GraphView,
     GraphViewBuilder,
     IntentProfile,
     PackMetricsBuilder,
     SectionSelection,
     SectionSelector,
+    _recency_score,
     assemble_sections,
     build_graph_view,
-    ContextPackPlanner,
     load_config,
     pack_graph,
     score_candidates,
 )
-from tools.context.pack import _recency_score
 
 
 def _recent(days: int) -> str:
-    return (datetime.now(timezone.utc) - timedelta(days=days)).isoformat()
+    return (datetime.now(UTC) - timedelta(days=days)).isoformat()
 
 
 def _simple_view(
@@ -51,7 +50,7 @@ def _simple_view(
     adjacency_map = adjacency or {}
     reverse_map = reverse_adjacency or {}
     base_signals = {
-        cast(str, node["id"]): BaseSignals(0.0, 0.0, 0.0, 0.0, 0.0)
+        cast("str", node["id"]): BaseSignals(0.0, 0.0, 0.0, 0.0, 0.0)
         for node in nodes
         if isinstance(node.get("id"), str)
     }
@@ -442,7 +441,7 @@ def test_assemble_sections_matches_pack_graph(sample_graph: Path) -> None:
         config=DEFAULT_CONFIG,
     )
 
-    for helper_section, packed_section in zip(assembly.sections, result["sections"]):
+    for helper_section, packed_section in zip(assembly.sections, result["sections"], strict=True):
         assert helper_section["id"] == packed_section["id"]
         assert helper_section["tok"] == packed_section["tok"]
         assert helper_section["filters"] == packed_section["filters"]
@@ -493,7 +492,7 @@ def test_cli_main_emits_pack_output(
     assert result["intent"] == expected["intent"]
     assert result["budget"] == expected["budget"]
     assert len(result["sections"]) == len(expected["sections"])
-    for res_section, exp_section in zip(result["sections"], expected["sections"]):
+    for res_section, exp_section in zip(result["sections"], expected["sections"], strict=True):
         assert res_section["id"] == exp_section["id"]
         assert res_section["tok"] == exp_section["tok"]
         assert res_section["filters"] == exp_section["filters"]

@@ -5,11 +5,11 @@
 
 from __future__ import annotations
 
-from collections.abc import Callable, Sequence
+from collections.abc import Callable, Iterable, Mapping, MutableMapping, Sequence
 from dataclasses import dataclass
 from itertools import zip_longest
 from math import isclose, sqrt
-from typing import Any, Dict, Iterable, List, Mapping, MutableMapping, Protocol
+from typing import Any, Protocol
 
 _Message = Mapping[str, Any]
 _MutableMessage = MutableMapping[str, Any]
@@ -17,7 +17,7 @@ _MutableMessage = MutableMapping[str, Any]
 
 class TokenCounterProtocol(Protocol):
     def count_message(self, message: _Message) -> int: ...
-    def meta(self) -> Dict[str, Any]: ...
+    def meta(self) -> dict[str, Any]: ...
 
 
 @dataclass(frozen=True)
@@ -32,7 +32,7 @@ class TokenCounterResult:
         cls,
         counter: TokenCounterProtocol,
         messages: Sequence[_Message],
-    ) -> "TokenCounterResult":
+    ) -> TokenCounterResult:
         """Measure tokens for the provided messages."""
 
         tokens = tuple(counter.count_message(message) for message in messages)
@@ -44,11 +44,11 @@ class TrimOutcome:
     """Package the legacy trim result mapping."""
 
     messages: list[_MutableMessage]
-    statistics: Dict[str, Any]
-    token_counter: Dict[str, Any]
-    semantic_options: Dict[str, Any]
+    statistics: dict[str, Any]
+    token_counter: dict[str, Any]
+    semantic_options: dict[str, Any]
 
-    def as_mapping(self) -> Dict[str, Any]:
+    def as_mapping(self) -> dict[str, Any]:
         """Expose the historical mapping structure."""
 
         return {
@@ -79,7 +79,7 @@ class _TokenCounter:
     def _load_encoder(self) -> None:
         resolved = self._MODEL_ALIASES.get(self.model, self.model)
         try:
-            import tiktoken  # type: ignore
+            import tiktoken
         except ModuleNotFoundError:
             return
         except Exception:
@@ -104,7 +104,7 @@ class _TokenCounter:
             tokens = max(1, len(content) // 4 + 1)
         return base_tokens + tokens
 
-    def meta(self) -> Dict[str, Any]:
+    def meta(self) -> dict[str, Any]:
         strategy = "tiktoken" if self._encoder is not None else "heuristic"
         return {
             "model": self.model,
@@ -114,11 +114,11 @@ class _TokenCounter:
         }
 
 
-def _normalise_messages(messages: Sequence[_Message]) -> List[_MutableMessage]:
+def _normalise_messages(messages: Sequence[_Message]) -> list[_MutableMessage]:
     return [dict(message) for message in messages]
 
 
-def _to_vector(values: Sequence[float]) -> List[float]:
+def _to_vector(values: Sequence[float]) -> list[float]:
     return [float(value) for value in values]
 
 
@@ -165,7 +165,7 @@ def compute_semantic_metrics(
     original_messages: Sequence[_Message],
     trimmed_messages: Sequence[_Message],
     semantic_options: Mapping[str, Any] | None,
-) -> tuple[Dict[str, Any], float | None]:
+) -> tuple[dict[str, Any], float | None]:
     """Evaluate semantic retention using the provided options."""
 
     if semantic_options is None:
@@ -191,11 +191,11 @@ def build_statistics(
     input_tokens: int,
     output_tokens: int,
     semantic_retention: float | None,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Compose statistics with backwards compatible keys."""
 
     compress_ratio = 1.0 if input_tokens == 0 else output_tokens / input_tokens
-    statistics: Dict[str, Any] = {
+    statistics: dict[str, Any] = {
         "compress_ratio": compress_ratio,
         "compression_ratio": compress_ratio,
         "input_tokens": input_tokens,
@@ -211,28 +211,28 @@ def select_messages(
     per_message_tokens: Sequence[int],
     *,
     max_tokens: int,
-) -> List[_MutableMessage]:
+) -> list[_MutableMessage]:
     """Choose messages that fit within the token budget."""
 
     if len(messages) != len(per_message_tokens):
         raise ValueError("messages and per_message_tokens must align")
 
-    paired = list(zip(messages, per_message_tokens))
+    paired = list(zip(messages, per_message_tokens, strict=True))
     system_pair: tuple[_MutableMessage, int] | None = None
-    remainder_pairs: List[tuple[_MutableMessage, int]] = []
+    remainder_pairs: list[tuple[_MutableMessage, int]] = []
     for message, tokens in paired:
         if message.get("role") == "system" and system_pair is None:
             system_pair = (message, tokens)
         else:
             remainder_pairs.append((message, tokens))
 
-    trimmed: List[_MutableMessage] = []
+    trimmed: list[_MutableMessage] = []
     running_tokens = 0
     if system_pair is not None:
         trimmed.append(system_pair[0])
         running_tokens += system_pair[1]
 
-    kept: List[tuple[_MutableMessage, int]] = []
+    kept: list[tuple[_MutableMessage, int]] = []
     for message, tokens in reversed(remainder_pairs):
         if running_tokens + tokens <= max_tokens or not kept:
             kept.append((message, tokens))
@@ -246,11 +246,11 @@ def select_messages(
 class ContextTrimStrategy:
     token_counter_factory: Callable[[str], TokenCounterProtocol]
     token_measurement: Callable[[TokenCounterProtocol, Sequence[_Message]], TokenCounterResult]
-    message_selector: Callable[[Sequence[_MutableMessage], Sequence[int], int], List[_MutableMessage]]
-    semantic_metrics: Callable[[Sequence[_Message], Sequence[_Message], Mapping[str, Any] | None], tuple[Dict[str, Any], float | None]]
+    message_selector: Callable[[Sequence[_MutableMessage], Sequence[int], int], list[_MutableMessage]]
+    semantic_metrics: Callable[[Sequence[_Message], Sequence[_Message], Mapping[str, Any] | None], tuple[dict[str, Any], float | None]]
 
     @classmethod
-    def default(cls) -> "ContextTrimStrategy":
+    def default(cls) -> ContextTrimStrategy:
         return cls(
             _TokenCounter,
             TokenCounterResult.from_messages,

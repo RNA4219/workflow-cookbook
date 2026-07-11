@@ -1,3 +1,12 @@
 - name: governance:skip
   color: "ededed"
   description: Skip governance gate checks for qualifying pull requests
+- name: dependencies
+  color: "0366d6"
+  description: Dependency updates
+- name: python
+  color: "3572A5"
+  description: Python changes
+- name: github-actions
+  color: "2088ff"
+  description: GitHub Actions changes

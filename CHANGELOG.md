@@ -1,9 +1,9 @@
 ---
 intent_id: INT-001
-owner: your-handle
+owner: RNA4219
 status: active   # draft|active|deprecated
-last_reviewed_at: 2025-10-14
-next_review_due: 2025-11-14
+last_reviewed_at: 2026-07-11
+next_review_due: 2026-08-11
 ---
 
 # Changelog
@@ -41,6 +41,22 @@ next_review_due: 2025-11-14
 ## Unreleased
 
 ### Added
+
+- OSS and distribution hardening:
+  - pinned development tools and fail-closed Ruff, strict mypy, coverage, Python
+    3.12, and package-build CI jobs
+  - non-editable wheel smoke coverage for all five public console entrypoints
+  - `--repo-root` support for repository-aware CLIs and
+    `--metrics-config` precedence for metrics collection
+  - immutable GitHub Actions SHAs and least-privilege workflow permissions
+  - `SECURITY.md`, `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`, and
+    `TECH_DEBT.md`
+  - sample metrics are contract-only CI inputs and are never presented as
+    harvested production evidence
+  - strict mypy now passes without module overrides after fixing legacy JSON, YAML,
+    plugin, metrics, and report typing
+  - recurring documentation review debt was cleared; terminal records and example
+    fixtures no longer generate false recurring-review alerts
 
 - Docs review due automation:
   - `tools/ci/check_docs_review_due.py` に owner summary、PeriodicNudge 出力、

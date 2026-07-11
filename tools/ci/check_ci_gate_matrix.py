@@ -5,17 +5,17 @@ from __future__ import annotations
 
 import argparse
 import sys
+from collections.abc import Sequence
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Sequence
 
 try:
     import yaml
 except ModuleNotFoundError:
     class _MiniYamlModule:
         @staticmethod
-        def safe_load(content: str) -> dict:
-            result: dict = {}
+        def safe_load(content: str) -> dict[str, str]:
+            result: dict[str, str] = {}
             for line in content.splitlines():
                 stripped = line.strip()
                 if not stripped or stripped.startswith("#"):
@@ -29,8 +29,7 @@ _REPO_ROOT = Path(__file__).resolve().parents[2]
 if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
-from tools.ci.check_branch_protection import LOGICAL_TO_REPO_CHECK, load_policy_required_jobs
-
+from tools.ci.check_branch_protection import load_policy_required_jobs
 
 _DEFAULT_POLICY = _REPO_ROOT / "governance" / "policy.yaml"
 _DEFAULT_CI_CONFIG = _REPO_ROOT / "docs" / "ci-config.md"

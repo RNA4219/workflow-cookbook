@@ -1,21 +1,22 @@
 from __future__ import annotations
 
 import json
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
-from typing import IO, Any, Mapping, Protocol, Sequence
+from typing import IO, Any, Protocol
 
 JsonMapping = Mapping[str, Any]
 
 
 def _utc_timestamp(value: datetime | None) -> str:
     if value is None:
-        value = datetime.now(timezone.utc)
+        value = datetime.now(UTC)
     elif value.tzinfo is None:
-        value = value.replace(tzinfo=timezone.utc)
+        value = value.replace(tzinfo=UTC)
     else:
-        value = value.astimezone(timezone.utc)
+        value = value.astimezone(UTC)
     return value.isoformat()
 
 
@@ -102,7 +103,7 @@ class StructuredLogger:
         cls,
         *,
         name: str,
-        plugin_specs: Sequence[object],
+        plugin_specs: Sequence[Any],
         path: str | Path | None = None,
         stream: IO[str] | None = None,
         evidence_sink: InferenceEvidenceSink | None = None,
@@ -123,7 +124,7 @@ class StructuredLogger:
         cls,
         *,
         name: str,
-        plugin_config: object,
+        plugin_config: Any,
         path: str | Path | None = None,
         stream: IO[str] | None = None,
         evidence_sink: InferenceEvidenceSink | None = None,

@@ -10,8 +10,9 @@ Parses git diff output and derives target paths.
 from __future__ import annotations
 
 import subprocess
+from collections.abc import Iterable, Sequence
 from pathlib import Path
-from typing import Iterable, Protocol, Sequence
+from typing import Protocol
 
 from .constants import _REPO_ROOT
 

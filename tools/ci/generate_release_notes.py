@@ -11,12 +11,10 @@ from __future__ import annotations
 
 import argparse
 import re
-import sys
+from collections.abc import Sequence
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import Sequence
-
 
 _REPO_ROOT = Path(__file__).resolve().parents[2]
 _CHANGELOG_PATH = _REPO_ROOT / "CHANGELOG.md"
@@ -33,7 +31,7 @@ class ReleaseInfo:
 
 def _parse_changelog(content: str) -> list[ReleaseInfo]:
     """Parse CHANGELOG.md for release entries."""
-    releases = []
+    releases: list[ReleaseInfo] = []
 
     # Pattern: ## [version] or ## version
     pattern = r"##\s*\[?([v]?\d+\.\d+\.\d+)\]?\s*-?\s*(\d{4}-\d{2}-\d{2})?"
@@ -80,7 +78,7 @@ def _parse_changelog(content: str) -> list[ReleaseInfo]:
 
 def scan_releases_dir(releases_dir: Path) -> list[ReleaseInfo]:
     """Scan docs/releases/ for individual release files."""
-    releases = []
+    releases: list[ReleaseInfo] = []
     if not releases_dir.exists():
         return releases
 

@@ -9,8 +9,8 @@ import os
 import re
 import subprocess
 from collections import Counter
+from collections.abc import Mapping, Sequence
 from pathlib import Path
-from typing import Dict, Mapping, Sequence
 
 _REPO_ROOT = Path(__file__).resolve().parents[2]
 
@@ -43,7 +43,7 @@ def _from_commits(commits: Sequence[str]) -> Counter[str]:
             counter[category] += 1
     return counter
 
-def collect_category_metrics(pr_body: str, commit_messages: Sequence[str]) -> Dict[str, Dict[str, int]]:
+def collect_category_metrics(pr_body: str, commit_messages: Sequence[str]) -> dict[str, object]:
     pr_counts = _from_pr_body(pr_body)
     commit_counts = _from_commits(commit_messages)
     combined = pr_counts + commit_counts

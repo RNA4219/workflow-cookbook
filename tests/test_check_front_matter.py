@@ -1,8 +1,8 @@
 from __future__ import annotations
 
 import importlib.util
+from collections.abc import Sequence
 from pathlib import Path
-from typing import Sequence, Tuple
 
 import pytest
 
@@ -20,7 +20,7 @@ validate_incident_front_matter = module.validate_incident_front_matter
 validate_task_seed_front_matter = module.validate_task_seed_front_matter
 TASK_REQUIRED_FIELDS = tuple(module.TASK_REQUIRED_FIELDS)
 
-FieldPairs = Sequence[Tuple[str, str]]
+FieldPairs = Sequence[tuple[str, str]]
 
 
 def _write_markdown(target: Path, pairs: FieldPairs, body: str = "Body") -> None:
