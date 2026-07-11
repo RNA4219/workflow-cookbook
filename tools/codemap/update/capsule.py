@@ -16,7 +16,8 @@ from typing import Any
 
 from .constants import _BIRDSEYE_REGENERATE_COMMAND, _REPO_ROOT
 from .graph import BirdseyeFocusResolver, build_graph
-from .session import _SerialAllocator, _sorted_unique, next_generated_at
+from .serial import _SerialAllocator, next_generated_at
+from .session import _sorted_unique
 from .types import (
     BirdseyeRootPlan,
     CapsuleEntry,

@@ -1416,11 +1416,16 @@ def test_resolve_focus_nodes_includes_two_hop_neighbours(tmp_path):
 
     available_caps = {cap_id: cap_path.resolve() for cap_id, cap_path in cap_paths.items()}
 
-    options = update.UpdateOptions(targets=(cap_beta,), emit="caps")
-    session = update.BirdseyeUpdateSession(options=options, timestamp="2025-01-01T00:00:00Z")
-    focus = session._resolve_focus_nodes(
-        (cap_beta,),
-        root,
+    builder = update.BirdseyeRootBuilder(
+        root=root,
+        root_targets=(cap_beta,),
+        emit_index=False,
+        emit_caps=True,
+        timestamp="2025-01-01T00:00:00Z",
+        serial_allocator=update._SerialAllocator(),
+        focus_resolver=update.BirdseyeFocusResolver(radius=2),
+    )
+    focus = builder._resolve_focus_nodes(
         graph_out,
         graph_in,
         caps_state,
@@ -1446,12 +1451,21 @@ def test_refresh_hot_updates_serial_and_preserves_metadata(tmp_path):
     hot_original = hot_path.read_text(encoding="utf-8")
     hot_payload = json.loads(hot_original)
     options = update.UpdateOptions(targets=(hot_path,), emit="index+caps", dry_run=False)
+    builder = update.BirdseyeRootBuilder(
+        root=tmp_path,
+        root_targets=(hot_path,),
+        emit_index=True,
+        emit_caps=False,
+        timestamp=timestamp,
+        serial_allocator=update._SerialAllocator(),
+        focus_resolver=update.BirdseyeFocusResolver(radius=2),
+    )
+    builder.serial_allocator.observe("00042")
+    builder._plan_hot(hot_payload, hot_original)
     session = update.BirdseyeUpdateSession(options=options, timestamp=timestamp)
-    session.serial_allocator.observe("00042")
-    session._plan_hot(hot_path, hot_payload, hot_original)
     plan = update.BirdseyePlan(
-        generated_at=session._generated_at or timestamp,
-        writes=tuple(session._writes),
+        generated_at=builder._first_generated or timestamp,
+        writes=tuple(builder._writes),
     )
     report = session.execute(plan)
 
@@ -1483,17 +1497,26 @@ def test_refresh_capsule_updates_dependencies_and_serial(tmp_path):
     cap_original = cap_path.read_text(encoding="utf-8")
     caps_state = {"alpha": (cap_path, json.loads(cap_original), cap_original)}
     options = update.UpdateOptions(targets=(cap_path,), emit="caps", dry_run=False)
-    session = update.BirdseyeUpdateSession(options=options, timestamp="2025-01-02T00:00:00Z")
-    session.serial_allocator.observe("00010")
-    session._plan_capsule(
+    builder = update.BirdseyeRootBuilder(
+        root=tmp_path,
+        root_targets=(cap_path,),
+        emit_index=False,
+        emit_caps=True,
+        timestamp="2025-01-02T00:00:00Z",
+        serial_allocator=update._SerialAllocator(),
+        focus_resolver=update.BirdseyeFocusResolver(radius=2),
+    )
+    builder.serial_allocator.observe("00010")
+    builder._plan_capsule(
         "alpha",
         caps_state["alpha"],
         {"alpha": ["beta"]},
         {"alpha": ["gamma"]},
     )
+    session = update.BirdseyeUpdateSession(options=options, timestamp="2025-01-02T00:00:00Z")
     plan = update.BirdseyePlan(
-        generated_at=session._generated_at or "2025-01-02T00:00:00Z",
-        writes=tuple(session._writes),
+        generated_at=builder._first_generated or "2025-01-02T00:00:00Z",
+        writes=tuple(builder._writes),
     )
     report = session.execute(plan)
 

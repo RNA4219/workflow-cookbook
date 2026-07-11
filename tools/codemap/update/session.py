@@ -9,16 +9,15 @@ Provides timestamp handling, serial allocation, and update session.
 
 from __future__ import annotations
 
-import re
-from collections.abc import Iterable, Mapping, Sequence
+from collections.abc import Iterable, Sequence
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
 from .constants import _REPO_ROOT
+from .serial import _SerialAllocator
 from .types import (
     BirdseyePlan,
-    CapsuleState,
     PlannedWrite,
     UpdateOptions,
     UpdateReport,
@@ -93,43 +92,6 @@ def _normalise_target(target: Path) -> Path:
     return (_REPO_ROOT.get() / target).resolve()
 
 
-_SERIAL_PATTERN = re.compile(r"\d{05}")
-
-
-def _coerce_serial(candidate: Any) -> int | None:
-    if isinstance(candidate, str) and _SERIAL_PATTERN.fullmatch(candidate):
-        return int(candidate)
-    return None
-
-
-class _SerialAllocator:
-    __slots__ = ("max_serial", "_next_serial")
-
-    def __init__(self) -> None:
-        self.max_serial = 0
-        self._next_serial: int | None = None
-
-    def observe(self, candidate: Any) -> None:
-        value = _coerce_serial(candidate)
-        if value is not None and value > self.max_serial:
-            self.max_serial = value
-
-    def allocate(self, existing: Any) -> str:
-        candidate = _coerce_serial(existing)
-        if candidate is not None and candidate > self.max_serial:
-            self.max_serial = candidate
-        if self._next_serial is None:
-            self._next_serial = self.max_serial + 1 if self.max_serial else 1
-        target = self._next_serial
-        if target > self.max_serial:
-            self.max_serial = target
-        return f"{target:05d}"
-
-
-def next_generated_at(existing: Any, fallback: str, *, allocator: _SerialAllocator) -> str:
-    del fallback
-    return allocator.allocate(existing)
-
 
 class BirdseyeUpdateSession:
     def __init__(self, *, options: UpdateOptions, timestamp: str | None = None) -> None:
@@ -181,78 +143,6 @@ class BirdseyeUpdateSession:
         plan = builder.build()
         plan.apply(self)
 
-    def _resolve_focus_nodes(
-        self,
-        root_targets: Sequence[Path],
-        root: Path,
-        graph_out: Mapping[str, Sequence[str]],
-        graph_in: Mapping[str, Sequence[str]],
-        caps_state: CapsuleState,
-        cap_path_lookup: Mapping[Path, str],
-        available_caps: Mapping[str, Path],
-    ) -> set[str]:
-        return self.focus_resolver.resolve(
-            root_targets=root_targets,
-            root=root,
-            graph_out=graph_out,
-            graph_in=graph_in,
-            caps_state=caps_state,
-            cap_path_lookup=cap_path_lookup,
-            available_caps=available_caps,
-        )
-
-    def _plan_hot(
-        self,
-        hot_path: Path,
-        hot_data: dict[str, Any],
-        hot_original: str,
-    ) -> None:
-        new_generated = next_generated_at(
-            hot_data.get("generated_at"),
-            self.timestamp,
-            allocator=self.serial_allocator,
-        )
-        if hot_data.get("generated_at") != new_generated:
-            hot_data["generated_at"] = new_generated
-            self._remember_generated(new_generated)
-        serialized = _dump_json(hot_data)
-        if serialized != hot_original:
-            self._writes.append(
-                PlannedWrite(path=hot_path, content=serialized, original=hot_original)
-            )
-
-    def _plan_capsule(
-        self,
-        cap_id: str,
-        capsule: tuple[Path, dict[str, Any], str],
-        graph_out: Mapping[str, Sequence[str]],
-        graph_in: Mapping[str, Sequence[str]],
-    ) -> None:
-        cap_path, cap_data, cap_original = capsule
-        expected_out = _sorted_unique(graph_out.get(cap_id, []))
-        expected_in = _sorted_unique(graph_in.get(cap_id, []))
-        updated = False
-        if cap_data.get("deps_out") != expected_out:
-            cap_data["deps_out"] = expected_out
-            updated = True
-        if cap_data.get("deps_in") != expected_in:
-            cap_data["deps_in"] = expected_in
-            updated = True
-        new_generated = next_generated_at(
-            cap_data.get("generated_at"),
-            self.timestamp,
-            allocator=self.serial_allocator,
-        )
-        if cap_data.get("generated_at") != new_generated:
-            cap_data["generated_at"] = new_generated
-            updated = True
-            self._remember_generated(new_generated)
-        if updated:
-            serialized = _dump_json(cap_data)
-            if serialized != cap_original:
-                self._writes.append(
-                    PlannedWrite(path=cap_path, content=serialized, original=cap_original)
-                )
 
     def _remember_generated(self, value: str) -> None:
         if self._generated_at is None:

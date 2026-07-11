@@ -33,6 +33,7 @@ from .graph import (
     BirdseyeFocusResolver,
     build_graph,
 )
+from .serial import _SerialAllocator, next_generated_at
 from .session import (
     BirdseyeUpdateSession,
     _default_birdseye_targets,
@@ -40,9 +41,7 @@ from .session import (
     _group_targets,
     _load_json,
     _normalise_target,
-    _SerialAllocator,
     _sorted_unique,
-    next_generated_at,
     run_update,
     utc_now,
 )
