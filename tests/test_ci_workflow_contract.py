@@ -43,6 +43,14 @@ def test_metrics_workflow_does_not_present_fixture_as_real_evidence() -> None:
     assert "check_task_acceptance_bidirectional.py" in workflow
 
 
+def test_cross_repo_workflow_installs_plugin_dependencies() -> None:
+    workflow = (ROOT / ".github" / "workflows" / "cross-repo-integration.yml").read_text(
+        encoding="utf-8"
+    )
+
+    assert "pip install -e ../agent-taskstate -e ../memx-resolver" in workflow
+
+
 def test_external_actions_are_pinned_to_commit_sha() -> None:
     failures: list[str] = []
     for workflow in sorted((ROOT / ".github" / "workflows").rglob("*.yml")):

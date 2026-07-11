@@ -52,6 +52,18 @@ import / instantiate まで確認する:
 python tools/workflow_plugins/validate_workflow_plugin_config.py --plugin-config examples/workflow_plugins.cross_repo.sample.json --instantiate --emit-json
 ```
 
+## Cross-repo integration
+
+The integration workflow checks out `agent-taskstate` and `memx-resolver` as sibling
+repositories and installs their declared runtime dependencies before instantiation:
+
+```sh
+python -m pip install -e ../agent-taskstate -e ../memx-resolver
+```
+
+This keeps the sample plugin config aligned with the dependencies declared by the
+external plugin repositories.
+
 ## Runtime policy / tracing
 
 `WorkflowPluginRuntime` は capability ごとに `PluginPolicy` を指定できる。
