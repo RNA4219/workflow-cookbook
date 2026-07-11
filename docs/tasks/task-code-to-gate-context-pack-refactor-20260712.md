@@ -2,7 +2,7 @@
 task_id: 20260712-03
 intent_id: INT-CODE-TO-GATE-REFINEMENT
 owner: docs-core
-status: active
+status: completed
 last_reviewed_at: 2026-07-12
 next_review_due: 2026-08-11
 acceptance_id: AC-20260712-03

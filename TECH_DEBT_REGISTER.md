@@ -2,8 +2,8 @@
 intent_id: DOC-LEGACY
 owner: docs-core
 status: active
-last_reviewed_at: 2026-07-11
-next_review_due: 2026-08-10
+last_reviewed_at: 2026-07-12
+next_review_due: 2026-08-11
 ---
 
 # Technical Debt Register
@@ -97,19 +97,26 @@ code-to-gate 分析で検出された技術的債務の記録と対応計画。
 
 ## 5. 定期再評価
 
-2026-07-11 再評価: strict mypy 100 files、Ruff、full pytest、coverage gate が通過。
-Code-to-gate の既存改善候補として、次の4モジュールを未解決台帳へ再登録した。
+2026-07-11 再評価では、strict mypy、Ruff、full pytest、coverage gateの通過後に、
+Code-to-gate改善候補として4モジュールを未解決台帳へ登録した。
 
-| Module | Finding | Follow-up |
+2026-07-12 解消確認では、Code-to-gate v1.5.0 の run
+`ctg-202607111755-local` が unsuppressed finding 0、suppressed 5、
+readiness failed condition 0 を記録した。
+
+| Module | 解消内容 | 検証 |
 | --- | --- | --- |
-| `tools/ci/check_docs_review_due.py` | 538行 | review checkerの責務分割を検討 |
-| `tools/codemap/update/session.py` | 24関数 | codemap session処理の分割を検討 |
-| `tools/context/pack/resolver.py` | 29関数 | resolver責務の分割を検討 |
-| `tools/workflow_plugins/runtime.py` | 24関数 | runtime trace/plugin責務の分割を検討 |
+| `tools/ci/check_docs_review_due.py` | data / scan / artifacts / CLI packageへ分割 | CLI互換・focused test 4 passed |
+| `tools/codemap/update/session.py` | serial分離、RootBuilder重複メソッド削除 | focused test 47 passed |
+| `tools/context/pack/resolver.py` | config / signals / rankingへ分割、facade化 | focused test 16 passed |
+| `tools/workflow_plugins/runtime.py` | types / Evidence projection分離、delegate化 | focused test 8 passed |
 
-次回再評価日は 2026-08-10。抑制対象は `.ctg/suppressions.yaml` の期限までに再判定する。
+**判定**: 上記4件は解消済み。新規抑制・期限付き例外は追加していない。
+
+残存する抑制は `.ctg/suppressions.yaml` の既存5件のみであり、対象4モジュールは
+抑制対象ではない。次回の定期再評価は既存抑制期限に合わせて 2026-08-10 とする。
 
 ```bash
-code-to-gate analyze . --config ctg.config.yaml --emit all --out .qh
-code-to-gate readiness . --policy governance/policy.yaml --from .qh --out .qh
+node C:\\Users\\ryo-n\\Codex_dev\\code-to-gate\\dist\\cli.js analyze . --emit all --out <artifact-dir> --cache force
+node C:\\Users\\ryo-n\\Codex_dev\\code-to-gate\\dist\\cli.js readiness . --policy governance/policy.yaml --from <artifact-dir> --out <artifact-dir>
 ```

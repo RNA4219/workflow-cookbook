@@ -8,6 +8,7 @@ from datetime import date, datetime
 from pathlib import Path
 
 from .artifacts import _build_nudges, _owner_summary, _render_task_seed, _review_update_plan, _write_json
+from .models import DocReviewStatus
 from .scanner import _categorize, _scan_docs
 
 _REPO_ROOT = Path(__file__).resolve().parents[3]
@@ -21,11 +22,11 @@ def _parse_today(raw: str | None) -> date:
 
 def _render_report(
     *,
-    results: list,
-    overdue_critical: list,
-    overdue_warn: list,
-    upcoming: list,
-    ok: list,
+    results: list[DocReviewStatus],
+    overdue_critical: list[DocReviewStatus],
+    overdue_warn: list[DocReviewStatus],
+    upcoming: list[DocReviewStatus],
+    ok: list[DocReviewStatus],
     max_days_overdue: int,
     warn_days: int,
 ) -> None:
