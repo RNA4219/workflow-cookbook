@@ -8,6 +8,14 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 
 
+def test_docs_review_due_compatibility_imports() -> None:
+    from tools.ci import check_docs_review_due
+    from tools.ci.docs_review_due import artifacts, models, scanner
+    assert check_docs_review_due.DocReviewStatus is models.DocReviewStatus
+    assert check_docs_review_due._scan_docs is scanner._scan_docs
+    assert check_docs_review_due._build_nudges is artifacts._build_nudges
+
+
 def _write_doc(
     path: Path, *, owner: str, due: str, reviewed: str = "2026-01-01", status: str = "active"
 ) -> None:
