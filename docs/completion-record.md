@@ -304,4 +304,5 @@ RUNBOOK は日常運用と現在の判断に集中させ、完了済みの長い
 
 Verdict: go
 
-Documentation follow-up: [docs-review-audit-20260711.md](reports/docs-review-audit-20260711.md) records the resolved mypy and recurring-review debt.
+Documentation follow-up: [docs-review-audit-20260711.md](reports/docs-review-audit-20260711.md) records
+the resolved mypy and recurring-review debt.

@@ -61,7 +61,6 @@ python tools/ci/check_birdseye_freshness.py --check
 > **Windows users**: The `python` command may invoke the Windows Store stub.
 > Use `py -3` or `uv run python` instead of `python` in the examples above.
 
-
 ### Install the public CLI package
 
 The supported distribution path is a normal, non-editable install. Pin a commit for

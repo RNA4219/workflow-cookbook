@@ -27,6 +27,7 @@ def test_test_workflow_is_fail_closed() -> None:
     assert "--cov=security_headers" in workflow
     assert "--cov-fail-under=80" in workflow
     assert "uv build" in workflow
+    assert workflow.count("fetch-depth: 0") == 5
 
 
 def test_metrics_workflow_does_not_present_fixture_as_real_evidence() -> None:
@@ -63,6 +64,7 @@ def test_security_permissions_are_least_privilege() -> None:
     assert "security-events: write" not in workflow
     assert "bandit==1.9.4" in workflow
     assert "pip-audit==2.10.0" in workflow
+    assert "bandit -q -c pyproject.toml" in workflow
 
 
 def test_repository_ignores_python_bytecode() -> None:
