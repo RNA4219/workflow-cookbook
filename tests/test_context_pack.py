@@ -33,6 +33,16 @@ from tools.context.pack import (
 )
 
 
+def test_resolver_facade_reexports_split_implementations() -> None:
+    from tools.context.pack import config, ranking, resolver, signals
+
+    assert resolver._config_float is config._config_float
+    assert resolver.GraphViewBuilder is signals.GraphViewBuilder
+    assert resolver._token_budget is signals._token_budget
+    assert resolver.CandidateSelector is ranking.CandidateSelector
+    assert resolver.PPRRanker is ranking.PPRRanker
+    assert resolver.personalize_scores is ranking.personalize_scores
+
 def _recent(days: int) -> str:
     return (datetime.now(UTC) - timedelta(days=days)).isoformat()
 

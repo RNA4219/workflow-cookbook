@@ -11,7 +11,8 @@ import math
 from collections import Counter
 from collections.abc import Mapping
 
-from .resolver import _as_mapping, _config_float, _token_budget
+from .config import _as_mapping, _config_float
+from .signals import _token_budget
 from .types import (
     AssemblyResult,
     CandidateRanking,
