@@ -8,6 +8,15 @@ from tools.workflow_plugins.errors import WorkflowPluginCapabilityError, Workflo
 from tools.workflow_plugins.runtime import PluginPolicy, WorkflowPluginRuntime
 
 
+def test_runtime_reexports_split_types_and_evidence_helpers() -> None:
+    from tools.workflow_plugins import runtime, runtime_evidence, runtime_types
+
+    assert runtime.PluginPolicy is runtime_types.PluginPolicy
+    assert runtime.PluginTrace is runtime_types.PluginTrace
+    assert runtime.InvocationResult is runtime_types.InvocationResult
+    assert runtime.trace_payload is runtime_evidence.trace_payload
+    assert runtime.build_trace_evidence_payload is runtime_evidence.build_trace_evidence_payload
+
 def _write_plugin_package(root: Path, *, capabilities: list[str], package_name: str = "runtime_plugin") -> Path:
     package_dir = root / package_name
     package_dir.mkdir(parents=True)

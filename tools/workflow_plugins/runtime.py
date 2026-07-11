@@ -4,13 +4,8 @@
 from __future__ import annotations
 
 import concurrent.futures
-import hashlib
-import json
-import platform
 import time
 from collections.abc import Callable, Iterable, Sequence
-from dataclasses import asdict, dataclass
-from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -18,53 +13,13 @@ from .errors import WorkflowPluginCapabilityError, WorkflowPluginExecutionError,
 from .interfaces import CAPABILITY_METHOD_NAMES
 from .plugin_config import load_workflow_plugin_specs
 from .plugin_loader import instantiate_workflow_plugins
-
-
-@dataclass
-class PluginPolicy:
-    """Policy for plugin execution."""
-    timeout_seconds: float = 30.0
-    retry_count: int = 0
-    retry_delay_seconds: float = 1.0
-    continue_on_error: bool = False
-    trace_enabled: bool = False
-    isolation_mode: str = "thread"
-
-
-@dataclass
-class PluginTrace:
-    """Trace record for a plugin invocation."""
-    plugin_name: str
-    capability: str
-    method_name: str
-    start_time: float
-    end_time: float | None = None
-    success: bool = True
-    error: str | None = None
-    result_summary: str | None = None
-    attempt: int = 1
-    timeout_seconds: float | None = None
-    isolation_mode: str = "thread"
-    timed_out: bool = False
-
-    @property
-    def duration_seconds(self) -> float | None:
-        if self.end_time is None:
-            return None
-        return self.end_time - self.start_time
-
-    def to_dict(self) -> dict[str, Any]:
-        payload = asdict(self)
-        payload["duration_seconds"] = self.duration_seconds
-        return payload
-
-
-@dataclass
-class InvocationResult:
-    """Result of a plugin invocation with tracing info."""
-    result: Any
-    trace: PluginTrace
-    error: Exception | None = None
+from .runtime_evidence import (
+    build_trace_evidence_payload,
+    trace_payload,
+    write_trace_evidence_jsonl,
+    write_trace_payload,
+)
+from .runtime_types import InvocationResult, PluginPolicy, PluginTrace
 
 
 class WorkflowPluginRuntime:
@@ -106,12 +61,10 @@ class WorkflowPluginRuntime:
         return list(self._traces)
 
     def trace_payload(self) -> list[dict[str, Any]]:
-        return [trace.to_dict() for trace in self._traces]
+        return trace_payload(self._traces)
 
     def write_traces_json(self, path: str | Path) -> None:
-        target = Path(path)
-        target.parent.mkdir(parents=True, exist_ok=True)
-        target.write_text(json.dumps(self.trace_payload(), ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+        write_trace_payload(path, self._traces)
 
     def trace_evidence_payload(
         self,
@@ -122,63 +75,14 @@ class WorkflowPluginRuntime:
         actor: str,
         evidence_id_prefix: str = "EV-WORKFLOW-PLUGIN",
     ) -> list[dict[str, Any]]:
-        payload: list[dict[str, Any]] = []
-        for index, trace in enumerate(self._traces, start=1):
-            trace_payload = trace.to_dict()
-            start_time = _timestamp_from_epoch(trace.start_time)
-            end_time = _timestamp_from_epoch(trace.end_time or trace.start_time)
-            payload.append(
-                {
-                    "schemaVersion": "1.0.0",
-                    "id": f"{evidence_id_prefix}-{index:03d}",
-                    "kind": "Evidence",
-                    "state": "Published",
-                    "version": 1,
-                    "createdAt": end_time,
-                    "updatedAt": end_time,
-                    "taskSeedId": task_seed_id,
-                    "baseCommit": base_commit,
-                    "headCommit": head_commit,
-                    "inputHash": _sha256_json(
-                        {
-                            "plugin": trace.plugin_name,
-                            "capability": trace.capability,
-                            "method": trace.method_name,
-                            "attempt": trace.attempt,
-                        }
-                    ),
-                    "outputHash": _sha256_json(
-                        {
-                            "success": trace.success,
-                            "error": trace.error,
-                            "resultSummary": trace.result_summary,
-                        }
-                    ),
-                    "model": {
-                        "name": "workflow-plugin-runtime",
-                        "version": "unknown",
-                        "parametersHash": _sha256_json(
-                            {
-                                "timeoutSeconds": trace.timeout_seconds,
-                                "isolationMode": trace.isolation_mode,
-                            }
-                        ),
-                    },
-                    "tools": ["WorkflowPluginRuntime", trace.capability],
-                    "environment": _runtime_environment(),
-                    "staleStatus": {
-                        "classification": "fresh",
-                        "evaluatedAt": end_time,
-                    },
-                    "mergeResult": {"status": "not_applicable"},
-                    "startTime": start_time,
-                    "endTime": end_time,
-                    "actor": actor,
-                    "policyVerdict": "approved" if trace.success else "manual_review_required",
-                    "diffHash": _sha256_json(trace_payload),
-                }
-            )
-        return payload
+        return build_trace_evidence_payload(
+            self._traces,
+            task_seed_id=task_seed_id,
+            base_commit=base_commit,
+            head_commit=head_commit,
+            actor=actor,
+            evidence_id_prefix=evidence_id_prefix,
+        )
 
     def write_trace_evidence_jsonl(
         self,
@@ -190,18 +94,15 @@ class WorkflowPluginRuntime:
         actor: str,
         evidence_id_prefix: str = "EV-WORKFLOW-PLUGIN",
     ) -> None:
-        target = Path(path)
-        target.parent.mkdir(parents=True, exist_ok=True)
-        evidence = self.trace_evidence_payload(
+        write_trace_evidence_jsonl(
+            path,
+            self._traces,
             task_seed_id=task_seed_id,
             base_commit=base_commit,
             head_commit=head_commit,
             actor=actor,
             evidence_id_prefix=evidence_id_prefix,
         )
-        with target.open("w", encoding="utf-8") as handle:
-            for entry in evidence:
-                handle.write(json.dumps(entry, ensure_ascii=False) + "\n")
 
     def clear_traces(self) -> None:
         self._traces.clear()
@@ -375,24 +276,3 @@ __all__ = [
     "PluginTrace",
     "InvocationResult",
 ]
-
-
-def _stable_json(value: Any) -> str:
-    return json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
-
-
-def _sha256_json(value: Any) -> str:
-    return f"sha256:{hashlib.sha256(_stable_json(value).encode('utf-8')).hexdigest()}"
-
-
-def _timestamp_from_epoch(value: float) -> str:
-    return datetime.fromtimestamp(value, tz=UTC).isoformat()
-
-
-def _runtime_environment() -> dict[str, str]:
-    return {
-        "os": f"{platform.system()} {platform.release()}".strip(),
-        "runtime": f"Python {platform.python_version()}",
-        "containerImageDigest": "uncontainerized",
-        "lockfileHash": _sha256_json("workflow-plugin-runtime"),
-    }
