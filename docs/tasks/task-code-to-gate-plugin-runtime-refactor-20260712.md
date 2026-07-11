@@ -12,12 +12,14 @@ acceptance_id: AC-20260712-04
 
 ## Objective
 
-Separate runtime policy and trace data types plus Evidence serialization from plugin execution without changing runtime behavior.
+Separate runtime policy and trace data types plus Evidence serialization from plugin
+execution without changing runtime behavior.
 
 ## Scope
 
 - In: runtime types, trace JSON/Evidence projection helpers, runtime compatibility delegates, and tests.
-- Out: plugin config schema, capability method mapping, timeout/retry semantics, and Evidence schema.
+- Out: plugin config schema, capability method mapping, timeout/retry semantics,
+  and Evidence schema.
 
 ## Requirements
 
