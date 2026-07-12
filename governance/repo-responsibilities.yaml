@@ -1,0 +1,35 @@
+schema_version: repo-responsibilities/v1
+canonical_notice: This manifest is the only detailed source of repository responsibilities.
+capabilities:
+  - capability: self_improvement_contracts
+    owner_repo: workflow-cookbook
+    canonical_path: schemas/self-improvement/v1
+    responsibility: Self-improvement DTOs, aggregation rules, nudges, and review lifecycle.
+  - capability: task_identity_context_bundle
+    owner_repo: agent-taskstate
+    canonical_path: README.md
+    responsibility: Canonical task identity, state, and ContextBundle.
+  - capability: runtime_control_observation
+    owner_repo: shipyard-cp
+    canonical_path: README.md
+    responsibility: Runs, stages, WorkerJob dispatch, runtime audit, and observation export.
+  - capability: evidence_acceptance_publish_gate
+    owner_repo: agent-protocols
+    canonical_path: README.md
+    responsibility: Evidence, Acceptance, and PublishGate protocol schemas.
+  - capability: gate_decision
+    owner_repo: agent-gatefield
+    canonical_path: README.md
+    responsibility: Individual Gate pass, hold, and block decisions.
+  - capability: integrated_verdict_human_queue_audit_packet
+    owner_repo: agent-state-gate
+    canonical_path: README.md
+    responsibility: Integrated verdicts, HumanQueue, and AuditPacket.
+  - capability: docs_resolve_ack_stale
+    owner_repo: memx-resolver
+    canonical_path: README.md
+    responsibility: Documentation resolve, acknowledgement, and stale state.
+  - capability: product_operations_projection
+    owner_repo: product-ops-evidence
+    canonical_path: README.md
+    responsibility: Immutable product-operations evidence projection and query model.

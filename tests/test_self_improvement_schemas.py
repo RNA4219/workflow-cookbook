@@ -217,3 +217,8 @@ class TestPeriodicNudgeSchema:
         props = schema.get("properties", {})
         blocking = props.get("blocking", {})
         assert blocking.get("default") is False
+
+    def test_gate_policy_and_evidence_type_targets_are_supported(self) -> None:
+        schema = _load_json(_SCHEMAS_DIR / "periodic-nudge.schema.json")
+        targets = schema["properties"]["target_kind"]["enum"]
+        assert {"gate", "policy", "evidence_type"} <= set(targets)

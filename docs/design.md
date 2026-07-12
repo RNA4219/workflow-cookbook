@@ -345,6 +345,13 @@ Workflow Cookbook は、単なる Markdown テンプレート集ではなく、
   - 受入基準: `EVALUATION.md`
   - 責務境界: `docs/interfaces.md`
 
+## 4.6 Gate observation review flow
+
+`shipyard-cp`のAudit-backed producerから受け取ったbundleをschema validationし、
+`tools/ci/gate_effectiveness.py`が使い捨て集計を行う。reportとnudgeはproposal projectionであり、
+Gate所有repoの設定を直接変更しない。責務lookupは`governance/repo-responsibilities.yaml`だけを参照し、
+Agent_tools側はリンクのみを保持する。
+
 ## 9. 関連資料
 
 - 要件: `docs/requirements.md`

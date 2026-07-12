@@ -19,6 +19,7 @@
     "docs/birdseye/index.json",
     "governance/policy.yaml",
     "governance/prioritization.yaml",
+    "governance/repo-responsibilities.yaml",
     "tools/codemap/"
   ],
   "deps_in": [
@@ -33,5 +34,5 @@
   ],
   "risks": [],
   "tests": [],
-  "generated_at": "00058"
+  "generated_at": "00060"
 }

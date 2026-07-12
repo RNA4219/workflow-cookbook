@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://workflow-cookbook.dev/schemas/self-improvement/v1/gate-catalog-entry.schema.json",
+  "title": "GateCatalogEntry",
+  "type": "object",
+  "required": ["gate_id", "owner", "policy_revision", "hard_safety"],
+  "additionalProperties": false,
+  "properties": {
+    "gate_id": { "type": "string", "minLength": 1 },
+    "owner": { "type": "string", "minLength": 1 },
+    "policy_revision": { "type": "string", "minLength": 1 },
+    "hard_safety": { "type": "boolean" }
+  }
+}

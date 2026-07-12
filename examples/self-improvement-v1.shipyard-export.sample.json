@@ -1,0 +1,11 @@
+{
+  "schema_version": "self-improvement/v1",
+  "generated_at": "2026-07-12T12:00:00Z",
+  "task_count": 20,
+  "since": "2026-06-11T12:00:00Z",
+  "until": "2026-07-12T12:00:00Z",
+  "gate_catalog": [{"gate_id":"run-system","owner":"shipyard-cp","policy_revision":"acceptance-report/v1","hard_safety":false}],
+  "gate_observations": [],
+  "evidence_consumption_observations": [],
+  "reflection_summaries": []
+}

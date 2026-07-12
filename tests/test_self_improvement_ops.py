@@ -1,9 +1,12 @@
 from __future__ import annotations
 
+import json
+
 from tools.ci.self_improvement_ops import (
     build_recall_response,
     export_curated_memory,
     generate_skill_draft,
+    main,
 )
 
 
@@ -39,3 +42,13 @@ def test_build_recall_response_matches_terms() -> None:
 
     assert response["total_hits"] == 1
     assert response["hits"][0]["source_id"] == "S-1"
+
+
+def test_analyze_gates_cli_validates_and_writes_report(tmp_path) -> None:
+    output = tmp_path / "report.json"
+    sample = "examples/self-improvement-v1.shipyard-export.sample.json"
+
+    assert main(["analyze-gates", "--bundle-json", sample, "--output", str(output)]) == 0
+    report = json.loads(output.read_text(encoding="utf-8"))
+    assert report["schema_version"] == "self-improvement/v1"
+    assert report["gate_reports"][0]["action"] == "review"

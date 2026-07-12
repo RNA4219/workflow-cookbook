@@ -235,6 +235,12 @@ python tools/ci/check_downstream_onboarding.py --repo ../agent-taskstate --json
 python tools/ci/self_improvement_ops.py export-memory --output .ga/curated-memory.json
 python tools/ci/self_improvement_ops.py build-recall --query "release readiness" --output .ga/recall-response.json
 
+# Analyze shipyard runtime observations without changing Gate configuration
+python tools/ci/self_improvement_ops.py analyze-gates --bundle-json observations.json --output .ga/gate-effectiveness-report.json
+
+# Validate the single-owner repository responsibility manifest
+python tools/ci/check_repo_responsibilities.py --check
+
 # Five-tool validation manifest
 python tools/ci/five_tool_manifest.py generate --config examples/five-tool-chain-manifest.sample.json --out docs/evidence/five-tool-validation-20260703/five-tool-run-manifest.json --validate
 python tools/ci/five_tool_manifest.py validate --manifest docs/evidence/five-tool-validation-20260703/five-tool-run-manifest.json --json

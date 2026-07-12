@@ -94,6 +94,16 @@ next_review_due: 2026-08-10
   定期的に見直すための nudge を生成する。
 - nudge は自動実行ではなく、次回セッションで参照できる提案とする。
 - nudge はリリース前の未完了作業に対する blocking signal として扱わない。
+- target_kindは`gate`、`policy`、`evidence_type`も扱う。
+- Gate観測由来のnudgeは`GateEffectivenessReport`から生成し、human review前に自動実行しない。
+
+### 4.3.1 Gate effectiveness review
+
+- 未使用、効果なし、override過多、未読Evidenceを設定閾値で集計する。
+- 短い観測期間、少ないTask/評価、legacy unknownは`insufficient_data`として提案しない。
+- hard-safety Gateをarchive候補にしない。
+- archive候補は同じunused判定が2観測期間連続した場合だけ許可する。
+- review承認後も変更は所有repoの別Taskとして実施する。
 
 ### 4.4 Skill Evolution
 
