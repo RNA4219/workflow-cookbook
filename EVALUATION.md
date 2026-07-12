@@ -27,6 +27,17 @@ next_review_due: 2026-08-11
   - `tests/test_collect_metrics_cli.py`
   - `tests/perf/test_collect_metrics_autosave_merge.py`
 
+## Self-improvement v1 acceptance
+
+- `governance/repo-responsibilities.yaml`で能力ごとのowner repoが1つだけである。
+- schema、sample、docs、Birdseyeが同じ`self-improvement/v1`を参照する。
+- pass/hold/block、transition change、override、明示Evidence ackを正しく集計する。
+- 30日未満、20 Task未満、legacy unknownを`insufficient_data`として提案対象外にする。
+- hard-safety Gateをarchive候補にせず、2期間連続条件を満たさないarchive候補を出さない。
+- actionが`keep / review / relax_candidate / archive_candidate`以外にならず、すべてnon-blockingである。
+- shipyard golden exportをschema validation後にingestできる。
+- 30日shadow運用後にnudge件数と誤検知をAcceptanceへ追記する。
+
 ## KPIs
 
 | 指標 | 目的 | 収集方法 | 目標値 |

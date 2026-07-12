@@ -1,5 +1,5 @@
 {
-  "generated_at": "00058",
+  "generated_at": "00059",
   "nodes": {
     "README.md": {
       "role": "overview",
@@ -115,6 +115,26 @@
       "role": "task",
       "caps": "docs/birdseye/caps/docs.tasks.task-autosave-project-locks.md.json",
       "mtime": "00023"
+    },
+    "governance/repo-responsibilities.yaml": {
+      "role": "governance",
+      "caps": "docs/birdseye/caps/governance.repo-responsibilities.yaml.json",
+      "mtime": "00024"
+    },
+    "schemas/self-improvement/v1/": {
+      "role": "schema",
+      "caps": "docs/birdseye/caps/schemas.self-improvement.v1.json",
+      "mtime": "00025"
+    },
+    "docs/tasks/task-self-improvement-gate-effectiveness-20260712.md": {
+      "role": "task",
+      "caps": "docs/birdseye/caps/docs.tasks.task-self-improvement-gate-effectiveness-20260712.md.json",
+      "mtime": "00026"
+    },
+    "docs/acceptance/AC-20260712-05.md": {
+      "role": "acceptance",
+      "caps": "docs/birdseye/caps/docs.acceptance.AC-20260712-05.md.json",
+      "mtime": "00027"
     }
   },
   "edges": [
@@ -497,6 +517,22 @@
     [
       "docs/MERGE-DESIGN-IMPL.md",
       "HUB.codex.md"
+    ],
+    [
+      "README.md",
+      "governance/repo-responsibilities.yaml"
+    ],
+    [
+      "governance/repo-responsibilities.yaml",
+      "schemas/self-improvement/v1/"
+    ],
+    [
+      "schemas/self-improvement/v1/",
+      "docs/tasks/task-self-improvement-gate-effectiveness-20260712.md"
+    ],
+    [
+      "docs/tasks/task-self-improvement-gate-effectiveness-20260712.md",
+      "docs/acceptance/AC-20260712-05.md"
     ]
   ]
 }

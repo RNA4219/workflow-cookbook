@@ -80,6 +80,14 @@ flowchart LR
 
 ## 6. Interfaces
 
+### 6.1 Self-improvement Gate review contract
+
+- DTO正本は`schemas/self-improvement/v1/`、閾値は`governance/self-improvement-gates.yaml`に置く。
+- 詳細repo責務の唯一の正本は`governance/repo-responsibilities.yaml`とする。
+- shipyard-cpはcanonical Auditから観測をexportするproducerであり、集計規則やGate判定engineを所有しない。
+- actionは`keep / review / relax_candidate / archive_candidate`に限定し、設定・コード・Skillを自動変更しない。
+- hard-safety Gateはarchive候補から除外し、archive候補は同じunused判定が2観測期間続いた場合だけ生成する。
+
 - CLI:
   - 既存: `python -m tools.codemap.update`, `python tools/ci/*.py`
   - 将来: package entrypoint 経由の `workflow-cookbook ...`

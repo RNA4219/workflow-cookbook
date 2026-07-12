@@ -1,0 +1,109 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://workflow-cookbook.dev/schemas/self-improvement/v1/improvement-observation-bundle.schema.json",
+  "title": "ImprovementObservationBundle",
+  "type": "object",
+  "required": [
+    "schema_version", "generated_at", "task_count", "gate_catalog",
+    "gate_observations", "evidence_consumption_observations", "reflection_summaries"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": { "const": "self-improvement/v1" },
+    "generated_at": { "type": "string", "format": "date-time" },
+    "task_count": { "type": "integer", "minimum": 0 },
+    "since": { "type": "string", "format": "date-time" },
+    "until": { "type": "string", "format": "date-time" },
+    "next_cursor": { "type": "string", "minLength": 1 },
+    "gate_catalog": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/gate_catalog_entry" }
+    },
+    "gate_observations": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/gate_observation" }
+    },
+    "evidence_consumption_observations": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/evidence_observation" }
+    },
+    "reflection_summaries": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "session_id", "task_id", "objective", "changes", "lessons",
+          "open_questions", "next_actions", "sources", "created_at", "schema_version"
+        ],
+        "additionalProperties": true,
+        "properties": {
+          "session_id": { "type": "string", "minLength": 1 },
+          "task_id": { "type": "string", "minLength": 1 },
+          "schema_version": { "const": "self-improvement/v1" }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "gate_catalog_entry": {
+      "type": "object",
+      "required": ["gate_id", "owner", "policy_revision", "hard_safety"],
+      "additionalProperties": false,
+      "properties": {
+        "gate_id": { "type": "string", "minLength": 1 },
+        "owner": { "type": "string", "minLength": 1 },
+        "policy_revision": { "type": "string", "minLength": 1 },
+        "hard_safety": { "type": "boolean" }
+      }
+    },
+    "gate_observation": {
+      "type": "object",
+      "required": [
+        "observation_id", "task_id", "occurred_at", "gate_id", "owner",
+        "policy_revision", "decision", "effective_action", "transition_changed",
+        "risk", "override", "source_event_id"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "observation_id": { "type": "string", "minLength": 1 },
+        "task_id": { "type": "string", "minLength": 1 },
+        "run_id": { "type": "string", "minLength": 1 },
+        "occurred_at": { "type": "string", "format": "date-time" },
+        "gate_id": { "type": "string", "minLength": 1 },
+        "owner": { "type": "string", "minLength": 1 },
+        "policy_revision": { "type": "string", "minLength": 1 },
+        "decision": { "enum": ["pass", "warn", "hold", "block", "unknown"] },
+        "effective_action": { "enum": ["continue", "hold", "block", "unknown"] },
+        "transition_changed": { "oneOf": [{ "type": "boolean" }, { "const": "unknown" }] },
+        "risk": { "type": "string", "minLength": 1 },
+        "override": { "enum": ["none", "applied", "unknown"] },
+        "source_event_id": { "type": "string", "minLength": 1 }
+      }
+    },
+    "evidence_observation": {
+      "type": "object",
+      "required": [
+        "observation_id", "task_id", "evidence_id", "occurred_at",
+        "disposition", "source_event_id"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "observation_id": { "type": "string", "minLength": 1 },
+        "task_id": { "type": "string", "minLength": 1 },
+        "evidence_id": { "type": "string", "minLength": 1 },
+        "evidence_type": { "type": "string", "minLength": 1 },
+        "occurred_at": { "type": "string", "format": "date-time" },
+        "disposition": { "enum": ["generated", "acknowledged"] },
+        "reviewed_by": { "type": "string", "minLength": 1 },
+        "purpose": { "type": "string", "minLength": 1 },
+        "source_event_id": { "type": "string", "minLength": 1 }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "disposition": { "const": "acknowledged" } } },
+          "then": { "required": ["reviewed_by"] }
+        }
+      ]
+    }
+  }
+}

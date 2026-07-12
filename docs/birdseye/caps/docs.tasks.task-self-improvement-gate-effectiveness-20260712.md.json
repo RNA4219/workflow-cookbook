@@ -1,0 +1,11 @@
+{
+  "id": "docs/tasks/task-self-improvement-gate-effectiveness-20260712.md",
+  "role": "task",
+  "public_api": ["self-improvement/v1", "analyze-gates"],
+  "summary": "Gate観測schema、設定閾値、review-only提案生成、責務manifestを実装するTask。",
+  "deps_out": ["docs/acceptance/AC-20260712-05.md"],
+  "deps_in": ["schemas/self-improvement/v1/"],
+  "risks": ["False archive candidate"],
+  "tests": ["tests/test_gate_effectiveness.py"],
+  "generated_at": "00059"
+}

@@ -454,6 +454,17 @@ console script smoke test は、`pip` が無い隔離 Python では
 
 ## Confirm
 
+## Self-improvement Gate review
+
+```bash
+shipyard improve export --since <ISO> --until <ISO> --output observations.json
+python tools/ci/self_improvement_ops.py analyze-gates \
+  --bundle-json observations.json \
+  --output .ga/gate-effectiveness-report.json
+```
+
+処理順は`shipyard export -> schema validation -> analyze-gates -> GateEffectivenessReport -> PeriodicNudge -> human review -> owner repo Task Seed`で固定する。`insufficient_data`は提案対象外とし、reportやnudgeから自動でGate設定、コード、Skillを更新してはならない。
+
 - Execute 結果を主要メトリクス・アウトプットと突き合わせ、`CHECKLISTS.md` の [Hygiene](CHECKLISTS.md#hygiene) で整合性と未完了項目を再確認
 - `docs/acceptance/AC-*.md` の判定と証跡が最新の実行結果と一致していることを確認
 - 単体テスト / 結合テスト / coverage 80% の結果が検収記録と一致していることを確認

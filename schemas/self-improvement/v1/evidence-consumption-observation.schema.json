@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://workflow-cookbook.dev/schemas/self-improvement/v1/evidence-consumption-observation.schema.json",
+  "title": "EvidenceConsumptionObservation",
+  "type": "object",
+  "required": [
+    "observation_id", "task_id", "evidence_id", "occurred_at",
+    "disposition", "source_event_id"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "observation_id": { "type": "string", "minLength": 1 },
+    "task_id": { "type": "string", "minLength": 1 },
+    "evidence_id": { "type": "string", "minLength": 1 },
+    "evidence_type": { "type": "string", "minLength": 1, "default": "unknown" },
+    "occurred_at": { "type": "string", "format": "date-time" },
+    "disposition": { "enum": ["generated", "acknowledged"] },
+    "reviewed_by": { "type": "string", "minLength": 1 },
+    "purpose": { "type": "string", "minLength": 1 },
+    "source_event_id": { "type": "string", "minLength": 1 }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "disposition": { "const": "acknowledged" } } },
+      "then": { "required": ["reviewed_by"] }
+    }
+  ]
+}

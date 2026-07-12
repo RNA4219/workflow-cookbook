@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://workflow-cookbook.dev/schemas/self-improvement/v1/gate-effectiveness-report.schema.json",
+  "title": "GateEffectivenessReport",
+  "type": "object",
+  "required": [
+    "schema_version", "report_id", "generated_at", "observation_period",
+    "gate_reports", "evidence_reports", "periodic_nudges"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": { "const": "self-improvement/v1" },
+    "report_id": { "type": "string", "minLength": 1 },
+    "generated_at": { "type": "string", "format": "date-time" },
+    "observation_period": {
+      "type": "object",
+      "required": ["since", "until", "days"],
+      "additionalProperties": false,
+      "properties": {
+        "since": { "type": "string", "format": "date-time" },
+        "until": { "type": "string", "format": "date-time" },
+        "days": { "type": "number", "minimum": 0 }
+      }
+    },
+    "gate_reports": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/report_item" }
+    },
+    "evidence_reports": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/report_item" }
+    },
+    "periodic_nudges": { "type": "array", "items": { "type": "object" } }
+  },
+  "$defs": {
+    "report_item": {
+      "type": "object",
+      "required": [
+        "target_kind", "target_ref", "classification", "action",
+        "proposal_eligible", "metrics", "reasons"
+      ],
+      "additionalProperties": true,
+      "properties": {
+        "target_kind": { "enum": ["gate", "policy", "evidence_type"] },
+        "target_ref": { "type": "string", "minLength": 1 },
+        "classification": {
+          "enum": [
+            "healthy", "unused", "no_effect", "override_excessive",
+            "unread_evidence", "insufficient_data"
+          ]
+        },
+        "action": { "enum": ["keep", "review", "relax_candidate", "archive_candidate"] },
+        "proposal_eligible": { "type": "boolean" },
+        "metrics": { "type": "object" },
+        "reasons": { "type": "array", "items": { "type": "string" } }
+      }
+    }
+  }
+}

@@ -776,6 +776,10 @@ cross-repo contract と証跡束ねの観測点として扱う。
   - HATE `real-repo run` の pytest command は、隔離環境で `pip` / console script に依存しない
     `uv run --with PyYAML --with pytest python -m pytest -q` 形式を推奨すること。
 
+## self-improvement/v1 Gate effectiveness
+
+入力は`ImprovementObservationBundle`、出力は`GateEffectivenessReport`とnon-blocking `PeriodicNudge`である。`analyze-gates`はbundle schemaを先に検証し、閾値設定を読んで各GateとEvidence typeを集計する。旧観測の必須判定fieldが`unknown`なら`insufficient_data`とする。unused Gateの初回actionは`review`、同じ分類が2期間連続した場合だけ`archive_candidate`とし、`hard_safety=true`は常にarchiveから除外する。
+
 ## 7. 関連資料
 
 - 要件: `docs/requirements.md`
