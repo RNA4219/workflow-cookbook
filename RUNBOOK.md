@@ -463,7 +463,9 @@ python tools/ci/self_improvement_ops.py analyze-gates \
   --output .ga/gate-effectiveness-report.json
 ```
 
-処理順は`shipyard export -> schema validation -> analyze-gates -> GateEffectivenessReport -> PeriodicNudge -> human review -> owner repo Task Seed`で固定する。`insufficient_data`は提案対象外とし、reportやnudgeから自動でGate設定、コード、Skillを更新してはならない。
+処理順は`shipyard export -> schema validation -> analyze-gates -> GateEffectivenessReport -> PeriodicNudge ->`
+`human review -> owner repo Task Seed`で固定する。`insufficient_data`は提案対象外とし、reportやnudgeから
+自動でGate設定、コード、Skillを更新してはならない。
 
 - Execute 結果を主要メトリクス・アウトプットと突き合わせ、`CHECKLISTS.md` の [Hygiene](CHECKLISTS.md#hygiene) で整合性と未完了項目を再確認
 - `docs/acceptance/AC-*.md` の判定と証跡が最新の実行結果と一致していることを確認

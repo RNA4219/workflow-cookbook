@@ -1,4 +1,5 @@
 ---
+task_id: 20260712-05
 intent_id: TASK-SELF-IMPROVEMENT-GATE-EFFECTIVENESS-20260712
 owner: workflow-cookbook
 status: completed
