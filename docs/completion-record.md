@@ -35,7 +35,7 @@ RUNBOOK は日常運用と現在の判断に集中させ、完了済みの長い
 
 | 項目 | 状態 | 正本 |
 |---|---|---|
-| configured discovery stability | 完了 | [Task Seed](tasks/task-codemap-discovery-stability-20260714.md) / [Acceptance](acceptance/AC-20260714-01.md) |
+| configured discovery stability | 完了 | [docs/tasks/task-codemap-discovery-stability-20260714.md](tasks/task-codemap-discovery-stability-20260714.md) / [docs/acceptance/AC-20260714-01.md](acceptance/AC-20260714-01.md) |
 
 判定: go
 補足: Codemap / CLI 60 tests passed、`tools.codemap.update` coverage 91.27%。task_id: 20260714-01
