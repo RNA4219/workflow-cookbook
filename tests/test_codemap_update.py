@@ -265,10 +265,10 @@ def _next_serial(serial: str) -> str:
         (
             "index+caps",
             ("index", "hot", "caps"),
-            {"index.json", "hot.json", "README.md.json"},
+            {"index.json", "hot.json"},
         ),
         ("index", ("index", "hot"), {"index.json", "hot.json"}),
-        ("caps", ("index", "hot", "caps"), {"README.md.json"}),
+        ("caps", ("index", "hot", "caps"), set()),
     ),
 )
 def test_birdseye_root_plan_records_loads_and_writes(
@@ -1072,7 +1072,7 @@ def test_run_update_respects_radius_one_scope(tmp_path, monkeypatch):
     assert untouched_delta["deps_in"] == ["old"]
 
 
-def test_run_update_refreshes_caps_generated_at(tmp_path, monkeypatch):
+def test_run_update_refreshes_only_explicit_caps_generated_at(tmp_path, monkeypatch):
     edges = [
         ["alpha.md", "beta.md"],
         ["beta.md", "gamma.md"],
@@ -1093,46 +1093,131 @@ def test_run_update_refreshes_caps_generated_at(tmp_path, monkeypatch):
         payload["generated_at"] = base_serial
         caps_payloads[cap_id] = payload
 
-    root, _, hot_path, cap_paths = _prepare_birdseye(
+    _root, _, _hot_path, cap_paths = _prepare_birdseye(
         tmp_path,
         edges=edges,
         caps_payloads=caps_payloads,
         hot_entries=[],
     )
-
-    assert json.loads(hot_path.read_text(encoding="utf-8"))["nodes"] == []
-
-    frozen_now = datetime(2025, 1, 5, tzinfo=UTC)
-    monkeypatch.setattr(update, "utc_now", lambda: frozen_now)
+    monkeypatch.setattr(update, "utc_now", lambda: datetime(2025, 1, 5, tzinfo=UTC))
 
     expected_serial = _next_serial(base_serial)
     report = update.run_update(
         update.UpdateOptions(targets=(cap_paths["beta.md"],), emit="caps", dry_run=False)
     )
 
-    expected_caps = {
-        cap_paths[cap_id]
-        for cap_id in ("alpha.md", "beta.md", "gamma.md", "delta.md")
-    }
-
-    assert re.fullmatch(r"\d{5}", report.generated_at)
     assert report.generated_at == expected_serial
-    assert set(report.planned_writes) == expected_caps
-    assert set(report.performed_writes) == expected_caps
-
-    for cap_id in ("alpha.md", "beta.md", "gamma.md", "delta.md"):
+    assert set(report.planned_writes) == {cap_paths["beta.md"]}
+    assert set(report.performed_writes) == {cap_paths["beta.md"]}
+    for cap_id, (expected_out, expected_in) in expected_deps.items():
         refreshed = json.loads(cap_paths[cap_id].read_text(encoding="utf-8"))
-        assert re.fullmatch(r"\d{5}", refreshed["generated_at"])
-        assert refreshed["generated_at"] == expected_serial
-        expected_out, expected_in = expected_deps[cap_id]
+        assert refreshed["generated_at"] == (expected_serial if cap_id == "beta.md" else base_serial)
         assert refreshed["deps_out"] == expected_out
         assert refreshed["deps_in"] == expected_in
 
-    untouched = json.loads(cap_paths["epsilon.md"].read_text(encoding="utf-8"))
-    assert untouched["generated_at"] == base_serial
-    expected_out, expected_in = expected_deps["epsilon.md"]
-    assert untouched["deps_out"] == expected_out
-    assert untouched["deps_in"] == expected_in
+
+def test_configured_discovery_indexes_acceptance_and_preserves_unchanged_capsule(
+    tmp_path, monkeypatch
+):
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setattr(update.constants._REPO_ROOT, "value", tmp_path)
+    root, index_path, _hot_path, cap_paths = _prepare_birdseye(
+        tmp_path,
+        edges=[],
+        caps_payloads={"README.md": {**_caps_payload("README.md"), "generated_at": "00009"}},
+        hot_entries=[],
+        root=tmp_path / "docs" / "birdseye",
+    )
+    acceptance = tmp_path / "docs" / "acceptance" / "nested"
+    acceptance.mkdir(parents=True)
+    (acceptance / "AC-001.md").write_text("# acceptance\n", encoding="utf-8")
+    (acceptance / "summary.json").write_text('{"status":"hold"}\n', encoding="utf-8")
+    ignored = tmp_path / ".lakda" / "acceptance"
+    ignored.mkdir(parents=True)
+    (ignored / "secret.json").write_text('{"ignored":true}\n', encoding="utf-8")
+    _write_json(
+        tmp_path / "codemap.config.json",
+        {
+            "schemaVersion": "workflow-cookbook/codemap-discovery/v1",
+            "include": [
+                "docs/acceptance/**/*.md",
+                "docs/acceptance/**/*.json",
+                ".lakda/**/*.json",
+            ],
+            "exclude": [".lakda/**"],
+            "defaultRole": "acceptance",
+        },
+    )
+    unchanged = cap_paths["README.md"].read_text(encoding="utf-8")
+
+    report = update.run_update(
+        update.UpdateOptions(targets=(root,), emit="index+caps", dry_run=False)
+    )
+
+    index = json.loads(index_path.read_text(encoding="utf-8"))
+    assert "docs/acceptance/nested/AC-001.md" in index["nodes"]
+    assert "docs/acceptance/nested/summary.json" in index["nodes"]
+    assert ".lakda/acceptance/secret.json" not in index["nodes"]
+    markdown_cap = tmp_path / "docs/birdseye/caps/docs.acceptance.nested.AC-001.md.json"
+    json_cap = tmp_path / "docs/birdseye/caps/docs.acceptance.nested.summary.json.json"
+    assert markdown_cap in report.performed_writes
+    assert json_cap in report.performed_writes
+    assert json.loads(markdown_cap.read_text(encoding="utf-8"))["role"] == "acceptance"
+    assert cap_paths["README.md"].read_text(encoding="utf-8") == unchanged
+    assert cap_paths["README.md"] not in report.performed_writes
+
+
+def test_configured_discovery_rejects_capsule_path_collisions(tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setattr(update.constants._REPO_ROOT, "value", tmp_path)
+    root, _, _, _ = _prepare_birdseye(
+        tmp_path,
+        edges=[],
+        caps_payloads={},
+        hot_entries=[],
+        root=tmp_path / "docs" / "birdseye",
+    )
+    acceptance = tmp_path / "docs" / "acceptance"
+    nested = acceptance / "a"
+    nested.mkdir(parents=True)
+    (nested / "b.md").write_text("# nested\n", encoding="utf-8")
+    (acceptance / "a.b.md").write_text("# dotted\n", encoding="utf-8")
+    _write_json(
+        tmp_path / "codemap.config.json",
+        {
+            "schemaVersion": "workflow-cookbook/codemap-discovery/v1",
+            "include": ["docs/acceptance/**/*.md"],
+            "exclude": [],
+            "defaultRole": "acceptance",
+        },
+    )
+
+    with pytest.raises(ValueError, match="Codemap capsule path collision"):
+        update.run_update(
+            update.UpdateOptions(targets=(root,), emit="index+caps", dry_run=False)
+        )
+
+
+def test_run_update_caps_noop_reports_existing_serial(tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setattr(update.constants._REPO_ROOT, "value", tmp_path)
+    root, _, _, _ = _prepare_birdseye(
+        tmp_path,
+        edges=[],
+        caps_payloads={
+            "README.md": {**_caps_payload("README.md"), "generated_at": "00009"}
+        },
+        hot_entries=[],
+        root=tmp_path / "docs" / "birdseye",
+    )
+
+    report = update.run_update(
+        update.UpdateOptions(targets=(root,), emit="caps", dry_run=False)
+    )
+
+    assert report.generated_at == "00009"
+    assert report.planned_writes == ()
+    assert report.performed_writes == ()
 
 
 def test_run_update_recovers_non_serial_generated_at(tmp_path, monkeypatch):
