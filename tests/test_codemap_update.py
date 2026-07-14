@@ -1166,6 +1166,60 @@ def test_configured_discovery_indexes_acceptance_and_preserves_unchanged_capsule
     assert cap_paths["README.md"].read_text(encoding="utf-8") == unchanged
     assert cap_paths["README.md"] not in report.performed_writes
 
+
+def test_configured_discovery_rejects_capsule_path_collisions(tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setattr(update.constants._REPO_ROOT, "value", tmp_path)
+    root, _, _, _ = _prepare_birdseye(
+        tmp_path,
+        edges=[],
+        caps_payloads={},
+        hot_entries=[],
+        root=tmp_path / "docs" / "birdseye",
+    )
+    acceptance = tmp_path / "docs" / "acceptance"
+    nested = acceptance / "a"
+    nested.mkdir(parents=True)
+    (nested / "b.md").write_text("# nested\n", encoding="utf-8")
+    (acceptance / "a.b.md").write_text("# dotted\n", encoding="utf-8")
+    _write_json(
+        tmp_path / "codemap.config.json",
+        {
+            "schemaVersion": "workflow-cookbook/codemap-discovery/v1",
+            "include": ["docs/acceptance/**/*.md"],
+            "exclude": [],
+            "defaultRole": "acceptance",
+        },
+    )
+
+    with pytest.raises(ValueError, match="Codemap capsule path collision"):
+        update.run_update(
+            update.UpdateOptions(targets=(root,), emit="index+caps", dry_run=False)
+        )
+
+
+def test_run_update_caps_noop_reports_existing_serial(tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setattr(update.constants._REPO_ROOT, "value", tmp_path)
+    root, _, _, _ = _prepare_birdseye(
+        tmp_path,
+        edges=[],
+        caps_payloads={
+            "README.md": {**_caps_payload("README.md"), "generated_at": "00009"}
+        },
+        hot_entries=[],
+        root=tmp_path / "docs" / "birdseye",
+    )
+
+    report = update.run_update(
+        update.UpdateOptions(targets=(root,), emit="caps", dry_run=False)
+    )
+
+    assert report.generated_at == "00009"
+    assert report.planned_writes == ()
+    assert report.performed_writes == ()
+
+
 def test_run_update_recovers_non_serial_generated_at(tmp_path, monkeypatch):
     monkeypatch.chdir(tmp_path)
     monkeypatch.setattr(update.constants._REPO_ROOT, "value", tmp_path)

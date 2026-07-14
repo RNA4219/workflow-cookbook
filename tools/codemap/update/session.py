@@ -110,8 +110,11 @@ class BirdseyeUpdateSession:
         grouped = _group_targets(resolved_targets)
         for root, root_targets in grouped.items():
             self._plan_for_root(root, root_targets)
+        generated_at = self._generated_at
+        if generated_at is None and self.serial_allocator.max_serial:
+            generated_at = f"{self.serial_allocator.max_serial:05d}"
         return BirdseyePlan(
-            generated_at=self._generated_at or self.timestamp,
+            generated_at=generated_at or self.timestamp,
             writes=tuple(self._writes),
         )
 

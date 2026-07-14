@@ -152,6 +152,13 @@ class BirdseyeRootBuilder:
         nodes = index_data.setdefault("nodes", {})
         if not isinstance(nodes, dict):
             raise ValueError("Birdseye index nodes must be an object")
+        capsule_owners: dict[str, str] = {}
+        for node_id, node_payload in nodes.items():
+            if not isinstance(node_id, str) or not isinstance(node_payload, Mapping):
+                continue
+            caps_ref = node_payload.get("caps")
+            if isinstance(caps_ref, str) and caps_ref:
+                capsule_owners.setdefault(caps_ref.replace("\\", "/"), node_id)
         repo_root = _REPO_ROOT.get()
         for pattern in includes:
             for source_path in sorted(repo_root.glob(pattern)):
@@ -160,14 +167,22 @@ class BirdseyeRootBuilder:
                 source_id = source_path.relative_to(repo_root).as_posix()
                 if any(fnmatch.fnmatchcase(source_id, excluded) for excluded in excludes):
                     continue
+                if source_id in nodes:
+                    continue
                 slug = source_id.replace("/", ".")
-                nodes.setdefault(
-                    source_id,
-                    {
-                        "role": role,
-                        "caps": f"docs/birdseye/caps/{slug}.json",
-                    },
-                )
+                caps_ref = f"docs/birdseye/caps/{slug}.json"
+                capsule_key = caps_ref.replace("\\", "/")
+                owner = capsule_owners.get(capsule_key)
+                if owner is not None:
+                    raise ValueError(
+                        f"Codemap capsule path collision: {caps_ref} maps both "
+                        f"{owner!r} and {source_id!r}"
+                    )
+                nodes[source_id] = {
+                    "role": role,
+                    "caps": caps_ref,
+                }
+                capsule_owners[capsule_key] = source_id
     def _load_capsules(
         self, index_data: Mapping[str, Any]
     ) -> tuple[CapsuleState, dict[Path, str], dict[str, Path]]:
