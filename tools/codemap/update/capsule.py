@@ -9,6 +9,7 @@ Generates capsule content and plans updates.
 
 from __future__ import annotations
 
+import fnmatch
 import json
 from collections.abc import Iterable, Mapping, Sequence
 from pathlib import Path
@@ -67,6 +68,8 @@ class BirdseyeRootBuilder:
     def build(self) -> BirdseyeRootPlan:
         self._validate()
         index_data, index_original = self._load_index()
+        if self.emit_index:
+            self._discover_configured_nodes(index_data)
         graph_out, graph_in = build_graph(index_data)
 
         hot_data: dict[str, Any] | None = None
@@ -93,7 +96,7 @@ class BirdseyeRootBuilder:
                 cap_path_lookup,
                 available_caps,
             )
-            self._ensure_placeholders(focus_nodes, caps_state, available_caps)
+            self._ensure_placeholders(focus_nodes, caps_state, available_caps, index_data)
             for cap_id in sorted(focus_nodes):
                 self._plan_capsule(cap_id, caps_state[cap_id], graph_out, graph_in)
 
@@ -130,6 +133,41 @@ class BirdseyeRootBuilder:
         self.serial_allocator.observe(loaded_hot.get("generated_at"))
         return loaded_hot, hot_original
 
+    def _discover_configured_nodes(self, index_data: dict[str, Any]) -> None:
+        config_path = _REPO_ROOT.get() / "codemap.config.json"
+        if not config_path.is_file():
+            return
+        config = json.loads(config_path.read_text(encoding="utf-8"))
+        if config.get("schemaVersion") != "workflow-cookbook/codemap-discovery/v1":
+            raise ValueError(f"Unsupported Codemap discovery config: {config_path}")
+        includes = config.get("include", [])
+        excludes = config.get("exclude", [])
+        if not isinstance(includes, list) or not all(isinstance(item, str) for item in includes):
+            raise ValueError("codemap include must be a string array")
+        if not isinstance(excludes, list) or not all(isinstance(item, str) for item in excludes):
+            raise ValueError("codemap exclude must be a string array")
+        role = config.get("defaultRole", "doc")
+        if not isinstance(role, str) or not role:
+            raise ValueError("codemap defaultRole must be a non-empty string")
+        nodes = index_data.setdefault("nodes", {})
+        if not isinstance(nodes, dict):
+            raise ValueError("Birdseye index nodes must be an object")
+        repo_root = _REPO_ROOT.get()
+        for pattern in includes:
+            for source_path in sorted(repo_root.glob(pattern)):
+                if not source_path.is_file():
+                    continue
+                source_id = source_path.relative_to(repo_root).as_posix()
+                if any(fnmatch.fnmatchcase(source_id, excluded) for excluded in excludes):
+                    continue
+                slug = source_id.replace("/", ".")
+                nodes.setdefault(
+                    source_id,
+                    {
+                        "role": role,
+                        "caps": f"docs/birdseye/caps/{slug}.json",
+                    },
+                )
     def _load_capsules(
         self, index_data: Mapping[str, Any]
     ) -> tuple[CapsuleState, dict[Path, str], dict[str, Path]]:
@@ -221,16 +259,20 @@ class BirdseyeRootBuilder:
         focus_nodes: Iterable[str],
         caps_state: CapsuleState,
         available_caps: Mapping[str, Path],
+        index_data: Mapping[str, Any],
     ) -> None:
+        raw_nodes = index_data.get("nodes", {})
         for cap_id in focus_nodes:
             if cap_id in caps_state:
                 continue
             cap_path = available_caps.get(cap_id)
             if cap_path is None:
                 continue
+            node_payload = raw_nodes.get(cap_id, {}) if isinstance(raw_nodes, Mapping) else {}
+            node_role = node_payload.get("role", "doc") if isinstance(node_payload, Mapping) else "doc"
             placeholder_data: dict[str, Any] = {
                 "id": cap_id,
-                "role": "doc",
+                "role": node_role,
                 "public_api": [],
                 "summary": cap_id,
                 "deps_out": [],
@@ -250,23 +292,23 @@ class BirdseyeRootBuilder:
         cap_path, cap_data, cap_original = capsule
         expected_out = _sorted_unique(graph_out.get(cap_id, []))
         expected_in = _sorted_unique(graph_in.get(cap_id, []))
-        updated = False
+        explicit_target = cap_path.resolve() in {target.resolve() for target in self.root_targets}
+        updated = not cap_original or explicit_target
         if cap_data.get("deps_out") != expected_out:
             cap_data["deps_out"] = expected_out
             updated = True
         if cap_data.get("deps_in") != expected_in:
             cap_data["deps_in"] = expected_in
             updated = True
-        new_generated = next_generated_at(
-            cap_data.get("generated_at"),
-            self.timestamp,
-            allocator=self.serial_allocator,
-        )
-        if cap_data.get("generated_at") != new_generated:
-            cap_data["generated_at"] = new_generated
-            updated = True
-            self._remember_generated(new_generated)
         if updated:
+            new_generated = next_generated_at(
+                cap_data.get("generated_at"),
+                self.timestamp,
+                allocator=self.serial_allocator,
+            )
+            if cap_data.get("generated_at") != new_generated:
+                cap_data["generated_at"] = new_generated
+                self._remember_generated(new_generated)
             serialized = dump_json(cap_data)
             if serialized != cap_original:
                 self._writes.append(
