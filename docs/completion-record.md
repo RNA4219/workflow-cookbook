@@ -31,6 +31,15 @@ RUNBOOK は日常運用と現在の判断に集中させ、完了済みの長い
 補足: <RUNBOOK に残す必要がない短い補足>
 ```
 
+## 2026-07-14 Codemap discovery stability
+
+| 項目 | 状態 | 正本 |
+|---|---|---|
+| configured discovery stability | 完了 | [Task Seed](tasks/task-codemap-discovery-stability-20260714.md) / [Acceptance](acceptance/AC-20260714-01.md) |
+
+判定: go
+補足: Codemap / CLI 60 tests passed、`tools.codemap.update` coverage 91.27%。task_id: 20260714-01
+
 ## 2026-07-01 Operations automation extensions
 
 | 項目 | 状態 | 正本 |
