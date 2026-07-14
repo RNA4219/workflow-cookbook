@@ -1,0 +1,19 @@
+schema_version: self-improvement-thresholds/v1
+unused_gate:
+  observation_days: 30
+  minimum_tasks: 20
+  maximum_evaluations: 0
+no_effect:
+  minimum_evaluations: 20
+  maximum_effective_decisions: 0
+override_excessive:
+  minimum_overrides: 5
+  minimum_ratio: 0.70
+unread_evidence:
+  minimum_generated: 10
+  maximum_ack_rate: 0.10
+archive_candidate:
+  consecutive_periods: 2
+behavior:
+  non_blocking: true
+  automatic_changes: false

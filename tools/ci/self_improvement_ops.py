@@ -9,8 +9,21 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
+import yaml
+from jsonschema import Draft202012Validator, FormatChecker
+
+from tools.ci.gate_effectiveness import analyze_gates
+
 _REPO_ROOT = Path(__file__).resolve().parents[2]
 _REFLECTIONS_DIR = _REPO_ROOT / ".workflow-cache" / "reflections"
+_GATE_THRESHOLDS = _REPO_ROOT / "governance" / "self-improvement-gates.yaml"
+_OBSERVATION_SCHEMA = (
+    _REPO_ROOT
+    / "schemas"
+    / "self-improvement"
+    / "v1"
+    / "improvement-observation-bundle.schema.json"
+)
 
 
 def _now() -> str:
@@ -178,6 +191,12 @@ def main(argv: Sequence[str] | None = None) -> int:
     recall_parser.add_argument("--limit", type=int, default=5)
     recall_parser.add_argument("--output", type=Path)
 
+    gate_parser = subparsers.add_parser("analyze-gates")
+    gate_parser.add_argument("--bundle-json", type=Path, required=True)
+    gate_parser.add_argument("--config", type=Path, default=_GATE_THRESHOLDS)
+    gate_parser.add_argument("--previous-report-json", type=Path)
+    gate_parser.add_argument("--output", type=Path)
+
     args = parser.parse_args(argv)
     if args.command == "export-memory":
         payload = export_curated_memory(
@@ -189,12 +208,23 @@ def main(argv: Sequence[str] | None = None) -> int:
             json.loads(args.reflection_json.read_text(encoding="utf-8")),
             author=args.author,
         )
-    else:
+    elif args.command == "build-recall":
         payload = build_recall_response(
             args.query,
             _load_json_files(args.reflections_dir),
             limit=args.limit,
         )
+    else:
+        bundle = json.loads(args.bundle_json.read_text(encoding="utf-8"))
+        schema = json.loads(_OBSERVATION_SCHEMA.read_text(encoding="utf-8"))
+        Draft202012Validator(schema, format_checker=FormatChecker()).validate(bundle)
+        thresholds = yaml.safe_load(args.config.read_text(encoding="utf-8"))
+        previous = (
+            json.loads(args.previous_report_json.read_text(encoding="utf-8"))
+            if args.previous_report_json
+            else None
+        )
+        payload = analyze_gates(bundle, thresholds, previous_report=previous)
 
     content = json.dumps(payload, ensure_ascii=False, indent=2)
     if args.output:

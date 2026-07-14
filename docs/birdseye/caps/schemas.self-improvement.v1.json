@@ -1,0 +1,27 @@
+{
+  "id": "schemas/self-improvement/v1/",
+  "role": "schema",
+  "public_api": [
+    "GateCatalogEntry",
+    "GateObservation",
+    "EvidenceConsumptionObservation",
+    "ImprovementObservationBundle",
+    "GateEffectivenessReport"
+  ],
+  "summary": "Runtime観測とreview-only Gate effectiveness reportのself-improvement/v1契約正本。",
+  "deps_out": [
+    "docs/tasks/task-self-improvement-gate-effectiveness-20260712.md"
+  ],
+  "deps_in": [
+    "governance/repo-responsibilities.yaml"
+  ],
+  "risks": [
+    "Producer contract drift",
+    "Unsafe automatic policy change"
+  ],
+  "tests": [
+    "tests/test_gate_effectiveness.py",
+    "tests/test_self_improvement_schemas.py"
+  ],
+  "generated_at": "00060"
+}

@@ -1,0 +1,18 @@
+{
+  "id": "docs/acceptance/AC-20260712-05.md",
+  "role": "acceptance",
+  "public_api": [],
+  "summary": "Self-improvement Gate effectiveness実装の自動検証と30日shadow運用の追跡記録。",
+  "deps_out": [],
+  "deps_in": [
+    "docs/tasks/task-self-improvement-gate-effectiveness-20260712.md"
+  ],
+  "risks": [
+    "Shadow operation not yet complete"
+  ],
+  "tests": [
+    "Full pytest",
+    "Golden export ingest"
+  ],
+  "generated_at": "00060"
+}

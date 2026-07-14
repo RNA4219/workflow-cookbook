@@ -27,7 +27,10 @@
     },
     "target_kind": {
       "type": "string",
-      "enum": ["reflection", "docs", "acceptance", "release", "evidence", "task", "skill_draft"],
+      "enum": [
+        "reflection", "docs", "acceptance", "release", "evidence", "task",
+        "skill_draft", "gate", "policy", "evidence_type"
+      ],
       "description": "対象種別"
     },
     "target_ref": {

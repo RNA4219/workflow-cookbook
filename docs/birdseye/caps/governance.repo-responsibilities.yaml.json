@@ -1,0 +1,21 @@
+{
+  "id": "governance/repo-responsibilities.yaml",
+  "role": "governance",
+  "public_api": [
+    "repo-responsibilities/v1"
+  ],
+  "summary": "能力ごとに正本repoとcanonical pathを1つだけ定める詳細責務manifest。",
+  "deps_out": [
+    "schemas/self-improvement/v1/"
+  ],
+  "deps_in": [
+    "README.md"
+  ],
+  "risks": [
+    "Duplicate canonical ownership"
+  ],
+  "tests": [
+    "tests/test_repo_responsibilities.py"
+  ],
+  "generated_at": "00060"
+}
