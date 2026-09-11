@@ -21,12 +21,12 @@
   "tests": [
     "tests/test_adoption.py"
   ],
-  "source_sha256": "12627ad3589853bfffb084d7187f21da67a055c9f168a4a00bd30992ef672f48",
+  "source_sha256": "f8932b9668d3be18e8ca9ef420b7ad3d22aaec60b9ee8ae96546548fbcb20d7a",
   "generated_at": "00072",
   "review": {
-    "reviewed_at": "2026-09-11T20:51:46.846967+00:00",
+    "reviewed_at": "2026-09-11T20:57:34.259111+00:00",
     "reviewed_by": "Codex",
-    "source_sha256": "12627ad3589853bfffb084d7187f21da67a055c9f168a4a00bd30992ef672f48",
+    "source_sha256": "f8932b9668d3be18e8ca9ef420b7ad3d22aaec60b9ee8ae96546548fbcb20d7a",
     "summary_sha256": "654e8e836b40c97407237f37f14de6120a7e2dd6221fc5600e03058370ba8690",
     "scope": "並行編集を上書きしない追記方式と失敗時の保全契約を確認"
   }

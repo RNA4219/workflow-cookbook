@@ -259,7 +259,7 @@ def _append_agents(path: Path, original: bytes | None, addition: bytes) -> None:
     flags = os.O_RDWR | os.O_APPEND | getattr(os, "O_BINARY", 0) | getattr(os, "O_NOFOLLOW", 0)
     if original is None:
         flags |= os.O_CREAT | os.O_EXCL
-    descriptor = os.open(path, flags, 0o666)
+    descriptor = os.open(path, flags, 0o644)
     with os.fdopen(descriptor, "r+b", buffering=0) as handle:
         opened = os.fstat(handle.fileno())
         if not stat.S_ISREG(opened.st_mode) or _linked(path) or not os.path.samestat(opened, path.lstat()):
