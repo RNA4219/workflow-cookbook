@@ -253,6 +253,28 @@ def _target(repo: Path) -> Path:
     return target
 
 
+
+def _append_agents(path: Path, original: bytes | None, addition: bytes) -> None:
+    # O_APPENDで既存部分を置換しない。新規作成はO_EXCLで競合を検出する。
+    flags = os.O_RDWR | os.O_APPEND | getattr(os, "O_BINARY", 0) | getattr(os, "O_NOFOLLOW", 0)
+    if original is None:
+        flags |= os.O_CREAT | os.O_EXCL
+    descriptor = os.open(path, flags, 0o666)
+    with os.fdopen(descriptor, "r+b", buffering=0) as handle:
+        opened = os.fstat(handle.fileno())
+        if not stat.S_ISREG(opened.st_mode) or _linked(path) or not os.path.samestat(opened, path.lstat()):
+            raise ValueError("AGENTS.mdの実体が変化しました。")
+        prefix = original or b""
+        if handle.read() != prefix:
+            raise ValueError("追記前にAGENTS.mdが更新されました。")
+        # 比較後に他の編集が入っても、追記はその既存バイト列を上書きしない。
+        if os.write(handle.fileno(), addition) != len(addition):
+            raise OSError("AGENTS.mdへの追記が不完全です。")
+        handle.seek(0)
+        if handle.read() != prefix + addition or not os.path.samestat(opened, path.lstat()):
+            raise ValueError("追記中にAGENTS.mdが更新されました。変更を保持します。")
+
+
 def copy_workflow(repo: Path, source: Path, ref: str = "HEAD", *, dry_run: bool = False) -> dict[str, Any]:
     repo = _target(repo)
     source = source.expanduser().resolve()
@@ -290,9 +312,7 @@ def copy_workflow(repo: Path, source: Path, ref: str = "HEAD", *, dry_run: bool 
         return _report("planned", manifest)
     prefix = original or b""
     separator = b"" if not prefix else (b"\n" if prefix.endswith(b"\n") else b"\n\n")
-    updated = prefix + separator + BLOCK
-    installed = False
-    agents_written = False
+    addition = separator + BLOCK
     with tempfile.TemporaryDirectory(prefix=".wfc-copy-", dir=repo) as temporary:
         stage = Path(temporary) / DIRECTORY
         stage.mkdir()
@@ -302,41 +322,17 @@ def copy_workflow(repo: Path, source: Path, ref: str = "HEAD", *, dry_run: bool 
             destination.write_bytes(content)
             destination.chmod(0o755 if manifest["files"][name]["mode"] == "100755" else 0o644)
         (stage / "manifest.json").write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-        staged_agents = Path(temporary) / "AGENTS.md"
-        staged_agents.write_bytes(updated)
+        # 全候補を準備後に既存状態を再確認する。
+        current = _regular(agents_path) if agents_path.exists() or agents_path.is_symlink() else None
+        if current != original or root.exists() or root.is_symlink():
+            raise ValueError("準備中に導入先が変化しました。")
+        stage.rename(root)
         try:
-            # 全候補を準備後に既存状態を再確認する。
-            current = _regular(agents_path) if agents_path.exists() or agents_path.is_symlink() else None
-            if current != original or root.exists() or root.is_symlink():
-                raise ValueError("準備中に導入先が変化しました。")
-            stage.rename(root)
-            installed = True
-            os.replace(staged_agents, agents_path)
-            agents_written = True
+            _append_agents(agents_path, original, addition)
             verify(repo)
-        except Exception:
-            # 設置後に別の利用者が変更した領域は、撤回時も消さない。
-            removable = True
-            if agents_written:
-                try:
-                    if _regular(agents_path) != updated:
-                        removable = False
-                    elif original is None:
-                        agents_path.unlink()
-                    else:
-                        agents_path.write_bytes(original)
-                except (OSError, ValueError):
-                    removable = False
-            if installed and removable:
-                try:
-                    actual = _inventory(root)
-                    recorded = actual.pop("manifest.json")
-                    if actual == payload and json.loads(recorded) == manifest:
-                        shutil.rmtree(root)
-                except (OSError, ValueError, KeyError):
-                    # 撤回対象の同一性を確認できない場合は消さず、元の導入例外を維持する。
-                    pass
-            raise
+        except (OSError, ValueError, KeyError, TypeError) as exc:
+            # 公開後の削除・全体復元も並行編集を失い得るため、両方を残して要確認とする。
+            raise ValueError(f"公開後の検査に失敗しました。コピー領域とAGENTS.mdを保持します: {exc}") from exc
     return _report("copied", manifest)
 
 

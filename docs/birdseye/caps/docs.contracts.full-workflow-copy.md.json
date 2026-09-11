@@ -21,13 +21,13 @@
   "tests": [
     "tests/test_adoption.py"
   ],
-  "source_sha256": "969f7ac9beacf37db967b53c88b62d709c9f7d9b8cc1c58f1a08a3227fbe23a4",
+  "source_sha256": "12627ad3589853bfffb084d7187f21da67a055c9f168a4a00bd30992ef672f48",
   "generated_at": "00072",
   "review": {
-    "reviewed_at": "2026-09-11T20:38:15.979105+00:00",
+    "reviewed_at": "2026-09-11T20:51:46.846967+00:00",
     "reviewed_by": "Codex",
-    "source_sha256": "969f7ac9beacf37db967b53c88b62d709c9f7d9b8cc1c58f1a08a3227fbe23a4",
+    "source_sha256": "12627ad3589853bfffb084d7187f21da67a055c9f168a4a00bd30992ef672f48",
     "summary_sha256": "654e8e836b40c97407237f37f14de6120a7e2dd6221fc5600e03058370ba8690",
-    "scope": "本変更の本文・依存先・実装検証結果との照合"
+    "scope": "並行編集を上書きしない追記方式と失敗時の保全契約を確認"
   }
 }

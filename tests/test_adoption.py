@@ -248,7 +248,7 @@ def test_reparse_points_are_refused(source: Path, target: Path, monkeypatch: pyt
 
 
 @pytest.mark.parametrize("existing", [True, False])
-def test_post_install_failure_rolls_back_own_changes(source: Path, target: Path, monkeypatch: pytest.MonkeyPatch, existing: bool) -> None:
+def test_post_install_failure_preserves_published_files(source: Path, target: Path, monkeypatch: pytest.MonkeyPatch, existing: bool) -> None:
     if existing:
         (target / "AGENTS.md").write_bytes(b"Original")
     def fail(_: Path) -> dict:
@@ -256,23 +256,22 @@ def test_post_install_failure_rolls_back_own_changes(source: Path, target: Path,
     monkeypatch.setattr(adoption, "verify", fail)
     with pytest.raises(ValueError, match="verification"):
         adoption.copy_workflow(target, source)
-    assert not (target / adoption.DIRECTORY).exists()
+    assert (target / adoption.DIRECTORY).is_dir()
     assert not list(target.glob(".wfc-copy-*"))
+    assert adoption.BLOCK in (target / "AGENTS.md").read_bytes()
     if existing:
-        assert (target / "AGENTS.md").read_bytes() == b"Original"
-    else:
-        assert not (target / "AGENTS.md").exists()
+        assert (target / "AGENTS.md").read_bytes().startswith(b"Original")
 
 
-def test_agents_replace_failure_rolls_back_installed_tree(source: Path, target: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+def test_agents_append_failure_keeps_installed_tree(source: Path, target: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     (target / "AGENTS.md").write_bytes(b"Original")
     def fail(*_: object) -> None:
-        raise OSError("replace failure")
-    monkeypatch.setattr(os, "replace", fail)
-    with pytest.raises(OSError, match="replace"):
+        raise OSError("append failure")
+    monkeypatch.setattr(adoption, "_append_agents", fail)
+    with pytest.raises(ValueError, match="append failure"):
         adoption.copy_workflow(target, source)
     assert (target / "AGENTS.md").read_bytes() == b"Original"
-    assert not (target / adoption.DIRECTORY).exists()
+    assert (target / adoption.DIRECTORY).exists()
 
 
 def test_concurrent_preparation_edit_is_preserved(source: Path, target: Path, monkeypatch: pytest.MonkeyPatch) -> None:
@@ -280,7 +279,7 @@ def test_concurrent_preparation_edit_is_preserved(source: Path, target: Path, mo
     original = Path.write_bytes
     def write(path: Path, data: bytes) -> int:
         result = original(path, data)
-        if path.name == "AGENTS.md" and path.parent.name.startswith(".wfc-copy-"):
+        if path.name == "verify.py" and path.parent.parent.name.startswith(".wfc-copy-"):
             original(target / "AGENTS.md", b"Concurrent edit")
         return result
     monkeypatch.setattr(Path, "write_bytes", write)
@@ -343,3 +342,59 @@ def test_preparation_write_failure_leaves_no_partial_install(source: Path, targe
     with pytest.raises(OSError, match="write failure"):
         adoption.copy_workflow(target, source)
     assert list(target.iterdir()) == []
+
+
+@pytest.mark.parametrize("edit", ["replace_contents", "append"])
+def test_edit_between_agents_comparison_and_write_is_not_lost(source: Path, target: Path, monkeypatch: pytest.MonkeyPatch, edit: str) -> None:
+    agents = target / "AGENTS.md"
+    agents.write_bytes(b"Original")
+    write = os.write
+    concurrent = b"Concurrent edit" if edit == "replace_contents" else b"Original plus local note"
+    def racing_write(fd: int, content: bytes) -> int:
+        if os.path.samestat(os.fstat(fd), agents.stat()):
+            agents.write_bytes(concurrent)
+        return write(fd, content)
+    monkeypatch.setattr(os, "write", racing_write)
+    with pytest.raises(ValueError, match="追記中"):
+        adoption.copy_workflow(target, source)
+    assert agents.read_bytes() == concurrent + b"\n\n" + adoption.BLOCK
+    assert (target / adoption.DIRECTORY).is_dir()
+
+
+def test_new_agents_creation_collision_keeps_user_file(source: Path, target: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    agents = target / "AGENTS.md"
+    original_open = os.open
+    def racing_open(path: object, flags: int, mode: int = 0o777, **kwargs: object) -> int:
+        if path == agents:
+            agents.write_bytes(b"Created by user")
+        return original_open(path, flags, mode, **kwargs)
+    monkeypatch.setattr(os, "open", racing_open)
+    with pytest.raises(ValueError, match="公開後"):
+        adoption.copy_workflow(target, source)
+    assert agents.read_bytes() == b"Created by user"
+
+
+def test_incomplete_append_is_reported_without_truncating_user_bytes(source: Path, target: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    agents = target / "AGENTS.md"
+    agents.write_bytes(b"Original")
+    write = os.write
+    def short_write(fd: int, data: bytes) -> int:
+        if os.path.samestat(os.fstat(fd), agents.stat()):
+            return write(fd, data[:3])
+        return write(fd, data)
+    monkeypatch.setattr(os, "write", short_write)
+    with pytest.raises(ValueError, match="不完全"):
+        adoption.copy_workflow(target, source)
+    assert agents.read_bytes().startswith(b"Original")
+    assert (target / adoption.DIRECTORY).is_dir()
+
+
+def test_append_refuses_changed_prefix_and_identity(target: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    agents = target / "AGENTS.md"
+    agents.write_bytes(b"Changed")
+    with pytest.raises(ValueError, match="追記前"):
+        adoption._append_agents(agents, b"Original", adoption.BLOCK)
+    monkeypatch.setattr(os.path, "samestat", lambda *_: False)
+    with pytest.raises(ValueError, match="実体"):
+        adoption._append_agents(agents, b"Changed", adoption.BLOCK)
+    assert agents.read_bytes() == b"Changed"

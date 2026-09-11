@@ -6,6 +6,7 @@
 既存AGENTSの保全、再実行、dry-run、hash照合、途中失敗の撤回を検証した。
 新機能55件、全体1137件成功。wheelから567ファイルをコピーし、全Git blobを独立照合した。
 任意の外部repo integration 3件はskip。コピー成功を導入先の運用準拠認定とは扱わない。
+公開前レビューでAGENTSを追記方式へ修正。並行編集・不完全な書込を含む60ケースが成功。
 
 - [Task 20260912-01](tasks/task-full-workflow-copy-20260912.md)
 - [Acceptance AC-20260912-01](acceptance/AC-20260912-01.md)

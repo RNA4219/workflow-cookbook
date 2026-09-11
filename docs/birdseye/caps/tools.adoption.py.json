@@ -1,7 +1,7 @@
 {
   "id": "tools/adoption.py",
   "role": "runtime",
-  "summary": "Gitの固定treeを読み、既存指示を保持して全原文と単独検査CLIを設置する。衝突時は上書きせず、管理ファイルのhashと入口を検査する。",
+  "summary": "Gitの固定treeを読み、既存指示へ追記して全原文と単独検査CLIを設置する。並行編集を上書きせず、公開後の例外では現物を保持して要対応を返す。",
   "public_api": [
     "wfc-copy",
     "python -m tools.adoption"
@@ -19,13 +19,13 @@
   "tests": [
     "tests/test_adoption.py"
   ],
-  "source_sha256": "9cfd8b611f0bd522c933791b7978ea1721eec40f9932507d3f04128fc9566b19",
+  "source_sha256": "7c6d39f96159a443818120c11ec1aeec913a170f8cf1939a4d861f33d6006397",
   "generated_at": "00072",
   "review": {
-    "reviewed_at": "2026-09-11T20:42:54.998690+00:00",
+    "reviewed_at": "2026-09-11T20:51:46.840944+00:00",
     "reviewed_by": "Codex",
-    "source_sha256": "9cfd8b611f0bd522c933791b7978ea1721eec40f9932507d3f04128fc9566b19",
-    "summary_sha256": "881db66a57cb47e0ca6c2395856913b3fb0231c95754cd76f753867c9f86a128",
-    "scope": "本変更の本文・依存先・実装検証結果との照合"
+    "source_sha256": "7c6d39f96159a443818120c11ec1aeec913a170f8cf1939a4d861f33d6006397",
+    "summary_sha256": "e45200bec6355bafc4fa69ed925aaba814eecf5e0dfa3156d828a70b2b195215",
+    "scope": "並行編集を上書きしない追記方式と失敗時の保全契約を確認"
   }
 }
