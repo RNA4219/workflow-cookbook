@@ -12,9 +12,12 @@ from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import Any
 
+ROOT = Path(__file__).resolve().parents[2]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
 from tools.codemap.source_freshness import review_matches, source_digest
 
-ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_INDEX_PATH = ROOT / "docs/birdseye/index.json"
 DEFAULT_HOT_PATH = ROOT / "docs/birdseye/hot.json"
 SERIAL_PATTERN = re.compile(r"\d{5}")

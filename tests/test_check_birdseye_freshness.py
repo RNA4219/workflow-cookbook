@@ -73,6 +73,18 @@ def _write_birdseye_fixture(tmp_path: Path) -> tuple[Path, Path]:
 
 
 # Direct function tests for coverage
+def test_direct_script_without_installed_package(tmp_path: Path) -> None:
+    result = subprocess.run(
+        [sys.executable, "-I", "-S", str(ROOT / "tools/ci/check_birdseye_freshness.py"), "--help"],
+        cwd=tmp_path,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert "--index-path" in result.stdout
+
+
 class TestLoadJson:
     def test_loads_valid_json(self, tmp_path: Path) -> None:
         json_path = tmp_path / "test.json"

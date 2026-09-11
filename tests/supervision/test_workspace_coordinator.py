@@ -161,9 +161,9 @@ def test_two_processes_cannot_acquire_global_writer_together(tmp_path: Path) -> 
     first = subprocess.Popen(base + ["--owner", "one"], stdout=subprocess.PIPE, text=True)
     second = subprocess.Popen(base + ["--owner", "two"], stdout=subprocess.PIPE, text=True)
     outputs = [json.loads(first.communicate(timeout=10)[0]), json.loads(second.communicate(timeout=10)[0])]
-    assert sum(item.get("acquired") is True for item in outputs) == 1
-    assert sum(item.get("reason") in {"wip_busy", "workspace_busy"} for item in outputs) == 1
-    assert sorted([first.returncode, second.returncode]) == [0, 2]
+    assert sum(item.get("acquired") is True for item in outputs) == 1, outputs
+    assert sum(item.get("reason") in {"wip_busy", "workspace_busy"} for item in outputs) == 1, outputs
+    assert sorted([first.returncode, second.returncode]) == [0, 2], outputs
 
 
 def test_probe_has_hard_timeout(tmp_path: Path) -> None:

@@ -87,13 +87,30 @@ class WorkspaceCoordinator:
         self._initialize()
 
     def _connect(self) -> sqlite3.Connection:
-        connection = sqlite3.connect(self.db_path, timeout=self.timeout_ms / 1_000, isolation_level=None)
-        connection.row_factory = sqlite3.Row
-        connection.execute("PRAGMA journal_mode=WAL")
-        connection.execute("PRAGMA synchronous=FULL")
-        connection.execute("PRAGMA foreign_keys=ON")
-        connection.execute(f"PRAGMA busy_timeout={self.timeout_ms}")
-        return connection
+        deadline = time.monotonic() + max(self.timeout_ms, 0) / 1_000
+        while True:
+            connection = sqlite3.connect(
+                self.db_path, timeout=max(deadline - time.monotonic(), 0), isolation_level=None
+            )
+            try:
+                connection.row_factory = sqlite3.Row
+                # Changing journal mode during concurrent first opens can return
+                # SQLITE_BUSY without invoking SQLite's normal busy handler.
+                connection.execute("PRAGMA journal_mode=WAL")
+                connection.execute("PRAGMA synchronous=FULL")
+                connection.execute("PRAGMA foreign_keys=ON")
+                connection.execute(f"PRAGMA busy_timeout={self.timeout_ms}")
+                return connection
+            except sqlite3.OperationalError as exc:
+                connection.close()
+                remaining = deadline - time.monotonic()
+                code = getattr(exc, "sqlite_errorcode", 0)
+                if code & 0xFF != sqlite3.SQLITE_BUSY or remaining <= 0:
+                    raise
+                time.sleep(min(0.01, remaining))
+            except BaseException:
+                connection.close()
+                raise
 
     def _initialize(self) -> None:
         with self._connect() as connection:

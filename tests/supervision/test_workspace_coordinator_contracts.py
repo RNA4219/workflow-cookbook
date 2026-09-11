@@ -2,10 +2,56 @@
 
 import json
 import os
+import sqlite3
 
 import pytest
 
 from tools.supervision import workspace_coordinator as coordinator
+
+
+@pytest.mark.parametrize("failure", ["busy_once", "busy_timeout", "non_busy", "unexpected"])
+def test_connection_initialization_retries_only_busy_within_deadline(tmp_path, monkeypatch, failure):
+    workspace = tmp_path / "repo"
+    workspace.mkdir()
+    connect = sqlite3.connect
+    created = []
+    closed = []
+    error = ValueError("invalid configuration") if failure == "unexpected" else sqlite3.OperationalError("fixture")
+    if isinstance(error, sqlite3.OperationalError):
+        error.sqlite_errorcode = sqlite3.SQLITE_ERROR if failure == "non_busy" else sqlite3.SQLITE_BUSY
+
+    class FirstConnection(sqlite3.Connection):
+        def execute(self, sql, *args, **kwargs):
+            if sql == "PRAGMA journal_mode=WAL":
+                raise error
+            return super().execute(sql, *args, **kwargs)
+
+        def close(self):
+            closed.append(self)
+            return super().close()
+
+    def open_connection(*args, **kwargs):
+        if not created:
+            kwargs["factory"] = FirstConnection
+        result = connect(*args, **kwargs)
+        created.append(result)
+        return result
+
+    monkeypatch.setattr(coordinator.sqlite3, "connect", open_connection)
+    options = {"state_root": tmp_path / "state", "timeout_ms": 0 if failure == "busy_timeout" else 1000}
+    if failure == "busy_once":
+        service = coordinator.WorkspaceCoordinator(workspace, **options)
+        assert len(created) == 2
+        lease = service.acquire(mode="write", owner="a", task_id="t", job_key=None, wip_key=None)
+        assert lease["acquired"] is True
+    else:
+        with pytest.raises(type(error)) as caught:
+            coordinator.WorkspaceCoordinator(workspace, **options)
+        assert caught.value is error
+        assert len(created) == 1
+    assert closed == [created[0]]
+    with pytest.raises(sqlite3.ProgrammingError, match="closed"):
+        created[0].execute("SELECT 1")
 
 
 @pytest.fixture
