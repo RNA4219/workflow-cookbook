@@ -19,12 +19,12 @@
   "tests": [
     "tests/test_adoption.py"
   ],
-  "source_sha256": "c676b291cfb6456549549b81d3ed02b3eb516a880c04898b2c115fc8e2c93aaf",
+  "source_sha256": "9cfd8b611f0bd522c933791b7978ea1721eec40f9932507d3f04128fc9566b19",
   "generated_at": "00072",
   "review": {
-    "reviewed_at": "2026-09-11T20:38:16.023101+00:00",
+    "reviewed_at": "2026-09-11T20:42:54.998690+00:00",
     "reviewed_by": "Codex",
-    "source_sha256": "c676b291cfb6456549549b81d3ed02b3eb516a880c04898b2c115fc8e2c93aaf",
+    "source_sha256": "9cfd8b611f0bd522c933791b7978ea1721eec40f9932507d3f04128fc9566b19",
     "summary_sha256": "881db66a57cb47e0ca6c2395856913b3fb0231c95754cd76f753867c9f86a128",
     "scope": "本変更の本文・依存先・実装検証結果との照合"
   }

@@ -334,6 +334,7 @@ def copy_workflow(repo: Path, source: Path, ref: str = "HEAD", *, dry_run: bool 
                     if actual == payload and json.loads(recorded) == manifest:
                         shutil.rmtree(root)
                 except (OSError, ValueError, KeyError):
+                    # 撤回対象の同一性を確認できない場合は消さず、元の導入例外を維持する。
                     pass
             raise
     return _report("copied", manifest)
