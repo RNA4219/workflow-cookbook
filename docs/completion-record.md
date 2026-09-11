@@ -1,11 +1,74 @@
 # Completion Record
 
+## 2026-09-11 長い履歴と記憶更新の測定
+
+128イベント・3条件の全504推論と独立監査を実施。解消済み質問が標準snapshotから欠ける制限を確認。
+[Task](tasks/task-long-horizon-drift-20260911.md)と[技術検収](acceptance/AC-20260911-04.md)に結果と範囲を保存。
+[Changelog](../CHANGELOG.md#unreleased)に測定完了と未解決事項を記録。
+
+## 2026-09-11 原文計算と全件回帰
+
+hash付き原文から全案へ同じ整数式を適用する計算API/CLIを追加。
+新規67試験、全1071pytest成功、HATE/QEG Go。最終のモデル回帰は元の全192応答が正解。
+初回の対照誤答も保存し、計算補助ありworkflowの限定回帰結果として記録する。
+
+- [Task 20260911-03](tasks/task-source-calculations-20260911.md)
+- [Acceptance AC-20260911-03](acceptance/AC-20260911-03.md)
+- [原文計算の仕様](contracts/source-calculations.md)
+- [Changelog](../CHANGELOG.md#unreleased)
+
+## 2026-09-11 文脈の継続性
+
+実装・自動受入完了。agent-taskstateの完全snapshotと必読全文を保持し、予算不足・状態変更・
+根拠未解決では継続不可とする。全1004pytest成功、HATE→QEG Go。
+モデルのドリフト率は未測定で、task全体はin_progressを維持する。
+
+- [Task 20260911-02](tasks/task-context-continuity-20260911.md)
+- [Acceptance AC-20260911-02](acceptance/AC-20260911-02.md)
+- [文脈継続の仕様](contracts/task-context-continuity.md)
+- [Changelog](../CHANGELOG.md#unreleased)
+
+## 2026-09-11 HATE・QEGの実テスト接続
+
+全976pytest成功、HATE正規化/export成功、QEGのvalidate/gate/record/outputs read成功。
+判定Go。対象コードと固定ツールの前後hash一致を確認した。範囲はローカル自動テスト受入。
+
+- [Task 20260911-01](tasks/task-hate-qeg-20260911.md)
+- [Acceptance AC-20260911-01](acceptance/AC-20260911-01.md)
+- [接続仕様](contracts/hate-qeg-test-gate.md)
+- [Changelog](../CHANGELOG.md#unreleased)
+
+task_id: 20260911-01
+
 この文書は、完了済み作業の要約索引である。
 詳細な検収証跡は `docs/acceptance/`、作業単位の背景と完了条件は `docs/tasks/`、
 リリース単位の変更履歴は `CHANGELOG.md` / `docs/releases/` を正本にする。
 
 RUNBOOK は日常運用と現在の判断に集中させ、完了済みの長い表や詳細証跡を
 蓄積しない。
+
+## 2026-09-10 評価・取得・観測・再開
+
+4項目を仕様化して実装。131ケースを追加し、全889ケース、coverage 83.00%、型・lint・文書ゲートを確認。
+実CLIでtaskstate再接続、memx cache更新、隔離wheelの4 CLIを検証した。実運用の性能差は未測定。
+
+- [Task 20260910-02](tasks/task-workflow-evolution-20260910.md)
+- [Acceptance AC-20260910-02](acceptance/AC-20260910-02.md)
+- [利用手順](workflow-evolution.md)
+- [Changelog 0082](../CHANGELOG.md#unreleased)
+
+task_id: 20260910-02
+
+## 2026-09-10 Workflow policy remediation
+
+100ルールの実装・維持確認・条件外判断を完了。全pytest 675件、coverage 81.40%、配布物の5 CLIを検証した。
+文書レビュー期限・旧caps・実運用観測の残件はAcceptanceへ記録した。
+
+- [Task 20260910-01](tasks/task-policy-remediation-20260910.md)
+- [Acceptance AC-20260910-01](acceptance/AC-20260910-01.md)
+- [Changelog 0081](../CHANGELOG.md#unreleased)
+
+task_id: 20260910-01
 
 ## 記録先の役割
 

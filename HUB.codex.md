@@ -10,25 +10,30 @@ next_review_due: 2026-08-11
 
 ## Runtimes
 
-- Native function-calling tools are registered (OpenAI/Gemini/Vertex).
-- No native tools; an external orchestrator parses JSON blocks in text.
+- ネイティブの関数呼び出しツールを利用できる環境。
+- ネイティブツールはなく、外部オーケストレータが本文の JSON を実行する環境。
 
 ## Rules
 
-1. If native tools exist, CALL them (function calling) using the tool names
-   below.
-2. Always MIRROR each call as a JSON envelope so non-native runtimes can parse:
+1. ネイティブツールが使える場合は、実際に登録された名前と引数で関数呼び出しを行う。
+   呼び出し内容を本文の JSON に複製する必要はない。
+2. ネイティブツールが使えず、対応する外部オーケストレータがある場合に限り、
+   その契約に沿った `tool_request` JSON を本文に一度だけ出力する。例：
 
    ```tool_request
-   {"name":"web.search","arguments":{"q":"...", "recency":30}}
+   {"name":"web.search","arguments":{"q":"..."}}
    ```
 
-3. Never fabricate tool results. If tools are unavailable, emit `plan` and JSON
-   envelopes only.
-4. Platform-specific macros remain VERBATIM (do not expand).
-5. Default language: Japanese unless code identifiers dictate otherwise.
+3. 同じ依頼を関数呼び出しと JSON 封筒の両方から実行しない。
+   外部オーケストレータの実行結果が届くまでは、実行済みとして扱わない。
+4. どちらの実行経路も使えない場合は、未実行であることと必要な手順を説明する。
+   ツールの実行結果を捏造しない。
+5. プラットフォーム固有マクロはそのまま残し、展開しない。
+6. 既定の記述言語は日本語とし、コード識別子は必要に応じて原表記を使う。
 
 ## Logical Tool Names
+
+以下は論理名の例。実行時は利用環境に登録されたツール名・スキーマ、または外部オーケストレータの契約に従う。
 
 - web.search{q, recency?, domains?}
 - web.open{url}
@@ -38,7 +43,9 @@ next_review_due: 2026-08-11
 
 ## Output Contract
 
-`plan`/`patch`/`tests`/`commands`/`notes`
+外部runnerやAPIが書式を要求する場合は、その出力契約に従う。
+通常の説明は、成果・変更範囲・実際の検証・未完事項が分かる形式と長さで記述する。
+`plan`/`patch`/`tests`/`commands`/`notes` は整理例であり、全応答の必須見出しではない。
 
 ## HUB.codex.md
 
@@ -63,6 +70,9 @@ next_review_due: 2026-08-11
   備考: 再発防止策とフォローアップ抽出。
 - **Evaluation** (`EVALUATION.md`): 受け入れ基準・品質指標。優先順: 中。
   備考: 検収条件。
+- **Evaluation Identity Contract** (`docs/contracts/evaluation-identity-contract.md`): 比較評価の
+  実装・入力・runner・用途別profile・測定集合・結果artifactを結ぶ契約。優先順: 高。
+  備考: 評価系Task Seedは開始前にmanifest preflightを通し、agentは実行前に必読。
 - **Checklist** (`CHECKLISTS.md`): リリース/レビュー確認項目。優先順: 低。
   備考: 後工程。
 - **Orchestration** (`orchestration/*.md`): ワークフロー構成・依存関係。優先順: 可変。
@@ -103,25 +113,24 @@ next_review_due: 2026-08-11
 
 1. **スキャン**: ルートと `orchestration/` 配下を再帰探索し、Markdown front matter
    (`---`) を含むファイルを優先取得。
-2. **Birdseye 同期**:
-   `docs/birdseye/index.json` から対象ファイルのノードIDと役割を取得し、
-   既定では ±2 hop を展開する。局所更新や軽量読込が必要な場合は
-   `codemap.update --radius` と同じ hop 数へ縮小してよい。
-   必要な `docs/birdseye/caps/*.json` を取り込み、各節に `node_id` と `role` を差し込む。
-   これにより GUARDRAILS の `plan` 出力要件（ノードID明示）を満たす初期データを確保。
+2. **必要な根拠の取得**: Birdseyeの形式・対象・登録・鮮度が作業に合う場合、indexと必要なcapsを使う。
+   質問と返却量に応じて0/1/2hopを選び、未登録・破損・不適合なら通常検索で原文へ到達する。
+   根拠のパスを記録し、存在しないノードIDや未読の内容を補わない。
 3. **ノード生成**: 各ファイルから `##` レベルの節をノード化し、`Priority`
    `Dependencies` などのキーワードを抽出。
 4. **依存解決**: Orchestrationノードに含まれる依存パスを解析し、該当セクションを子ノードとして連結。
 5. **インシデント抽出**: `docs/IN-*.md` のインシデントセクションを走査。
    再発防止やテスト強化の箇条書きを Task Seed 候補としてタグ付け。
-6. **粒度調整**: ノード内の ToDo / 箇条書きを単位作業へ分割し、`<= 0.5d`
-   を目安にまとめ直し。
+6. **粒度調整**: ノード内の ToDo / 箇条書きを、依存関係と検収可能性でまとめる。
+   人間の作業計画で `<= 0.5d` を目安にできるが、時間換算や細分化を一律に強制しない。
 7. **テンプレート投影**: 各作業ユニットを `TASK.*-MM-DD-YYYY` 形式の Task Seed
    (`Objective` `Requirements` `Commands`) へ変換し、欠損フィールドは元資料の該当行を引用。
+   比較評価・実験・復元・昇格・提出を含む場合は、評価identity manifestへのリンクと
+   preflight/postrun commandを必ず含める。
 8. **出力整形**: 優先度、依存、担当の有無でソートし、GitHub Issue もしくは
    PR下書きとしてJSON/YAMLに整形。
 9. **タスク化**: タスクは独立性が保てる粒度まで分割し、責務の重複(コンフリクト)を避ける。
-　 変更は小さく・短時間で終わるブランチとして切り、早めのrebaseで常に最新に追従する。
+   レビューと並行変更に応じて短いブランチと適切な同期方法を選ぶ。共有履歴の書き換えを一律には要求しない。
    リスクがある、タスクが重なっている場合は**Task Seeds** (`TASK.*-MM-DD-YYYY`)に記載を行うこと。
 
 ## 4. ノード抽出ルール
@@ -176,5 +185,7 @@ in_progress → blocked → in_progress（解除後に戻す）
 - 生成後は `CHANGELOG.md` へ反映済みタスクを移すことで履歴が追える
 - Birdseye 鮮度: `docs/birdseye/index.json.generated_at` は 5 桁ゼロ埋めの世代番号として扱い、関連差分に対して未更新または Birdseye 資源間で不整合なら再収集を要求。
   該当 Capsule も同時更新。
-- `codemap.update` は Birdseye 再生成時のみ実行。既定は ±2 hop とし、局所更新時のみ `--radius 1` や `--radius 0` を使い分ける。
-  Dual Stack では関数呼び出し→`tool_request` ミラーを同一内容で送る。
+- `codemap.update` は Birdseye 再生成時のみ実行。対象・読込量に応じて `--radius 0/1/2` を選ぶ。
+  生成世代だけでは原文・要約を確認済みとせず、source_sha256とreviewの一致を確認する。
+  ネイティブツールが使える場合は関数呼び出しを行い、使えず外部オーケストレータがある場合のみ
+  `tool_request` を出力する。同じ依頼を両方の経路へ送らない。

@@ -10,16 +10,21 @@ Utility functions for coercing values, deriving averages/ratios, and precision m
 from __future__ import annotations
 
 from collections.abc import Mapping, Sequence
+from math import isfinite
 from pathlib import Path
 
 
 def coerce_float(value: object) -> float | None:
     """Convert value to float if possible."""
+    if isinstance(value, bool):
+        return None
     if isinstance(value, (int, float)):
-        return float(value)
+        number = float(value)
+        return number if isfinite(number) else None
     if isinstance(value, str):
         try:
-            return float(value)
+            number = float(value)
+            return number if isfinite(number) else None
         except ValueError:
             return None
     return None

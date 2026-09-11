@@ -2,8 +2,8 @@
 intent_id: DOC-LEGACY
 owner: docs-core
 status: active
-last_reviewed_at: 2026-07-11
-next_review_due: 2026-08-11
+last_reviewed_at: 2026-04-09
+next_review_due: 2026-05-09
 ---
 
 # CI 設定ガイド
@@ -28,24 +28,7 @@ next_review_due: 2026-08-11
 | `python-ci` | `.github/workflows/test.yml` | job `unit` | `python-ci` は論理名。downstream では caller 側 job 名を使ってよいが、本 repo では `test.yml` の `unit` job を concrete check として扱う。 |
 | `security-ci` | `.github/workflows/security.yml` | `Allowlist Guard`, `Semgrep`, `Bandit`, `Gitleaks`, `Dependency Audit & SBOM` | `security-ci` は論理名。branch protection では `security.yml` の複数 job を concrete checks として扱う。 |
 | `docs-gate` | `.github/workflows/markdown.yml` | job `docs-gate` | RG-002〜RG-005 の docs governance checker を集約。内部 steps は front matter, acceptance, birdseye, runbook slimming (RG-003), completion trace (RG-004), agent-tools-hub boundary (RG-005)。 |
-| `metrics-contract-smoke` | `.github/workflows/markdown.yml` | job `metrics-contract-smoke` | Sample data validates only the metrics contract; it is not production evidence. |
-
-## Python CI contract
-
-The `.github/workflows/test.yml` workflow is fail-closed:
-
-- `lint` runs pinned Ruff.
-- `typecheck` runs strict mypy. Narrow legacy exceptions are enumerated in
-  `pyproject.toml` and tracked in `TECH_DEBT.md`.
-- `unit` is the stable required check name and enforces combined coverage for
-  `tools` and `security_headers` at 80 percent.
-- `python-312` verifies compatibility with the second supported runtime.
-- `build` creates wheel and sdist artifacts, installs the wheel non-editably in
-  a clean virtual environment, and runs `--help` for all console entrypoints.
-
-Development dependencies are synchronized with
-`uv sync --locked --extra dev`. CI must not use unpinned linter or type-checker
-installs.
+| `metrics-gate` | `.github/workflows/markdown.yml` | job `metrics-gate` | RG-001 metrics thresholds gate。独立 job として status 可視化。 |
 
 ## Docs Gate 内部 checker 対応
 
@@ -57,7 +40,6 @@ installs.
 | RG-005 | `check_agent_tools_hub_boundary.py` | warning | routing table 複製を検出。 |
 | RG-006 | `check_task_completion_propagation.py` | warning | done Task Seedのcompletion-record未反映をnudge。 |
 | RG-007 | `check_version_consistency.py` | warning | pyproject.toml / README badge / CHANGELOG / git tag / docs/releases 整合確認。 |
-| RG-008 | `check_task_acceptance_bidirectional.py` | enforce | 完了Taskと承認済みAcceptanceの相互参照を検証。Acceptance例外を許容。 |
 
 ## Docs Gate Escalation Policy
 
@@ -75,15 +57,20 @@ checker ごとの stage は `governance/policy.yaml` の `ci.checker_stages` で
 
 | 昇格パス | 条件 |
 | --- | --- |
-| `observe` → `warn` | 30日経過 + 検出率 < 5% (安定動作確認) |
-| `warn` → `enforce` | 30日経過 + 検出率 < 1% (ほぼ解消) + 担当者同意 |
+| `observe` → `warn` | 主90日・補助180日・直近30日の同一版の観測を確認し、合意した機会数・誤検知・運用負荷に基づき担当者が判断 |
+| `warn` → `enforce` | 主90日の十分な機会数・正検出/誤検知/見逃し・override・障害・修正可能性と担当者同意。日数や検出率だけで自動昇格しない |
 
 ### Rollback 条件
 
 | Rollback | 条件 |
 | --- | --- |
-| `enforce` → `warn` | 検出率 > 10% (大量誤検出) + 48h以内 |
-| `warn` → `observe` | 検出率 > 20% (根本原因未解決) + 担当者判断 |
+| `enforce` → `warn` | 誤検知や計測障害による実害を確認し、影響に応じて緊急緩和と原因調査。正当な検出率の高さを誤検知扱いしない |
+| `warn` → `observe` | 版・適用条件・測定定義の不一致や継続障害があり、責任者が再観測を判断 |
+
+観測の分母・機会数・版・不足状態は [Gate観測契約](contracts/gate-observation-contract.md) に従います。
+`python tools/ci/check_gate_observations.py --observations <bundle.json>` で集計できます。
+データ不足はinsufficient_data、計測障害はmeasurement_error。3窓は重複し、合算しません。
+このコマンドはstageやremote設定を変更しません。以下の現行stageを日数だけで変更しないでください。
 
 ### 現行 Stage 状態
 
@@ -125,8 +112,8 @@ python tools/ci/check_ci_gate_matrix.py
 
 ## 自動キャンセル設定
 
-すべての GitHub Actions ワークフローには、
-同一ブランチ/PR 上で最新の実行だけを保持するための `concurrency` ブロックを追加しています。
+再実行可能な検査は、同一ブランチ/PRの古い実行をキャンセルできます。
+公開・移行・ラベル更新・Issue作成等の共有状態を変える処理は、副作用と再開方法を確認して排他を定義します。
 
 ```yaml
 concurrency:
@@ -136,7 +123,8 @@ concurrency:
 
 - `group` はワークフロー名と PR 番号（またはブランチ名）の組み合わせで定義します。
   これにより PR と push のどちらでも古い実行をまとめてキャンセルできます。
-- `cancel-in-progress: true` により、新しい Run が開始されたタイミングで進行中の古い Run を自動的に停止します。
+- `cancel-in-progress: true` は途中停止しても再実行できる検査に使います。
+  状態を変えるjobへ無条件に継承せず、必要ならfalseで実行中の処理を完了させ、重複実行を防ぎます。
 
 ## Workflow 対応表
 

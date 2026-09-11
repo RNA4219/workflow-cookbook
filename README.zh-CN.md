@@ -35,16 +35,13 @@ next_review_due: 2026-08-10
 | **Plugins** | 跨仓库集成与 docs resolve |
 
 <!-- LLM-BOOTSTRAP v1 -->
-建议阅读顺序：
+質問に合う最小の原文へ到達するための導線:
 
-1. `docs/birdseye/index.json` —— 节点一览（轻量）
-2. `docs/birdseye/caps/<path>.json` —— 按需局部读取
+1. README/HUBから必要な資料を特定する。
+2. Birdseyeが対象に合う場合は `docs/birdseye/index.json` と必要なcapsを使う。
+3. 質問と返却量に応じて0/1/2hopを選び、未登録・不適合・鮮度不明なら通常検索へ戻る。
 
-聚焦步骤：
-
-- 从 index.json 找出最近变更文件在 +/-2 hop 范围内的节点 ID
-- 只读取对应的 caps/*.json 文件
-
+原文が根拠の正本。生成日・世代だけで要約を確認済みとしない。
 <!-- /LLM-BOOTSTRAP -->
 
 ---

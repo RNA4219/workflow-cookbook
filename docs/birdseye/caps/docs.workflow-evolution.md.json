@@ -1,0 +1,30 @@
+{
+  "id": "docs/workflow-evolution.md",
+  "role": "guide",
+  "public_api": [],
+  "deps_in": [
+    "CHANGELOG.md",
+    "README.md"
+  ],
+  "deps_out": [
+    "docs/contracts/hate-qeg-test-gate.md",
+    "docs/contracts/progressive-context.md",
+    "docs/contracts/source-calculations.md",
+    "docs/contracts/task-context-continuity.md",
+    "docs/contracts/workflow-benchmark.md",
+    "docs/contracts/workflow-checkpoint.md",
+    "docs/contracts/workflow-run-observation.md"
+  ],
+  "risks": [],
+  "tests": [],
+  "summary": "比較CLI、UTF-8予算の取得、task/run trace、taskstate CASによるcheckpointの利用手順。機能追加と実運用の性能実証を区別する。 HATE・QEGを使った全pytest証跡のローカル受入手順を含む。 長期作業はtaskstateの完全snapshotと必読原文を復元し、状態を保持してから補助資料を取得する。 原文からの厳密な計算結果を、完全snapshotと必読原文を保持した入力へ追加する。",
+  "generated_at": "00067",
+  "source_sha256": "a57b08488bd0584e75ddbd1eacfef22c1711b36b33c19e02c1003246a01909b2",
+  "review": {
+    "reviewed_at": "2026-09-11T04:51:06.413478+00:00",
+    "reviewed_by": "Codex",
+    "source_sha256": "96a158a2ce4aff7b9da8266d32df95636c0a1537e17516e0665d94b80987dac3",
+    "summary_sha256": "6ada6a9b5659d070c6b5e397605ff4557111377e0daaf38843b11d7c87c81666",
+    "scope": "原文計算API/CLIと利用案内。モデル効果は別manifestで評価する。"
+  }
+}

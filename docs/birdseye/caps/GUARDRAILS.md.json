@@ -2,7 +2,7 @@
   "id": "GUARDRAILS.md",
   "role": "policy",
   "public_api": [],
-  "summary": "行動指針とBirdseye運用ルールを定義し、LLMが最小コンテキストで資料を走査するための手順を規定する。",
+  "summary": "目的・依存・リスクに合わせて変更と検証を進める行動指針。実行結果の真実性と承認境界を保ち、出力形式・取得経路・レビューを用途別に選ぶ。",
   "deps_out": [
     "BLUEPRINT.md",
     "CHANGELOG.md",
@@ -26,8 +26,16 @@
     "docs/birdseye/index.json"
   ],
   "risks": [
-    "Birdseye更新が遅れるとガードレール遵守が困難"
+    "原文・要約の不整合や未実行検証を見落とすと誤判断につながる"
   ],
   "tests": [],
-  "generated_at": "00060"
+  "generated_at": "00066",
+  "source_sha256": "3e43abf2dbf03b4cac71ca6fd33aca3459706dbca809093b0d08bd8abe913455",
+  "review": {
+    "reviewed_at": "2026-09-10T02:09:04.366163+00:00",
+    "reviewed_by": "Codex",
+    "source_sha256": "3e43abf2dbf03b4cac71ca6fd33aca3459706dbca809093b0d08bd8abe913455",
+    "summary_sha256": "d7e5367fb4c5a95dce633b032b468c737a3e7ba7c06a537de383252880d53adf",
+    "scope": "原文と要約・参照の整合。実運用の効果評価ではない。"
+  }
 }

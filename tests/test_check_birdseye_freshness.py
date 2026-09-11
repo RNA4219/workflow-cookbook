@@ -12,6 +12,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 # Import the module for direct testing
 import tools.ci.check_birdseye_freshness as bf_module
+from tools.codemap.source_freshness import source_digest, summary_digest
 
 
 def _run_cli(*args: str) -> subprocess.CompletedProcess[str]:
@@ -27,7 +28,14 @@ def _run_cli(*args: str) -> subprocess.CompletedProcess[str]:
 def _write_birdseye_fixture(tmp_path: Path) -> tuple[Path, Path]:
     caps_dir = tmp_path / "docs/birdseye/caps"
     caps_dir.mkdir(parents=True)
-    (caps_dir / "README.md.json").write_text("{}", encoding="utf-8")
+    (tmp_path / "README.md").write_text("fixture source", encoding="utf-8")
+    capsule = {"id": "README.md", "summary": "fixture source", "source_sha256": source_digest(tmp_path, "README.md")}
+    capsule["review"] = {
+        "source_sha256": capsule["source_sha256"],
+        "summary_sha256": summary_digest(capsule),
+        "reviewed_at": "2026-04-10T00:00:00Z",
+    }
+    (caps_dir / "README.md.json").write_text(json.dumps(capsule), encoding="utf-8")
 
     index_path = tmp_path / "docs/birdseye/index.json"
     index_path.parent.mkdir(parents=True, exist_ok=True)
@@ -38,6 +46,7 @@ def _write_birdseye_fixture(tmp_path: Path) -> tuple[Path, Path]:
                 "nodes": {
                     "README.md": {
                         "mtime": "00001",
+                        "caps": "docs/birdseye/caps/README.md.json",
                     }
                 },
             }
@@ -248,9 +257,7 @@ def test_birdseye_freshness_fails_when_generated_at_mismatch(tmp_path: Path) -> 
 
     assert result.returncode == 1
     payload = json.loads(result.stdout)
-    assert payload["failures"] == [
-        "index.json and hot.json must share the same generated_at update cycle"
-    ]
+    assert payload["failures"] == ["index.json and hot.json must share the same generated_at update cycle"]
 
 
 def test_birdseye_freshness_fails_when_capsule_is_missing(tmp_path: Path) -> None:

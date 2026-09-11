@@ -16,5 +16,6 @@
     "フラグ依存の同期が遅れると段階導入が停滞する"
   ],
   "tests": [],
-  "generated_at": "00060"
+  "generated_at": "00067",
+  "source_sha256": "2cd3db7b449be9f1b5b1a1f93188d115ca54d1b7acb3ace6cc5f70fa0f23b60a"
 }

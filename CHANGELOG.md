@@ -40,6 +40,31 @@ next_review_due: 2026-08-11
 
 ## Unreleased
 
+- 0086: 6合成シナリオ・128イベント・3条件の全504要求を独立監査。
+  目的・制約など7項目は保持したが、解消済み質問の標準復元からの欠落を確認した。
+  [結果と限界](docs/evidence/long-horizon-drift-20260911/README.md)を公開し、復元契約の範囲を明記。
+
+- 0085: hash付き原文のscalarと表の全行から厳密な整数計算を行うAPI/CLIを追加。
+  入力・演算trace・原文位置を保持し、全案の計算結果をモデルへ補助資料として渡す。
+  [仕様](docs/contracts/source-calculations.md) / [Task 20260911-03](docs/tasks/task-source-calculations-20260911.md)。
+- 0084: 文脈削減率より目的・制約・判断根拠の継続性を優先し、agent-taskstateの完全snapshotと
+  hash付き必読原文を保持する組立API/CLIを追加。予算不足・状態変更・根拠未解決は継続不可。
+  28件の試験を追加し、全1004pytestとHATE→QEGのGoを確認。実モデルの長期ドリフト率は未測定。
+- 0083: 全pytestのJUnit/coverageをHATEで正規化し、QEGの実行資格・判定・記録へ接続するローカルCLIを追加。
+  ツールの固定コピー、事前期待値、全case照合、原本hashとsource前後照合に対応。
+  [Task 20260911-01](docs/tasks/task-hate-qeg-20260911.md) / [Acceptance](docs/acceptance/AC-20260911-01.md)。
+
+- 0082: 固定課題の対応比較、byte予算付き原文取得、task/run traceと独立した検収の接続、
+  agent-taskstateのCASと既存coordinatorによるcheckpoint再開を追加。
+  [利用手順](docs/workflow-evolution.md) / [Task 20260910-02](docs/tasks/task-workflow-evolution-20260910.md)
+  / [Acceptance](docs/acceptance/AC-20260910-02.md)。実運用の性能差は別途測定する。
+
+- 0081: 100ルールの適用見直し。固定の変更量・出力書式・読込経路を見直し、実測に基づく検証と用途別の必須条件へ整合。
+  Gate観測を90/180/30日に分離し、未計測・計測エラーと実測値を区別する。Birdseyeに原文hashと要約レビューを導入。
+  セキュリティ・releaseの承認境界を維持し、CLI試験を一時環境へ隔離。
+  評価profileと共有readの改善は機能のあるAgent_tools版に適用する。
+  [Task 20260910-01](docs/tasks/task-policy-remediation-20260910.md) / [Acceptance](docs/acceptance/AC-20260910-01.md)。
+
 ### Added
 
 - OSS and distribution hardening:
@@ -164,6 +189,11 @@ next_review_due: 2026-08-11
 
 ### Changed
 
+- 2026-09-10: `HUB.codex.md`、`GUARDRAILS.md`、用語集のエージェント運用方針を更新。
+  - ネイティブツール呼び出しの本文 JSON への常時複製を廃止。
+    JSON 封筒はネイティブツールがなく、対応する外部オーケストレータがある場合に限定。
+  - 「100 行／2 ファイル」の固定上限を廃止し、目的・依存関係・リスクと
+    レビュー・検証・切り戻しの可否で変更単位を決定。承認範囲と互換性の要件は維持。
 - Five-tool validation gate remediation:
   - `tools/audit/verify_log_chain.py` now prefers `--hmac-key` while retaining
     `--secret` as a compatibility alias, avoiding a Code-to-gate hardcoded-secret

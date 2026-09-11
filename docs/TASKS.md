@@ -16,6 +16,9 @@ next_review_due: 2026-08-10
 
 ## 2. 記入テンプレート
 
+継続・複数段階・引継ぎ・依存管理・検収を伴う作業では永続Taskを作る。Tier 3では本運用を採用する。
+単発の軽微な修正は、変更範囲・検証・残件を既存の作業記録やPRに残せばよく、重複するTaskを作らない。
+
 Task Seed は `TASK.codex.md` に定義されたテンプレートに準拠し、以下の要点を押さえる。
 
 ```markdown
@@ -39,7 +42,7 @@ next_review_due: YYYY-MM-DD
 
 ## Requirements
 - Behavior / I/O / Constraints / Acceptance Criteria を `TASK.codex.md` の粒度で箇条書き。
-- Lint/Type/Test のゼロエラーを必須条件として明記する。
+- 変更に適用するLint/Type/Testと検収条件を明記し、実行結果・未実行・失敗を区別する。
 
 ## Affected Paths
 - グロブ表記で変更予定ファイル群を列挙。
@@ -58,9 +61,9 @@ next_review_due: YYYY-MM-DD
 > **用語補足**: `Objective`・`Scope`・`Requirements` の定義は [`docs/addenda/A_Glossary.md`](addenda/A_Glossary.md) を参照し、
 > `TASK.codex.md` の章立てと整合させる。
 
-## 3. 検証ログ（TDD 前提）
+## 3. 検証ログ
 
-1. **テスト設計を先行**: 着手前に必要なユニット/統合テストを列挙し、期待する失敗/成功条件を `Tests` セクションへ記す。
+1. **必要な検証を選ぶ**: 変更した挙動・境界・回帰リスクと成功条件を `Tests` へ記す。TDDは期待挙動が明確な場合に推奨し、文書修正は内容・参照・lintを確認する。
 2. **実行コマンドの記録**: `Tests` もしくは `Commands` セクションに、実際に走らせたコマンドと結果（例: `pytest -q` → fail/pass）を時系列で追記する。
 3. **インシデントとの連携**: 再発防止策が `docs/IN-*.md` に存在する場合、該当節を参照し、テストケースや検証ログにリンクを残す。
 4. **チェックリスト照合**: ゲート通過後は `CHECKLISTS.md` の該当項目を確認し、未完了項目があれば Follow-up へ移す。
@@ -73,13 +76,13 @@ next_review_due: YYYY-MM-DD
 - **情報同期**: 追記した Task Seed は `HUB.codex.md` の分類に基づき、関連ドキュメント（Blueprint /
   Guardrails / Incident）とのリンクを整備する。
 - **レビュー結果の反映**: レビュアーからの追加要求は `Notes` に記録し、着手が別タスクになる場合は Task Seed ID を採番して紐付ける。
-- **完了判定**: `CHECKLISTS.md` と `EVALUATION.md` の条件を満たし、検証ログがすべてグリーンであることを確認して `status: done` へ更新する。
+- **完了判定**: 対象に適用する検収条件と必要な検証を満たして `status: done` へ更新する。未実行・失敗・残件を明記し、ログのgreenだけで目的達成としない。
 - **検収記録**: 完了時は `docs/acceptance/AC-YYYYMMDD-xx.md` を作成し、Task Seed からリンクする。
 - **task_id 正本化**: `docs/tasks/*.md` は front matter に `task_id` を必須で持ち、
   Acceptance / plugin 連携の参照キーとして使う。
 - **Changelog 通番**: 変更履歴を編集する場合は [README.md の変更履歴の更新ルール](../README.md#changelog-update-rules) に従い、
-  既存の最大通番に 1 を加えて 4 桁ゼロ埋めで記録する。
-- **成果の転記**: 完了した Task Seed の成果差分は `[Unreleased](../CHANGELOG.md#unreleased)` に通番付きで記録し、
+  既存の最大通番に 1 を加えて 4 桁ゼロ埋めで記録する。通番は表示用であり、追跡の正本はTask/Acceptance IDとする。
+- **成果の転記**: 公開挙動・運用方針に影響する変更や永続Taskの完了概要は `[Unreleased](../CHANGELOG.md#unreleased)` に通番付きで記録し、
   当該 Task Seed からリンクを張って追跡できるようにする。
 
 ---

@@ -1,0 +1,27 @@
+{
+  "schema_version": "workspace-supervision-config-v1",
+  "profile": "windows-codex-safe",
+  "state_root_env": "WORKFLOW_SUPERVISOR_STATE_ROOT",
+  "defaults": {
+    "wip_key": "workspace_io_global",
+    "ttl_seconds": 300,
+    "heartbeat_interval_seconds": 60,
+    "probe_timeout_ms": 5000,
+    "evaluation_wip": 1,
+    "design_wip": 1
+  },
+  "classification": {
+    "analysis_without_tools": "parallel_without_lease",
+    "filesystem_read": "read_lease",
+    "shell_unknown_or_mutating": "write_lease",
+    "file_edit": "write_lease",
+    "evaluation": "write_lease",
+    "hash_manifest_update": "write_lease"
+  },
+  "path_policy": {
+    "default_scope": ".",
+    "disjoint_write_requires_supervisor_approval": true,
+    "windows_sandbox_profile_uses_global_wip_for_reads": true
+  },
+  "terminal_job_states": ["succeeded", "invalid"]
+}

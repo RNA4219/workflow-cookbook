@@ -39,8 +39,8 @@ python -m tools.codemap.update \
   --emit caps
 ```
 
-1. 対象ノード（`--targets`）に今回更新したファイルや重要エントリをカンマ区切りで列挙します。
-   Birdseye を再生成する場合は `docs/birdseye/` 配下を明示してください。
+1. `--targets` にはindex/hot/capsのBirdseye資源を列挙します。原文パスを直接渡さないでください。
+   原文の変更から対象を導く場合は `--since <ref>` を使います。
 2. `--emit` で出力対象を指定します。現在は `index+caps` が標準です。
    `--radius` を省略した場合は既定で ±2 hop を探索し、`0` を指定すると seed ノード自身だけを更新します。
 3. `docs/birdseye/index.json` と `docs/birdseye/hot.json` を同一ターゲットで指定すると、両データセットの鮮度が揃います。
@@ -60,6 +60,11 @@ python -m tools.codemap.update \
 
 ## Guardrails との整合
 
-- `GUARDRAILS.md` が定義する「Birdseye JSON を第一読者とし、人間向けはフォールバック」という方針を満たすため、JSON ファイルは常に最新の情報源となるよう保守します。
+- Birdseyeが質問に合う場合に活用し、未登録・不適合・鮮度不明の場合は通常検索で原文へ戻ります。
+- source_sha256は原文の観測hashです。再生成はsummary/reviewを確認済みにしません。
+  原文と要約を確認した後だけreviewのsource_sha256・summary_sha256・reviewed_atを記録します。
+- `tools.codemap.source_freshness.summary_digest` でrole/summary/API/依存/リスク/試験をhash化します。
+  確認記録を整備した範囲ではcheckerの `--require-reviewed` を利用できます。
+- 旧capsのhash・review欠落はwarningです。段階的に移行し、日付だけで未確認を隠さないでください。
 - フォールバック時には `docs/BIRDSEYE.md` の Edges / Hot / 更新手順を参照し、必要に応じて本 README の `codemap.update` 手順に合流してください。
 - Birdseye を更新した場合は、関連するチェックリストや運用ドキュメント（`CHECKLISTS.md`・`RUNBOOK.md` など）にも鮮度情報を反映し、リポジトリ全体の整合を保ちます。

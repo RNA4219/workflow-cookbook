@@ -2,7 +2,7 @@
   "id": "HUB.codex.md",
   "role": "navigation",
   "public_api": [],
-  "summary": "エージェント向けのツール利用ポリシーと、自動タスク分割に必要な主要ドキュメント群・分類ルールを整理したハブ。",
+  "summary": "必要な文書とタスクの入口を案内するハブ。ネイティブツール／外部runner／未実行を区別し、Birdseyeと検索・原文参照を選んで適用条件を確認する。",
   "deps_out": [
     "BLUEPRINT.md",
     "CHANGELOG.md",
@@ -29,8 +29,16 @@
     "docs/tasks/task-autosave-project-locks.md"
   ],
   "risks": [
-    "Birdseye インデックスと同期が遅れるとタスク分割精度が低下"
+    "索引だけで十分と判断すると未収録の原文や適用条件を見落とす"
   ],
   "tests": [],
-  "generated_at": "00060"
+  "generated_at": "00066",
+  "source_sha256": "029541b39e66b0cc36724f8a791e65ac295b5ea9607b6c90d99489451302b3ac",
+  "review": {
+    "reviewed_at": "2026-09-10T02:09:04.366163+00:00",
+    "reviewed_by": "Codex",
+    "source_sha256": "029541b39e66b0cc36724f8a791e65ac295b5ea9607b6c90d99489451302b3ac",
+    "summary_sha256": "749bec93a1686e387a6fecbc95449396202718579481c2222efed36c79939212",
+    "scope": "原文と要約・参照の整合。実運用の効果評価ではない。"
+  }
 }

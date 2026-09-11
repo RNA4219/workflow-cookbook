@@ -17,5 +17,6 @@
   "tests": [
     "tests/test_repo_responsibilities.py"
   ],
-  "generated_at": "00060"
+  "generated_at": "00067",
+  "source_sha256": "00c6610bd0eeda8e4a960b6fa30ecc58c28c8fc0d1b10c0fdb7a0c236cc1324a"
 }

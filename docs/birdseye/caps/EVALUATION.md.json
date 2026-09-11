@@ -2,7 +2,7 @@
   "id": "EVALUATION.md",
   "role": "quality",
   "public_api": [],
-  "summary": "受け入れ基準とKPI、テストアウトラインを定義し、policy.yamlの制約順守とインシデント連携を明示する品質基準書。",
+  "summary": "採用した受入基準・品質ゲートと、校正が必要なKPI・代理指標を区別する。実測、fixture、未計測を混同せず、比較条件と根拠を記録する。",
   "deps_out": [
     "RUNBOOK.md",
     "docs/IN-20250115-001.md",
@@ -23,5 +23,13 @@
   "tests": [
     "手動: Acceptance Criteria が最新インシデント要件を満たすかPRレビューで確認"
   ],
-  "generated_at": "00060"
+  "generated_at": "00067",
+  "source_sha256": "d1cc402029764e18a8b7e9566cb50bd8c705501f0c7a0cdc768721d4f141446d",
+  "review": {
+    "reviewed_at": "2026-09-10T02:09:04.366163+00:00",
+    "reviewed_by": "Codex",
+    "source_sha256": "1bcab576974303f00b9a8498b31a2854bbefeca5c4316cfe3338fbb82b4e9f11",
+    "summary_sha256": "52e0d112b6421e82e4c0a979ff0507c99ef76bf818a20d87555512f581232df7",
+    "scope": "原文と要約・参照の整合。実運用の効果評価ではない。"
+  }
 }

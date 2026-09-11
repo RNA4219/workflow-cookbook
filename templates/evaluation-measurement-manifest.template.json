@@ -1,0 +1,49 @@
+{
+  "schema_version": "1.1",
+  "profile": "document_retrieval",
+  "manifest_id": "eval:YYYYMMDD-01",
+  "task_id": "YYYYMMDD-01",
+  "owner": "named-owner",
+  "purpose": "comparison",
+  "status": "frozen",
+  "freeze_date": "YYYY-MM-DD",
+  "hypothesis": "比較する単一の仮説",
+  "action_delta": "Candidateで変更した検索・測定手順",
+  "negative_control": "変更条件外で差がないことの確認",
+  "identity": {
+    "legacy": {
+      "label": "legacy",
+      "source_path": "path/to/legacy",
+      "source_revision": "commit-and-dirty-bundle-id",
+      "source_sha256": "sha256:<64 lowercase hex>",
+      "input_sha256": "sha256:<64 lowercase hex>"
+    },
+    "candidate": {
+      "label": "candidate",
+      "source_path": "path/to/candidate",
+      "source_revision": "commit-and-dirty-bundle-id",
+      "source_sha256": "sha256:<64 lowercase hex>",
+      "input_sha256": "sha256:<64 lowercase hex>"
+    },
+    "runner": {
+      "id": "runner-version",
+      "sha256": "sha256:<64 lowercase hex>"
+    }
+  },
+  "evaluation": {
+    "dataset_id": "frozen-dataset",
+    "dataset_sha256": "sha256:<64 lowercase hex>",
+    "measurement_unit": "query",
+    "primary_metric": "recall_at_3",
+    "model_version": "not_used:lexical_search",
+    "policy_version": "policy-revision",
+    "configuration": {
+      "top_k": 3,
+      "reading_budget": "同一に固定した予算"
+    }
+  },
+  "external_mutations": {
+    "registry_frozen": true,
+    "submission_frozen": true
+  }
+}

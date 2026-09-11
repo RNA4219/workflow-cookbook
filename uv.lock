@@ -1152,6 +1152,7 @@ name = "workflow-cookbook"
 version = "1.2.0"
 source = { editable = "." }
 dependencies = [
+    { name = "defusedxml" },
     { name = "pyyaml" },
 ]
 
@@ -1173,6 +1174,7 @@ requires-dist = [
     { name = "bandit", marker = "extra == 'dev'", specifier = "==1.9.4" },
     { name = "build", marker = "extra == 'dev'", specifier = "==1.5.1" },
     { name = "coverage", marker = "extra == 'dev'", specifier = "==7.13.5" },
+    { name = "defusedxml", specifier = ">=0.7.1" },
     { name = "jsonschema", marker = "extra == 'dev'", specifier = "==4.25.1" },
     { name = "mypy", marker = "extra == 'dev'", specifier = "==2.2.0" },
     { name = "pip-audit", marker = "extra == 'dev'", specifier = "==2.10.0" },

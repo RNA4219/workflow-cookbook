@@ -210,8 +210,8 @@ python tools/ci/check_adoption_tier.py --repo . --check-drift
 workflow-cookbook の template が更新された場合、派生 repo へ通知する。
 
 1. `docs/UPSTREAM.md` に upstream repo を記録
-2. 週次で `extract_upstream_changes.py` を実行
-3. 差分があれば Task Seed を起票
+2. 変更頻度・重要度・確認機会に応じて `extract_upstream_changes.py` 等で差分を確認する（週次は目安）
+3. 対象revisionと利用契約を確認し、有用性・互換性・保守リスクで採否を記録する。継続対応が必要な差分はTask化する
 
 ---
 

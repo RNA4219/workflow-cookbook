@@ -57,14 +57,12 @@ class WorkflowPluginProtocol(Protocol):
 
 @runtime_checkable
 class TaskStateSyncPluginProtocol(WorkflowPluginProtocol, Protocol):
-    def sync_task_acceptance(self, *, repo_root: Path) -> TaskAcceptanceSyncReport | Mapping[str, Any]:
-        ...
+    def sync_task_acceptance(self, *, repo_root: Path) -> TaskAcceptanceSyncReport | Mapping[str, Any]: ...
 
 
 @runtime_checkable
 class AcceptanceIndexPluginProtocol(WorkflowPluginProtocol, Protocol):
-    def build_acceptance_index(self, *, repo_root: Path) -> AcceptanceIndexResult | Mapping[str, Any]:
-        ...
+    def build_acceptance_index(self, *, repo_root: Path) -> AcceptanceIndexResult | Mapping[str, Any]: ...
 
 
 @runtime_checkable
@@ -75,8 +73,7 @@ class DocsResolvePluginProtocol(WorkflowPluginProtocol, Protocol):
         repo_root: Path,
         task_id: str,
         intent_id: str | None = None,
-    ) -> DocsResolveResult | Mapping[str, Any]:
-        ...
+    ) -> DocsResolveResult | Mapping[str, Any]: ...
 
 
 @runtime_checkable
@@ -88,14 +85,12 @@ class DocsAckPluginProtocol(WorkflowPluginProtocol, Protocol):
         task_id: str,
         doc_ids: list[str],
         reader: str,
-    ) -> DocsAckResult | Mapping[str, Any]:
-        ...
+    ) -> DocsAckResult | Mapping[str, Any]: ...
 
 
 @runtime_checkable
 class DocsStalePluginProtocol(WorkflowPluginProtocol, Protocol):
-    def stale_check(self, *, repo_root: Path, task_id: str) -> DocsStaleResult | Mapping[str, Any]:
-        ...
+    def stale_check(self, *, repo_root: Path, task_id: str) -> DocsStaleResult | Mapping[str, Any]: ...
 
 
 def as_jsonable(value: Any) -> Any:

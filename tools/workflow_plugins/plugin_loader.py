@@ -41,9 +41,7 @@ def load_plugin_factory(
 ) -> Callable[..., Any]:
     module_name, separator, attr_name = import_path.partition(":")
     if separator == "" or not module_name or not attr_name:
-        raise WorkflowPluginLoadError(
-            "Plugin factory path must use 'module:attribute' format"
-        )
+        raise WorkflowPluginLoadError("Plugin factory path must use 'module:attribute' format")
 
     _extend_sys_path(python_paths, base_path=base_path)
 
@@ -55,9 +53,7 @@ def load_plugin_factory(
     try:
         factory = getattr(module, attr_name)
     except AttributeError as exc:
-        raise WorkflowPluginLoadError(
-            f"Plugin factory attribute could not be resolved: {import_path}"
-        ) from exc
+        raise WorkflowPluginLoadError(f"Plugin factory attribute could not be resolved: {import_path}") from exc
     if not callable(factory):
         raise WorkflowPluginLoadError(f"Plugin factory is not callable: {import_path}")
     return cast(Callable[..., Any], factory)
@@ -77,9 +73,7 @@ def instantiate_workflow_plugin(
     plugin = factory(**dict(spec.options or {}))
     capabilities = getattr(plugin, "capabilities", None)
     if not isinstance(capabilities, Sequence) or isinstance(capabilities, (str, bytes)):
-        raise WorkflowPluginLoadError(
-            f"Instantiated plugin does not expose a capabilities sequence: {spec.factory}"
-        )
+        raise WorkflowPluginLoadError(f"Instantiated plugin does not expose a capabilities sequence: {spec.factory}")
     for capability in capabilities:
         method_name = CAPABILITY_METHOD_NAMES.get(str(capability))
         if method_name is None:

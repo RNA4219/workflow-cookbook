@@ -2,10 +2,13 @@
   "id": "CHANGELOG.md",
   "role": "history",
   "public_api": [],
-  "summary": "リリースバージョンごとの追加内容と既知の制約を記録し、テンプレート更新の履歴を追跡する変更ログ。",
+  "summary": "配布版とUnreleasedの変更・制約をTask/Acceptanceへ追跡する履歴。0082は比較・取得・観測・再開を追加し、実運用性能は未測定。 0083はHATE正規化からQEGの実テスト受入への接続。 0084は目的・制約・決定の保持と必読全文を優先するtaskstate接続。 0085は全行の厳密な整数計算と原文位置の証跡。",
   "deps_out": [
     "EVALUATION.md",
     "README.md",
+    "docs/acceptance/AC-20260910-02.md",
+    "docs/tasks/task-workflow-evolution-20260910.md",
+    "docs/workflow-evolution.md",
     "governance/policy.yaml"
   ],
   "deps_in": [
@@ -19,5 +22,13 @@
   "tests": [
     "手動: 新リリース記載後にREADME/policy.yamlとの整合を確認"
   ],
-  "generated_at": "00060"
+  "generated_at": "00067",
+  "source_sha256": "51dd7808dd278d90d215e2290f45359ea57e7ee7d1bef8e0c3a0247d95ad226d",
+  "review": {
+    "reviewed_at": "2026-09-11T04:51:06.414540+00:00",
+    "reviewed_by": "Codex",
+    "source_sha256": "c4600698969fb0e9312ee9109bfc361ed9ce639a31ec78c52a03539ff4dccaf7",
+    "summary_sha256": "a9c72e28da2cfe5a9a3d0af23148b58370935f51cc957562518ea4ee7aee8647",
+    "scope": "原文計算API/CLIと利用案内。モデル効果は別manifestで評価する。"
+  }
 }

@@ -2,7 +2,7 @@
   "id": "RUNBOOK.md",
   "role": "operations",
   "public_api": [],
-  "summary": "環境ごとの差分、準備→実行→確認の手順、監視ポイント、ロールバック方針をまとめた運用ガイド。",
+  "summary": "環境と採用機能に応じた検証・監視・復旧・承認手順。Birdseyeの原文と要約の確認、通信の再試行条件、実運用とfixture証跡の区別を定める。",
   "deps_out": [
     "docs/IN-20250115-001.md"
   ],
@@ -18,5 +18,13 @@
   "tests": [
     "手動: Execute 手順をローカル環境でドライランして整合性を確認"
   ],
-  "generated_at": "00060"
+  "generated_at": "00067",
+  "source_sha256": "cf827da50dc83aa8cc19d10de09f9ff05aa9499c725b6c4868b7e0ee0972322a",
+  "review": {
+    "reviewed_at": "2026-09-10T02:09:04.366163+00:00",
+    "reviewed_by": "Codex",
+    "source_sha256": "ee11ef3b7dc60decc7800c16606e2cd6b87b742be66355ef75a39f2c383fa428",
+    "summary_sha256": "126b96c8663748aa503d106d2d9cbb9922e6df1133f66a26afd9a7e69a26a51e",
+    "scope": "原文と要約・参照の整合。実運用の効果評価ではない。"
+  }
 }

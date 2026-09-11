@@ -2,7 +2,7 @@
   "id": "docs/BIRDSEYE.md",
   "role": "fallback",
   "public_api": [],
-  "summary": "Birdseyeのエッジ・ホットリスト・更新手順をフォールバック参照向けに集約し、JSONが取得できない状況でも運用判断を下せるようにする。",
+  "summary": "Birdseye索引と要約を利用する際の取得・更新・フォールバック手順。生成世代、原文hash、要約レビューを区別する。",
   "deps_out": [
     "GUARDRAILS.md",
     "README.md",
@@ -15,5 +15,13 @@
   ],
   "risks": [],
   "tests": [],
-  "generated_at": "00060"
+  "generated_at": "00067",
+  "source_sha256": "9bf22737ab067cdd358511fe3063830d0caa6761956cc2c14ad110737f9c5988",
+  "review": {
+    "reviewed_at": "2026-09-10T02:09:04.366163+00:00",
+    "reviewed_by": "Codex",
+    "source_sha256": "1533301f41d9ee9cbfbfedd8174befeb4c5fb60b2ac1a89a9e63678331fffb42",
+    "summary_sha256": "ccff8e4464e4b776cf684e42d3d829c42095ba85e402480a976daecd8c79a613",
+    "scope": "原文と要約・参照の整合。実運用の効果評価ではない。"
+  }
 }

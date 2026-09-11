@@ -2,7 +2,8 @@
 
 `codemap.update` は Birdseye のインデックスおよびカプセルを再生成するコマンドです。
 現行の `run_update` は指定したターゲットを起点に、既定では ±2 hop のカプセルを探索し、
-探索範囲の `deps_in` / `deps_out` のみを再計算して Birdseye のトポロジーを同期します。
+探索範囲の `deps_in` / `deps_out` を再計算し、実在する原文ファイルの `source_sha256` を記録します。
+原文の要約や `review` は自動承認せず、内容確認とは分離します。
 以下の手順で最新化します。
 
 ## 依存
@@ -26,14 +27,17 @@
    python -m tools.codemap.update --since --radius 1 --emit caps
    ```
 
-   - `--since` を指定すると `git diff --name-only <参照>...HEAD` を用いて Birdseye 配下の変更ファイルから対象を自動推定します。参照を省略すると `main` が使われます。
+   - `--since` は参照からの差分を対象リソースへ対応付けます。参照省略時は `main` を使用します。
+     原文を変更した場合は `--since <ref>`、直接指定する場合は `--targets <Birdseyeリソース>` を使います。
    - `--targets` には再生成したい Birdseye リソースをカンマ区切りで指定します。
      ルート（`docs/birdseye/`）や `index.json` / `hot.json` / `caps/` ディレクトリをターゲットに含めた場合は、
      すべてのカプセルが探索の起点となり、±2 hop の再計算が全体へ波及します。
      明示的にターゲットを限定することで、±2 hop のカプセル範囲を利用者が制御できます。
    - `--emit` には出力したい成果物（`index` / `caps` / `index+caps`）を指定します。
    - `--radius` には探索する hop 数を指定します。既定値は `2` で、`0` を指定するとターゲット自身のみを更新します。
-3. 実行後、以下の成果物が更新されます。
+3. 実行後、以下の成果物が更新されます。原文・要約・参照を確認し、レビューしたcapsだけに
+   `review.source_sha256`、`review.summary_sha256`、`review.reviewed_at` を記録します。
+   hashの計算契約は `tools.codemap.source_freshness` を参照してください。
    - `docs/birdseye/index.json`
    - `docs/birdseye/hot.json`（`index` を出力する場合に含まれます）
    - `docs/birdseye/caps/*.json`

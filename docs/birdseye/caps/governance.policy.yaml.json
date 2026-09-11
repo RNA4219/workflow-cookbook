@@ -2,7 +2,7 @@
   "id": "governance/policy.yaml",
   "role": "governance",
   "public_api": [],
-  "summary": "自己改変禁止パス、ヒューマン承認境界、カナリア中止条件、SLO指標を規定するガバナンスポリシー。",
+  "summary": "本repoのSLO、禁止対象・承認境界とCI checker stageの正本。Gate stage変更は観測根拠と責任者判断に従う。",
   "deps_out": [],
   "deps_in": [
     "CHANGELOG.md",
@@ -12,5 +12,13 @@
   ],
   "risks": [],
   "tests": [],
-  "generated_at": "00060"
+  "generated_at": "00066",
+  "source_sha256": "86e6eb041b6f283ea2eef2d03d647f76005d199d3281f42d6a3a71ebcfe6f8e8",
+  "review": {
+    "reviewed_at": "2026-09-10T02:09:04.366163+00:00",
+    "reviewed_by": "Codex",
+    "source_sha256": "86e6eb041b6f283ea2eef2d03d647f76005d199d3281f42d6a3a71ebcfe6f8e8",
+    "summary_sha256": "3f5ac62dfa931086cdeeb403708b4483b7a8506e1c2bb4969d84b50f004b7843",
+    "scope": "原文と要約・参照の整合。実運用の効果評価ではない。"
+  }
 }

@@ -19,16 +19,13 @@ plugin-based Evidence tracking, and a repo-agnostic adaptive improvement loop
 blueprint for downstream software.
 
 <!-- LLM-BOOTSTRAP v1 -->
-Recommended read order:
+質問に合う最小の原文へ到達するための導線:
 
-1. `docs/birdseye/index.json` for the lightweight node graph
-2. `docs/birdseye/caps/<path>.json` for focused point reads
+1. README/HUBから必要な資料を特定する。
+2. Birdseyeが対象に合う場合は `docs/birdseye/index.json` と必要なcapsを使う。
+3. 質問と返却量に応じて0/1/2hopを選び、未登録・不適合・鮮度不明なら通常検索へ戻る。
 
-Focus procedure:
-
-- Find node IDs for recently changed files within +/-2 hops from `index.json`
-- Read only the matching `caps/*.json` files
-
+原文が根拠の正本。生成日・世代だけで要約を確認済みとしない。
 <!-- /LLM-BOOTSTRAP -->
 
 ## What's Included
@@ -188,7 +185,7 @@ python tools/ci/check_metrics_thresholds.py --check --metrics-json .ga/qa-metric
 - Python CI:
   [`.github/workflows/reusable/python-ci.yml`](.github/workflows/reusable/python-ci.yml)
 - Security CI:
-  [`.github/workflows/reusable/security-ci.yml`](.github/workflows/reusable/security-ci.yml)
+  [`.github/workflows/reusable/security-ci.yml`](.github/workflows/security.yml)
 - Security posture:
   [`.github/workflows/security.yml`](.github/workflows/security.yml),
   [`tools/ci/check_security_posture.py`](tools/ci/check_security_posture.py)

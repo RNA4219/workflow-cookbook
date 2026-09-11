@@ -21,6 +21,16 @@ class PluginPolicy:
     isolation_mode: str = "thread"
 
 
+@dataclass(frozen=True)
+class RunContext:
+    task_id: str
+    run_id: str
+
+    def __post_init__(self) -> None:
+        if any(not isinstance(value, str) or not value.strip() for value in (self.task_id, self.run_id)):
+            raise ValueError("task_id and run_id are required")
+
+
 @dataclass
 class PluginTrace:
     """Trace record for a plugin invocation."""
@@ -37,6 +47,10 @@ class PluginTrace:
     timeout_seconds: float | None = None
     isolation_mode: str = "thread"
     timed_out: bool = False
+    task_id: str | None = None
+    run_id: str | None = None
+    invocation_id: str | None = None
+    span_id: str | None = None
 
     @property
     def duration_seconds(self) -> float | None:
@@ -46,6 +60,9 @@ class PluginTrace:
 
     def to_dict(self) -> dict[str, Any]:
         payload = asdict(self)
+        for field in ("task_id", "run_id", "invocation_id", "span_id"):
+            if payload[field] is None:
+                del payload[field]
         payload["duration_seconds"] = self.duration_seconds
         return payload
 

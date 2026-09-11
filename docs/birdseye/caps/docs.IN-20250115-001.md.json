@@ -22,5 +22,6 @@
   "tests": [
     "手動: RUNBOOK/EVALUATION/CHANGELOG の更新内容とインシデント記録の整合を確認"
   ],
-  "generated_at": "00060"
+  "generated_at": "00067",
+  "source_sha256": "823f4af336faeac786f2dc0b34b6be2e8644d0483311b6a738e8c19f05f6b392"
 }

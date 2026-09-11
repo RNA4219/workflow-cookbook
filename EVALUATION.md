@@ -19,6 +19,10 @@ next_review_due: 2026-08-11
 - `governance/policy.yaml` の `forbidden_paths` を無断で変更しないこと。
 - インシデント発生時は `docs/IN-YYYYMMDD-XXX.md` を作成し、該当 PR および `RUNBOOK.md` から相互リンクすること。
 - 単体テストと結合テストの対象が Task Seed または検収記録に記載されていること。
+- 比較評価・実験・方策復元・昇格・提出を含むTaskは、
+  `docs/contracts/evaluation-identity-contract.md` に従うmanifestを持ち、実行前preflightと
+  実行後postrunが成功していること。共通identityと用途別profileを使い、測定単位の正の件数・実測値・障害なしを確認する。
+  `total_games > 0` とfallback/illegal action=0はgameに適用する。単体fixture検証は比較評価に含めない。
 - Python 系の変更では coverage 80% 以上を確認すること。
 - 最低限の回帰確認として、次のテストが通ること。
   - `tests/test_codemap_update.py`
@@ -39,6 +43,11 @@ next_review_due: 2026-08-11
 - 30日shadow運用後にnudge件数と誤検知をAcceptanceへ追記する。
 
 ## KPIs
+
+数値の正本は `governance/metrics_thresholds.yaml` と運用SLOの `governance/policy.yaml`。
+以下は本repoの採用基準であり、導入先では定義・分母・機会数・対象版・誤差を校正する。
+圧縮率と意味保持率は補助指標（warn）で、単独ではタスク成功や品質を保証しない。
+未計測・計測障害を0として埋めず、実運用の由来を持つ比較可能なデータだけで判定する。
 
 | 指標 | 目的 | 収集方法 | 目標値 |
 | --- | --- | --- | --- |

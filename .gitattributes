@@ -2,3 +2,10 @@
 *.md text eol=lf
 *.yml text eol=lf
 *.yaml text eol=lf
+
+# Keep measured evidence byte-identical to its recorded hash inventory.
+docs/evidence/long-horizon-drift-20260911/PROTOCOL.md -text whitespace=cr-at-eol
+docs/evidence/long-horizon-drift-20260911/RESULTS.md -text whitespace=cr-at-eol
+docs/evidence/long-horizon-drift-20260911/DIAGNOSTIC.md -text whitespace=cr-at-eol
+docs/evidence/long-horizon-drift-20260911/audit.json -text whitespace=cr-at-eol
+docs/evidence/long-horizon-drift-20260911/comparison-*/report.json -text whitespace=cr-at-eol

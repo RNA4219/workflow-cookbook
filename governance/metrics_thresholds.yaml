@@ -1,3 +1,5 @@
+# 本repoの採用済み基準。導入先は定義・測定対象・分母・版・誤差を校正する。
+# 圧縮率/意味保持率は補助指標であり、単独ではタスク成功を保証しない。
 checklist_compliance_rate:
   comparator: min
   threshold: 95.0
@@ -21,12 +23,12 @@ review_latency:
 compress_ratio:
   comparator: max
   threshold: 0.60
-  level: fail
+  level: warn
   unit: ratio
 semantic_retention:
   comparator: min
   threshold: 0.85
-  level: fail
+  level: warn
   unit: ratio
 reopen_rate:
   comparator: max

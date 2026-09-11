@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 import sys
 from collections.abc import Mapping
 from dataclasses import dataclass
@@ -12,6 +13,7 @@ from pathlib import Path
 try:
     import yaml
 except ModuleNotFoundError:  # pragma: no cover - fallback for minimal env
+
     class _MiniYamlModule:
         @staticmethod
         def safe_load(content: str) -> dict[str, dict[str, object]]:
@@ -54,8 +56,11 @@ class MetricsThresholdError(RuntimeError):
 
 
 def _as_float(value: object) -> float:
-    if isinstance(value, (str, int, float)):
-        return float(value)
+    if isinstance(value, (str, int, float)) and not isinstance(value, bool):
+        number = float(value)
+        if not math.isfinite(number):
+            raise ValueError("metric must be finite")
+        return number
     raise TypeError(f"Expected a numeric value, got {type(value).__name__}")
 
 
@@ -70,13 +75,15 @@ class ThresholdRule:
     def evaluate(self, metrics: Mapping[str, object]) -> str | None:
         if self.metric not in metrics:
             return f"{self.metric}: metric is missing"
+        if metrics[self.metric] is None:
+            return f"{self.metric}: metric is not measured"
+        if self.metric == "semantic_retention" and metrics.get("semantic_status", "measured") != "measured":
+            return f"{self.metric}: not a measured value"
         raw_value = metrics[self.metric]
         try:
             value = _as_float(raw_value)
         except (TypeError, ValueError) as exc:
-            raise MetricsThresholdError(
-                f"{self.metric}: metric value must be numeric, got {raw_value!r}"
-            ) from exc
+            raise MetricsThresholdError(f"{self.metric}: metric value must be numeric, got {raw_value!r}") from exc
         if self.comparator == "min":
             passed = value >= self.threshold
             expectation = f">= {self.threshold:g}"
@@ -164,9 +171,7 @@ def _load_metrics(path: Path) -> dict[str, object]:
     return loaded
 
 
-def evaluate_thresholds(
-    metrics: Mapping[str, object], rules: list[ThresholdRule]
-) -> tuple[list[str], list[str]]:
+def evaluate_thresholds(metrics: Mapping[str, object], rules: list[ThresholdRule]) -> tuple[list[str], list[str]]:
     failures: list[str] = []
     warnings: list[str] = []
     for rule in rules:
@@ -189,6 +194,8 @@ def evaluate_regressions(
 ) -> list[str]:
     regressions: list[str] = []
     for rule in rules:
+        if rule.level != "fail":
+            continue
         if rule.metric not in metrics or rule.metric not in baseline:
             continue
         try:
@@ -219,9 +226,7 @@ def evaluate_regressions(
 
 
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(
-        description="Validate collected QA metrics against governance thresholds"
-    )
+    parser = argparse.ArgumentParser(description="Validate collected QA metrics against governance thresholds")
     parser.add_argument(
         "--metrics-json",
         type=Path,

@@ -15,8 +15,8 @@ next_review_due: 2026-08-10
 
 - `TASK.*` を起票・更新し、[docs/TASKS.md](docs/TASKS.md) の運用ルールに沿ってスコープとフォローアップを同期
 - 着手前に [docs/ROADMAP_AND_SPECS.md](docs/ROADMAP_AND_SPECS.md) と [`GUARDRAILS.md`](GUARDRAILS.md) を読み合わせ、最小差分と既存ガードレールへ整合
-- テストを先行させ、[docs/ROADMAP_AND_SPECS.md](docs/ROADMAP_AND_SPECS.md) で定義された TDD フロー（`EVALUATION.md#test-outline` 参照）を完了
-- 単体テストと結合テストの対象を分けて記載し、Python 系では coverage 80% を目標ではなく必須ゲートとして扱う
+- 変更した挙動と回帰リスクに必要な検証を実施する。期待挙動が明確なら TDD を推奨する（`EVALUATION.md#test-outline` 参照）
+- 必要な単体・結合テストを区別し、本repoでは既存の coverage 80% ゲートを維持する。導入先の測定対象・基準はそのrepoで定義する
 - 例外や設定変更は [docs/security/Security_Review_Checklist.md](docs/security/Security_Review_Checklist.md) の該当フェーズで可否を確認
 - Runbook 連携が必要な作業は [`RUNBOOK.md`](RUNBOOK.md) へ手順差分を反映し、参照リンクを Task Seed に追記
 - 検収が必要な作業は `docs/acceptance/AC-YYYYMMDD-xx.md` を作成し、判定・証跡・残課題を記録
@@ -38,6 +38,8 @@ next_review_due: 2026-08-10
 
 ## Ops / Incident
 
+実際のインシデントに適用し、復旧と再発防止の証跡を残す。架空の通知や訓練実績を作らない。
+
 - インシデント初動は [`RUNBOOK.md`](RUNBOOK.md) の該当セクションを実行し、必要な通知経路を確保
 - セキュリティ対応は [docs/security/Security_Review_Checklist.md](docs/security/Security_Review_Checklist.md) のインシデント項目を完了
 - 復旧後の再発防止策を `TASK.*` と [docs/TASKS.md](docs/TASKS.md) の手順に沿って起票し、Runbook へ差分を反映
@@ -45,12 +47,14 @@ next_review_due: 2026-08-10
 
 ## Daily
 
+継続運用中のサービス・採用した監視契約に適用する。担当・対象指標・周期を定義し、単発の文書修正へ一律に要求しない。
+
 - 入力到着の確認
 - 失敗通知の有無
 - 主要メトリクス閾値
 - `python tools/ci/check_birdseye_freshness.py --check` が通ること
   > **Stale failure 復旧**: failure時は `codemap/update.py` で再生成後、
-  > `hot.json` の `last_verified_at` を更新日付へ更新し commit/push。
+  > 原文と要約を確認した後だけcapsのreviewとhotのlast_verified_atを更新する。日付だけで解消しない。
 - `governance/policy.yaml` の `ci.required_jobs` に対応する論理 gate ID が、
   `docs/ci-config.md` の対応表どおりの実 check 名で最新 run 成功になっているか確認
 - Branch Protection / Ruleset を有効化済みの場合は、

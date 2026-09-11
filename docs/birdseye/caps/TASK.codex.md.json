@@ -2,7 +2,7 @@
   "id": "TASK.codex.md",
   "role": "template",
   "public_api": [],
-  "summary": "タスクシードのメタデータ、スコープ、要件、実行コマンド、成果物を統一フォーマットで記述するためのテンプレート。",
+  "summary": "継続・検収・依存管理に必要なTaskの目的、範囲、要求、適用する検証と成果物を記録するテンプレート。",
   "deps_out": [
     "CHANGELOG.md",
     "EVALUATION.md",
@@ -18,5 +18,13 @@
   "tests": [
     "手動: Local Commands 節が最新CIゲートと一致するか定期レビュー"
   ],
-  "generated_at": "00060"
+  "generated_at": "00066",
+  "source_sha256": "c2bd028bfb8b4f88f5e8d28a7ea89f270d75426e2fe75b2c56b72a03289685a3",
+  "review": {
+    "reviewed_at": "2026-09-10T02:09:04.366163+00:00",
+    "reviewed_by": "Codex",
+    "source_sha256": "c2bd028bfb8b4f88f5e8d28a7ea89f270d75426e2fe75b2c56b72a03289685a3",
+    "summary_sha256": "98d6bf2275b9a9e58a142f55a415c61c843549d5b055ff37d5727ad30a41d72f",
+    "scope": "原文と要約・参照の整合。実運用の効果評価ではない。"
+  }
 }

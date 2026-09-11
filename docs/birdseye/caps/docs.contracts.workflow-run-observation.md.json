@@ -1,0 +1,21 @@
+{
+  "id": "docs/contracts/workflow-run-observation.md",
+  "role": "contract",
+  "public_api": [],
+  "deps_in": [
+    "docs/workflow-evolution.md"
+  ],
+  "deps_out": [],
+  "risks": [],
+  "tests": [],
+  "summary": "task/run/invocation/spanのtraceと独立検収を照合する。task時間とtool合計を分け、欠測usageをnullのまま保ち、正式Evidenceをbundle linksで接続する。",
+  "generated_at": "00066",
+  "source_sha256": "f65d043da7e046fd069a5a96719b776e11c795176938e8014daac80769af73ff",
+  "review": {
+    "reviewed_at": "2026-09-10T10:27:59.659222+00:00",
+    "reviewed_by": "Codex",
+    "source_sha256": "f65d043da7e046fd069a5a96719b776e11c795176938e8014daac80769af73ff",
+    "summary_sha256": "8677941067a4bedbebf7d61c3e2d0d0f1acf9d6d4723505df93442a226641950",
+    "scope": "今回の仕様と利用手順、原文・要約の整合。性能評価ではない。"
+  }
+}

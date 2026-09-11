@@ -1,0 +1,232 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agent-protocols/schemas/Evidence.schema.json",
+  "title": "Evidence",
+  "description": "Immutable execution evidence record for reproducibility",
+  "type": "object",
+  "allOf": [
+    {
+      "$ref": "common.schema.json"
+    },
+    {
+      "type": "object",
+      "required": [
+        "taskSeedId",
+        "baseCommit",
+        "headCommit",
+        "inputHash",
+        "outputHash",
+        "model",
+        "tools",
+        "environment",
+        "staleStatus",
+        "mergeResult",
+        "startTime",
+        "endTime",
+        "actor",
+        "policyVerdict",
+        "diffHash"
+      ],
+      "properties": {
+        "kind": {
+          "const": "Evidence"
+        },
+        "id": {
+          "type": "string",
+          "pattern": "^EV-[0-9]{3,}$"
+        },
+        "taskSeedId": {
+          "type": "string",
+          "pattern": "^TS-[0-9]{3,}$",
+          "description": "Reference to TaskSeed"
+        },
+        "baseCommit": {
+          "type": "string",
+          "minLength": 7,
+          "description": "Git commit SHA before execution"
+        },
+        "headCommit": {
+          "type": "string",
+          "minLength": 7,
+          "description": "Git commit SHA after execution"
+        },
+        "inputHash": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Hash of normalized input"
+        },
+        "outputHash": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Hash of output"
+        },
+        "model": {
+          "type": "object",
+          "required": ["name", "version", "parametersHash"],
+          "properties": {
+            "name": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Model name"
+            },
+            "version": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Model version"
+            },
+            "parametersHash": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Hash of inference parameters"
+            }
+          },
+          "additionalProperties": false
+        },
+        "tools": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "minItems": 1,
+          "description": "List of tools used"
+        },
+        "environment": {
+          "type": "object",
+          "required": ["os", "runtime", "containerImageDigest", "lockfileHash"],
+          "properties": {
+            "os": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Operating system"
+            },
+            "runtime": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Runtime version"
+            },
+            "containerImageDigest": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Container image digest (or 'uncontainerized')"
+            },
+            "lockfileHash": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Hash of dependency lockfile"
+            }
+          },
+          "additionalProperties": false
+        },
+        "staleStatus": {
+          "type": "object",
+          "required": ["classification", "evaluatedAt"],
+          "properties": {
+            "classification": {
+              "type": "string",
+              "enum": ["fresh", "soft_stale", "hard_stale"],
+              "description": "Staleness classification"
+            },
+            "evaluatedAt": {
+              "type": "string",
+              "format": "date-time",
+              "description": "Timestamp of stale evaluation"
+            },
+            "reason": {
+              "type": "string",
+              "description": "Optional reason for stale classification"
+            }
+          },
+          "additionalProperties": false
+        },
+        "mergeResult": {
+          "type": "object",
+          "required": ["status"],
+          "properties": {
+            "status": {
+              "type": "string",
+              "enum": ["not_applicable", "not_attempted", "merged", "manual_resolution_required"],
+              "description": "Merge attempt status"
+            },
+            "mergedAt": {
+              "type": "string",
+              "format": "date-time",
+              "description": "Timestamp of merge"
+            },
+            "strategy": {
+              "type": "string",
+              "description": "Merge strategy used"
+            },
+            "reason": {
+              "type": "string",
+              "description": "Optional reason for merge result"
+            }
+          },
+          "additionalProperties": false
+        },
+        "startTime": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Execution start timestamp"
+        },
+        "endTime": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Execution end timestamp"
+        },
+        "actor": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Actor ID of executor"
+        },
+        "approvalsSnapshot": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["role", "actorId", "decision", "decidedAt"],
+            "properties": {
+              "role": {
+                "type": "string",
+                "enum": ["project_lead", "security_reviewer", "release_manager", "admin"],
+                "description": "Role that approved"
+              },
+              "actorId": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Actor ID of approver"
+              },
+              "decision": {
+                "type": "string",
+                "enum": ["approved", "rejected"],
+                "description": "Approval decision"
+              },
+              "decidedAt": {
+                "type": "string",
+                "format": "date-time",
+                "description": "Timestamp of decision"
+              },
+              "reason": {
+                "type": "string",
+                "description": "Optional reason for decision"
+              }
+            },
+            "additionalProperties": false
+          },
+          "minItems": 1,
+          "description": "Snapshot of approvals (required if manual approval occurred)"
+        },
+        "policyVerdict": {
+          "type": "string",
+          "enum": ["approved", "rejected", "manual_review_required"],
+          "description": "Policy engine verdict"
+        },
+        "diffHash": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Hash of diff between baseCommit and headCommit"
+        }
+      }
+    }
+  ],
+  "unevaluatedProperties": false
+}

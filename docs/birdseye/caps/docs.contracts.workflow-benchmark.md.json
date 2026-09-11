@@ -1,0 +1,23 @@
+{
+  "id": "docs/contracts/workflow-benchmark.md",
+  "role": "contract",
+  "public_api": [],
+  "deps_in": [
+    "docs/workflow-evolution.md"
+  ],
+  "deps_out": [
+    "docs/contracts/evaluation-identity-contract.md"
+  ],
+  "risks": [],
+  "tests": [],
+  "summary": "非game manifestで入力と実装を凍結し、対応比較・欠測・測定失敗・負の対照を扱う。外部runnerの起動と採点は呼出元で、集計は記述統計まで。",
+  "generated_at": "00066",
+  "source_sha256": "f9235871ed2c29fd4cbcd303cfe6e87c8741cfd971c2ec6c0bc5eaede3705768",
+  "review": {
+    "reviewed_at": "2026-09-10T10:27:59.659222+00:00",
+    "reviewed_by": "Codex",
+    "source_sha256": "f9235871ed2c29fd4cbcd303cfe6e87c8741cfd971c2ec6c0bc5eaede3705768",
+    "summary_sha256": "a21eb293bfa99d784560778be4138872ab72d96db1e22605096f299e429cbfd3",
+    "scope": "今回の仕様と利用手順、原文・要約の整合。性能評価ではない。"
+  }
+}

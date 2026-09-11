@@ -1,0 +1,146 @@
+{
+  "schema_version": "1.0",
+  "manifest_id": "eval:20260911-long-drift-scripted",
+  "manifest_sha256": "sha256:3ddfcb1e498d3eb63d627c3dcc0e0004a52e463727a863b1e8c55e6140a4a25a",
+  "dataset_sha256": "sha256:1ddf5872f7080085a38960c8abed6c23c2ee646fbf6f39849176ac9e87025165",
+  "observations_sha256": "sha256:539fb62c8b8de37462541eeca348495f9b5fd9b47bd43805d429eed7f044e92a",
+  "records": 32,
+  "decision": "owner_review_required",
+  "variants": {
+    "legacy": {
+      "records": 12,
+      "successes": 12,
+      "success_rate": 1.0,
+      "metrics": {
+        "wall_time_ms": {
+          "measured": 12,
+          "missing": 0,
+          "sum": 769571.7890000378,
+          "mean": 64130.982416669816,
+          "median": 58691.74429999839,
+          "p95": 110468.27000001213
+        },
+        "input_tokens": {
+          "measured": 12,
+          "missing": 0,
+          "sum": 1000438,
+          "mean": 83369.83333333333,
+          "median": 83358.5,
+          "p95": 84578
+        },
+        "output_tokens": {
+          "measured": 12,
+          "missing": 0,
+          "sum": 18651,
+          "mean": 1554.25,
+          "median": 1516.0,
+          "p95": 1847
+        },
+        "reading_bytes": {
+          "measured": 12,
+          "missing": 0,
+          "sum": 3938138,
+          "mean": 328178.1666666667,
+          "median": 327830.5,
+          "p95": 331380
+        },
+        "interventions": {
+          "measured": 12,
+          "missing": 0,
+          "sum": 0,
+          "mean": 0,
+          "median": 0.0,
+          "p95": 0
+        }
+      }
+    },
+    "candidate": {
+      "records": 12,
+      "successes": 0,
+      "success_rate": 0.0,
+      "metrics": {
+        "wall_time_ms": {
+          "measured": 12,
+          "missing": 0,
+          "sum": 1447298.8164999697,
+          "mean": 120608.23470833081,
+          "median": 116943.12245000037,
+          "p95": 162074.0924999991
+        },
+        "input_tokens": {
+          "measured": 12,
+          "missing": 0,
+          "sum": 875180,
+          "mean": 72931.66666666667,
+          "median": 72924.5,
+          "p95": 73738
+        },
+        "output_tokens": {
+          "measured": 12,
+          "missing": 0,
+          "sum": 14085,
+          "mean": 1173.75,
+          "median": 1148.5,
+          "p95": 1342
+        },
+        "reading_bytes": {
+          "measured": 12,
+          "missing": 0,
+          "sum": 1510497,
+          "mean": 125874.75,
+          "median": 125842.5,
+          "p95": 127690
+        },
+        "interventions": {
+          "measured": 12,
+          "missing": 0,
+          "sum": 0,
+          "mean": 0,
+          "median": 0.0,
+          "p95": 0
+        }
+      }
+    }
+  },
+  "failures": {
+    "error": 0,
+    "timeout": 0,
+    "crash": 0
+  },
+  "negative_control_mismatches": [],
+  "paired_case_deltas": [
+    {
+      "case_id": "long-01",
+      "success_rate_delta": -1,
+      "wall_time_ms_delta": 66023.41119998891
+    },
+    {
+      "case_id": "long-02",
+      "success_rate_delta": -1,
+      "wall_time_ms_delta": 52305.92929999693
+    },
+    {
+      "case_id": "long-03",
+      "success_rate_delta": -1,
+      "wall_time_ms_delta": 37301.23519999324
+    },
+    {
+      "case_id": "long-04",
+      "success_rate_delta": -1,
+      "wall_time_ms_delta": 66808.43579999055
+    },
+    {
+      "case_id": "long-05",
+      "success_rate_delta": -1,
+      "wall_time_ms_delta": 57368.23889998777
+    },
+    {
+      "case_id": "long-06",
+      "success_rate_delta": -1,
+      "wall_time_ms_delta": 59056.26335000852
+    }
+  ],
+  "success_rate_delta": -1.0,
+  "inference": "descriptive_only",
+  "independent_cases": 6
+}

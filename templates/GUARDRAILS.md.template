@@ -4,7 +4,7 @@ owner: your-handle
 status: active
 last_reviewed_at: YYYY-MM-DD
 next_review_due: YYYY-MM-DD
-template_version: 1.0.0
+template_version: 1.1.0
 ---
 
 # Guardrails
@@ -14,6 +14,8 @@ template_version: 1.0.0
 - Prefer small, reviewable changes with clear validation evidence.
 - Do not rewrite unrelated user or teammate changes.
 - Keep generated artifacts and source documents synchronized.
+- 変更した挙動に必要な検証を選び、実結果と未実行理由を記録する。TDDは期待挙動が明確な場合に推奨する。
+- 独立レビューはリスクとrepo契約に応じて実施する。CLI・配布の試験では必要な実行境界を通す。
 
 ## Safety Boundaries
 
@@ -23,8 +25,12 @@ template_version: 1.0.0
 ## Context Intake
 
 - Read `README.md`, `HUB.codex.md`, and the smallest relevant source document first.
-- If a knowledge map exists, use it to narrow the reading scope.
+- If a knowledge map fits the question, use it to narrow the reading scope.
+- 索引なし・不適合・未登録・破損・鮮度不明なら通常検索で原文へ戻る。生成世代だけで確認済みとしない。
 
 ## Output Contract
 
 - Summarize scope, validation, and residual risk in the final handoff.
+- ネイティブツールを使える場合は実際に呼び出し、本文JSONへの複製は不要。
+- ネイティブ経路がなく対応runnerがある場合だけ、runnerの契約に従うJSONを一度出力して結果を待つ。
+- 二重実行を避け、実行経路がない場合は未実行と明記する。書式は必要な外部契約に合わせる。

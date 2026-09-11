@@ -784,6 +784,14 @@ Evidence typeを集計する。旧観測の必須判定fieldが`unknown`なら`i
 unused Gateの初回actionは`review`、同じ分類が2期間連続した場合だけ`archive_candidate`とし、
 `hard_safety=true`は常にarchiveから除外する。
 
+## 実行品質の追加仕様
+
+[原文計算](contracts/source-calculations.md)はhash付き原文のscalar・表から全行を計算し、
+式・入力・演算trace・原文位置を返す。正解表や採用案を計算処理へ渡さない。
+
+[比較評価](contracts/workflow-benchmark.md)、[段階取得](contracts/progressive-context.md)、
+[run観測](contracts/workflow-run-observation.md)、[checkpoint](contracts/workflow-checkpoint.md) を公開仕様とする。
+
 ## 7. 関連資料
 
 - 要件: `docs/requirements.md`

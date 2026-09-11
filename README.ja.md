@@ -2,8 +2,8 @@
 intent_id: DOC-README
 owner: docs-core
 status: active
-last_reviewed_at: 2026-07-11
-next_review_due: 2026-08-10
+last_reviewed_at: 2026-04-11
+next_review_due: 2026-05-11
 ---
 
 # Workflow Cookbook
@@ -35,16 +35,13 @@ Birdseye / Codemap、Task Seed、acceptance 運用、reusable CI、Evidence 追�
 | **Plugins** | cross-repo 連携と docs resolve |
 
 <!-- LLM-BOOTSTRAP v1 -->
-読む順番:
+質問に合う最小の原文へ到達するための導線:
 
-1. `docs/birdseye/index.json` …… ノード一覧（軽量）
-2. `docs/birdseye/caps/<path>.json` …… 必要ノードだけ point read
+1. README/HUBから必要な資料を特定する。
+2. Birdseyeが対象に合う場合は `docs/birdseye/index.json` と必要なcapsを使う。
+3. 質問と返却量に応じて0/1/2hopを選び、未登録・不適合・鮮度不明なら通常検索へ戻る。
 
-フォーカス手順:
-
-- 直近変更ファイル±2hop のノードIDを index.json から取得
-- 対応する caps/*.json のみ読み込み
-
+原文が根拠の正本。生成日・世代だけで要約を確認済みとしない。
 <!-- /LLM-BOOTSTRAP -->
 
 ---
@@ -53,7 +50,7 @@ Birdseye / Codemap、Task Seed、acceptance 運用、reusable CI、Evidence 追�
 
 ```sh
 # 1. Birdseye 更新
-python -m tools.codemap.update --since --emit index+caps
+python tools/codemap/update.py --since --emit index+caps
 
 # 2. テスト実行
 uv run pytest tests/ -q
@@ -69,17 +66,6 @@ python tools/ci/check_birdseye_freshness.py --check
 > 上記例では `python` を `py -3` または `uv run python` に置き換えてください。
 
 ---
-
-## 公開 CLI パッケージのインストール
-
-commit を固定し、通常の non-editable install を使用します。
-
-```sh
-python -m pip install "workflow-cookbook @ git+https://github.com/RNA4219/workflow-cookbook.git@<commit-sha>"
-```
-
-5つの `wfc-*` console entrypoint を提供します。リポジトリ対象コマンドは
-`--repo-root PATH`、metrics 設定は `--metrics-config PATH` で明示できます。
 
 ## ドキュメント導線
 
@@ -126,10 +112,10 @@ python -m pip install "workflow-cookbook @ git+https://github.com/RNA4219/workfl
 
 ```sh
 # 全体更新
-python -m tools.codemap.update --targets docs/birdseye/index.json,docs/birdseye/hot.json --emit index+caps
+python tools/codemap/update.py --targets docs/birdseye/index.json,docs/birdseye/hot.json --emit index+caps
 
 # 局所更新（radius 1）
-python -m tools.codemap.update --since --radius 1 --emit caps
+python tools/codemap/update.py --since --radius 1 --emit caps
 
 # 鮮度確認
 python tools/ci/check_birdseye_freshness.py --check --max-verified-age-days 90
@@ -175,6 +161,7 @@ python tools/ci/check_security_docs_freshness.py --check
 
 # sample/docs 同期確認
 python tools/ci/check_sample_docs_sync.py --check
+
 ```
 
 ### Evidence / Report

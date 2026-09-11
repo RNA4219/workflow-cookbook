@@ -8,43 +8,45 @@ from __future__ import annotations
 import shutil
 import subprocess
 import sys
+import venv
 from pathlib import Path
+
+import pytest
 
 _REPO_ROOT = Path(__file__).resolve().parents[1]
 
 
-def _install_editable() -> None:
-    if getattr(_install_editable, "_done", False):
-        return
-
-    result = subprocess.run(
-        [sys.executable, "-m", "pip", "install", "-e", "."],
-        cwd=_REPO_ROOT,
-        capture_output=True,
-        text=True,
-    )
-    if result.returncode != 0 and "No module named pip" in result.stderr:
-        uv = shutil.which("uv")
-        if uv is None:
-            result.check_returncode()
+@pytest.fixture(scope="module")
+def console_scripts(tmp_path_factory: pytest.TempPathFactory) -> Path:
+    """インストール試験は作業用Python環境から隔離する。"""
+    environment = tmp_path_factory.mktemp("cli-install") / "venv"
+    uv = shutil.which("uv")
+    if uv:
         subprocess.run(
-            [uv, "pip", "install", "--python", sys.executable, "-e", "."],
-            cwd=_REPO_ROOT,
+            [uv, "venv", "--python", sys.executable, str(environment)],
+            check=True,
             capture_output=True,
             text=True,
-            check=True,
         )
     else:
-        result.check_returncode()
-    _install_editable._done = True
+        venv.EnvBuilder(with_pip=True).create(environment)
+    scripts = environment / ("Scripts" if sys.platform == "win32" else "bin")
+    python = scripts / ("python.exe" if sys.platform == "win32" else "python")
+    command = (
+        [uv, "pip", "install", "--python", str(python), "-e", str(_REPO_ROOT)]
+        if uv
+        else [str(python), "-m", "pip", "install", "-e", str(_REPO_ROOT)]
+    )
+    result = subprocess.run(command, cwd=environment.parent, capture_output=True, text=True)
+    assert result.returncode == 0, result.stdout + result.stderr
+    return scripts
 
 
-def _console_script(name: str) -> str:
-    scripts_dir = Path(sys.executable).parent
-    for candidate in (scripts_dir / name, scripts_dir / f"{name}.exe", scripts_dir / f"{name}.cmd"):
-        if candidate.exists():
-            return str(candidate)
-    return name
+def _console_script(scripts: Path, name: str) -> str:
+    suffix = ".exe" if sys.platform == "win32" else ""
+    executable = scripts / (name + suffix)
+    assert executable.is_file(), f"Missing installed entrypoint: {executable}"
+    return str(executable)
 
 
 class TestGovernanceGateEntrypoint:
@@ -119,10 +121,9 @@ class TestFiveToolManifestEntrypoint:
 class TestConsoleScripts:
     """Test installed console script entry points."""
 
-    def test_wfc_governance_gate_help(self) -> None:
-        _install_editable()
+    def test_wfc_governance_gate_help(self, console_scripts: Path) -> None:
         result = subprocess.run(
-            [_console_script("wfc-governance-gate"), "--help"],
+            [_console_script(console_scripts, "wfc-governance-gate"), "--help"],
             cwd=_REPO_ROOT,
             capture_output=True,
             text=True,
@@ -130,10 +131,9 @@ class TestConsoleScripts:
         assert result.returncode == 0
         assert "governance gate" in result.stdout.lower()
 
-    def test_wfc_collect_metrics_help(self) -> None:
-        _install_editable()
+    def test_wfc_collect_metrics_help(self, console_scripts: Path) -> None:
         result = subprocess.run(
-            [_console_script("wfc-collect-metrics"), "--help"],
+            [_console_script(console_scripts, "wfc-collect-metrics"), "--help"],
             cwd=_REPO_ROOT,
             capture_output=True,
             text=True,
@@ -141,10 +141,9 @@ class TestConsoleScripts:
         assert result.returncode == 0
         assert "metrics" in result.stdout.lower()
 
-    def test_wfc_codemap_update_help(self) -> None:
-        _install_editable()
+    def test_wfc_codemap_update_help(self, console_scripts: Path) -> None:
         result = subprocess.run(
-            [_console_script("wfc-codemap-update"), "--help"],
+            [_console_script(console_scripts, "wfc-codemap-update"), "--help"],
             cwd=_REPO_ROOT,
             capture_output=True,
             text=True,
@@ -152,20 +151,18 @@ class TestConsoleScripts:
         assert result.returncode == 0
         assert "codemap" in result.stdout.lower() or "birdseye" in result.stdout.lower()
 
-    def test_wfc_context_pack_help(self) -> None:
-        _install_editable()
+    def test_wfc_context_pack_help(self, console_scripts: Path) -> None:
         result = subprocess.run(
-            [_console_script("wfc-context-pack"), "--help"],
+            [_console_script(console_scripts, "wfc-context-pack"), "--help"],
             cwd=_REPO_ROOT,
             capture_output=True,
             text=True,
         )
         assert result.returncode == 0
 
-    def test_wfc_five_tool_manifest_help(self) -> None:
-        _install_editable()
+    def test_wfc_five_tool_manifest_help(self, console_scripts: Path) -> None:
         result = subprocess.run(
-            [_console_script("wfc-five-tool-manifest"), "--help"],
+            [_console_script(console_scripts, "wfc-five-tool-manifest"), "--help"],
             cwd=_REPO_ROOT,
             capture_output=True,
             text=True,
