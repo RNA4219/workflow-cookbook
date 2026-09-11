@@ -195,9 +195,10 @@ def test_invalid_heartbeat_ttl_does_not_extend_lease(service):
     assert instance.status()["active_leases"][0]["expires_at"] == 105.0
 
 
-def test_finish_requires_matching_job_and_terminal_outcome(service):
+@pytest.mark.parametrize("lease_job_key", ["expected", None])
+def test_finish_requires_matching_job_and_terminal_outcome(service, lease_job_key):
     instance, _ = service
-    acquired = instance.acquire(mode="write", owner="one", task_id="task", job_key="expected")
+    acquired = instance.acquire(mode="write", owner="one", task_id="task", job_key=lease_job_key)
     lease_id, token = acquired["lease"]["lease_id"], acquired["lease_token"]
     with pytest.raises(ValueError, match="outcome must be"):
         instance.finish(lease_id, token, outcome="active", job_key="expected")
@@ -207,7 +208,7 @@ def test_finish_requires_matching_job_and_terminal_outcome(service):
     }
     state = instance.status(include_events=10)
     assert len(state["active_leases"]) == 1
-    assert [job["status"] for job in state["jobs"]] == ["active"]
+    assert [job["status"] for job in state["jobs"]] == (["active"] if lease_job_key else [])
     assert [event["event_type"] for event in state["events"]] == ["lease.acquired"]
 
 
@@ -232,7 +233,7 @@ def test_rejected_completion_cannot_record_success(service, method, condition, r
 
 
 @pytest.mark.parametrize("outcome", ["succeeded", "invalid"])
-def test_terminal_result_survives_reopen_and_late_job_assignment(service, outcome):
+def test_terminal_result_survives_reopen_and_matching_acquisition(service, outcome):
     instance, _ = service
     first = instance.acquire(mode="write", owner="one", task_id="task", job_key="job")
     finished = instance.finish(
@@ -243,15 +244,9 @@ def test_terminal_result_survives_reopen_and_late_job_assignment(service, outcom
         result_refs=["fixture:result"],
     )
     reopened = coordinator.WorkspaceCoordinator(instance.workspace, state_root=instance.state_dir, clock=instance.clock)
-    second = reopened.acquire(mode="write", owner="two", task_id="later")
-    result = reopened.finish(
-        second["lease"]["lease_id"],
-        second["lease_token"],
-        outcome=outcome,
-        job_key="job",
-        result_refs=["discarded"],
-    )
-    assert result["reused"] is True
+    result = reopened.acquire(mode="write", owner="two", task_id="later", job_key="job")
+    assert result["acquired"] is False
+    assert result["reason"] == "job_already_terminal"
     assert result["job"] == finished["job"]
     assert result["job"]["reuse_requires_validation"] is (outcome == "succeeded")
     assert reopened.status()["active_leases"] == []

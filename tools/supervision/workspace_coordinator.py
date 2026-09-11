@@ -161,6 +161,7 @@ class WorkspaceCoordinator:
         try:
             os.chmod(self.db_path, 0o600)
         except OSError:
+            # POSIX mode bits are best effort; host filesystem ACLs also apply.
             pass
 
     def _canonical_scopes(self, paths: Sequence[str] | None) -> list[str]:
@@ -394,7 +395,7 @@ class WorkspaceCoordinator:
                 connection.rollback()
                 return checked
             lease = checked["lease"]
-            if lease["job_key"] and lease["job_key"] != job_key:
+            if lease["job_key"] != job_key:
                 connection.rollback()
                 return {"ok": False, "reason": "job_key_mismatch"}
             job = connection.execute("SELECT * FROM jobs WHERE job_key=?", (job_key,)).fetchone()

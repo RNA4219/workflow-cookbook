@@ -1,15 +1,20 @@
 {
   "schema_version": "hash-manifest-v1",
-  "root": "C:/Users/ryo-n/Codex_dev/Agent_tools/workflow-cookbook",
+  "root": ".",
   "algorithm": "sha256",
+  "generated_at": "2026-09-11",
+  "basis": "git-blob",
+  "purpose": "publication_integrity_only",
+  "historical_measurement": "historical-hash-manifest.json",
+  "note": "2026-07-19の検証結果を現在のソースへ再帰属させるものではない。README.mdの範囲を参照。",
   "entries": [
     {
       "path": "TASK.shared-workspace-supervisor-07-19-2026.md",
-      "sha256": "12b4716ac18ff2f1efc4346199950813549ac92b06e5d4ac52ee2619c079fda9"
+      "sha256": "e101021015f0117c7fe24d8d32666db7e70704657f4441c23ac5938794b46fde"
     },
     {
       "path": "docs/acceptance/AC-20260719-01.md",
-      "sha256": "4e6e62cd1f383b1d95f5956730fa3306f5470958c7fefcd1d0f6fb68935cdd90"
+      "sha256": "5a970639a5d86b98c37ea792a5f37a0be7c688ddf3b30ff94ef117f2f17e2707"
     },
     {
       "path": "docs/evidence/shared-workspace-supervisor-20260719-v1/validation.json",
@@ -17,23 +22,23 @@
     },
     {
       "path": "docs/operations/shared-workspace-supervision-runbook.md",
-      "sha256": "bca6689804f1d915fca288e9cc4bbec52b281636b5cb7e77fbb388e2378b48dd"
+      "sha256": "3a64ff5981ec1ba7ead08e654a13df4c67beb8b4c153f52fb44fe4ebe263cd0f"
     },
     {
       "path": "examples/workspace_supervision.sample.json",
-      "sha256": "2ed452f57ecd148d8147b645ac369f95c880dd04ba55c88cfda55d64bb259d11"
+      "sha256": "ed7fafad8d6d79b88fa6279c5a8982faf4bee791524cdbb94ef06eebc9326af8"
     },
     {
       "path": "schemas/job-ledger.schema.json",
-      "sha256": "af68220a2e9a5b3c769b29e75cf8fe2da7af65d8a38eb3d76d33ec9c83ed680a"
+      "sha256": "68ee74350411ec3802613ab7ba184569b035e549d8af0dea4077e74ce4951778"
     },
     {
       "path": "schemas/workspace-lease.schema.json",
-      "sha256": "1e935b67e00b0c70e53a0f03eb38e199541812b1f2b2005f3078a107f4c21bf1"
+      "sha256": "e54e31b91a0a52966276040860b506e04f7287f8d07c30c8f468c3b68da7bacd"
     },
     {
       "path": "tests/supervision/test_workspace_coordinator.py",
-      "sha256": "4e07d7c7fa6d19bfb1a66da30345dd3324e90038c26f15884aab45029ef98780"
+      "sha256": "c1d5b4245b031bef0c720661113e8e3b40de3f1befca281280ffcea42a16b439"
     },
     {
       "path": "tools/supervision/__init__.py",
@@ -41,7 +46,19 @@
     },
     {
       "path": "tools/supervision/workspace_coordinator.py",
-      "sha256": "44ca0a9b17fb85679cd1f8d3b031ed320219a523a50ab602650d4509f050a793"
+      "sha256": "f8924c985eb04c0c05ddf11784918c48cae43b53ece77c001de591465653c4d2"
+    },
+    {
+      "path": "docs/evidence/shared-workspace-supervisor-20260719-v1/historical-hash-manifest.json",
+      "sha256": "7505a9245389a0608cc3ddd7d7305573d98eec10e16e6c2e76f9bcf94e5e61ac"
+    },
+    {
+      "path": "docs/evidence/shared-workspace-supervisor-20260719-v1/README.md",
+      "sha256": "2f5b96f145190d61e27b92491520a2722f414c6e3d984a8a8f94c4c973765d28"
+    },
+    {
+      "path": "tests/supervision/test_workspace_coordinator_contracts.py",
+      "sha256": "c84526c45fee704a97f5aa678b412b9b64031df594bd70a8007d10c58227c7f5"
     }
   ]
 }
