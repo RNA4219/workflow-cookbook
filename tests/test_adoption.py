@@ -401,12 +401,12 @@ def test_append_refuses_changed_prefix_and_identity(target: Path, monkeypatch: p
 
 
 @pytest.mark.skipif(os.name == "nt", reason="POSIX permission bits are checked on Linux CI")
-def test_new_agents_is_not_group_or_world_writable_without_umask(target: Path) -> None:
+def test_new_agents_is_not_group_or_world_accessible_without_umask(target: Path) -> None:
     agents = target / "AGENTS.md"
     previous = os.umask(0)
     try:
         adoption._append_agents(agents, None, adoption.BLOCK)
     finally:
         os.umask(previous)
-    assert agents.stat().st_mode & 0o022 == 0
+    assert agents.stat().st_mode & 0o077 == 0
     assert agents.read_bytes() == adoption.BLOCK
