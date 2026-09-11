@@ -8,13 +8,13 @@ next_review_due: 2026-08-10
 
 # Rollback Drill Operations Guide
 
-このドキュメントは rollback drill の月次運用手順を定める。
+このドキュメントはrollbackを提供する環境の訓練手順を定める。実施頻度、local/stagingの対象範囲、担当、通知権限を運用責任者と合意して記録する。
 
 ## 実施タイミング
 
-- **月次**: 毎月第3週の平日
-- **Release 前**: major/minor release の 1週前
-- **例外**: security incident 発生時は実施免除（実 rollback で代替）
+- **定期**: 影響・変更頻度・復旧要件に合わせた合意周期。毎月第3週は開始時の例。
+- **Release 前**: 復旧経路や配布方式を変える場合に追加し、日程をrelease計画で定める。
+- **実障害後**: 実rollbackを代替証跡に使う場合は、訓練目的を満たすことを責任者が確認する。
 
 ## 担当
 
@@ -26,7 +26,9 @@ next_review_due: 2026-08-10
 
 ## 通知フロー
 
-### 事前通知（実施3日前）
+### 事前通知（合意した期限まで）
+
+通知先・担当・送信権限を確認する。3日前は計画例であり、送信を承認されていない作業では通知文案を保存して未送信と記録する。
 
 - 通知先: repo owner、関連担当者
 - 内容:
@@ -57,7 +59,7 @@ next_review_due: 2026-08-10
 
 1. rollback 手順実行（RUNBOOK.md 参照）
 2. 実施ログ記録（timestamp、command、result）
-3. 環境反映確認（drill は local または staging）
+3. 環境反映確認（drill は合意済みのlocalまたはstaging。productionへ拡張しない）
 
 ### Post-Drill Verification
 

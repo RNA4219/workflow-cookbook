@@ -41,7 +41,8 @@ cp templates/EVALUATION.md.template /path/to/repo/EVALUATION.md
 ```
 
 After copying templates, update front matter fields such as `intent_id`, `owner`,
-`last_reviewed_at`, and `next_review_due`.
+`last_reviewed_at`, and `next_review_due`. Set the adopted scope and `template_version`.
+既存の独自差分を保全し、必要なファイル・機能だけを導入してください。
 
 ## 3. Check Template Drift
 
@@ -71,6 +72,6 @@ python tools/ci/check_adoption_tier.py --repo-list repos.json --json
 
 ## 5. Review Cadence
 
-- Tier 0-1: review every 6 months.
-- Tier 2: review every 3 months.
-- Tier 3: review monthly or follow each document's `next_review_due`.
+継続性・変更頻度・重要度・確認機会で責任者と周期を決めます。
+Tier 0-1の6か月、Tier 2の3か月、Tier 3の毎月は初期の目安です。
+採用済みの期限は内容確認後に更新し、Gate効果の90/180/30日観測窓を一括適用しません。

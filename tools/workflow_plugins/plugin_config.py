@@ -37,21 +37,15 @@ def load_workflow_plugin_specs_from_mapping(
             raise WorkflowPluginConfigError(f"Plugin spec at index {index} requires factory")
         options = item.get("options")
         if options is not None and not isinstance(options, Mapping):
-            raise WorkflowPluginConfigError(
-                f"Plugin spec at index {index} options must be a mapping"
-            )
+            raise WorkflowPluginConfigError(f"Plugin spec at index {index} options must be a mapping")
         enabled = item.get("enabled", True)
         if not isinstance(enabled, bool):
-            raise WorkflowPluginConfigError(
-                f"Plugin spec at index {index} enabled must be a boolean"
-            )
+            raise WorkflowPluginConfigError(f"Plugin spec at index {index} enabled must be a boolean")
         python_paths = item.get("python_paths")
         if python_paths is not None and (
             not isinstance(python_paths, Sequence) or isinstance(python_paths, (str, bytes))
         ):
-            raise WorkflowPluginConfigError(
-                f"Plugin spec at index {index} python_paths must be a sequence"
-            )
+            raise WorkflowPluginConfigError(f"Plugin spec at index {index} python_paths must be a sequence")
         specs.append(
             WorkflowPluginSpec(
                 factory=factory.strip(),

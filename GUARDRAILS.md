@@ -15,9 +15,12 @@ next_review_due: 2026-08-11
 - リポジトリ内の既存ルール（mypy/strict, ruff, black, pytest, node:test, ESM/TS 方針、例外ポリシー）を自動検出し、厳密に遵守する。
 - 変更は最小差分で行い、Public API を破壊しない。不可避の場合のみ短い移行メモを添付する。
 - 応答は簡潔で実務に直結させ、冗長な説明や代替案の羅列は避ける。
-- 実装時はテスト駆動開発を基本とし、テストを先に記述する。
+- 期待挙動が明確な修正ではテスト駆動開発を推奨する。探索・文書修正を含め、変更の性質に合う検証を選ぶ。
 
 ## スコープとドキュメント
+
+必要な文書は `docs/adoption-tiers.md` の採用Tierと変更内容で選ぶ。
+以下の3〜9は関連する契約・運用・永続Task・リリースに適用する。軽微な単発修正のために全文書を新設・転記しない。
 
 1. 目的を一文で定義し、誰のどの課題をなぜ今扱うかを明示する。
 2. Scope を固定し、In/Out の境界を先に決めて記録する。
@@ -27,7 +30,7 @@ next_review_due: 2026-08-11
 6. `HUB.codex.md` の自動タスク分割フローに従い、タスク化した内容を `TASK.*-MM-DD-YYYY` 形式の Task Seed へマッピングして配布する。
 7. タスク自動生成ツールはドライランで JSON 出力を確認してから Issue 化する。
 8. 完了済みタスクは `CHANGELOG.md` へ移し、履歴を更新する。
-9. テスト/型/lint/CI の実行結果を確認し、`CHECKLISTS.md` でリリース可否を判断する。
+9. 変更に必要な検証を記録する。リリースの場合は `CHECKLISTS.md` の該当条件で公開可否を判断する。
 
 ## 実装原則
 
@@ -36,210 +39,91 @@ next_review_due: 2026-08-11
 - 後方互換：CLI/JSON 出力は互換性を維持し、破壊的変更は明示的フラグで段階移行する。
 - インポート順序：標準ライブラリ→外部依存→内部モジュールの順で空行区切りとする。
 - 副作用の隔離：`utils` や `provider_spi` などのレイヤ分離を尊重する。
-- スコープ上限：1 回の変更は合計 100 行または 2 ファイルまで。本ループでは最優先の塊のみ対応する。単一ファイルが 400 行を超える場合は機能単位で分割を検討する。
-- 細かな Lint エラーはスコープ上限の例外とし、重大なルール逸脱のみを是正する。
+- 変更単位：目的・依存関係・リスクに応じて、レビュー・検証・切り戻しが可能なまとまりにする。
+  行数やファイル数の固定上限は設けず、それらの数値だけを理由に作業を停止したり、追加承認を求めたりしない。
+- 承認済みの目的を満たす実装・テスト・文書は、整合性を保てる同じ変更単位で扱う。
+  独立した改善や、影響範囲・リスクが異なる変更は必要に応じて分割する。
+- 単一ファイルが 400 行を超える場合は、責務に応じた分割を検討する。行数だけで機械的に分割しない。
+- Lint 修正は変更に関係する範囲を中心に行い、無関係な整形を混在させない。
 - 公開 API や CLI を変更した場合のみ、差分に簡潔な Docstring/Usage 例を添付する。
 
 ## プロセスと自己検証
 
-- 競合解消時は双方の意図を最小限で統合し、判断を `ノート→` に 1 行で記す。
-- 差分提示前に lint/type/test をメンタルで実行し、グリーン想定の変更のみ提出する。
-- 実行コストやレイテンシへの影響は ±5% 以内を目標とし、超過見込みの場合は `ノート→` に代替策を 1 行で示す。
+- 比較評価・実験・昇格判定等では `docs/contracts/evaluation-identity-contract.md` に従い、
+  共通identityと用途別profileを固定して実行前preflightを通す。game固有項目を非gameへ要求しない。
+- 実行後はartifact hash、測定単位ごとの正の件数、実測値、障害数を記録してpostrunを通す。
+  空結果・計測障害を成功としない。checkerの単体fixtureや文書lintを効果測定とは扱わない。
+- 競合解消時は双方の意図と既存変更を保全し、採用した判断と理由を必要な長さで記録する。
+- 変更に必要な lint/type/test を実行し、コマンドと実結果を記録する。
+  未実行・失敗・未確認を区別し、推測を検証済みとして報告しない。文書だけの変更は文書の検査を選ぶ。
+- 実行コスト・レイテンシは、用途別の基準値・測定誤差・悪化許容幅・予算上限を決めて検証する。
+  見込みと実測を分け、超過時は影響と代替策を説明する。
 - セキュリティ上、秘密情報は扱わず、必要な場合は `.env` やサンプル参照に限定する。
 
 ## 例外処理
 
-- スコープ上限を超える作業が必要な場合は、作業を分割してタスク化を提案する。
-- ドキュメント更新（例：`*.md`）については、ファイル数上限を例外的に適用せず、必要に応じて超過を許可する。
+- 承認済みの目的や権限範囲を超える作業が必要になった場合は、追加範囲と理由を示して確認する。
+- 変更を一度にレビュー・検証・切り戻しできない場合は、依存関係を明示して段階的に進める。
+  実装・テスト・文書のいずれも同じ判断基準を使う。
 - 破壊的変更が不可避な場合は、移行期間やフラグ運用を明記したメモを添付する。
 
 ## リマインダー
 
-- 変更は常にテストから着手し、最小の成功条件を先に満たす。
+- 変更前に期待する成功条件を確認し、変更した挙動と回帰リスクに対応する検証を行う。
 - 全ての関係者が同じ期待値を共有できるよう、上記ドキュメントを更新し続ける。
 
 ## Birdseye / Minimal Context Intake Guardrails（鳥観図×最小読込）
 
-**目的**：コンテキストは有限である。LLM/エージェントに「1枚で全体像→必要箇所だけ深掘り」の二段読みを強制し、**最小トークンで仕組みを把握**させる。
+Birdseyeは質問と変更箇所に合う資料へ到達するための補助索引として使う。
+原文・実装が根拠の正本であり、索引にない資料や索引と異なる用途を通常検索から除外しない。
 
-### 運用の前提（Dual Stack互換）
+### 配置と読込範囲
 
-- 本リポは **デュアルスタック**（A: ネイティブFunction Calling／B: ツールなしJSON封筒）を想定する。
-- ツールが **ある環境**：関数呼び出しを優先。  
-- ツールが **ない環境**：本文に ```tool_request``` JSON を**ミラー出力**し、外部オーケストレータが拾う。
-- ChatGPT/Codex 固有マクロ（`:codex-...`, `:::task-stub` 等）は **そのまま**残し、未対応環境では無害スルー。
+- READMEの見つけやすい場所に短い導線を置く。冒頭100行は目安であり、レイアウトへ一律に強制しない。
+- indexの形式・対象・登録内容・鮮度を確認し、必要なノードとcapsから読む。
+- 質問・不具合の発生点・変更箇所から始め、0/1/2hopまたは通常検索へ展開する。
+  既定のCLI radius=2は固定の読込義務ではない。返却量と必要な情報に応じて調整する。
+- 1KBや120語は要約サイズの目安。公開契約・参照先・危険箇所を失わず、実際の読込量で調整する。
+- 無関係な依存・生成物の大量読込は避け、配布物や環境差の調査に必要なら範囲を絞って読む。
 
----
+### 推論時の読込手順
 
-### 配置ポリシー（3層で最小読込）
-
-1. **Bootstrap（超小型）**
-   - 置き場所：`README.md` 冒頭100行以内に固定。
-   - 役割：**読む場所の道標のみ**。下のテンプレを貼る。
-
-   ```md
-   <!-- LLM-BOOTSTRAP v1 -->
-   読む順番:
-   1. docs/birdseye/index.json  …… ノード一覧・隣接関係（軽量）
-   2. docs/birdseye/caps/<path>.json …… 必要ノードだけ point read（個別カプセル）
-
-   フォーカス手順:
-   - 直近変更ファイル±2hopのノードIDを index.json から取得
-   - 対応する caps/*.json のみ読み込み
-   <!-- /LLM-BOOTSTRAP -->
-   ```
-
-2. **Index（軽量インデックス）**
-
-   - 置き場所：`docs/birdseye/index.json`
-   - 役割：**±N hop 抽出**が即できる機械可読データ。
-   - **最小スキーマ**：
-
-   ```json
-   {
-     "generated_at": "00005",
-     "nodes": {
-       "frontend/src/App.tsx": {
-         "role": "entrypoint",
-         "caps": "docs/birdseye/caps/frontend.src.App.tsx.json",
-         "mtime": "00012"
-       }
-     },
-     "edges": [["frontend/src/App.tsx","frontend/src/hooks/recommendations/loader.ts"]]
-   }
-   ```
-
-3. **Capsules（点読みパケット）**
-
-   - 置き場所：`docs/birdseye/caps/…`（**1ノード=1 JSON**、1KB目安）。
-   - **最小スキーマ**：
-
-   ```json
-   {
-     "id": "frontend/src/hooks/recommendations/loader.ts",
-     "role": "application",
-     "public_api": ["useRecommendationLoader()"],
-     "summary": "検索条件→API→キャッシュ整合。副作用=HTTP。失敗時リトライ…",
-     "deps_out": ["frontend/src/lib/queryClient.ts"],
-     "deps_in":  ["frontend/src/App.tsx"],
-     "risks": ["Provider未設定で例外"],
-     "tests": ["tests/hooks/recommendations/loader.spec.ts"]
-   }
-   ```
-
-   - 命名は「パスをドット連結＋拡張子置換」で衝突回避（例：`frontend.src.App.tsx.json`）。
-
-> 補助（任意）：頻出入口のホットリストを `docs/birdseye/hot.json` に置く（例：`App.tsx`, `main.py`）。
-
----
-
-### 推論時の読込ガードレール（MUST/SHOULD）
-
-**MUST**（必須）
-
-1. まず `README.md` の **LLM-BOOTSTRAP** ブロックのみ読む（100行以内）。
-2. `docs/birdseye/index.json` を読み、**対象変更ファイル±2 hop** のノードID集合を得る。
-3. 対応する **`docs/birdseye/caps/*.json` だけ**を読み込む。
-4. `index.json.generated_at` が未更新のまま関連ファイル差分だけ進んでいる、または Birdseye 資源同士で世代番号が揃っていない場合は、**再生成を要求**する（下記“鮮度管理”参照）。
-5. 生成物（`plan`/`patch`/`tests`/`commands`/`notes` 等）では、**ノードID（パス）を明示**し出典を示す。
-
-`codemap.update` を利用できる環境では、既定は ±2 hop としつつ、局所更新やトークン節約が必要な場合に `radius=1` や `radius=0` を明示してよい。
-
-**SHOULD**（推奨）
-
-- 2 hop の合計が **1,200 tokens** を超えそうなら **1 hop** に縮小。
-- 読み順は **entrypoints → application → domain → infra → ui**。
-- 巨大Capsuleは**120語以内 summary**に収める（Capsule側の規約）。
-
-**MUST NOT**（禁止）
-
-- `node_modules`, `.venv`, `dist`, `build`, `coverage` 等の**重量ディレクトリを直読み**しない。
-- `BIRDSEYE.md` 全文を**常時**読まない（必要時のみ参照）。
-
----
+1. README/HUBと質問から必要な原文を特定する。
+2. Birdseyeが対象に合えばindexと必要なcapsを使う。service topology等の別形式へこのschemaを押し付けない。
+3. 索引なし・未登録・破損・鮮度不明・根拠不足なら、ファイル一覧やrg等の通常検索で原文へ到達する。
+4. 根拠となるファイルと未確認範囲を記録する。索引への不掲載を資料の不存在と同一視しない。
 
 ### 鮮度管理（Staleness Handling）
 
-- **条件**：`index.json.generated_at` が関連変更に対して未更新／Capsが見つからない／対象ノードが未登録／Birdseye 資源間で世代番号が不整合。
-- **対応**：
-- **ツールあり環境**（Function Calling）
-  - 例：`codemap.update` を呼ぶ（論理名）。
-  - **ツールなし環境**
-    - 本文に **ミラー封筒**を出し、外部実行を待つ。
+- generated_at/mtimeは生成世代であり、原文や意味内容の確認日ではない。
+- 原文変更、要約・依存の不一致、caps欠落、未登録ノード、世代不整合を区別して直す。
+- 利用可能なCLIでは `python -m tools.codemap.update` を使う。
+  `--targets` はindex/hot/caps等のBirdseye資源を指定する。原文差分から導く場合は `--since <ref>` を使う。
+- 例: `python -m tools.codemap.update --targets docs/birdseye/caps/GUARDRAILS.md.json --emit index+caps --radius 0`。
+  差分を確認し、無関係な要約・既存変更を上書きしない。
+- CLIが使えなければ通常検索で作業を続ける。外部入力が不可欠な場合にだけ担当者へ依頼する。
+- ネイティブ実行は本文JSONへ複製しない。ネイティブ経路がなく対応runnerがある場合だけ、
+  runner契約のJSONを一度出力して結果を待つ。実行先がなければ未実行と明記する。
 
-        ```tool_request
-        {"name":"codemap.update","arguments":{"targets":["frontend/src/App.tsx"],"emit":"index+caps","radius":1}}
-        ```
+### 原文と要約の確認記録
 
-    - 実行結果が到着するまで **偽の読込結果を作らない**。
-- **フォールバック**（最終手段）：
-  - `docs/BIRDSEYE.md` の **Edgesセクション**があればそこから ±1 hop を暫定抽出。
-  - それも無ければ「直近変更ファイルN件（例：5件）」のみ読込。
+- source_sha256は生成時に観測した原文のhash。再生成は要約の内容確認を代行しない。
+- 原文と要約・公開API・依存・リスク・試験を確認した後だけ、capsのreviewへsource_sha256、
+  summary_sha256、reviewed_atを記録する。hashの計算には `tools.codemap.source_freshness` を使用できる。
+- reviewは自動生成しない。要約や原文が変わると一致しなくなるため再確認する。
+- `check_birdseye_freshness.py --check` は構造・記録済み原文の変更を検査し、旧形式や未確認要約はwarningで示す。
+  確認記録を整備した対象を厳格に検査する場合は `--require-reviewed` を使う。
+- 下流の旧形式は明示的に移行する。日付・世代だけの更新を確認済みとせず、古い記録は未確認として扱う。
+- hotのlast_verified_atは実際に原文・要約を確認した時点だけ更新する。期限だけを延ばさない。
 
-#### codemap 未実装時の暫定手順
+### 生成物・境界
 
-- `codemap.update` を呼べない（実装未提供／環境未配備）場合は、**必ず人間に再生成を依頼**する。
-- 依頼フロー：
-  1. `tool_request` 封筒で `codemap.update` 要求を出力（対象と希望出力を明示）。
-  2. ノートに「人間が codemap スクリプトをローカルで実行し、成果物をコミットして戻す」旨を記載。
-  3. 実行結果が共有されるまで Birdseye 参照を保留し、暫定読みは上記フォールバックのみ使用。
-- 可能なら `docs/birdseye/` を手動で更新するための最小手順（対象ファイル列挙、既存 JSON の削除有無）をノートに添える。
-- 手動生成後は `generated_at`（5 桁ゼロ埋め連番）の更新と差分確認を忘れない。
+必要な説明では出典のパス、確認範囲、実行した検証、未確認・残件を示す。
+runnerが要求する場合だけ固定の出力書式を使う。不要な機密情報を成果物へ含めない。
+アクセス先は依頼の対象と実際の権限で判断し、指定された関連repoも範囲に含められる。
 
----
+詳細なデータ形状と更新手順は `docs/BIRDSEYE.md`、`docs/birdseye/README.md`、
+`tools/codemap/README.md` を参照する。
 
-### セキュリティ/境界
-
-- リポ外パス、機密格納領域への自動アクセスを禁止。
-- 生成物に**不要な機密情報**（環境変数/Secrets）を含めない。
-
----
-
-### 生成物に関する要求（出力契約）
-
-- **`plan`**：読み込んだ **CapsノードID一覧** と hop、抜粋理由、未読箇所の扱い。
-- **`patch`**：変更対象ファイルの相対パスを**先頭コメント**で明記。
-- **`tests`**：対象ノードの `tests/*` を参照して増補。存在しなければ最小サンプルを併記。
-- **`commands`**：読込に使ったツール（有無/種類）と再現手順を列挙。
-- **`notes`**：鮮度判断、スコープ外ファイル、既知リスク。
-
----
-
-### 実装メモ（自動生成）
-
-- `codemap` 相当のスクリプトで **index.json** と **caps/*.json** を生成する。
-- 失敗時でも人間向け `docs/BIRDSEYE.md` は残す。**機械読みは JSON を第一読者**にする。
-
----
-
-### 互換のための論理ツール名（最小セット）
-
-- `codemap.update`: args
-  `{targets?: string[], emit?: "index"|"caps"|"index+caps", radius?: number}`
-  — Birdseye再生成。
-  - **実装未提供**：人間がローカル `tools/codemap/*` などのスクリプトを走らせ、成果物（`index.json`, `caps/*.json`）をコミット。
-  - 代替操作例：対象ファイル一覧をメモし、`docs/BIRDSEYE.md` を基に手動で JSON を補完。
-- `web.search`: args
-  `{q: string, recency?: number, domains?: string[]}`
-  — 必要時の検索。
-- `web.open`: args `{url: string}` — 詳細参照。
-
-> ランタイムは**論理名→実ツール**のマッピングを持つ。ツールなし環境では `tool_request` を出すだけ。
-
----
-
-### Notes / Follow-ups
-
-- `codemap` 実装（スクリプト/ツール連携）の整備が未了の場合は、後続タスクとして Issue 起票を検討する。
-
-<!-- guardrails:yaml
-forbidden_paths:
-  - "/core/schema/**"
-  - "/auth/**"
-require_human_approval:
-  - "/governance/**"
-slo:
-  lead_time_p95_hours: 72
-  mttr_p95_minutes: 60
-  change_failure_rate_max: 0.10
--->
+運用SLO・禁止パス・承認境界の正本は [governance/policy.yaml](governance/policy.yaml)。
+数値を本書へ複製せず、用途別の変更は正本と参照するchecker・運用手順を整合させる。

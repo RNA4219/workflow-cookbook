@@ -1,0 +1,67 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agent-protocols/schemas/common.schema.json",
+  "title": "ContractBase",
+  "description": "Base schema for all contract types. This is an inheritance base and must not be used directly for final validation. Concrete schemas must use allOf to compose this with their specific definitions.",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "id",
+    "kind",
+    "state",
+    "version",
+    "createdAt",
+    "updatedAt"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "const": "1.0.0",
+      "description": "Schema version for contract validation"
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^[A-Z]{2,4}-[0-9]{3,}$",
+      "description": "Unique contract identifier with prefix (IC, TS, AC, PG, EV) followed by digits"
+    },
+    "kind": {
+      "type": "string",
+      "enum": [
+        "IntentContract",
+        "TaskSeed",
+        "Acceptance",
+        "PublishGate",
+        "Evidence"
+      ],
+      "description": "Contract type discriminator"
+    },
+    "state": {
+      "type": "string",
+      "enum": [
+        "Draft",
+        "Active",
+        "Frozen",
+        "Published",
+        "Superseded",
+        "Revoked",
+        "Archived"
+      ],
+      "description": "Contract lifecycle state"
+    },
+    "version": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Contract version number"
+    },
+    "createdAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 timestamp of contract creation"
+    },
+    "updatedAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 timestamp of last update"
+    }
+  }
+}

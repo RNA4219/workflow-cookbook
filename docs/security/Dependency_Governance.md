@@ -17,8 +17,9 @@ next_review_due: 2026-08-10
 
 | ファイル | 用途 | 固定方式 |
 | --- | --- | --- |
-| `requirements.txt` | 本番依存 | `==` 固定バージョン |
-| `pyproject.toml` | dev/optional依存 | `==` 固定バージョン |
+| `uv.lock` | 開発・検証環境の解決結果 | 推移的依存・解決条件を固定 |
+| `requirements.txt` | 現行CI監査入力 | `==` 固定バージョン |
+| `pyproject.toml` | package宣言、dev/optional依存 | runtimeは許容範囲、devは固定 |
 
 **現状の依存一覧**:
 
@@ -27,15 +28,13 @@ next_review_due: 2026-08-10
 
 ## 2. Lockfile 方針
 
-`requirements.txt` を **lockfile 相当**として扱う。
+開発・検証環境は `uv.lock` を正本として `uv sync --locked --extra dev` で構築する。
+直接依存の `==` 指定だけを推移的依存を含む完全なlockと見なさない。
 
-- 全ての本番依存は `==` で完全固定
-- dev依存も `==` で完全固定（CI再現性確保）
-- バージョン更新は Dependabot PR または手動レビューで実施
-
-**理由**: pip-tools/pip-compile は現状の依存数に対して過剰。
-`requirements.txt` + `pyproject.toml` 固定 + pip-audit監査 で
-enterprise 相当の再現性を担保。dev依存固定によりCI環境の安定性を確保。
+- 配布packageのruntime許容範囲と、開発環境の解決結果を区別する。
+- `requirements.txt` を参照する既存監査CIを維持し、宣言・lock・監査入力の整合を確認する。
+- バージョン更新はDependabot PRまたは手動レビューで、宣言とlockを同じ変更に含める。
+- 利用先では実際のパッケージ管理・配布方式に合わせたlockを採用し、根拠なく完全再現を保証しない。
 
 ## 3. 依存更新方法
 
@@ -46,8 +45,8 @@ enterprise 相当の再現性を担保。dev依存固定によりCI環境の安�
 
 ### 手動更新
 
-1. `requirements.txt` または `pyproject.toml` のバージョンを更新
-2. `pip-audit -r requirements.txt` で脆弱性確認
+1. 対象の依存宣言を更新し、`uv lock` の差分をレビューする。必要な `requirements.txt` 監査入力も同期する
+2. `uv sync --locked --extra dev` で解決結果を確認し、`pip-audit -r requirements.txt` と配布環境に必要な監査を行う
 3. CI で Bandit/Semgrep/pip-audit が通ることを確認
 4. PR 作成・レビュー・マージ
 
@@ -72,6 +71,8 @@ pip-audit -r requirements.txt
 
 ## 5. 脆弱性対応 SLA
 
+以下は本repoで採用した期限であり、Gateの90/180/30日観測窓によって延長しない。利用先の運用では責任者と合意した契約を明記する。
+
 | 重大度 | 対応期限 | 対応内容 |
 | --- | --- | --- |
 | Critical | 24時間以内 | 即時パッチまたは依存削除 |
@@ -90,14 +91,14 @@ pip-audit -r requirements.txt
 ### 例外承認プロセス
 
 1. `docs/security/dependency_exceptions.md` に例外理由を記録
-2. リスク評価と影響範囲を明記
+2. 検出ID・対象版／実コード・到達条件・緩和策・責任者・影響範囲を明記
 3. 期限付き承認（最大90日）
 4. 定期レビューで再評価
 
 ## 7. SBOM 生成
 
 - CI で `.ga/sbom.json` を生成（CycloneDX JSON形式）
-- リリース時に SBOM を artefact として保存
+- リリース時にSBOMを対象版・配布物hashと対応付けて保存する。採用した生成器の収集範囲を記録し、未収集の推移的依存まで網羅したと見なさない
 
 ```bash
 python -m tools.security.generate_sbom --output .ga/sbom.json

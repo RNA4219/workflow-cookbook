@@ -352,6 +352,18 @@ Workflow Cookbook は、単なる Markdown テンプレート集ではなく、
 Gate所有repoの設定を直接変更しない。責務lookupは`governance/repo-responsibilities.yaml`だけを参照し、
 Agent_tools側はリンクのみを保持する。
 
+## 実行品質の追加設計
+
+整数式の評価はtools/calculation/exact、原文の値と全行への結合はtools/calculation/sourcesが担当する。
+ファイル・ネットワークへアクセスせず、呼出元が渡した原文とhashを照合する。
+結果は原文・taskstateを維持した入力へ追加し、最終回答の選択や書き換えは行わない。
+
+評価はtools/evaluation、取得はtools/context、PluginTraceのtask/run接続はtools/workflow_pluginsが担当する。
+Evidenceの外部契約は既存projectorへ委譲し、追加の関係情報はbundleのlinksへ置く。
+詳細は [run観測契約](contracts/workflow-run-observation.md) を参照する。
+checkpoint adapterは既存agent-taskstate CLIのCASでcontext_policyへ保存し、coordinatorへleaseとjob完了を委譲する。
+保存境界と結果不明時の復旧は [checkpoint契約](contracts/workflow-checkpoint.md) を参照する。
+
 ## 9. 関連資料
 
 - 要件: `docs/requirements.md`

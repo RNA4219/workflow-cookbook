@@ -74,6 +74,8 @@ class MetricExtractor:
         overwrite: bool = False,
     ) -> None:
         for definition in self._ordered_definitions:
+            if definition.key == "semantic_retention" and source.get("semantic_status", "measured") != "measured":
+                continue
             existing = definition.key in target
             for rule in definition.structured_rules:
                 if existing and not (overwrite or rule.overwrite):

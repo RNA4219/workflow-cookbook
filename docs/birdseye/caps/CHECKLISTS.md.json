@@ -2,7 +2,7 @@
   "id": "CHECKLISTS.md",
   "role": "checklist",
   "public_api": [],
-  "summary": "日次・リリース・衛生の3カテゴリで確認項目を列挙し、運用中の抜け漏れ防止を図るチェックリスト集。",
+  "summary": "稼働サービス、release、文書更新の適用条件に合わせて確認項目を選ぶ。検証結果・保護設定・証跡を確認し、非該当や未実行を記録する。",
   "deps_out": [
     "EVALUATION.md"
   ],
@@ -14,7 +14,15 @@
   ],
   "risks": [],
   "tests": [
-    "手動: Daily/Release/Hygiene の各項目を週次レビューで更新漏れがないか確認"
+    "手動: 採用したDaily/Release/Hygiene項目と実証跡の対応を確認する"
   ],
-  "generated_at": "00060"
+  "generated_at": "00066",
+  "source_sha256": "5c12682c79fd2a8fbd6b48f44c0b1ba53658df57f6b7e73d8c98c00a0cdee65d",
+  "review": {
+    "reviewed_at": "2026-09-10T02:09:04.366163+00:00",
+    "reviewed_by": "Codex",
+    "source_sha256": "5c12682c79fd2a8fbd6b48f44c0b1ba53658df57f6b7e73d8c98c00a0cdee65d",
+    "summary_sha256": "cba66e83bcaf40da9cfda35d05fff808466a82ab491940ff83ae35272b027fe5",
+    "scope": "原文と要約・参照の整合。実運用の効果評価ではない。"
+  }
 }

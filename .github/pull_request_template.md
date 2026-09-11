@@ -1,6 +1,7 @@
 # Pull Request テンプレート
 
-> **必須**: `Intent: INT-xxx` と `EVALUATION` のアンカーを本文に含めないと CI が失敗します。
+> governance workflowの適用対象ではIntent/EVALUATION/Priority Scoreを記録してください。
+> docs-only等のskip条件はworkflowに従います。関連する文書検査・承認・受入条件は引き続き確認します。
 
 ## Intent Metadata
 
@@ -40,7 +41,7 @@
 - [ ] 受入基準（EVALUATION）緑
 - [ ] CHECKLISTS 該当項目完了
 - [ ] CHANGELOG 追記
-- [ ] REQUIREMENTS（REQUIREMENTS.md or docs/requirements.md）がある（無ければ後追いで作る）
+- [ ] 変更に関係する要件・契約・検収条件への参照がある（採用Tierに応じ既存の正本を使用）
 - 禁止パス遵守チェック（governance/policy.yaml）: <!-- 例: OK / 対象外 / 詳細 -->
 - Priority Score: <!-- 例: 5 / prioritization.yaml#phase1 -->
 

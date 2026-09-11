@@ -26,6 +26,7 @@ classifiers = [
 # Core dependencies - minimal runtime requirements
 dependencies = [
     "pyyaml>=6.0",  # Optional but recommended for YAML configuration files
+    "defusedxml>=0.7.1",  # Reject DTDs/entities while reading JUnit evidence
 ]
 
 [project.urls]

@@ -12,7 +12,7 @@ next_review_due: 2026-08-10
 
 - 形式: `INT-<カテゴリ>-<番号>` または `INT-<番号>` を基本形とし、大文字英数字とハイフンのみを使用する。
 - 正規表現: `INT-[0-9A-Z]+(?:-[0-9A-Z]+)*`
-- PR 本文・テンプレートでは `Intent: INT-xxx` の表記を必須とする。
+- governance検証が適用されるPR本文・テンプレートでは `Intent: INT-xxx` を必須とする。
 
 ## 2. 許可カテゴリ
 
@@ -32,9 +32,11 @@ next_review_due: 2026-08-10
 
 ## 4. 運用ルール
 
-1. すべての PR は `.github/pull_request_template.md` の Intent Metadata テーブルを埋める。
-   `Intent: INT-xxx` と EVALUATION アンカー、[`Priority Score`](addenda/A_Glossary.md#priority-score) を明示する。
+1. 採用したgovernance workflowの適用条件に従い、PRのIntent Metadataを記録する。
+   本repoはcode変更でIntent・EVALUATION・Priority Scoreを検証する。docs-only等のskip条件はworkflowを正本とする。
+   skipは文書検査・内容確認・必要な承認の免除ではない。導入先へ同じメタデータを一律強制しない。
 2. `INT Logs` セクションでは Intent の承認・変更履歴を時系列で記録し、日付・概要・関係者を箇条書きで残す。
 3. Intent 番号は `governance/policy.yaml` の禁止パスに抵触しない作業のみ紐づけ、逸脱する場合は事前に承認を得る。
-4. [`Priority Score`](addenda/A_Glossary.md#priority-score) の算定根拠は `governance/prioritization.yaml` を参照し、該当セクションをコメントで示す。
+4. [`Priority Score`](addenda/A_Glossary.md#priority-score) は候補の優先順位比較に使い、算定根拠と `governance/prioritization.yaml` の計算版を示す。
+   採用済みゲートが要求する場合はその形式で記録するが、点数だけで着手・完了・品質を判断しない。
 5. テンプレートや検証ロジックを変更する場合は、本ドキュメントを更新し、関連する CI テスト（`test_pr_template_contains_required_sections`）を緑の状態で維持する。

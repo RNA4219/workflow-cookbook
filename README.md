@@ -28,16 +28,13 @@ Integrates Birdseye/Codemap, Task Seeds, acceptance operations, reusable CI, and
 | **Plugins** | Cross-repo integration and docs resolve |
 
 <!-- LLM-BOOTSTRAP v1 -->
-Recommended read order:
+質問に合う最小の原文へ到達するための導線:
 
-1. `docs/birdseye/index.json` — Node graph (lightweight)
-2. `docs/birdseye/caps/<path>.json` — Point reads for needed nodes
+1. README/HUBから必要な資料を特定する。
+2. Birdseyeが対象に合う場合は `docs/birdseye/index.json` と必要なcapsを使う。
+3. 質問と返却量に応じて0/1/2hopを選び、未登録・不適合・鮮度不明なら通常検索へ戻る。
 
-Focus procedure:
-
-- Find node IDs for recently changed files within +/-2 hops from `index.json`
-- Read only the matching `caps/*.json` files
-
+原文が根拠の正本。生成日・世代だけで要約を確認済みとしない。
 <!-- /LLM-BOOTSTRAP -->
 
 ---
@@ -46,7 +43,7 @@ Focus procedure:
 
 ```sh
 # 1. Update Birdseye
-python -m tools.codemap.update --since --emit index+caps
+python tools/codemap/update.py --since --emit index+caps
 
 # 2. Run tests
 uv run pytest tests/ -q
@@ -61,32 +58,11 @@ python tools/ci/check_birdseye_freshness.py --check
 > **Windows users**: The `python` command may invoke the Windows Store stub.
 > Use `py -3` or `uv run python` instead of `python` in the examples above.
 
-### Install the public CLI package
-
-The supported distribution path is a normal, non-editable install. Pin a commit for
-reproducible automation:
-
-```sh
-python -m pip install "workflow-cookbook @ git+https://github.com/RNA4219/workflow-cookbook.git@<commit-sha>"
-```
-
-For a local checkout, build and install the wheel:
-
-```sh
-uv build
-python -m pip install dist/workflow_cookbook-*.whl
-```
-
-The package exposes `wfc-governance-gate`, `wfc-collect-metrics`,
-`wfc-codemap-update`, `wfc-context-pack`, and
-`wfc-five-tool-manifest`. All entrypoints support `--help`; repository-aware
-commands accept `--repo-root PATH`. Metrics configuration can be selected with
-`wfc-collect-metrics --metrics-config PATH`, which takes precedence over
-`WFC_METRICS_CONFIG` and the default `governance/metrics.yaml`.
-
 ---
 
 ## Documentation Guide
+
+[評価・取得・観測・再開の利用手順](docs/workflow-evolution.md): 比較用CLI、予算付き取得、run trace、永続checkpoint。
 
 ### Start Here
 
@@ -131,10 +107,10 @@ commands accept `--repo-root PATH`. Metrics configuration can be selected with
 
 ```sh
 # Full update
-python -m tools.codemap.update --targets docs/birdseye/index.json,docs/birdseye/hot.json --emit index+caps
+python tools/codemap/update.py --targets docs/birdseye/index.json,docs/birdseye/hot.json --emit index+caps
 
 # Local update (radius 1)
-python -m tools.codemap.update --since --radius 1 --emit caps
+python tools/codemap/update.py --since --radius 1 --emit caps
 
 # Freshness check
 python tools/ci/check_birdseye_freshness.py --check --max-verified-age-days 90

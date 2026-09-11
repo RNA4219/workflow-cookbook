@@ -8,7 +8,9 @@ next_review_due: 2026-05-10
 
 # Acceptance Records
 
-`docs/acceptance/` は変更ごとの検収記録を残す場所です。
+`docs/acceptance/` はTask/Acceptance運用を採用した作業の検収記録を残す場所です。
+本repoの採用済みCI条件は維持します。導入先ではTierと検収の必要性で適用し、軽微変更の証跡を多重転記しません。
+永続記録を作る場合は、Task/AcceptanceのID・状態・根拠リンクを揃えます。
 
 ## 使い方
 

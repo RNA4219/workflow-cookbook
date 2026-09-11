@@ -2,7 +2,7 @@
   "id": "README.md",
   "role": "overview",
   "public_api": [],
-  "summary": "リポジトリの目的と導入手順を日本語中心で説明し、各種ガバナンス文書とチェックリストの使い方を案内する。",
+  "summary": "導入手順と各文書・CI・CLIへの入口。評価・予算付き取得・run観測・checkpointの利用手順へ案内し、原文と適用条件を根拠にする。",
   "deps_out": [
     "BLUEPRINT.md",
     "CHANGELOG.md",
@@ -17,6 +17,7 @@
     "docs/IN-20250115-001.md",
     "docs/birdseye/caps/",
     "docs/birdseye/index.json",
+    "docs/workflow-evolution.md",
     "governance/policy.yaml",
     "governance/prioritization.yaml",
     "governance/repo-responsibilities.yaml",
@@ -34,5 +35,13 @@
   ],
   "risks": [],
   "tests": [],
-  "generated_at": "00060"
+  "generated_at": "00067",
+  "source_sha256": "eac5049594170a8498539c02772b5b4a959d8e0fc3fdcf49b82c91b21b72fde8",
+  "review": {
+    "reviewed_at": "2026-09-10T10:27:59.659222+00:00",
+    "reviewed_by": "Codex",
+    "source_sha256": "dc260859e87dd36a26f6080f01371d0436761e03739478bd166e1dbff6be9b70",
+    "summary_sha256": "6705f15476448c4f46ca1317dbe972d8bc4885bbb3416075c7e0efcd8964095c",
+    "scope": "今回の仕様と利用手順、原文・要約の整合。性能評価ではない。"
+  }
 }

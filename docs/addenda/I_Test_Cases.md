@@ -4,7 +4,7 @@
 | :--- | :--- | :--- | :--- |
 | I-01 | チェックリスト突合 | リリース可否判断の前に `CHECKLISTS.md` と成果物ログの整合を検証する。 | [`CHECKLISTS.md`](../../CHECKLISTS.md), [`README.md`](../../README.md#changelog-update-rules) |
 | I-02 | Birdseye 再生成確認 | ドキュメント差分に応じた Birdseye インデックス/カプセルの再生成を検証する。 | [`tools/codemap/README.md`](../../tools/codemap/README.md#実行手順), [`docs/BIRDSEYE.md`](../BIRDSEYE.md) |
-| I-03 | Task Seed TDD 例 | Task Seed で設計したテスト計画と実行ログが一貫しているか確認する。 | [`docs/TASKS.md`](../TASKS.md#3-検証ログtdd-前提), [`TASK.codex.md`](../../TASK.codex.md) |
+| I-03 | Task Seed TDD 例 | Task Seed で設計したテスト計画と実行ログが一貫しているか確認する。 | [`docs/TASKS.md`](../TASKS.md#3-検証ログ), [`TASK.codex.md`](../../TASK.codex.md) |
 | I-04 | コンテキストトリミング検証 | `trim_messages` の統計値とメタ情報が期待通りか確認する。 | [`tools/perf/context_trimmer.py`](../../tools/perf/context_trimmer.py), [`docs/addenda/D_Context_Trimming.md`](D_Context_Trimming.md) |
 
 > **利用方法**: Workflow Cookbook 付録Iテンプレートに倣い、代表シナリオをケースID・目的・参照資料で管理する。追加が必要な場合は既存IDの連番で追記し、
@@ -40,6 +40,8 @@
 
 ## I-03 Task Seed TDD 例
 
+期待挙動が明確な実装変更に適用する例。文書修正や探索へテスト先行を一律に要求しない。
+
 - **前提条件**
   - 該当タスクの `Task Seed` が `docs/TASKS.md` のテンプレートに従って作成済み。
   - 想定テストコマンドと期待結果が `Tests` セクションへ事前記載されている。
@@ -56,11 +58,11 @@
 
 - **前提条件**
   - `tools/perf/context_trimmer.trim_messages` を呼び出せる Python 実行環境が整備されている。
-  - `tiktoken` が未導入の場合でもフォールバック挙動を確認できるよう、`pip uninstall tiktoken` などで一時的に除外する手順を把握している。
+  - `tiktoken` 未導入状態は隔離環境かimport/カウンタの依存注入で検証し、利用中の環境から依存を削除しない。
 - **手順**
   1. `python - <<'PY'` で `trim_messages` を呼び出し、`max_context_tokens` を意図的に小さく設定して最新メッセージのみが保持されるケースを確認する。
-  2. 同一スクリプト内で `semantic_options={"embedder": lambda text: [float(len(text))]}` を指定し、`semantic_retention` が 1.0 になることを確認する。
-  3. 埋め込み関数が例外を投げるケース（例: `lambda _: (_ for _ in ()).throw(RuntimeError("fail"))`）を投入し、`semantic_retention` が 0.0 になることを確認する。
+  2. 同一スクリプト内で `semantic_options={"embedder": lambda text: [float(len(text))]}` を指定し、`semantic_retention` が1.0になる算術smokeを確認する。この一次元長さベクトルを意味保持の効果測定に使わない。
+  3. 埋め込み関数が例外を投げるケース（例: `lambda _: (_ for _ in ()).throw(RuntimeError("fail"))`）を投入し、semantic_status=errorとなりsemantic_retentionを省略することを確認する。未設定のnot_measuredと実測0のmeasuredも区別する。
   4. `TokenCounter.meta()` の出力から `strategy` が `tiktoken` → `heuristic` へ切り替わるログを取得し、実行環境ごとに記録する。
 - **期待結果**
   - `statistics` の `compress_ratio` と `compression_ratio` が同値で、計算式どおりの比率を示す。

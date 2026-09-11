@@ -1,0 +1,54 @@
+{
+  "schema_version": "shared-workspace-supervisor-validation-v1",
+  "validated_at": "2026-07-19",
+  "status": "pass",
+  "checks": [
+    {
+      "command": "uv run pytest tests/supervision/test_workspace_coordinator.py -q",
+      "result": "pass",
+      "details": "11 passed"
+    },
+    {
+      "command": "uv run ruff check tools/supervision tests/supervision",
+      "result": "pass",
+      "details": "All checks passed"
+    },
+    {
+      "command": "uv run mypy tools/supervision",
+      "result": "pass",
+      "details": "Success: no issues found in 2 source files"
+    },
+    {
+      "command": "Phase12 supervisor board JSON parse and required WIP assertion",
+      "result": "pass",
+      "details": "workspace_io_global"
+    }
+  ],
+  "coverage": {
+    "lease_modes": ["read", "write"],
+    "path_overlap": true,
+    "global_wip": true,
+    "ttl_and_heartbeat": true,
+    "fence_token": true,
+    "terminal_job_reuse": ["succeeded", "invalid"],
+    "process_race": true,
+    "cli_lifecycle": true,
+    "hard_timeout_probe": true,
+    "json_schema": true,
+    "plaintext_token_absent": true
+  },
+  "phase12_integration": {
+    "runbook": {
+      "path": "C:/Users/ryo-n/Codex_dev/pokemon_card_ai_battle/docs/operations/phase12-top7-fixed-sample4-strengthening-runbook-20260719-v1.md",
+      "sha256": "5faa230051ac96b5a39017f75f2f097bfe13885aebd8059e84fb4460cce35a0e"
+    },
+    "board": {
+      "path": "C:/Users/ryo-n/Codex_dev/pokemon_card_ai_battle/experiments/phase12_top7_fixed_sample4_supervision_board_20260719_v1.json",
+      "sha256": "5398487116b21eeaabf322f7bc2e511a5ba178bdcaa77619db1af420ec0e6b47"
+    }
+  },
+  "limitations": [
+    "Coordinatorを経由しない外部processをOSレベルでは停止しない",
+    "Windows安全既定ではshared workspace I/Oをworkspace_io_globalで直列化する"
+  ]
+}

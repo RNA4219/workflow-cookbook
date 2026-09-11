@@ -1,0 +1,47 @@
+{
+  "scope": "固定原本の仕様・集計・監査のみ。推論生出力・DB・source bundleはローカル保持。",
+  "original_workspace_path": "research/workflow-long-horizon-drift-20260911",
+  "model": "qwen3.8-flash-next",
+  "files_sha256": {
+    "PROTOCOL.md": "sha256:eec48084a1ad733ff588b5bc89ba1c0c048bfbeb48b804d06d74b6e6f787d126",
+    "RESULTS.md": "sha256:71260c6e694f8f43bb2d41bb227ff534a872b6271e9c33b2a150344a1c8ca2af",
+    "DIAGNOSTIC.md": "sha256:96a3f9444c7494b723a221682599b9e62fa8cbad4fd95f5e10d47df935a647b9",
+    "audit.json": "sha256:a6fe54f20dfe3758e41a22b9c2479c01243915a21cab4368494f19aebfbb8318",
+    "comparison-model/report.json": "sha256:a9f5122b230fbf96b3ae4877c7756208b583ec4bfac99e189b373bbf0fa37cf5",
+    "comparison-scripted/report.json": "sha256:24d0842d7e117c088b2404184b43043215ff4ef523eca2b11315f18e670d3e3c"
+  },
+  "completion": {
+    "status": "measurement_completed",
+    "at": "2026-09-11T09:42:05.385752+00:00",
+    "task_id": "20260911-04",
+    "task_status": "done",
+    "model_requests": 504,
+    "normal_answer_requests": 288,
+    "control_answer_requests": 24,
+    "writer_requests": 192,
+    "harness_tests": 31,
+    "measurement_valid": true,
+    "production_modified": false,
+    "raw_outputs_modified": false,
+    "calendar_long_term_proven": false,
+    "artifact_count": 3982,
+    "artifact_hashes_sha256": "sha256:959556e4697aaa3654d66cddc38e0c232b4b1f0212e8d2ef8e629b202d7c443e",
+    "audit_sha256": "sha256:a6fe54f20dfe3758e41a22b9c2479c01243915a21cab4368494f19aebfbb8318",
+    "results_sha256": "sha256:71260c6e694f8f43bb2d41bb227ff534a872b6271e9c33b2a150344a1c8ca2af"
+  },
+  "postrun": {
+    "model": {
+      "errors": []
+    },
+    "scripted": {
+      "errors": []
+    }
+  },
+  "full_original_inventory_sha256": "sha256:959556e4697aaa3654d66cddc38e0c232b4b1f0212e8d2ef8e629b202d7c443e",
+  "not_proven": [
+    "機能無欠陥",
+    "数か月の暦日運用",
+    "性能優位",
+    "解決済み質問の完全復元"
+  ]
+}

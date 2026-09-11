@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://workflow-cookbook.local/schemas/job-ledger.schema.json",
+  "title": "Workspace Job Ledger v1.1",
+  "type": "object",
+  "required": ["job_key", "task_id", "owner", "lease_id", "status", "created_at", "result_refs"],
+  "properties": {
+    "job_key": {"type": "string", "minLength": 1},
+    "task_id": {"type": "string", "minLength": 1},
+    "owner": {"type": "string", "minLength": 1},
+    "lease_id": {"type": "string", "format": "uuid"},
+    "status": {"enum": ["active", "released", "expired", "succeeded", "invalid"]},
+    "created_at": {"type": "number"},
+    "completed_at": {"type": ["number", "null"]},
+    "result_refs": {"type": "array", "items": {"type": "string"}},
+    "reuse_requires_validation": {
+      "type": "boolean",
+      "description": "Succeeded is a historical record; verify current identity and artifact hashes before reuse."
+    }
+  },
+  "additionalProperties": false
+}

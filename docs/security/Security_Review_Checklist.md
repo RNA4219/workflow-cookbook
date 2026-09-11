@@ -1,6 +1,7 @@
 # Security Review Checklist
 
-本チェックリストは、`workflow-cookbook` を利用するプロダクトでリリース前セキュリティ審査を行う際の最小セットです。各フェーズで該当項目を完了させ、証跡を残してください。
+本チェックリストはreleaseまたはセキュリティ影響変更に適用する。製品・配布・Web・認証経路の該当項目を完了し、証跡と非該当理由を残す。
+GitHub設定・既存releaseゲートの採用範囲は維持する。文書だけの変更に未使用Containerや外部通知を新設しない。
 
 ## 準備フェーズ
 
@@ -28,7 +29,7 @@
   - 参照: [SAC 原則 (1, 3, 9)](./SAC.md#原則)
 - [ ] 依存監査ツールの実行ログを保存する
   - 完了条件: 最新バージョンで監査を実施し、重大脆弱性が検出されない or 対応計画が記載されたレポートをリポジトリに保管
-  - 参照: [SAC 原則 (7, 10)](./SAC.md#原則), [reusable/security-ci](../../.github/workflows/reusable/security-ci.yml)
+  - 参照: [SAC 原則 (7, 10)](./SAC.md#原則), [security workflow](../../.github/workflows/security.yml)
 - [ ] データ保護メカニズムを実装し検証する
   - 完了条件: 保存時暗号化・マスキング・転送経路保護などの実装をテストで確認し、テスト結果を記録
   - 参照: [SAC 原則 (1, 2, 8)](./SAC.md#原則), [EVALUATION 検証観点](../../EVALUATION.md)
@@ -38,12 +39,12 @@
 
 ## レビューフェーズ
 
-- [ ] セキュリティ審査会議でリリース判定を記録する
-  - 完了条件: 審査会議の議事録に各準備・実装項目のステータスとリスク評価を記入し、承認者がサインオフしている
+- [ ] セキュリティ審査でリリース判定を記録する
+  - 完了条件: 各準備・実装項目の状態とリスクを証跡へ記録し、所定の承認者がサインオフしている。会議／非同期レビューは採用手続に従う
   - 参照: [SAC 原則 (6, 10)](./SAC.md#原則), [CHECKLISTS リリース](../../CHECKLISTS.md#release)
 - [ ] セキュリティゲート（SAST/Secrets/依存/Container）結果を確認する
-  - 完了条件: `reusable/security-ci` の全ジョブが成功し、例外が必要な場合はリスク受容文書を添付して承認済み
-  - 参照: [SAC 原則 (10)](./SAC.md#原則), [reusable/security-ci](../../.github/workflows/reusable/security-ci.yml)
+  - 完了条件: 採用したCIの適用ジョブが成功し、Container等の非該当理由を記録する。失敗に例外が必要な場合は期限付きリスク受容文書を添付して承認済み
+  - 参照: [SAC 原則 (10)](./SAC.md#原則), [security workflow](../../.github/workflows/security.yml)
 - [ ] release 証跡と security posture の整合を確認する
   - 完了条件:
     `tools/ci/check_release_evidence.py --check --github-repo <owner/name>` と

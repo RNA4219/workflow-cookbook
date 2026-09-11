@@ -1,100 +1,100 @@
 {
-  "generated_at": "00060",
+  "generated_at": "00069",
   "nodes": {
     "README.md": {
       "role": "overview",
       "caps": "docs/birdseye/caps/README.md.json",
-      "mtime": "00007"
+      "mtime": "00001"
     },
     "HUB.codex.md": {
       "role": "navigation",
       "caps": "docs/birdseye/caps/HUB.codex.md.json",
-      "mtime": "00006"
+      "mtime": "00002"
     },
     "GUARDRAILS.md": {
       "role": "policy",
       "caps": "docs/birdseye/caps/GUARDRAILS.md.json",
-      "mtime": "00005"
+      "mtime": "00003"
     },
     "BLUEPRINT.md": {
       "role": "requirements",
       "caps": "docs/birdseye/caps/BLUEPRINT.md.json",
-      "mtime": "00001"
+      "mtime": "00004"
     },
     "RUNBOOK.md": {
       "role": "operations",
       "caps": "docs/birdseye/caps/RUNBOOK.md.json",
-      "mtime": "00008"
+      "mtime": "00005"
     },
     "EVALUATION.md": {
       "role": "quality",
       "caps": "docs/birdseye/caps/EVALUATION.md.json",
-      "mtime": "00004"
+      "mtime": "00006"
     },
     "TASK.codex.md": {
       "role": "template",
       "caps": "docs/birdseye/caps/TASK.codex.md.json",
-      "mtime": "00009"
+      "mtime": "00007"
     },
     "CHECKLISTS.md": {
       "role": "checklist",
       "caps": "docs/birdseye/caps/CHECKLISTS.md.json",
-      "mtime": "00003"
+      "mtime": "00008"
     },
     "CHANGELOG.md": {
       "role": "history",
       "caps": "docs/birdseye/caps/CHANGELOG.md.json",
-      "mtime": "00002"
+      "mtime": "00009"
     },
     "docs/IN-20250115-001.md": {
       "role": "incident",
       "caps": "docs/birdseye/caps/docs.IN-20250115-001.md.json",
-      "mtime": "00011"
+      "mtime": "00010"
     },
     "governance/policy.yaml": {
       "role": "governance",
       "caps": "docs/birdseye/caps/governance.policy.yaml.json",
-      "mtime": "00015"
+      "mtime": "00011"
     },
     "governance/prioritization.yaml": {
       "role": "governance",
       "caps": "docs/birdseye/caps/governance.prioritization.yaml.json",
-      "mtime": "00016"
+      "mtime": "00012"
     },
     "docs/birdseye/index.json": {
       "role": "index",
       "caps": "docs/birdseye/caps/docs.birdseye.index.json.json",
-      "mtime": "00014"
+      "mtime": "00013"
     },
     "docs/BIRDSEYE.md": {
       "role": "fallback",
       "caps": "docs/birdseye/caps/docs.BIRDSEYE.md.json",
-      "mtime": "00010"
+      "mtime": "00014"
     },
     "docs/birdseye/caps/": {
       "role": "collection",
       "caps": "docs/birdseye/caps/docs.birdseye.caps.json",
-      "mtime": "00013"
+      "mtime": "00015"
     },
     "tools/codemap/": {
       "role": "tooling",
       "caps": "docs/birdseye/caps/tools.codemap.json",
-      "mtime": "00017"
+      "mtime": "00016"
     },
     "tools/codemap/README.md": {
       "role": "guide",
       "caps": "docs/birdseye/caps/tools.codemap.README.md.json",
-      "mtime": "00018"
+      "mtime": "00017"
     },
     "tools/codemap/update.py": {
       "role": "script",
       "caps": "docs/birdseye/caps/tools.codemap.update.py.json",
-      "mtime": "00019"
+      "mtime": "00018"
     },
     "docs/INCIDENT_TEMPLATE.md": {
       "role": "template",
       "caps": "docs/birdseye/caps/docs.INCIDENT_TEMPLATE.md.json",
-      "mtime": "00012"
+      "mtime": "00019"
     },
     "docs/IMPLEMENTATION-PLAN.md": {
       "role": "plan",
@@ -135,6 +135,46 @@
       "role": "acceptance",
       "caps": "docs/birdseye/caps/docs.acceptance.AC-20260712-05.md.json",
       "mtime": "00027"
+    },
+    "docs/workflow-evolution.md": {
+      "role": "guide",
+      "caps": "docs/birdseye/caps/docs.workflow-evolution.md.json",
+      "mtime": "00028"
+    },
+    "docs/contracts/workflow-benchmark.md": {
+      "role": "contract",
+      "caps": "docs/birdseye/caps/docs.contracts.workflow-benchmark.md.json",
+      "mtime": "00029"
+    },
+    "docs/contracts/progressive-context.md": {
+      "role": "contract",
+      "caps": "docs/birdseye/caps/docs.contracts.progressive-context.md.json",
+      "mtime": "00030"
+    },
+    "docs/contracts/workflow-run-observation.md": {
+      "role": "contract",
+      "caps": "docs/birdseye/caps/docs.contracts.workflow-run-observation.md.json",
+      "mtime": "00031"
+    },
+    "docs/contracts/workflow-checkpoint.md": {
+      "role": "contract",
+      "caps": "docs/birdseye/caps/docs.contracts.workflow-checkpoint.md.json",
+      "mtime": "00032"
+    },
+    "docs/contracts/hate-qeg-test-gate.md": {
+      "role": "contract",
+      "caps": "docs/birdseye/caps/docs.contracts.hate-qeg-test-gate.md.json",
+      "mtime": "00033"
+    },
+    "docs/contracts/task-context-continuity.md": {
+      "role": "contract",
+      "caps": "docs/birdseye/caps/docs.contracts.task-context-continuity.md.json",
+      "mtime": "00034"
+    },
+    "docs/contracts/source-calculations.md": {
+      "role": "contract",
+      "caps": "docs/birdseye/caps/docs.contracts.source-calculations.md.json",
+      "mtime": "00035"
     }
   },
   "edges": [
@@ -533,6 +573,54 @@
     [
       "docs/tasks/task-self-improvement-gate-effectiveness-20260712.md",
       "docs/acceptance/AC-20260712-05.md"
+    ],
+    [
+      "README.md",
+      "docs/workflow-evolution.md"
+    ],
+    [
+      "CHANGELOG.md",
+      "docs/workflow-evolution.md"
+    ],
+    [
+      "CHANGELOG.md",
+      "docs/tasks/task-workflow-evolution-20260910.md"
+    ],
+    [
+      "CHANGELOG.md",
+      "docs/acceptance/AC-20260910-02.md"
+    ],
+    [
+      "docs/workflow-evolution.md",
+      "docs/contracts/workflow-benchmark.md"
+    ],
+    [
+      "docs/workflow-evolution.md",
+      "docs/contracts/progressive-context.md"
+    ],
+    [
+      "docs/workflow-evolution.md",
+      "docs/contracts/workflow-run-observation.md"
+    ],
+    [
+      "docs/workflow-evolution.md",
+      "docs/contracts/workflow-checkpoint.md"
+    ],
+    [
+      "docs/contracts/workflow-benchmark.md",
+      "docs/contracts/evaluation-identity-contract.md"
+    ],
+    [
+      "docs/workflow-evolution.md",
+      "docs/contracts/hate-qeg-test-gate.md"
+    ],
+    [
+      "docs/workflow-evolution.md",
+      "docs/contracts/task-context-continuity.md"
+    ],
+    [
+      "docs/workflow-evolution.md",
+      "docs/contracts/source-calculations.md"
     ]
   ]
 }

@@ -1,0 +1,29 @@
+{
+  "id": "docs/contracts/source-calculations.md",
+  "role": "contract",
+  "public_api": [
+    "tools.calculation.exact.evaluate",
+    "tools.calculation.sources.derive",
+    "python -m tools.calculation.sources"
+  ],
+  "deps_in": [
+    "docs/workflow-evolution.md"
+  ],
+  "deps_out": [],
+  "risks": [
+    "計算結果の保持とモデルの選択・転記の正しさを区別する"
+  ],
+  "tests": [
+    "tests/test_source_calculations.py"
+  ],
+  "summary": "hash付き原文のscalarと単純Markdown表を結び、全行へ同じ整数式を適用する。値・演算trace・原文位置を保持し、正解表や採用案は受け取らない。",
+  "source_sha256": "a7a40cd5fdd1ebf16b3dc10cab8a926c6003b578b8ad31ecf36c53129972d6f3",
+  "review": {
+    "reviewed_at": "2026-09-11T04:51:06.413478+00:00",
+    "reviewed_by": "Codex",
+    "source_sha256": "a7a40cd5fdd1ebf16b3dc10cab8a926c6003b578b8ad31ecf36c53129972d6f3",
+    "summary_sha256": "cd6b96f77173d805d1cf43484e8a59c23617f7c0c7f2c595de19a1b91879955e",
+    "scope": "原文計算API/CLIと利用案内。モデル効果は別manifestで評価する。"
+  },
+  "generated_at": "00066"
+}

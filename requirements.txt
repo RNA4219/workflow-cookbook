@@ -6,6 +6,9 @@
 # YAML configuration file handling (optional but recommended)
 pyyaml==6.0.3
 
+# Safe XML parsing for JUnit evidence
+defusedxml==0.7.1
+
 # Note: This project primarily uses Python standard library modules.
-# The above dependency is optional - fallback implementations exist
+# The YAML dependency is optional - fallback implementations exist
 # for minimal environments without pyyaml installed.

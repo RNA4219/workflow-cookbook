@@ -13,6 +13,11 @@ from pathlib import Path
 from typing import Any
 
 ROOT = Path(__file__).resolve().parents[2]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
+from tools.codemap.source_freshness import review_matches, source_digest
+
 DEFAULT_INDEX_PATH = ROOT / "docs/birdseye/index.json"
 DEFAULT_HOT_PATH = ROOT / "docs/birdseye/hot.json"
 SERIAL_PATTERN = re.compile(r"\d{5}")
@@ -42,18 +47,17 @@ def build_remediations(failures: list[str], *, max_verified_age_days: int | None
         remediations.append({"reason": reason, "command": command})
 
     full_refresh = (
-        "python -m tools.codemap.update --targets "
-        "docs/birdseye/index.json,docs/birdseye/hot.json --emit index+caps"
+        "python -m tools.codemap.update --targets docs/birdseye/index.json,docs/birdseye/hot.json --emit index+caps"
     )
     for failure in failures:
         if "generated_at" in failure or "nodes must be" in failure or "invalid mtime" in failure:
             add("Regenerate Birdseye index and hot list", full_refresh)
         elif "missing caps file" in failure:
             match = re.search(r"node (?P<node>.+?) references missing caps file", failure)
-            target = match.group("node") if match else "docs/birdseye/index.json"
+            target = match.group("node") if match else "<unknown>"
             add(
                 f"Regenerate capsule for {target}",
-                f"python -m tools.codemap.update --targets {target} --emit index+caps --radius 1",
+                full_refresh,
             )
         elif "last verified" in failure:
             match = re.search(r"node (?P<node>.+?) last verified", failure)
@@ -61,11 +65,16 @@ def build_remediations(failures: list[str], *, max_verified_age_days: int | None
             threshold = f" --max-verified-age-days {max_verified_age_days}" if max_verified_age_days else ""
             add(
                 f"Refresh stale hot-list node {target}",
-                f"python -m tools.codemap.update --targets {target} --emit index+caps --radius 1",
+                full_refresh,
             )
             add(
                 "Re-run Birdseye freshness check",
                 f"python tools/ci/check_birdseye_freshness.py --check{threshold}",
+            )
+        elif "source_sha256" in failure or "source review" in failure or "summary review" in failure:
+            add(
+                "Read the source and reconcile capsule content/review hashes before rechecking",
+                "python tools/ci/check_birdseye_freshness.py --check --require-reviewed",
             )
         elif "missing caps path" in failure:
             add("Regenerate Birdseye hot list entries", full_refresh)
@@ -105,6 +114,7 @@ def evaluate_birdseye_freshness(
     repo_root: Path,
     now: datetime,
     max_verified_age_days: int | None = None,
+    require_reviewed: bool = False,
 ) -> BirdseyeFreshnessReport:
     failures: list[str] = []
     warnings: list[str] = []
@@ -115,14 +125,8 @@ def evaluate_birdseye_freshness(
         failures.append("index.json: generated_at must be a 5-digit serial number")
     if not isinstance(hot_generated, str) or not SERIAL_PATTERN.fullmatch(hot_generated):
         failures.append("hot.json: generated_at must be a 5-digit serial number")
-    if (
-        isinstance(index_generated, str)
-        and isinstance(hot_generated, str)
-        and index_generated != hot_generated
-    ):
-        failures.append(
-            "index.json and hot.json must share the same generated_at update cycle"
-        )
+    if isinstance(index_generated, str) and isinstance(hot_generated, str) and index_generated != hot_generated:
+        failures.append("index.json and hot.json must share the same generated_at update cycle")
 
     nodes = index_doc.get("nodes")
     if not isinstance(nodes, Mapping):
@@ -135,16 +139,49 @@ def evaluate_birdseye_freshness(
             mtime = payload.get("mtime")
             if not isinstance(mtime, str) or not SERIAL_PATTERN.fullmatch(mtime):
                 failures.append(f"index.json: node {node_id!r} has invalid mtime")
+            caps_ref = payload.get("caps")
+            if not isinstance(caps_ref, str) or not caps_ref:
+                warnings.append(f"node {node_id}: no capsule reference; source review unknown")
+                if require_reviewed:
+                    failures.append(f"node {node_id}: source review required")
+                continue
+            caps_path = repo_root / caps_ref
+            if not caps_path.is_file():
+                failures.append(f"node {node_id} references missing caps file {caps_ref}")
+                continue
+            try:
+                capsule = _load_json(caps_path)
+            except BirdseyeFreshnessError as exc:
+                failures.append(str(exc))
+                continue
+            actual = source_digest(repo_root, str(node_id))
+            recorded = capsule.get("source_sha256")
+            if actual is None:
+                source_path = (repo_root / str(node_id)).resolve()
+                if (
+                    source_path.is_relative_to((repo_root / "docs/birdseye").resolve())
+                    and source_path.suffix == ".json"
+                ):
+                    continue
+                warnings.append(f"node {node_id}: source unavailable or generated; verify manually")
+                if recorded is not None or require_reviewed:
+                    failures.append(f"node {node_id}: recorded source unavailable")
+            elif recorded is None:
+                warnings.append(f"node {node_id}: legacy capsule; source freshness unknown")
+                if require_reviewed:
+                    failures.append(f"node {node_id}: source review required")
+            elif recorded != actual:
+                failures.append(f"node {node_id}: source_sha256 changed; review source and capsule")
+            elif not review_matches(capsule, actual):
+                warnings.append(f"node {node_id}: summary review unconfirmed")
+                if require_reviewed:
+                    failures.append(f"node {node_id}: summary review required")
 
     hot_nodes = hot_doc.get("nodes")
     if not isinstance(hot_nodes, list):
         failures.append("hot.json: nodes must be an array")
     else:
-        stale_cutoff = (
-            now - timedelta(days=max_verified_age_days)
-            if max_verified_age_days is not None
-            else None
-        )
+        stale_cutoff = now - timedelta(days=max_verified_age_days) if max_verified_age_days is not None else None
         for node in hot_nodes:
             if not isinstance(node, Mapping):
                 failures.append("hot.json: each node entry must be an object")
@@ -180,9 +217,7 @@ def evaluate_birdseye_freshness(
 
 
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(
-        description="Validate Birdseye generated artifacts and freshness metadata"
-    )
+    parser = argparse.ArgumentParser(description="Validate Birdseye generated artifacts and freshness metadata")
     parser.add_argument("--index-path", type=Path, default=DEFAULT_INDEX_PATH)
     parser.add_argument("--hot-path", type=Path, default=DEFAULT_HOT_PATH)
     parser.add_argument(
@@ -198,6 +233,9 @@ def main(argv: list[str] | None = None) -> int:
     )
     parser.add_argument("--check", action="store_true", help="Validate Birdseye artifacts")
     parser.add_argument(
+        "--require-reviewed", action="store_true", help="Require matching source and summary review records."
+    )
+    parser.add_argument(
         "--remediation-output",
         type=Path,
         help="Write remediation command suggestions as JSON.",
@@ -211,6 +249,7 @@ def main(argv: list[str] | None = None) -> int:
             repo_root=args.repo_root,
             now=datetime.now(UTC),
             max_verified_age_days=args.max_verified_age_days,
+            require_reviewed=args.require_reviewed,
         )
     except BirdseyeFreshnessError as exc:
         print(str(exc), file=sys.stderr)

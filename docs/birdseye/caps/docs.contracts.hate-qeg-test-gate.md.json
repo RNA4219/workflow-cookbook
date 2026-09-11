@@ -1,0 +1,27 @@
+{
+  "id": "docs/contracts/hate-qeg-test-gate.md",
+  "role": "contract",
+  "public_api": [
+    "python -m tools.ci.hate_qeg"
+  ],
+  "deps_in": [
+    "docs/workflow-evolution.md"
+  ],
+  "deps_out": [],
+  "risks": [
+    "Local automated-test acceptance does not establish production or release approval"
+  ],
+  "tests": [
+    "tests/test_hate_qeg.py"
+  ],
+  "summary": "全pytestを実行し、固定コピーのHATEで正規化してQEGの実行契約へ投影する。JUnit全件照合、source/hash/時刻、事前期待値、判定・記録・出力検証を保持する。",
+  "source_sha256": "b39d5b97cbcaa93a7591fd57bf72df16f9b4307307adda27c2e3c1c7d1fb9ab7",
+  "review": {
+    "reviewed_at": "2026-09-10T23:50:51.740472+00:00",
+    "reviewed_by": "Codex",
+    "source_sha256": "b39d5b97cbcaa93a7591fd57bf72df16f9b4307307adda27c2e3c1c7d1fb9ab7",
+    "summary_sha256": "bcc9fe44351d7cc6484fe8669a5598a8197dfa2394d40f6e04ebb8d819a04cf2",
+    "scope": "接続仕様・利用手順と実装の対応。実測結果はAcceptanceに別記。"
+  },
+  "generated_at": "00066"
+}

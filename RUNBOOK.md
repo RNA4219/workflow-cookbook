@@ -22,6 +22,15 @@ next_review_due: 2026-08-11
   - 準備: データ投入 / キャッシュ初期化
   - 実行: コマンド/ジョブ名
   - 確認: 出力の存在・件数・整合
+- 比較評価・実験・方策復元のpreflight
+  - `templates/evaluation-identity-manifest.template.json` をTask Seedに紐付けて作成する。
+  - `uv run python tools/ci/check_evaluation_identity_manifest.py --manifest <path> --stage preflight --check`
+    を通すまで実行しない。共通identity・用途別profile・測定単位・データ集合・版を固定する。
+    非gameは `templates/evaluation-measurement-manifest.template.json` を使い、deck/対戦数を要求しない。
+  - 実行後は結果artifact hash・主指標の実測値・正の件数・障害数を記録し、`--stage postrun --check` を通す。
+    1.1では実ファイルのhashも照合する。相対artifact pathの基準はmanifestの場所（変更は `--artifact-root`）。
+    gameの対戦要件と適用外の単体fixture検証は評価identity契約に従う。
+  - postrun成功はpromotion-ready証跡の作成条件であり、registry更新・提出・公開は別の明示操作とする。
 - 検収記録
   - `docs/acceptance/ACCEPTANCE_TEMPLATE.md` を複製し、
     `docs/acceptance/AC-YYYYMMDD-xx.md` を作成する。
@@ -70,8 +79,8 @@ next_review_due: 2026-08-11
     を実行し、`CHANGELOG.md`、`docs/releases/`、git tag、公開 release の
     証跡が一致していることを確認する。
   - `python tools/ci/check_birdseye_freshness.py --check`
-    を実行し、Birdseye の `generated_at`、`mtime`、caps 参照整合が
-    崩れていないことを確認する。
+    を実行し、生成世代・参照・原文hashを確認する。旧形式や未確認要約のwarningを確認済みとしない。
+    原文と要約を読んだ後だけreviewを更新する。整備済み対象には `--require-reviewed` を使える。
   - `python tools/ci/check_task_acceptance_sync.py --plugin-config examples/workflow_plugins.cross_repo.sample.json`
     を実行し、Task Seed と Acceptance の対応が plugin 観点でも一致することを確認する。
     `done` task に acceptance record を必須化したい運用では
@@ -98,8 +107,8 @@ next_review_due: 2026-08-11
   - `python tools/context/workflow_docs.py --plugin-config`
     `examples/workflow_plugins.cross_repo.sample.json resolve --task-id <task_id>`
     で読むべき docs を確認する。
-  - 読了後は `... ack --task-id <task_id> --doc-id README.md` を実行する。
-  - 検収前に `... stale --task-id <task_id> --check` を実行し、stale docs が残っていないことを確認する。
+  - resolverを有効にしたTaskでは、対象原文の読了後に `... ack --task-id <task_id> --doc-id README.md` を実行する。
+  - resolverを有効にしたTaskの検収前に `... stale --task-id <task_id> --check` で対象文書の未確認変更を確認する。
   - 3 repo 連携を確認する場合は `.github/workflows/cross-repo-integration.yml`
     と同じ順序で `workflow-cookbook` / `agent-taskstate` / `memx-resolver`
     の plugin テストを実行する。
@@ -126,14 +135,13 @@ next_review_due: 2026-08-11
     `python tools/ci/check_birdseye_freshness.py --check --max-verified-age-days 90`
   - 復旧提案を保存する場合:
     `python tools/ci/check_birdseye_freshness.py --check --remediation-output .ga/birdseye-remediation.json`
-  - **Freshness しきい値段階計画**:
-    - 現行: 90日 (2026-05-03移行完了)
-    - 最終: 30日 (習慣化された点検後)
+  - **Freshnessしきい値**: 本repoの現行CIは90日。変更頻度・内容レビューの運用実績に基づき見直す。
+    Gateの効果観測90/180/30日とは別の設定であり、一律30日への短縮を到達目標としない。
   - **Stale failure 復旧手順**:
     1. CI failure 通知を受け取る
     2. `python -m tools.codemap.update --targets docs/birdseye/index.json,docs/birdseye/hot.json --emit index+caps` を実行
-    3. `python tools/ci/check_birdseye_freshness.py --check --max-verified-age-days <現在のしきい値>` で確認
-    4. `hot.json` の該当ノードの `last_verified_at` を更新日付へ更新
+    3. 原文・要約・参照を確認してcapsのreviewと該当hotのlast_verified_atを更新する。日付だけを変更しない。
+    4. `python tools/ci/check_birdseye_freshness.py --check --max-verified-age-days <現在のしきい値>` で確認
     5. 変更を commit / push
   - 確認:
     `docs/birdseye/index.json` / `docs/birdseye/hot.json` /
@@ -449,7 +457,7 @@ console script smoke test は、`pip` が無い隔離 Python では
   フォールバック手順・再試行上限を記入し、最新の `network/allowlist.yaml` 差分を添付する。
 - 承認者: 当番 SRE（一次）とセキュリティ/プライバシー担当（`docs/addenda/G_Security_Privacy.md#4-通信制御とツール実行`）が双方承認して初めて通信開始可とする。
 - 記録: 承認完了後に `audit/outbound-requests.log` へ記録し、関連チケットへ決裁ログと実行結果リンクを残す。失敗時はインシデントテンプレ（`docs/IN-YYYYMMDD-XXX.md`）へ転記する。
-- 再試行条件: 承認済み通信で 5xx / Timeout が発生した場合のみ、指数バックオフ（初回 2 分、最大 3 回）で自動再試行を許可する。
+- 再試行条件: 承認済み通信の5xx / Timeout等の一時障害で、冪等性または処理済み確認と予算を満たす場合のみ再試行する。初回2分・最大3回は本運用の上限とし、サービスのRetry-Afterや残予算を優先する。Schema／認可違反は入力・権限を修正するまで再送しない。
   4xx や `network/allowlist.yaml` 未反映による失敗は再申請を行い、承認が完了するまで再試行を禁止する。
 
 ## Confirm

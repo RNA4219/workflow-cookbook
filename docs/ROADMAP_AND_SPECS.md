@@ -11,7 +11,7 @@ next_review_due: 2026-08-10
 <!-- markdownlint-disable MD013 -->
 
 本書は仕様・運用資料を横断的に束ねる更新ハブであり、各ドキュメントの役割と連携経路を即座に確認できます。タスク着手前やレビュー時、リリース判定前など節目の判断で参照し、関係資料の鮮度と整合を維持してください。
-代表ドキュメントは `BLUEPRINT.md`・`RUNBOOK.md`・`CHECKLISTS.md`・`EVALUATION.md` を中心に、`HUB.codex.md` や `docs/security/` など運用基盤資料が支えます。いずれかを更新する際は本ハブと相互リンクを再点検し、全資料の記述差異がないよう同期してください。
+代表ドキュメントは `BLUEPRINT.md`・`RUNBOOK.md`・`CHECKLISTS.md`・`EVALUATION.md` を中心に、`HUB.codex.md` や `docs/security/` など運用基盤資料が支えます。変更の影響する正本と相互リンクを点検し、関係する契約・手順の不一致を解消してください。無関係な全文書更新は不要です。
 
 ## 上位ドキュメント索引
 
@@ -100,7 +100,7 @@ next_review_due: 2026-08-10
 - [CHANGELOG.md](../CHANGELOG.md)：リリース差分と意思決定の履歴を集約し、更新ルールを一元管理。**利用シーン**：`CHECKLISTS.md` の[Release](../CHECKLISTS.md#release)完了後に `README.md` の[使い方（最短）](../README.md#使い方最短)手順と照合してガバナンス記録を反映。
 - [LICENSE](../LICENSE) / [CHECKLISTS.md#release](../CHECKLISTS.md#release) / [CHANGELOG.md](../CHANGELOG.md)：Workflow Cookbook 公開版と同様に配布物へ必須ライセンス・変更履歴・監査観点を束ねる。**利用シーン**：リリース成果物へ `LICENSE` を同梱し、`CHECKLISTS.md#release` の配布物チェックを踏まえて `CHANGELOG.md` の公開内容と突合する。
 - [README.md](../README.md#変更履歴の更新ルール)：`CHANGELOG.md` の更新トリガー・書式・`CHECKLISTS.md` の[Release](../CHECKLISTS.md#release)を用いた突合フローを整理。**利用シーン**：リリース確定後にチェックリスト→変更履歴→再確認の流れを短時間でなぞり、記録漏れを防ぐ。
-- [EVALUATION.md#Test Outline](../EVALUATION.md#test-outline) / [tests/](../tests/)：評価指標とテストケース集を束ねた TDD 前提の検証ハブ。**利用シーン**：テスト追加前のチェックで指標・ケース網羅を見直し、Birdseye カプセル同期の要否を判断して TDD フローを開始。
+- [EVALUATION.md#Test Outline](../EVALUATION.md#test-outline) / [tests/](../tests/)：評価指標とテストケース集を束ねた検証ハブ。**利用シーン**：変更した挙動に必要なケースと文書整合を確認する。期待挙動が明確な場合は TDD を推奨する。
 
 Guardrails 連動資料は行動原則と更新判断の基準を担い、本節は運用ドキュメントの即時参照に特化するため、改訂時は前述の整合チェック先と `GUARDRAILS.md` の[実装原則](../GUARDRAILS.md#実装原則)の適用範囲を併せて確認する。
 

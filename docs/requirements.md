@@ -254,6 +254,15 @@ Workflow Cookbook は、AI エージェント運用とドキュメントガバ�
 - 過去Evidenceを未読扱いせず、観測期間内の生成と明示ackだけを集計する。
 - データ不足を`insufficient_data`とし、Gate削除、policy緩和、Skill公開を自動実行しない。
 
+## 実行品質の追加要件
+
+数値判断は[原文計算契約](contracts/source-calculations.md)に従い、原文hashと値の参照位置を保持した
+厳密な整数計算を利用できること。全案へ同じ式を適用し、モデルによる案の選択と計算処理を分担する。
+
+固定課題の比較、予算付き原文取得、task/run単位の観測、checkpoint復旧を順に提供する。
+実行成否と最終検収結果は [run観測契約](contracts/workflow-run-observation.md) に従って分ける。
+再開は [checkpoint契約](contracts/workflow-checkpoint.md) に従い、入力・成果物・lease・revisionを照合する。
+
 ## 7. トレーサビリティ
 
 - 要件の入口: `docs/requirements.md`

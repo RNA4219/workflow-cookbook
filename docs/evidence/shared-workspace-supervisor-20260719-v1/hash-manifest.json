@@ -1,0 +1,64 @@
+{
+  "schema_version": "hash-manifest-v1",
+  "root": ".",
+  "algorithm": "sha256",
+  "generated_at": "2026-09-11",
+  "basis": "git-blob",
+  "purpose": "publication_integrity_only",
+  "historical_measurement": "historical-hash-manifest.json",
+  "note": "2026-07-19の検証結果を現在のソースへ再帰属させるものではない。README.mdの範囲を参照。",
+  "entries": [
+    {
+      "path": "TASK.shared-workspace-supervisor-07-19-2026.md",
+      "sha256": "e101021015f0117c7fe24d8d32666db7e70704657f4441c23ac5938794b46fde"
+    },
+    {
+      "path": "docs/acceptance/AC-20260719-01.md",
+      "sha256": "5a970639a5d86b98c37ea792a5f37a0be7c688ddf3b30ff94ef117f2f17e2707"
+    },
+    {
+      "path": "docs/evidence/shared-workspace-supervisor-20260719-v1/validation.json",
+      "sha256": "c82ce7580bcf932a87c1442fce5021958fa95efac61386adc568fe3bbfaeef09"
+    },
+    {
+      "path": "docs/operations/shared-workspace-supervision-runbook.md",
+      "sha256": "3a64ff5981ec1ba7ead08e654a13df4c67beb8b4c153f52fb44fe4ebe263cd0f"
+    },
+    {
+      "path": "examples/workspace_supervision.sample.json",
+      "sha256": "ed7fafad8d6d79b88fa6279c5a8982faf4bee791524cdbb94ef06eebc9326af8"
+    },
+    {
+      "path": "schemas/job-ledger.schema.json",
+      "sha256": "68ee74350411ec3802613ab7ba184569b035e549d8af0dea4077e74ce4951778"
+    },
+    {
+      "path": "schemas/workspace-lease.schema.json",
+      "sha256": "e54e31b91a0a52966276040860b506e04f7287f8d07c30c8f468c3b68da7bacd"
+    },
+    {
+      "path": "tests/supervision/test_workspace_coordinator.py",
+      "sha256": "c1d5b4245b031bef0c720661113e8e3b40de3f1befca281280ffcea42a16b439"
+    },
+    {
+      "path": "tools/supervision/__init__.py",
+      "sha256": "21fde778b008d0729e1468c5c44d4bcb6144ec1b2020f1f846ccc6796350cbab"
+    },
+    {
+      "path": "tools/supervision/workspace_coordinator.py",
+      "sha256": "f8924c985eb04c0c05ddf11784918c48cae43b53ece77c001de591465653c4d2"
+    },
+    {
+      "path": "docs/evidence/shared-workspace-supervisor-20260719-v1/historical-hash-manifest.json",
+      "sha256": "7505a9245389a0608cc3ddd7d7305573d98eec10e16e6c2e76f9bcf94e5e61ac"
+    },
+    {
+      "path": "docs/evidence/shared-workspace-supervisor-20260719-v1/README.md",
+      "sha256": "2f5b96f145190d61e27b92491520a2722f414c6e3d984a8a8f94c4c973765d28"
+    },
+    {
+      "path": "tests/supervision/test_workspace_coordinator_contracts.py",
+      "sha256": "c84526c45fee704a97f5aa678b412b9b64031df594bd70a8007d10c58227c7f5"
+    }
+  ]
+}

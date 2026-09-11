@@ -17,5 +17,6 @@
     "テスト整備が遅れると段階導入が延期される"
   ],
   "tests": [],
-  "generated_at": "00060"
+  "generated_at": "00067",
+  "source_sha256": "86db0cc28cda0da6a54829f6361e99b04d82841efce1531c4d5cb7f7087aa269"
 }

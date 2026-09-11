@@ -15,16 +15,23 @@
 | `tiktoken` が利用不可 | `None` | 文字数を4で割った整数＋1にメッセージ定数4トークンを加算 |
 
 - `resolved` には `_MODEL_ALIASES`（例: `gpt-4o`, `gpt-3.5-turbo`）が適用される。
-- `_TokenCounter.meta()` は `model`・`encoding`・`uses_tiktoken`・`strategy` を返し、監査ログの補助指標として扱う。
+- `_TokenCounter.meta()` はmodel/encoding/strategyに加え、estimated=true、model_encoding_matched、ignored_fields、structured_contentを返す。
+  未対応field・構造化contentやencoder fallbackを明示し、APIの正確な消費量として扱わない。
 
 ## 3. 指標定義
 
 | 指標名 | 定義 | 備考 |
 | :--- | :--- | :--- |
 | `compress_ratio` / `compression_ratio` | `output_tokens / input_tokens`。トリミング前後のトークン比率。 | 入力0トークン時は1.0を固定返却。レガシーキー互換のため両名称を同値で保持。 |
-| `semantic_retention` | トリミング前後のメッセージテキストを埋め込み、コサイン類似度で算出。 | `semantic_options["embedder"]` が `Callable[[str], Sequence[float]]` のときのみ計測。例外時は0.0で保存。 |
+| `semantic_retention` | トリミング前後のメッセージテキストを埋め込み、コサイン類似度で算出。 | `semantic_options["embedder"]` が `Callable[[str], Sequence[float]]` のときのみ計測。例外・空/非有限ベクトルは値を省略し、semantic_status=errorを記録。未指定はnot_measured。 |
 | `input_tokens` | トリミング対象メッセージ群の総トークン数。 | `_TokenCounter` の `count_message` を全件合計。 |
 | `output_tokens` | トリミング後メッセージ群の総トークン数。 | `_TokenCounter` の `count_message` を保持対象で合計。 |
+
+1.1では正常時の数値キーを維持し、状態・schemaキーを追加します。
+旧consumerは省略可能なsemantic_retentionを欠損として扱い、0へ補完しないでください。
+collectorはerror/not_measuredの値を集計しません。過去の状態なしレコードは旧契約の値として扱い、比較時に版を分けます。
+圧縮率・埋め込み類似度は補助指標であり、タスク成功率や意味内容の保証ではありません。
+標準カウンタはcontentの概算であり、tool call・画像等を含むモデル固有入力には対応するカウンタを注入してください。
 
 ## 4. 想定パラメータ
 
@@ -39,7 +46,7 @@
 - `token_counter: _TokenCounter | None = None`
   - 既存インスタンスを共有する場合に指定。`None` なら `model` から初期化。
 - `semantic_options: Mapping[str, Any] | None = None`
-  - `{"embedder": Callable}` を含む場合に意味保持率を計測。未指定時は統計に含めない。
+  - `{"embedder": Callable}` を含む場合に意味保持率を計測。未指定時は値を統計に含めず、semantic_status=not_measuredを記録する。
 
 返却値は下記4キーを含む辞書。
 
@@ -51,13 +58,19 @@
     "compression_ratio": float,
     "input_tokens": int,
     "output_tokens": int,
+    "statistics_schema": "1.1",
+    "semantic_status": "measured" | "not_measured" | "error",
     "semantic_retention"?: float
   },
   "token_counter": {
     "model": str,
     "encoding": str | null,
     "uses_tiktoken": bool,
-    "strategy": "tiktoken" | "heuristic"
+    "strategy": "tiktoken" | "heuristic",
+    "estimated": true,
+    "model_encoding_matched": bool,
+    "ignored_fields": [str],
+    "structured_content": bool
   },
   "semantic_options": Mapping[str, Any]
 }
@@ -69,7 +82,7 @@
 - 検証観点:
   1. `_TokenCounter` が `tiktoken` 利用時とフォールバック時で整合したメタ情報を返すか。
   2. `compress_ratio` が `output_tokens / input_tokens` と一致するか。
-  3. `semantic_retention` の埋め込み関数が `Sequence[float]` を返さない場合に 0.0 へフォールバックするか。
+  3. 埋め込み失敗時は値を省略しerror、未設定はnot_measured、実測0はmeasuredとして区別できるか。
 - 実施例:
   - `python - <<'PY'` で `trim_messages` を呼び出し、`max_context_tokens`・`semantic_options` を変更しながら統計を比較する。
   - `I-04` の手順に従い、テストログと計測値を `docs/TASKS.md` の `Verification` セクションへ貼付する。

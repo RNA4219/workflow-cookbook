@@ -40,7 +40,7 @@ Birdseye は、Workflow Cookbook の知識マップを統合的に参照する�
   - 主要 Edges: `tools/codemap/update.py`, `docs/birdseye/index.json`, `docs/birdseye/caps/`
   - 用途: 再生成コマンドと契約
 
-> 詳細なエッジリストは `docs/birdseye/index.json` を参照してください。フォールバック中でも JSON を第一読者とし、ここは要約に留めます。
+> 詳細なエッジは `docs/birdseye/index.json` を参照できます。取得できない場合や収録が不十分な場合は、検索・原文参照で補ってください。
 
 ## Hot List（主要ノードの即時参照）
 
@@ -53,7 +53,7 @@ Birdseye は、Workflow Cookbook の知識マップを統合的に参照する�
 - `EVALUATION.md`: 受入基準と品質観点の参照元。
 - `BLUEPRINT.md`: 機能要件・境界の定義。
 - `CHECKLISTS.md`: デリバリー確認項目と鮮度チェックの連携。
-- `docs/BIRDSEYE.md`: 人間向けフォールバック。JSON が取得できない場合の最終ライン。
+- `docs/BIRDSEYE.md`: 読み取り経路と索引の補足。JSONが取得できない場合も原文へ進める。
 - `docs/birdseye/index.json`: hop 抽出の基盤データ。`hot.json` と同じターゲットで更新。
 - `tools/codemap/README.md`: `codemap.update` の契約とパラメータ。
 - `governance/repo-responsibilities.yaml`: 能力ごとの正本repoを一意に定める詳細責務manifest。
@@ -68,7 +68,7 @@ Birdseye は、Workflow Cookbook の知識マップを統合的に参照する�
 
 1. 変更対象や鮮度が落ちたノードを整理し、`codemap.update` のターゲットに指定します。
 2. 以下を実行し、カンマ区切りで指定した `index.json` と `hot.json` を同時にターゲットへ指定しつつ、`index` を出力します
-   （`caps` も自動生成されますが追加の手作業は不要です）。既定では ±2 hop が対象となり、
+   （capsの依存・観測hashも更新しますが、summary/reviewの内容確認は別に行います）。既定では ±2 hop が対象となり、
    局所更新したい場合は `--radius` で hop 数を絞れます。
 
    ```bash
@@ -96,10 +96,10 @@ Birdseye は、Workflow Cookbook の知識マップを統合的に参照する�
 
 ## フォールバック運用
 
-- 自動ツールが利用できない場合は、上記 Edges と Hot List を参考に読込対象を最小化しつつ、
-  `README.md` → `docs/birdseye/index.json` → `caps/*.json` の順に確認してください。
-- JSON が取得できない場合でも、`docs/BIRDSEYE.md` に記載された Edges/Hot/更新手順を用いて暫定判断を行い、
-  可能な限り早く `tools/codemap/update.py` を実行できる環境へエスカレーションします。
+- 索引なし・未登録・不適合な形式・破損・鮮度不明なら、ファイル一覧やrg等の通常検索で原文へ到達します。
+  Edges/Hotへの不掲載を資料の不存在として扱わないでください。
+- CLIが使えれば `python -m tools.codemap.update` で必要な資源を更新します。
+  使えなくても原文調査を続け、外部入力が不可欠な場合にだけ担当者へ依頼します。
 - インシデントレベルの齟齬や破損が見つかった場合は `docs/IN-20250115-001.md` の手順で共有し、`RUNBOOK.md` の標準オペレーションに沿って復旧します。
 
-> ここに記載した情報は JSON の要約であり、最新状態は常に `docs/birdseye/index.json`・`docs/birdseye/hot.json`・`docs/birdseye/caps/` を参照してください。
+> ここに記載した情報は JSON の要約であり、原文が根拠の正本です。生成世代と内容確認を区別し、source_sha256とreviewの一致を確認してください。

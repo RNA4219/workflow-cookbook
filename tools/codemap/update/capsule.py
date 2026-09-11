@@ -15,6 +15,7 @@ from collections.abc import Iterable, Mapping, Sequence
 from pathlib import Path
 from typing import Any
 
+from ..source_freshness import source_digest
 from .constants import _BIRDSEYE_REGENERATE_COMMAND, _REPO_ROOT
 from .graph import BirdseyeFocusResolver, build_graph
 from .serial import _SerialAllocator, next_generated_at
@@ -34,6 +35,7 @@ def load_json(path: Path) -> tuple[Any, str]:
 
 def dump_json(data: Any) -> str:
     import json
+
     return json.dumps(data, ensure_ascii=False, indent=2) + "\n"
 
 
@@ -110,9 +112,7 @@ class BirdseyeRootBuilder:
         if not self.index_path.is_file():
             raise FileNotFoundError(self.index_path)
         if self.emit_index and not self.hot_path.exists():
-            raise FileNotFoundError(
-                f"{self.hot_path} is missing. Regenerate via: {_BIRDSEYE_REGENERATE_COMMAND}"
-            )
+            raise FileNotFoundError(f"{self.hot_path} is missing. Regenerate via: {_BIRDSEYE_REGENERATE_COMMAND}")
         if self.emit_caps and not self.caps_dir.is_dir():
             raise FileNotFoundError(self.caps_dir)
 
@@ -175,17 +175,15 @@ class BirdseyeRootBuilder:
                 owner = capsule_owners.get(capsule_key)
                 if owner is not None:
                     raise ValueError(
-                        f"Codemap capsule path collision: {caps_ref} maps both "
-                        f"{owner!r} and {source_id!r}"
+                        f"Codemap capsule path collision: {caps_ref} maps both {owner!r} and {source_id!r}"
                     )
                 nodes[source_id] = {
                     "role": role,
                     "caps": caps_ref,
                 }
                 capsule_owners[capsule_key] = source_id
-    def _load_capsules(
-        self, index_data: Mapping[str, Any]
-    ) -> tuple[CapsuleState, dict[Path, str], dict[str, Path]]:
+
+    def _load_capsules(self, index_data: Mapping[str, Any]) -> tuple[CapsuleState, dict[Path, str], dict[str, Path]]:
         self._loads.append("caps")
         caps_state: CapsuleState = {}
         cap_path_lookup: dict[Path, str] = {}
@@ -232,9 +230,7 @@ class BirdseyeRootBuilder:
             self._remember_generated(new_generated)
         serialized = dump_json(index_data)
         if serialized != index_original:
-            self._writes.append(
-                PlannedWrite(path=self.index_path, content=serialized, original=index_original)
-            )
+            self._writes.append(PlannedWrite(path=self.index_path, content=serialized, original=index_original))
 
     def _plan_hot(self, hot_data: dict[str, Any], hot_original: str) -> None:
         new_generated = next_generated_at(
@@ -247,9 +243,7 @@ class BirdseyeRootBuilder:
             self._remember_generated(new_generated)
         serialized = dump_json(hot_data)
         if serialized != hot_original:
-            self._writes.append(
-                PlannedWrite(path=self.hot_path, content=serialized, original=hot_original)
-            )
+            self._writes.append(PlannedWrite(path=self.hot_path, content=serialized, original=hot_original))
 
     def _resolve_focus_nodes(
         self,
@@ -315,6 +309,11 @@ class BirdseyeRootBuilder:
         if cap_data.get("deps_in") != expected_in:
             cap_data["deps_in"] = expected_in
             updated = True
+        observed = source_digest(_REPO_ROOT.get(), cap_id)
+        if observed is not None and cap_data.get("source_sha256") != observed:
+            cap_data["source_sha256"] = observed
+            updated = True
+        # summaryとreviewは内容を確認した作業者だけが更新する。
         if updated:
             new_generated = next_generated_at(
                 cap_data.get("generated_at"),
@@ -326,9 +325,7 @@ class BirdseyeRootBuilder:
                 self._remember_generated(new_generated)
             serialized = dump_json(cap_data)
             if serialized != cap_original:
-                self._writes.append(
-                    PlannedWrite(path=cap_path, content=serialized, original=cap_original)
-                )
+                self._writes.append(PlannedWrite(path=cap_path, content=serialized, original=cap_original))
 
     def _remember_generated(self, value: str) -> None:
         if self._first_generated is None:

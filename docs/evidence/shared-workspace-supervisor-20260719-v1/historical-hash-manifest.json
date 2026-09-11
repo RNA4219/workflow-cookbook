@@ -1,0 +1,47 @@
+{
+  "schema_version": "hash-manifest-v1",
+  "root": "C:/Users/ryo-n/Codex_dev/Agent_tools/workflow-cookbook",
+  "algorithm": "sha256",
+  "entries": [
+    {
+      "path": "TASK.shared-workspace-supervisor-07-19-2026.md",
+      "sha256": "12b4716ac18ff2f1efc4346199950813549ac92b06e5d4ac52ee2619c079fda9"
+    },
+    {
+      "path": "docs/acceptance/AC-20260719-01.md",
+      "sha256": "4e6e62cd1f383b1d95f5956730fa3306f5470958c7fefcd1d0f6fb68935cdd90"
+    },
+    {
+      "path": "docs/evidence/shared-workspace-supervisor-20260719-v1/validation.json",
+      "sha256": "c82ce7580bcf932a87c1442fce5021958fa95efac61386adc568fe3bbfaeef09"
+    },
+    {
+      "path": "docs/operations/shared-workspace-supervision-runbook.md",
+      "sha256": "bca6689804f1d915fca288e9cc4bbec52b281636b5cb7e77fbb388e2378b48dd"
+    },
+    {
+      "path": "examples/workspace_supervision.sample.json",
+      "sha256": "2ed452f57ecd148d8147b645ac369f95c880dd04ba55c88cfda55d64bb259d11"
+    },
+    {
+      "path": "schemas/job-ledger.schema.json",
+      "sha256": "af68220a2e9a5b3c769b29e75cf8fe2da7af65d8a38eb3d76d33ec9c83ed680a"
+    },
+    {
+      "path": "schemas/workspace-lease.schema.json",
+      "sha256": "1e935b67e00b0c70e53a0f03eb38e199541812b1f2b2005f3078a107f4c21bf1"
+    },
+    {
+      "path": "tests/supervision/test_workspace_coordinator.py",
+      "sha256": "4e07d7c7fa6d19bfb1a66da30345dd3324e90038c26f15884aab45029ef98780"
+    },
+    {
+      "path": "tools/supervision/__init__.py",
+      "sha256": "21fde778b008d0729e1468c5c44d4bcb6144ec1b2020f1f846ccc6796350cbab"
+    },
+    {
+      "path": "tools/supervision/workspace_coordinator.py",
+      "sha256": "44ca0a9b17fb85679cd1f8d3b031ed320219a523a50ab602650d4509f050a793"
+    }
+  ]
+}

@@ -13,5 +13,6 @@
   "tests": [
     "手動: Mermaid フロー図が崩れないことをプレビューで確認"
   ],
-  "generated_at": "00060"
+  "generated_at": "00067",
+  "source_sha256": "f9c2044e15f64331dcc4c98a389615fd2f59cca0800be6ca51991a83c0b6f2c8"
 }

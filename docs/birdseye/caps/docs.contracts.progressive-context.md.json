@@ -1,0 +1,21 @@
+{
+  "id": "docs/contracts/progressive-context.md",
+  "role": "contract",
+  "public_api": [],
+  "deps_in": [
+    "docs/workflow-evolution.md"
+  ],
+  "deps_out": [],
+  "risks": [],
+  "tests": [],
+  "summary": "必読全文を先に確保し、鮮度を検証したBirdseyeと0/1/2hop、原文検索でUTF-8予算内へ取得する。memx cacheへ委譲し、receiptを勝手に更新しない。",
+  "generated_at": "00066",
+  "source_sha256": "bf9d441f8497e11ea7e8bb67158568d48bfff0e780a7cdc0de70949a7c5666e1",
+  "review": {
+    "reviewed_at": "2026-09-10T10:27:59.659222+00:00",
+    "reviewed_by": "Codex",
+    "source_sha256": "bf9d441f8497e11ea7e8bb67158568d48bfff0e780a7cdc0de70949a7c5666e1",
+    "summary_sha256": "58783c56399ad7380ca1f8614b1ff836bf6d7d4321c5e5e07b53230eb755291e",
+    "scope": "今回の仕様と利用手順、原文・要約の整合。性能評価ではない。"
+  }
+}

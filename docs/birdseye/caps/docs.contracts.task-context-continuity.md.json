@@ -1,0 +1,28 @@
+{
+  "id": "docs/contracts/task-context-continuity.md",
+  "role": "contract",
+  "public_api": [
+    "tools.context.taskstate.assemble",
+    "python -m tools.context.taskstate"
+  ],
+  "deps_in": [
+    "docs/workflow-evolution.md"
+  ],
+  "deps_out": [],
+  "risks": [
+    "構造的な状態保持とモデルの意味的ドリフト率は別の検証"
+  ],
+  "tests": [
+    "tests/test_task_context_continuity.py"
+  ],
+  "summary": "agent-taskstateの完全snapshotとhash付き必読原文を先に確保し、残りの予算で資料を取得する。予算不足・状態変更・未解決根拠は継続不可。削減率を主目標にしない。",
+  "source_sha256": "6d3ab2525259448030a5911cffeeb9f13d2f451ca73c5a4a4e49549ed7220bda",
+  "review": {
+    "reviewed_at": "2026-09-11T02:58:28.897860+00:00",
+    "reviewed_by": "Codex",
+    "source_sha256": "10d84ad614a6bb8ebd3bd0145afa25efd6397db81fed0f279f24f34baf894fc3",
+    "summary_sha256": "d5393b192461d481c9001147baf3c60ef214da7e4ba68dfa23bd332654d4d526",
+    "scope": "継続性の仕様・API/CLI・利用手順。モデルのドリフト率は未測定。"
+  },
+  "generated_at": "00067"
+}

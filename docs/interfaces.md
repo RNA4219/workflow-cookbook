@@ -27,6 +27,11 @@ next_review_due: 2026-08-10
 | session_recall_resolver | `RecallResponse`（summary と根拠断片） | query、reflection index、acceptance、evidence、docs reference | raw transcript 全文ではなく summary と出典を返す。関連仕様: [docs/spec.md](./spec.md) の「4.6 自己改善ループ blueprint」。 |
 | user_workspace_model_store | `UserModelSnapshot`、`WorkspaceModelSnapshot` | review 済み preference / constraint / output convention | 長期保持は review 済み情報のみ。関連設計: [docs/addenda/O_Adaptive_Improvement_Loop.md](./addenda/O_Adaptive_Improvement_Loop.md)。 |
 | collect_metrics_cli | CLI 経由でエクスポートされる `MetricsSnapshot` JSON、`.ga/qa-metrics.json`、Prometheus PushGateway 互換メトリクス | `--metrics-url`、`--log-path`、`--suite qa`、`--pushgateway-url`、構造化ログ | どの入力ソースも無い場合は `MetricsCollectionError`。契約: [docs/CONTRACTS.md](./CONTRACTS.md) の `.ga/qa-metrics.json`。関連仕様: [docs/spec.md](./spec.md) の「4.7 Metrics 収集 CLI」。 |
+| workflow_benchmark | schedule / report / completed manifest | 凍結manifest・dataset・観測artifact | [比較契約](contracts/workflow-benchmark.md)。外部runnerの起動・採点は呼出元。 |
+| progressive_context | byte予算内context・出典・読込量 | scope・必読・query・Birdseye・任意docs.resolve | [取得契約](contracts/progressive-context.md)。memx cacheを再利用。 |
+| workflow_run_report | task/run集計・Evidence bundle | correlated PluginTrace・独立outcome | [観測契約](contracts/workflow-run-observation.md)。外部Evidence schemaは維持。 |
+| workflow_checkpoint | CAS checkpoint・再開可否・job完了 | taskstate CLI・plan・成果物hash・write lease | [復旧契約](contracts/workflow-checkpoint.md)。外部副作用の再試行は明示判断。 |
+| source_calculations | 全行の整数計算・演算trace・原文位置 | hash付き原文・scalarと表のrecipe・整数式 | [計算契約](contracts/source-calculations.md)。採用案・正解表を受け取らず、全案へ同じ式を適用する。 |
 
 追加ルール:
 

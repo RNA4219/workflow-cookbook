@@ -8,7 +8,7 @@ from __future__ import annotations
 from collections.abc import Callable, Iterable, Mapping, MutableMapping, Sequence
 from dataclasses import dataclass
 from itertools import zip_longest
-from math import isclose, sqrt
+from math import isclose, isfinite, sqrt
 from typing import Any, Protocol
 
 _Message = Mapping[str, Any]
@@ -74,6 +74,9 @@ class _TokenCounter:
         self._encoder = None
         self._encoding_name: str | None = None
         self._uses_tiktoken = False
+        self._model_encoding_matched = False
+        self._ignored_fields: set[str] = set()
+        self._structured_content = False
         self._load_encoder()
 
     def _load_encoder(self) -> None:
@@ -86,6 +89,7 @@ class _TokenCounter:
             return
         try:
             self._encoder = tiktoken.encoding_for_model(resolved)
+            self._model_encoding_matched = True
         except Exception:
             try:
                 self._encoder = tiktoken.get_encoding("cl100k_base")
@@ -96,6 +100,8 @@ class _TokenCounter:
             self._uses_tiktoken = True
 
     def count_message(self, message: _Message) -> int:
+        self._ignored_fields.update(str(key) for key in message if key not in {"role", "content"})
+        self._structured_content |= not isinstance(message.get("content", ""), str)
         content = str(message.get("content", ""))
         base_tokens = 4
         if self._encoder is not None:
@@ -111,6 +117,10 @@ class _TokenCounter:
             "encoding": self._encoding_name,
             "uses_tiktoken": self._uses_tiktoken,
             "strategy": strategy,
+            "estimated": True,
+            "model_encoding_matched": self._model_encoding_matched,
+            "ignored_fields": sorted(self._ignored_fields),
+            "structured_content": self._structured_content,
         }
 
 
@@ -119,7 +129,10 @@ def _normalise_messages(messages: Sequence[_Message]) -> list[_MutableMessage]:
 
 
 def _to_vector(values: Sequence[float]) -> list[float]:
-    return [float(value) for value in values]
+    vector = [float(value) for value in values]
+    if not vector or not all(isfinite(value) for value in vector):
+        raise ValueError("embedding must be a non-empty finite vector")
+    return vector
 
 
 _FLOAT_ZERO_ABS_TOL = 1e-12
@@ -169,11 +182,12 @@ def compute_semantic_metrics(
     """Evaluate semantic retention using the provided options."""
 
     if semantic_options is None:
-        return {}, None
+        return {"measurement_status": "not_measured"}, None
 
     used_options = dict(semantic_options)
     embedder = used_options.get("embedder")
     if not callable(embedder):
+        used_options["measurement_status"] = "not_measured"
         return used_options, None
 
     try:
@@ -182,8 +196,12 @@ def compute_semantic_metrics(
             _messages_to_text(trimmed_messages),
             embedder,
         )
+        if not isfinite(retention):
+            raise ValueError("semantic retention must be finite")
     except Exception:
-        retention = 0.0
+        used_options["measurement_status"] = "error"
+        return used_options, None
+    used_options["measurement_status"] = "measured"
     return used_options, retention
 
 
@@ -247,7 +265,9 @@ class ContextTrimStrategy:
     token_counter_factory: Callable[[str], TokenCounterProtocol]
     token_measurement: Callable[[TokenCounterProtocol, Sequence[_Message]], TokenCounterResult]
     message_selector: Callable[[Sequence[_MutableMessage], Sequence[int], int], list[_MutableMessage]]
-    semantic_metrics: Callable[[Sequence[_Message], Sequence[_Message], Mapping[str, Any] | None], tuple[dict[str, Any], float | None]]
+    semantic_metrics: Callable[
+        [Sequence[_Message], Sequence[_Message], Mapping[str, Any] | None], tuple[dict[str, Any], float | None]
+    ]
 
     @classmethod
     def default(cls) -> ContextTrimStrategy:
@@ -286,7 +306,13 @@ class ContextTrimSession:
         output_tokens = self._strategy.token_measurement(counter, trimmed)
         used_options, retention = self._strategy.semantic_metrics(mutable, trimmed, self._semantic_options)
         statistics = build_statistics(input_tokens.total_tokens, output_tokens.total_tokens, retention)
-        return TrimOutcome(messages=trimmed, statistics=statistics, token_counter=counter.meta(), semantic_options=used_options)
+        statistics["statistics_schema"] = "1.1"
+        statistics["semantic_status"] = used_options.get(
+            "measurement_status", "measured" if retention is not None else "not_measured"
+        )
+        return TrimOutcome(
+            messages=trimmed, statistics=statistics, token_counter=counter.meta(), semantic_options=used_options
+        )
 
 
 def trim_messages(

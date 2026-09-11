@@ -1,0 +1,52 @@
+{
+  "schema_version": "1.1",
+  "profile": "game",
+  "manifest_id": "eval:YYYYMMDD-01",
+  "task_id": "YYYYMMDD-01",
+  "owner": "named-owner",
+  "purpose": "comparison",
+  "status": "frozen",
+  "freeze_date": "YYYY-MM-DD",
+  "gate": "G50",
+  "hypothesis": "公開状態から検証できる単一原因",
+  "action_delta": "CandidateがLegacyと異なる意味的な行動差分",
+  "negative_control": "差分が起きてはならない公開状態または比較条件",
+  "identity": {
+    "legacy": {
+      "label": "legacy-name",
+      "source_path": "submission/legacy.py",
+      "source_revision": "commit-and-dirty-bundle-id",
+      "source_sha256": "sha256:<64 lowercase hex>",
+      "input_sha256": "sha256:<64 lowercase hex>"
+    },
+    "candidate": {
+      "label": "candidate-name",
+      "source_path": "submission/candidate.py",
+      "source_revision": "commit-and-dirty-bundle-id",
+      "source_sha256": "sha256:<64 lowercase hex>",
+      "input_sha256": "sha256:<64 lowercase hex>"
+    },
+    "deck": { "path": "deck.csv", "sha256": "sha256:<64 lowercase hex>" },
+    "runner": { "id": "standard-runner-v1", "sha256": "sha256:<64 lowercase hex>" },
+    "native_runtime": {
+      "id": "native-runtime-v1",
+      "sha256": "sha256:<64 lowercase hex>",
+      "rng_control": "uncontrolled"
+    }
+  },
+  "evaluation": {
+    "dataset_id": "fixed-game-cohort",
+    "dataset_sha256": "sha256:<64 lowercase hex>",
+    "measurement_unit": "game",
+    "primary_metric": "win_rate",
+    "model_version": "policy-runtime-version",
+    "policy_version": "policy-revision",
+    "configuration": {},
+    "opponent_set_id": "sample4-fixed",
+    "opponents": ["deck-a", "deck-b", "deck-c", "deck-d"],
+    "cohort_id": "sample4",
+    "target_deck": "deck-a",
+    "starts": ["first", "second"]
+  },
+  "external_mutations": { "registry_frozen": true, "submission_frozen": true }
+}

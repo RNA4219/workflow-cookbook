@@ -1,0 +1,21 @@
+{
+  "id": "docs/contracts/workflow-checkpoint.md",
+  "role": "contract",
+  "public_api": [],
+  "deps_in": [
+    "docs/workflow-evolution.md"
+  ],
+  "deps_out": [],
+  "risks": [],
+  "tests": [],
+  "summary": "既存taskstate context_policyへのCASとworkspace write leaseを用い、入力/成果物hashを検証して再開する。実行途中は判断記録付きreconcileを要求し、exactly-onceは保証しない。",
+  "generated_at": "00066",
+  "source_sha256": "ad19d726bb45ec194288d1307f6689e5b7b8afa350f3c047ddff6e07963b7315",
+  "review": {
+    "reviewed_at": "2026-09-10T10:27:59.659222+00:00",
+    "reviewed_by": "Codex",
+    "source_sha256": "ad19d726bb45ec194288d1307f6689e5b7b8afa350f3c047ddff6e07963b7315",
+    "summary_sha256": "95c72bd9433ecf58eb007589b59c39d894fc05ab5987dad99d43f3ff6e3141be",
+    "scope": "今回の仕様と利用手順、原文・要約の整合。性能評価ではない。"
+  }
+}

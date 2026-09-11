@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import concurrent.futures
 import time
+import uuid
 from collections.abc import Callable, Iterable, Sequence
 from pathlib import Path
 from typing import Any
@@ -19,7 +20,7 @@ from .runtime_evidence import (
     write_trace_evidence_jsonl,
     write_trace_payload,
 )
-from .runtime_types import InvocationResult, PluginPolicy, PluginTrace
+from .runtime_types import InvocationResult, PluginPolicy, PluginTrace, RunContext
 
 
 class WorkflowPluginRuntime:
@@ -29,7 +30,9 @@ class WorkflowPluginRuntime:
         *,
         default_policy: PluginPolicy | None = None,
         capability_policies: dict[str, PluginPolicy] | None = None,
+        run_context: RunContext | None = None,
     ) -> None:
+        self._run_context = run_context
         self._plugins = list(plugins)
         self._default_policy = default_policy or PluginPolicy()
         self._capability_policies = capability_policies or {}
@@ -42,6 +45,7 @@ class WorkflowPluginRuntime:
         *,
         default_policy: PluginPolicy | None = None,
         capability_policies: dict[str, PluginPolicy] | None = None,
+        run_context: RunContext | None = None,
     ) -> WorkflowPluginRuntime:
         target = Path(config_path).expanduser().resolve()
         specs = load_workflow_plugin_specs(target)
@@ -50,6 +54,7 @@ class WorkflowPluginRuntime:
             plugins,
             default_policy=default_policy,
             capability_policies=capability_policies,
+            run_context=run_context,
         )
 
     @property
@@ -133,9 +138,7 @@ class WorkflowPluginRuntime:
         if policy.timeout_seconds <= 0 or policy.isolation_mode == "inline":
             return method(**kwargs)
         if policy.isolation_mode != "thread":
-            raise WorkflowPluginExecutionError(
-                f"Unsupported workflow plugin isolation mode: {policy.isolation_mode}"
-            )
+            raise WorkflowPluginExecutionError(f"Unsupported workflow plugin isolation mode: {policy.isolation_mode}")
 
         executor = concurrent.futures.ThreadPoolExecutor(max_workers=1)
         future = executor.submit(method, **kwargs)
@@ -152,7 +155,7 @@ class WorkflowPluginRuntime:
             return result
 
     def _append_trace(self, trace: PluginTrace, policy: PluginPolicy) -> None:
-        if policy.trace_enabled:
+        if policy.trace_enabled or self._run_context is not None:
             self._traces.append(trace)
 
     @staticmethod
@@ -177,6 +180,7 @@ class WorkflowPluginRuntime:
         plugin_name = getattr(plugin, "__class__", type(plugin)).__name__
         method = getattr(plugin, method_name)
         last_error: Exception | None = None
+        invocation_id = uuid.uuid4().hex if self._run_context else None
 
         for attempt in range(policy.retry_count + 1):
             trace = PluginTrace(
@@ -187,6 +191,10 @@ class WorkflowPluginRuntime:
                 attempt=attempt + 1,
                 timeout_seconds=policy.timeout_seconds if policy.timeout_seconds > 0 else None,
                 isolation_mode=policy.isolation_mode,
+                task_id=self._run_context.task_id if self._run_context else None,
+                run_id=self._run_context.run_id if self._run_context else None,
+                invocation_id=invocation_id,
+                span_id=uuid.uuid4().hex if self._run_context else None,
             )
             try:
                 result = self._call_method(
@@ -275,4 +283,5 @@ __all__ = [
     "PluginPolicy",
     "PluginTrace",
     "InvocationResult",
+    "RunContext",
 ]
