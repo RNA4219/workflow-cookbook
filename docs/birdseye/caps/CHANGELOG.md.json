@@ -22,13 +22,13 @@
   "tests": [
     "手動: 新リリース記載後にREADME/policy.yamlとの整合を確認"
   ],
-  "generated_at": "00067",
-  "source_sha256": "51dd7808dd278d90d215e2290f45359ea57e7ee7d1bef8e0c3a0247d95ad226d",
+  "generated_at": "00070",
+  "source_sha256": "4fb7b25a67bebd890a7739581b7856d2069a88058505af2b61faede720ed72a9",
   "review": {
-    "reviewed_at": "2026-09-11T04:51:06.414540+00:00",
+    "reviewed_at": "2026-09-11T20:38:15.918255+00:00",
     "reviewed_by": "Codex",
-    "source_sha256": "c4600698969fb0e9312ee9109bfc361ed9ce639a31ec78c52a03539ff4dccaf7",
-    "summary_sha256": "a9c72e28da2cfe5a9a3d0af23148b58370935f51cc957562518ea4ee7aee8647",
-    "scope": "原文計算API/CLIと利用案内。モデル効果は別manifestで評価する。"
+    "source_sha256": "4fb7b25a67bebd890a7739581b7856d2069a88058505af2b61faede720ed72a9",
+    "summary_sha256": "5267821fd61bb6f9b03c058d5963844c9bf059dbac3d4f6ce8888143f717b26a",
+    "scope": "一括コピーの入口と履歴を必要時に参照する方針の確認"
   }
 }

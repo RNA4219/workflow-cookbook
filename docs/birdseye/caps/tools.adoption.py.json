@@ -1,0 +1,31 @@
+{
+  "id": "tools/adoption.py",
+  "role": "runtime",
+  "summary": "Gitの固定treeを読み、既存指示を保持して全原文と単独検査CLIを設置する。衝突時は上書きせず、管理ファイルのhashと入口を検査する。",
+  "public_api": [
+    "wfc-copy",
+    "python -m tools.adoption"
+  ],
+  "deps_in": [
+    "docs/acceptance/AC-20260912-01.md",
+    "docs/adoption-guide.md"
+  ],
+  "deps_out": [
+    "docs/contracts/full-workflow-copy.md"
+  ],
+  "risks": [
+    "コピー成功を運用準拠・テスト合格の認定と取り違えない"
+  ],
+  "tests": [
+    "tests/test_adoption.py"
+  ],
+  "source_sha256": "c676b291cfb6456549549b81d3ed02b3eb516a880c04898b2c115fc8e2c93aaf",
+  "generated_at": "00072",
+  "review": {
+    "reviewed_at": "2026-09-11T20:38:16.023101+00:00",
+    "reviewed_by": "Codex",
+    "source_sha256": "c676b291cfb6456549549b81d3ed02b3eb516a880c04898b2c115fc8e2c93aaf",
+    "summary_sha256": "881db66a57cb47e0ca6c2395856913b3fb0231c95754cd76f753867c9f86a128",
+    "scope": "本変更の本文・依存先・実装検証結果との照合"
+  }
+}

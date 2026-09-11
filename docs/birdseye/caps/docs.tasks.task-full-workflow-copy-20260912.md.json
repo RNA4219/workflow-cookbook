@@ -1,0 +1,29 @@
+{
+  "id": "docs/tasks/task-full-workflow-copy-20260912.md",
+  "role": "task",
+  "summary": "別リポジトリへのフルコピー機能を仕様・実装・配布境界の検証まで追跡する完了タスク。",
+  "public_api": [],
+  "deps_in": [
+    "docs/acceptance/AC-20260912-01.md",
+    "docs/contracts/full-workflow-copy.md"
+  ],
+  "deps_out": [
+    "docs/acceptance/AC-20260912-01.md",
+    "docs/contracts/full-workflow-copy.md"
+  ],
+  "risks": [
+    "コピー成功を運用準拠・テスト合格の認定と取り違えない"
+  ],
+  "tests": [
+    "tests/test_adoption.py"
+  ],
+  "source_sha256": "f0fadeeaee44f526eb863c1e42226681334633e6254e05fcd67f5b756cd38f80",
+  "generated_at": "00072",
+  "review": {
+    "reviewed_at": "2026-09-11T20:38:16.005232+00:00",
+    "reviewed_by": "Codex",
+    "source_sha256": "f0fadeeaee44f526eb863c1e42226681334633e6254e05fcd67f5b756cd38f80",
+    "summary_sha256": "1d59eb94f4e8cd58a32a5ba202189873e74bd4ad43b5285d1f3d7668a2ca57dc",
+    "scope": "本変更の本文・依存先・実装検証結果との照合"
+  }
+}

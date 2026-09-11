@@ -1,5 +1,5 @@
 {
-  "generated_at": "00069",
+  "generated_at": "00072",
   "nodes": {
     "README.md": {
       "role": "overview",
@@ -175,6 +175,31 @@
       "role": "contract",
       "caps": "docs/birdseye/caps/docs.contracts.source-calculations.md.json",
       "mtime": "00035"
+    },
+    "docs/adoption-guide.md": {
+      "role": "operations",
+      "caps": "docs/birdseye/caps/docs.adoption-guide.md.json",
+      "mtime": "00036"
+    },
+    "docs/contracts/full-workflow-copy.md": {
+      "role": "contract",
+      "caps": "docs/birdseye/caps/docs.contracts.full-workflow-copy.md.json",
+      "mtime": "00037"
+    },
+    "tools/adoption.py": {
+      "role": "runtime",
+      "caps": "docs/birdseye/caps/tools.adoption.py.json",
+      "mtime": "00038"
+    },
+    "docs/tasks/task-full-workflow-copy-20260912.md": {
+      "role": "task",
+      "caps": "docs/birdseye/caps/docs.tasks.task-full-workflow-copy-20260912.md.json",
+      "mtime": "00039"
+    },
+    "docs/acceptance/AC-20260912-01.md": {
+      "role": "acceptance",
+      "caps": "docs/birdseye/caps/docs.acceptance.AC-20260912-01.md.json",
+      "mtime": "00040"
     }
   },
   "edges": [
@@ -621,6 +646,50 @@
     [
       "docs/workflow-evolution.md",
       "docs/contracts/source-calculations.md"
+    ],
+    [
+      "README.md",
+      "docs/adoption-guide.md"
+    ],
+    [
+      "HUB.codex.md",
+      "docs/adoption-guide.md"
+    ],
+    [
+      "docs/adoption-guide.md",
+      "docs/contracts/full-workflow-copy.md"
+    ],
+    [
+      "docs/adoption-guide.md",
+      "tools/adoption.py"
+    ],
+    [
+      "docs/contracts/full-workflow-copy.md",
+      "docs/tasks/task-full-workflow-copy-20260912.md"
+    ],
+    [
+      "docs/contracts/full-workflow-copy.md",
+      "docs/acceptance/AC-20260912-01.md"
+    ],
+    [
+      "docs/tasks/task-full-workflow-copy-20260912.md",
+      "docs/contracts/full-workflow-copy.md"
+    ],
+    [
+      "docs/tasks/task-full-workflow-copy-20260912.md",
+      "docs/acceptance/AC-20260912-01.md"
+    ],
+    [
+      "docs/acceptance/AC-20260912-01.md",
+      "docs/tasks/task-full-workflow-copy-20260912.md"
+    ],
+    [
+      "docs/acceptance/AC-20260912-01.md",
+      "tools/adoption.py"
+    ],
+    [
+      "tools/adoption.py",
+      "docs/contracts/full-workflow-copy.md"
     ]
   ]
 }

@@ -15,14 +15,14 @@
   "tests": [
     "tests/test_task_context_continuity.py"
   ],
-  "summary": "agent-taskstateの完全snapshotとhash付き必読原文を先に確保し、残りの予算で資料を取得する。予算不足・状態変更・未解決根拠は継続不可。削減率を主目標にしない。",
-  "source_sha256": "6d3ab2525259448030a5911cffeeb9f13d2f451ca73c5a4a4e49549ed7220bda",
+  "summary": "agent-taskstateの標準bundle全体と必読原文を保持し、目的・制約・進捗・決定・未解決事項を維持する。解決済み履歴は必要時に参照し、毎回の完全復元を要求しない。",
+  "source_sha256": "85e9469e451b90b1286e62a8ed9946948f6a6354a4126c7df001cfd3fb087944",
   "review": {
-    "reviewed_at": "2026-09-11T02:58:28.897860+00:00",
+    "reviewed_at": "2026-09-11T20:38:15.990217+00:00",
     "reviewed_by": "Codex",
-    "source_sha256": "10d84ad614a6bb8ebd3bd0145afa25efd6397db81fed0f279f24f34baf894fc3",
-    "summary_sha256": "d5393b192461d481c9001147baf3c60ef214da7e4ba68dfa23bd332654d4d526",
-    "scope": "継続性の仕様・API/CLI・利用手順。モデルのドリフト率は未測定。"
+    "source_sha256": "85e9469e451b90b1286e62a8ed9946948f6a6354a4126c7df001cfd3fb087944",
+    "summary_sha256": "91e3bae251b26e208f49bcf7585a6a5843822935bf0b008d5056eedb9573ac0c",
+    "scope": "一括コピーの入口と履歴を必要時に参照する方針の確認"
   },
-  "generated_at": "00067"
+  "generated_at": "00070"
 }

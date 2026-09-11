@@ -1,0 +1,29 @@
+{
+  "id": "docs/acceptance/AC-20260912-01.md",
+  "role": "acceptance",
+  "summary": "一括コピーの55件、全体回帰、wheelからの実コピーと567 blobの独立照合を記録する。運用準拠やモデル性能を認定しない。",
+  "public_api": [],
+  "deps_in": [
+    "docs/contracts/full-workflow-copy.md",
+    "docs/tasks/task-full-workflow-copy-20260912.md"
+  ],
+  "deps_out": [
+    "docs/tasks/task-full-workflow-copy-20260912.md",
+    "tools/adoption.py"
+  ],
+  "risks": [
+    "コピー成功を運用準拠・テスト合格の認定と取り違えない"
+  ],
+  "tests": [
+    "tests/test_adoption.py"
+  ],
+  "source_sha256": "019a81372728ab23dcb5a31d68b614a701cbf7696637c5a5fac7f16a006bb39d",
+  "generated_at": "00071",
+  "review": {
+    "reviewed_at": "2026-09-11T20:38:15.953946+00:00",
+    "reviewed_by": "Codex",
+    "source_sha256": "019a81372728ab23dcb5a31d68b614a701cbf7696637c5a5fac7f16a006bb39d",
+    "summary_sha256": "39da151222d1063231c0a6765eb151f68d831f8513ee83befb908e5a6b0e7f60",
+    "scope": "本変更の本文・依存先・実装検証結果との照合"
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "id": "docs/contracts/full-workflow-copy.md",
+  "role": "contract",
+  "summary": "固定コミットの全追跡ファイルとAGENTS入口を一括導入する契約。コピーの整合性と導入先の運用準拠を区別する。",
+  "public_api": [
+    "copy_workflow",
+    "verify"
+  ],
+  "deps_in": [
+    "docs/adoption-guide.md",
+    "docs/tasks/task-full-workflow-copy-20260912.md",
+    "tools/adoption.py"
+  ],
+  "deps_out": [
+    "docs/acceptance/AC-20260912-01.md",
+    "docs/tasks/task-full-workflow-copy-20260912.md"
+  ],
+  "risks": [
+    "コピー成功を運用準拠・テスト合格の認定と取り違えない"
+  ],
+  "tests": [
+    "tests/test_adoption.py"
+  ],
+  "source_sha256": "969f7ac9beacf37db967b53c88b62d709c9f7d9b8cc1c58f1a08a3227fbe23a4",
+  "generated_at": "00072",
+  "review": {
+    "reviewed_at": "2026-09-11T20:38:15.979105+00:00",
+    "reviewed_by": "Codex",
+    "source_sha256": "969f7ac9beacf37db967b53c88b62d709c9f7d9b8cc1c58f1a08a3227fbe23a4",
+    "summary_sha256": "654e8e836b40c97407237f37f14de6120a7e2dd6221fc5600e03058370ba8690",
+    "scope": "本変更の本文・依存先・実装検証結果との照合"
+  }
+}

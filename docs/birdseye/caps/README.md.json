@@ -15,6 +15,7 @@
     "docs/BIRDSEYE.md",
     "docs/IMPLEMENTATION-PLAN.md",
     "docs/IN-20250115-001.md",
+    "docs/adoption-guide.md",
     "docs/birdseye/caps/",
     "docs/birdseye/index.json",
     "docs/workflow-evolution.md",
@@ -35,13 +36,13 @@
   ],
   "risks": [],
   "tests": [],
-  "generated_at": "00067",
-  "source_sha256": "eac5049594170a8498539c02772b5b4a959d8e0fc3fdcf49b82c91b21b72fde8",
+  "generated_at": "00072",
+  "source_sha256": "e0d3cb3483ba8d89dc7ada6a762890167465afe7c8de163be6e1e08e50c6c5e7",
   "review": {
-    "reviewed_at": "2026-09-10T10:27:59.659222+00:00",
+    "reviewed_at": "2026-09-11T20:38:15.944173+00:00",
     "reviewed_by": "Codex",
-    "source_sha256": "dc260859e87dd36a26f6080f01371d0436761e03739478bd166e1dbff6be9b70",
-    "summary_sha256": "6705f15476448c4f46ca1317dbe972d8bc4885bbb3416075c7e0efcd8964095c",
-    "scope": "今回の仕様と利用手順、原文・要約の整合。性能評価ではない。"
+    "source_sha256": "e0d3cb3483ba8d89dc7ada6a762890167465afe7c8de163be6e1e08e50c6c5e7",
+    "summary_sha256": "e0f63b176c48d91d51facc13e1b9df086cb79a5ebe33f4552ab808e493bc1511",
+    "scope": "本変更の本文・依存先・実装検証結果との照合"
   }
 }
