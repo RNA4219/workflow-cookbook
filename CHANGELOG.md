@@ -40,6 +40,12 @@ next_review_due: 2026-08-11
 
 ## Unreleased
 
+- `wfc-copy` / `python -m tools.adoption`で、固定コミットの全追跡ファイルと
+  導入先AGENTSの参照入口を一括コピーできる。
+  既存ファイル保全、再実行、dry-run、hashによる整合性検査を提供する。
+  [仕様](docs/contracts/full-workflow-copy.md) /
+  [AC-20260912-01](docs/acceptance/AC-20260912-01.md)。
+
 - 0086: 6合成シナリオ・128イベント・3条件の全504要求を独立監査。
   目的・制約など7項目は保持したが、解消済み質問の標準復元からの欠落を確認した。
   [結果と限界](docs/evidence/long-horizon-drift-20260911/README.md)を公開し、復元契約の範囲を明記。

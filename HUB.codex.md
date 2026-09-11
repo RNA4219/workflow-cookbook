@@ -86,6 +86,10 @@ next_review_due: 2026-08-11
 
 補完資料一覧:
 
+- [一括コピーの導入手順](docs/adoption-guide.md#一度で全体をコピーする):
+  固定コミットの全原文・ツールをコピーし、導入先AGENTSへ接続する。
+  [コピー契約](docs/contracts/full-workflow-copy.md)を参照する。
+
 - `README.md`: リポジトリ概要と参照リンク
 - `CHANGELOG.md`: 完了タスクと履歴の記録
 - `.github/PULL_REQUEST_TEMPLATE.md`: PR 作成時のチェック項目（Intent/リスク/Canary連携）

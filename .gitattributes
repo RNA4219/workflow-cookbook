@@ -2,6 +2,8 @@
 *.md text eol=lf
 *.yml text eol=lf
 *.yaml text eol=lf
+# Keep the copied verifier and its source digest stable across checkouts.
+tools/adoption.py text eol=lf
 
 # Keep measured evidence byte-identical to its recorded hash inventory.
 docs/evidence/long-horizon-drift-20260911/PROTOCOL.md -text whitespace=cr-at-eol

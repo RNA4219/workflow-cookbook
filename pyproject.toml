@@ -57,6 +57,7 @@ wfc-collect-metrics = "tools.perf.collect_metrics.cli:main"
 wfc-codemap-update = "tools.codemap.update.cli:main"
 wfc-context-pack = "tools.context.pack.cli:main"
 wfc-five-tool-manifest = "tools.ci.five_tool_manifest:main"
+wfc-copy = "tools.adoption:main"
 
 [tool.setuptools.packages.find]
 where = ["."]

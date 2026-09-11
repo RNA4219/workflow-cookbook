@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import json
 import os
 import subprocess
 import tempfile
@@ -16,6 +17,7 @@ ENTRYPOINTS = (
     "wfc-codemap-update",
     "wfc-context-pack",
     "wfc-five-tool-manifest",
+    "wfc-copy",
 )
 
 
@@ -63,6 +65,28 @@ def smoke_wheel(wheel: Path) -> None:
                     f"{name} --help failed with exit code {completed.returncode}:\n"
                     f"{completed.stdout}\n{completed.stderr}"
                 )
+
+        # 配布されたコピーCLIをcheckout外で使い、原文一式と接続を検証する。
+        downstream = temp / "downstream"
+        downstream.mkdir()
+        original_agents = b"# Project-specific instructions\n"
+        (downstream / "AGENTS.md").write_bytes(original_agents)
+        copy_cli = _venv_script(environment, "wfc-copy")
+        source = Path(__file__).resolve().parents[2]
+        for arguments, expected in (
+            (["--source", str(source)], "copied"),
+            (["--check"], "verified"),
+            (["--source", str(source)], "unchanged"),
+        ):
+            result = subprocess.run(
+                [str(copy_cli), "--repo", str(downstream), *arguments],
+                cwd=temp, env=clean_env, check=True, capture_output=True, text=True, encoding="utf-8",
+            )
+            report = json.loads(result.stdout)
+            if report["status"] != expected or report["operational_compliance"] != "not_evaluated":
+                raise RuntimeError(f"wfc-copy returned an unexpected report: {report}")
+        if not (downstream / "AGENTS.md").read_bytes().startswith(original_agents):
+            raise RuntimeError("wfc-copy changed existing AGENTS.md instructions")
 
 
 def main(argv: list[str] | None = None) -> int:

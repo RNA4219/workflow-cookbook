@@ -39,6 +39,21 @@ Integrates Birdseye/Codemap, Task Seeds, acceptance operations, reusable CI, and
 
 ---
 
+## フル準拠の参照一式を一括コピー
+
+Workflow Cookbookのcheckoutで次を1回実行すると、固定コミットの全ファイルと
+導入先のAGENTS参照入口を設置します。Python 3.11以上とGitが必要です。
+
+```sh
+python -m tools.adoption --repo /path/to/target
+```
+
+既存文書を保全し、再実行では同じコピーを重複作成しません。
+`--dry-run`で事前確認、`--check`でコピーの欠落・改変を検査できます。
+コピーは準拠に必要な原文・ツール一式を提供するもので、導入先のテスト合格を認定するものではありません。
+[導入手順](docs/adoption-guide.md#一度で全体をコピーする) /
+[仕様と保全条件](docs/contracts/full-workflow-copy.md)
+
 ## Quick Start
 
 ```sh

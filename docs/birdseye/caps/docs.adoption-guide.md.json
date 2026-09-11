@@ -1,0 +1,32 @@
+{
+  "id": "docs/adoption-guide.md",
+  "role": "operations",
+  "summary": "一括コピーCLI、既存保全、固定版、単独検査、段階別導入の使い方を案内する。",
+  "public_api": [
+    "python -m tools.adoption",
+    "wfc-copy"
+  ],
+  "deps_in": [
+    "HUB.codex.md",
+    "README.md"
+  ],
+  "deps_out": [
+    "docs/contracts/full-workflow-copy.md",
+    "tools/adoption.py"
+  ],
+  "risks": [
+    "コピー成功を運用準拠・テスト合格の認定と取り違えない"
+  ],
+  "tests": [
+    "tests/test_adoption.py"
+  ],
+  "source_sha256": "23c0c0487969914b33eb2eadde341f9bbe496c00431cd211da0f1dd61d26bfcf",
+  "generated_at": "00072",
+  "review": {
+    "reviewed_at": "2026-09-11T20:51:46.852096+00:00",
+    "reviewed_by": "Codex",
+    "source_sha256": "23c0c0487969914b33eb2eadde341f9bbe496c00431cd211da0f1dd61d26bfcf",
+    "summary_sha256": "db719f25b3a68d97fcbe5732ad812797af9755e4a5ac746cb7b889c5922a1734",
+    "scope": "並行編集を上書きしない追記方式と失敗時の保全契約を確認"
+  }
+}

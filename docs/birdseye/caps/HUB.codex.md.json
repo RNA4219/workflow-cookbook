@@ -14,6 +14,7 @@
     "docs/IMPLEMENTATION-PLAN.md",
     "docs/IN-20250115-001.md",
     "docs/INCIDENT_TEMPLATE.md",
+    "docs/adoption-guide.md",
     "docs/birdseye/caps/",
     "docs/birdseye/index.json",
     "governance/policy.yaml",
@@ -32,13 +33,13 @@
     "索引だけで十分と判断すると未収録の原文や適用条件を見落とす"
   ],
   "tests": [],
-  "generated_at": "00066",
-  "source_sha256": "029541b39e66b0cc36724f8a791e65ac295b5ea9607b6c90d99489451302b3ac",
+  "generated_at": "00072",
+  "source_sha256": "66b892f3fedd9cc9a1ea57d28f27145080721cf0cd3be747916ed543f6efffa9",
   "review": {
-    "reviewed_at": "2026-09-10T02:09:04.366163+00:00",
+    "reviewed_at": "2026-09-11T20:38:15.929918+00:00",
     "reviewed_by": "Codex",
-    "source_sha256": "029541b39e66b0cc36724f8a791e65ac295b5ea9607b6c90d99489451302b3ac",
-    "summary_sha256": "749bec93a1686e387a6fecbc95449396202718579481c2222efed36c79939212",
-    "scope": "原文と要約・参照の整合。実運用の効果評価ではない。"
+    "source_sha256": "66b892f3fedd9cc9a1ea57d28f27145080721cf0cd3be747916ed543f6efffa9",
+    "summary_sha256": "a4b97b2884453ae43373324d4cce83ab2972ff200568650f16e4dc0a69416c8d",
+    "scope": "本変更の本文・依存先・実装検証結果との照合"
   }
 }
