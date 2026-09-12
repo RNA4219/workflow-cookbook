@@ -67,6 +67,32 @@ stdoutはJSON、exit 0は成功、1は要対応です。
 コピー成功時も運用準拠は`not_evaluated`です。
 [仕様](contracts/full-workflow-copy.md)に保全と検証の境界を記載しています。
 
+### Gitで共有するときの実行属性
+
+Windowsではコピー時のchmodだけでGitの実行属性を保持できないため、commit前にindexを確認します。
+新しいCLIまたは新規コピーに同梱したverifierの`--check-git-modes`は、indexを読み取りで検査します。
+このモードにはGitが必要です。既存の`--check`は引き続きGitなしで使えます。
+
+```sh
+# 導入先ルートで共有したいファイルをステージし、modeを検査
+git add -- AGENTS.md workflow-cookbook
+python -B workflow-cookbook/verify.py --repo . --check-git-modes
+
+# 例: manifestが実行ファイルと定めるrun.shに属性を設定して再検査
+git update-index --chmod=+x -- workflow-cookbook/upstream/run.sh
+python -B workflow-cookbook/verify.py --repo . --check-git-modes
+```
+
+`run.sh`は説明用です。実際の対象は出力の`executable_paths`で確認してください。
+この一覧はコピー領域からの相対パスなので、Gitへ渡すときは`workflow-cookbook/`を先頭に付けます。
+一覧にないファイルまで一括で実行可能にしないでください。mode不一致・未登録・競合があれば検査は失敗します。
+CLIがindexや設定を自動変更することはありません。通常のコピー成功だけでGit共有済みとは扱いません。
+通常出力の`git_modes`は`not_checked`です。明示的なmode検査だけが`verified`または`invalid`を返します。
+この結果はindexの登録・modeに関するもので、ステージした本文の同一性や運用準拠を保証しません。
+
+既存コピーのverifierは自動更新されません。新モードがない場合は更新済みcheckoutの
+`python -m tools.adoption --repo /path/to/target --check-git-modes`を使います。
+
 ## 1. Assess Current Tier
 
 ```bash
@@ -128,6 +154,9 @@ Use a JSON list when assessing several repositories:
 ```bash
 python tools/ci/check_adoption_tier.py --repo-list repos.json --json
 ```
+
+Tierとonboardingの両方で、空の一覧・空白パス・不正な要素はエラーです。
+onboardingはCIの`.yml`と`.yaml`を同じ条件で診断します。
 
 ## 5. Review Cadence
 

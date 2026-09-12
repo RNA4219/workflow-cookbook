@@ -234,6 +234,62 @@ def test_git_case_collisions_are_rejected(source: Path) -> None:
         adoption.snapshot(source, "HEAD")
 
 
+@pytest.mark.parametrize("names", [
+    ("Notes/a.md", "notes/b.md"),
+    ("Notes/Sub/a.md", "Notes/sub/b.md"),
+    ("Notes", "notes/b.md"),
+    ("Notes/b.md", "notes"),
+])
+@pytest.mark.parametrize("dry_run", [False, True])
+def test_git_component_collisions_leave_target_unchanged(
+    source: Path, target: Path, names: tuple[str, str], dry_run: bool,
+) -> None:
+    oid = git(source, "hash-object", "README.md")
+    for name in names:
+        git(source, "update-index", "--add", "--cacheinfo", f"100644,{oid},{name}")
+    git(source, "commit", "-m", "component collision")
+    (target / "AGENTS.md").write_bytes(b"Existing instructions\r\n")
+    before = {path.name: path.read_bytes() for path in target.iterdir()}
+    with pytest.raises(ValueError, match="衝突"):
+        adoption.copy_workflow(target, source, dry_run=dry_run)
+    assert {path.name: path.read_bytes() for path in target.iterdir()} == before
+
+
+def test_source_shared_directory_spelling_is_accepted(source: Path) -> None:
+    oid = git(source, "hash-object", "README.md")
+    for name in ("Notes/a.md", "Notes/Sub/b.md", "Notes/Sub/c.md"):
+        git(source, "update-index", "--add", "--cacheinfo", f"100644,{oid},{name}")
+    git(source, "commit", "-m", "shared directories")
+    assert "Notes/Sub/c.md" in adoption.snapshot(source, "HEAD").files
+
+
+@pytest.mark.parametrize("arguments", [
+    [], ["--repo"], ["--unknown"], ["--repo", ".", "--unknown"],
+    ["--repo", ".", "--check", "--dry-run"],
+])
+def test_cli_syntax_errors_follow_json_contract(arguments: list[str]) -> None:
+    result = subprocess.run(
+        [sys.executable, "-B", "-m", "tools.adoption", *arguments], cwd=ROOT,
+        capture_output=True, text=True, encoding="utf-8", check=False,
+    )
+    assert result.returncode == 1
+    assert result.stderr == ""
+    report = json.loads(result.stdout)
+    assert report["status"] == "error"
+    assert report["error"]
+    assert report["operational_compliance"] == "not_evaluated"
+
+
+def test_cli_help_remains_successful() -> None:
+    result = subprocess.run(
+        [sys.executable, "-B", "-m", "tools.adoption", "--help"], cwd=ROOT,
+        capture_output=True, text=True, encoding="utf-8", check=False,
+    )
+    assert result.returncode == 0
+    assert "--repo" in result.stdout
+    assert result.stderr == ""
+
+
 @pytest.mark.parametrize("which", ["target", "agents", "managed_dir", "managed_file"])
 def test_reparse_points_are_refused(source: Path, target: Path, monkeypatch: pytest.MonkeyPatch, which: str) -> None:
     adoption.copy_workflow(target, source)
@@ -472,6 +528,15 @@ def test_invalid_checkout_hashes_are_rejected(hashes: object) -> None:
         adoption._matches(b"content", {"sha256": "a" * 64, "checkout_sha256": hashes}, 2)
 
 
+@pytest.mark.parametrize("version,digest", [
+    (1, "3d8811e8f81440dae2f3d360dbc033cc2dad4c805e1bcad21a67b53b86a719b5"),
+    (2, "7fea4fae93ae8a047b77617cb8190b13affb96936026c1c7e2446310105d89ec"),
+])
+def test_existing_adoption_contract_bytes_remain_compatible(version: int, digest: str) -> None:
+    # 旧コピーが埋め込んだ契約の固定バイト列を新CLIでも維持する。
+    assert hashlib.sha256(adoption.adoption_text("a" * 40, version)).hexdigest() == digest
+
+
 def test_v1_manifest_remains_readable_and_byte_strict(source: Path, target: Path) -> None:
     adoption.copy_workflow(target, source)
     root = target / adoption.DIRECTORY
@@ -503,6 +568,124 @@ def test_mixed_agents_block_and_altered_checkout_hash_fail(source: Path, target:
     with pytest.raises(ValueError, match="hash"):
         adoption.copy_workflow(target, source)
 
+
+
+@pytest.mark.parametrize("executable", [True, False])
+def test_git_mode_check_requires_staging_and_never_changes_index_or_config(
+    source: Path, target: Path, executable: bool,
+) -> None:
+    if not executable:
+        git(source, "update-index", "--chmod=-x", "run.sh")
+        git(source, "commit", "-m", "non-executable fixture")
+    git(target, "init")
+    git(target, "config", "core.filemode", "false")
+    copied = adoption.copy_workflow(target, source)
+    assert copied["executable_paths"] == (["upstream/run.sh"] if executable else [])
+    assert copied["git_modes"] == "not_checked"
+    config = (target / ".git/config").read_bytes()
+    index = target / ".git/index"
+    initial = index.read_bytes() if index.exists() else None
+    result = cli(target, "--check-git-modes")
+    report = json.loads(result.stdout)
+    assert result.returncode == 1, result.stdout + result.stderr
+    assert report["git_modes"] == "invalid"
+    assert report["checked_mode_files"] == copied["upstream_files"] + 3
+    assert len(report["mode_issues"]) == report["checked_mode_files"]
+    assert {issue["reason"] for issue in report["mode_issues"]} == {"untracked"}
+    assert (index.read_bytes() if index.exists() else None) == initial
+    assert (target / ".git/config").read_bytes() == config
+    git(target, "add", "-f", ".")
+    before = index.read_bytes()
+    result = cli(target, "--check-git-modes")
+    report = json.loads(result.stdout)
+    assert index.read_bytes() == before
+    if executable:
+        assert result.returncode == 1, result.stdout
+        assert report["mode_issues"] == [{
+            "path": "upstream/run.sh", "expected_mode": "100755", "reason": "mode_mismatch",
+            "index_entries": [{"stage": "0", "mode": "100644"}],
+        }]
+        git(target, "update-index", "--chmod=+x", "--", "workflow-cookbook/upstream/run.sh")
+    else:
+        assert result.returncode == 0, result.stdout + result.stderr
+    before = index.read_bytes()
+    result = cli(target, "--check-git-modes", "--source", str(target / "absent"))
+    report = json.loads(result.stdout)
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert report["status"] == "verified"
+    assert report["git_modes"] == "verified"
+    assert report["mode_issues"] == []
+    assert report["operational_compliance"] == "not_evaluated"
+    assert index.read_bytes() == before
+    assert (target / ".git/config").read_bytes() == config
+
+
+@pytest.mark.parametrize("problem", ["non_executable_mode", "unmerged", "extra"])
+def test_git_mode_check_rejects_staged_mode_conflicts_and_extra_paths(
+    source: Path, target: Path, problem: str,
+) -> None:
+    git(target, "init")
+    adoption.copy_workflow(target, source)
+    git(target, "add", "-f", ".")
+    git(target, "update-index", "--chmod=+x", "--", "workflow-cookbook/upstream/run.sh")
+    name = "workflow-cookbook/upstream/README.md"
+    if problem == "non_executable_mode":
+        git(target, "update-index", "--chmod=+x", "--", name)
+    elif problem == "unmerged":
+        oid = git(target, "hash-object", name)
+        git(target, "update-index", "--force-remove", "--", name)
+        result = subprocess.run(
+            ["git", "-c", f"safe.directory={target}", "-C", str(target), "update-index", "--index-info"],
+            input=f"100644 {oid} 1\t{name}\n100644 {oid} 2\t{name}\n100644 {oid} 3\t{name}\n".encode(),
+            capture_output=True, check=False,
+        )
+        assert result.returncode == 0, result.stderr
+    else:
+        name = "workflow-cookbook/old.txt"
+        path = target / name
+        path.write_bytes(b"staged but removed from worktree")
+        git(target, "add", "-f", "--", name)
+        path.unlink()
+    before = (target / ".git/index").read_bytes()
+    report = adoption.check_git_modes(target)
+    assert report["status"] == "error"
+    assert report["git_modes"] == "invalid"
+    assert len(report["mode_issues"]) == 1
+    assert report["mode_issues"][0]["path"] == name.removeprefix("workflow-cookbook/")
+    reason = {"non_executable_mode": "mode_mismatch", "unmerged": "unmerged", "extra": "unexpected"}[problem]
+    assert report["mode_issues"][0]["reason"] == reason
+    assert (target / ".git/index").read_bytes() == before
+
+
+def test_git_mode_check_accepts_target_below_git_root(source: Path, target: Path) -> None:
+    git(target, "init")
+    nested = target / "nested 日本語"
+    nested.mkdir()
+    adoption.copy_workflow(nested, source)
+    git(target, "add", "-f", ".")
+    git(target, "update-index", "--chmod=+x", "--", "nested 日本語/workflow-cookbook/upstream/run.sh")
+    assert adoption.check_git_modes(nested)["git_modes"] == "verified"
+
+
+def test_explicit_mode_check_requires_git_but_offline_check_does_not(
+    source: Path, target: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str],
+) -> None:
+    adoption.copy_workflow(target, source)
+    monkeypatch.setattr(shutil, "which", lambda _: None)
+    assert adoption.main(["--repo", str(target), "--check"]) == 0
+    assert json.loads(capsys.readouterr().out)["git_modes"] == "not_checked"
+    assert adoption.main(["--repo", str(target), "--check-git-modes"]) == 1
+    report = json.loads(capsys.readouterr().out)
+    assert report["status"] == "error"
+    assert report["operational_compliance"] == "not_evaluated"
+
+
+@pytest.mark.parametrize("mode", ["--check", "--dry-run"])
+def test_git_mode_check_is_exclusive(target: Path, mode: str) -> None:
+    result = cli(target, "--check-git-modes", mode)
+    assert result.returncode == 1
+    assert json.loads(result.stdout)["status"] == "error"
+    assert result.stderr == ""
 
 
 @pytest.mark.parametrize("change", ["missing", "empty", "wrong", "same_as_original", "binary_extra"])

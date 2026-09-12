@@ -1,26 +1,32 @@
 {
   "id": "tools/ci/check_adoption_tier.py",
   "role": "validation",
-  "summary": "必須文書の型と内容を確認し、テンプレート版をcurrent・drifted・unknownに区別する。",
-  "public_api": [],
+  "summary": "必須文書の型・内容を累積Tierで判定する。候補拡張子をcasefoldし、capsuleのJSON検査を役割で固定する。引用符と外側コメントを区別して版を解析し、不明・不正・比較ゼロと版違いを分離する。repo-listは全要素を検証する。",
+  "public_api": [
+    "assess_repo",
+    "python tools/ci/check_adoption_tier.py"
+  ],
   "deps_in": [
-    "docs/contracts/adoption-validation.md"
+    ".github/workflows/test.yml",
+    "docs/adoption-guide.md",
+    "docs/contracts/adoption-validation.md",
+    "tools/ci/check_downstream_onboarding.py"
   ],
   "deps_out": [],
   "risks": [
-    "文書構造の判定を運用合格やモデル性能の証拠として扱わない"
+    "単行scalar以外の未対応YAMLはunknown。構造段階は運用合格ではない"
   ],
   "tests": [
-    "tests/test_adoption.py",
-    "tests/test_check_adoption_tier.py"
+    "tests/test_check_adoption_tier.py",
+    "tests/test_check_downstream_onboarding.py"
   ],
-  "generated_at": "00072",
-  "source_sha256": "aa14bf1f57835ddde5539f432d286017e8b55faebda65f4aa02a8e3697ac0449",
+  "generated_at": "00073",
+  "source_sha256": "2605227067181ba06d938aca21c955689d9df222c6732aeba646ac2e2098f417",
   "review": {
-    "reviewed_at": "2026-09-12T04:29:19.472641+00:00",
+    "reviewed_at": "2026-09-12T06:07:11.844303+00:00",
     "reviewed_by": "Codex",
-    "source_sha256": "aa14bf1f57835ddde5539f432d286017e8b55faebda65f4aa02a8e3697ac0449",
-    "summary_sha256": "2afd3acbb34d0436dd472349f4b0a1dd3642e967b4870dcf288936142210684d",
-    "scope": "Git往復・Tier内容・版unknownの実装、契約、回帰証跡の対応を確認"
+    "source_sha256": "2605227067181ba06d938aca21c955689d9df222c6732aeba646ac2e2098f417",
+    "summary_sha256": "433e77f269855d0b10e33b7ea305fec683caf9aca2764d8990a0579ec24b8cc2",
+    "scope": "casefold候補とJSON役割、単行scalar解析、unknownとrepo-list全件検証を回帰と照合"
   }
 }

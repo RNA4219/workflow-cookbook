@@ -1,13 +1,17 @@
 {
   "id": "docs/contracts/full-workflow-copy.md",
   "role": "contract",
-  "summary": "固定版の全追跡ファイルを保全して導入する。v2のGit改行形式の照合と旧v1のバイト一致、運用未検証の境界を定義する。",
+  "summary": "固定treeの全原文を保全して導入し、既存AGENTSへ追記する契約。パス成分の衝突を公開前に拒否し、CLIの不正引数もJSON/exit 1とする。v1/v2本文互換とGit不要の検査を保持し、indexのmode検査は明示時だけ行う。",
   "public_api": [
     "copy_workflow",
-    "verify"
+    "verify",
+    "check_git_modes"
   ],
   "deps_in": [
+    "CHANGELOG.md",
+    "docs/acceptance/AC-20260912-03.md",
     "docs/adoption-guide.md",
+    "docs/tasks/task-adoption-edge-cases-20260912.md",
     "docs/tasks/task-full-workflow-copy-20260912.md",
     "tools/adoption.py"
   ],
@@ -17,18 +21,20 @@
     "docs/tasks/task-full-workflow-copy-20260912.md"
   ],
   "risks": [
-    "コピー成功を運用準拠・テスト合格の認定と取り違えない"
+    "コピー成功は運用準拠・外部接続・導入先テストの合格認定ではない",
+    "公開後の並行編集や失敗は自動削除・全体復元せず保全する"
   ],
   "tests": [
-    "tests/test_adoption.py"
+    "tests/test_adoption.py",
+    "tests/fixtures/adoption_git_roundtrip.py"
   ],
-  "source_sha256": "f163a09feb498e615b230ee38fd9fdb73c7b5c68292553e4c11409d639685cba",
-  "generated_at": "00072",
+  "source_sha256": "ce71cd08f52c317f9628e8ef2f454c7df98a63aeff05d73e60e91e5f5f9c197c",
+  "generated_at": "00073",
   "review": {
-    "reviewed_at": "2026-09-12T04:29:19.472641+00:00",
+    "reviewed_at": "2026-09-12T06:07:11.844303+00:00",
     "reviewed_by": "Codex",
-    "source_sha256": "f163a09feb498e615b230ee38fd9fdb73c7b5c68292553e4c11409d639685cba",
-    "summary_sha256": "d9583ad0ba97bd1a27be89d8aa6c5448eaf9a5becdda7a452674a79cb74d8402",
-    "scope": "Git往復・Tier内容・版unknownの実装、契約、回帰証跡の対応を確認"
+    "source_sha256": "ce71cd08f52c317f9628e8ef2f454c7df98a63aeff05d73e60e91e5f5f9c197c",
+    "summary_sha256": "d802c59c6ed69d499790917bb8325883ed56611dc9b8e1a5e1c0d3c5abc78c6e",
+    "scope": "公開前の衝突拒否、JSON構文エラー、help、v1/v2互換、明示mode検査と保全条件を確認"
   }
 }

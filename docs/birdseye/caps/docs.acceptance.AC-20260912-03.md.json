@@ -1,0 +1,35 @@
+{
+  "id": "docs/acceptance/AC-20260912-03.md",
+  "deps_in": [
+    "CHANGELOG.md",
+    "docs/completion-record.md",
+    "docs/tasks/task-adoption-edge-cases-20260912.md"
+  ],
+  "deps_out": [
+    "docs/contracts/adoption-validation.md",
+    "docs/contracts/full-workflow-copy.md",
+    "docs/tasks/task-adoption-edge-cases-20260912.md",
+    "tests/fixtures/adoption_git_roundtrip.py"
+  ],
+  "role": "acceptance",
+  "summary": "Task 20260912-03の7項目の期待結果と技術検収を記録する。正常入力と失敗条件、Git index無変更、旧コピー互換、WindowsからLinuxへの共有を検収する。",
+  "public_api": [],
+  "risks": [
+    "ローカル実行、実Linux検証、GitHub CIの実施範囲を区別し、未実行を成功としない"
+  ],
+  "tests": [
+    "tests/test_adoption.py",
+    "tests/test_check_adoption_tier.py",
+    "tests/test_check_downstream_onboarding.py",
+    "tests/fixtures/adoption_git_roundtrip.py"
+  ],
+  "source_sha256": "fe0b5b2b953a08004078117c8f3847624acd009414aef3799726fe01d9e0f806",
+  "generated_at": "00073",
+  "review": {
+    "reviewed_at": "2026-09-12T06:07:11.844303+00:00",
+    "reviewed_by": "Codex",
+    "source_sha256": "fe0b5b2b953a08004078117c8f3847624acd009414aef3799726fe01d9e0f806",
+    "summary_sha256": "2ceee80924089966f84fee37cd358d2c0a28f588a8d81d24ae8ac49b98a678a6",
+    "scope": "確定した技術検収、1314成功/4skip、Windows/WSLの実測とGitHub CI未実施の区別を確認"
+  }
+}

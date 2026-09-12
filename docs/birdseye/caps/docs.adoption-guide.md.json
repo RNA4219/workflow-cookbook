@@ -1,10 +1,11 @@
 {
   "id": "docs/adoption-guide.md",
   "role": "operations",
-  "summary": "コピー、単独検査、Gitでの共有、Tierの内容検査、版不明時の失敗の使い方を案内する。",
+  "summary": "固定版の一括コピーとGit不要の単独検査、Tier・版の診断を案内する。Git共有時はstage後にmodeを読み取り検査し、出力された実行対象だけを利用者が明示設定して再確認する。",
   "public_api": [
     "python -m tools.adoption",
-    "wfc-copy"
+    "wfc-copy",
+    "--check-git-modes"
   ],
   "deps_in": [
     "HUB.codex.md",
@@ -13,21 +14,27 @@
   "deps_out": [
     "docs/contracts/adoption-validation.md",
     "docs/contracts/full-workflow-copy.md",
-    "tools/adoption.py"
+    "tools/adoption.py",
+    "tools/ci/check_adoption_tier.py",
+    "tools/ci/check_downstream_onboarding.py"
   ],
   "risks": [
-    "コピー成功を運用準拠・テスト合格の認定と取り違えない"
+    "executable_pathsはコピー領域相対。Gitへ渡す際はworkflow-cookbook/を付ける",
+    "Git mode検査はstageした本文の同一性や運用準拠を保証しない"
   ],
   "tests": [
-    "tests/test_adoption.py"
+    "tests/test_adoption.py",
+    "tests/test_check_adoption_tier.py",
+    "tests/test_check_downstream_onboarding.py",
+    "tests/fixtures/adoption_git_roundtrip.py"
   ],
-  "source_sha256": "887030cf988d45a2bd5f26e7e2dabfc239fc8f8dc54f64797c7e6163d676f5ed",
-  "generated_at": "00072",
+  "source_sha256": "ce3e8d254ad069c338afa608f5ae8c123fe7c6dd99cf05fe2810416673ffc341",
+  "generated_at": "00073",
   "review": {
-    "reviewed_at": "2026-09-12T04:29:19.472641+00:00",
+    "reviewed_at": "2026-09-12T06:07:11.844303+00:00",
     "reviewed_by": "Codex",
-    "source_sha256": "887030cf988d45a2bd5f26e7e2dabfc239fc8f8dc54f64797c7e6163d676f5ed",
-    "summary_sha256": "c19f917d0024b52078f083152d020e4cdef474e2cc7f191f26695c683d51b0af",
-    "scope": "Git往復・Tier内容・版unknownの実装、契約、回帰証跡の対応を確認"
+    "source_sha256": "ce3e8d254ad069c338afa608f5ae8c123fe7c6dd99cf05fe2810416673ffc341",
+    "summary_sha256": "d95fb0c331d659b30ccad8c983e6280812747410036345ff572e2ca8c32f21c8",
+    "scope": "Git共有手順、executable_pathsの基準、mode診断と本文・運用判定の境界を確認"
   }
 }

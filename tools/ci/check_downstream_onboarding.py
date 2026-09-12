@@ -4,11 +4,12 @@ from __future__ import annotations
 
 import argparse
 import json
+import sys
 from collections.abc import Mapping, Sequence
 from pathlib import Path
 from typing import Any
 
-from tools.ci.check_adoption_tier import assess_repo
+from tools.ci.check_adoption_tier import _load_repo_list, assess_repo
 
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -25,8 +26,9 @@ def _workflow_text(repo: Path) -> str:
     if not workflows_dir.exists():
         return ""
     parts: list[str] = []
-    for path in sorted(workflows_dir.glob("*.yml")):
-        parts.append(path.read_text(encoding="utf-8", errors="ignore"))
+    for path in sorted(workflows_dir.iterdir()):
+        if path.suffix.casefold() in {".yml", ".yaml"} and path.is_file():
+            parts.append(path.read_text(encoding="utf-8-sig"))
     return "\n".join(parts)
 
 
@@ -60,19 +62,6 @@ def assess_downstream_repo(repo: Path, *, min_tier: int = 2) -> dict[str, Any]:
     }
 
 
-def _load_repo_list(path: Path) -> list[Path]:
-    payload = json.loads(path.read_text(encoding="utf-8"))
-    if not isinstance(payload, list):
-        raise ValueError("repo-list JSON must be an array")
-    repos: list[Path] = []
-    for item in payload:
-        if isinstance(item, str):
-            repos.append(Path(item))
-        elif isinstance(item, Mapping) and isinstance(item.get("repo"), str):
-            repos.append(Path(str(item["repo"])))
-    return repos
-
-
 def main(argv: Sequence[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Assess downstream workflow-cookbook onboarding readiness.")
     parser.add_argument("--repo", type=Path, help="Repository to assess.")
@@ -84,8 +73,12 @@ def main(argv: Sequence[str] | None = None) -> int:
 
     if args.repo is None and args.repo_list is None:
         parser.error("provide --repo or --repo-list")
-    repos = _load_repo_list(args.repo_list) if args.repo_list else [args.repo]
-    reports = [assess_downstream_repo(repo, min_tier=args.min_tier) for repo in repos if repo is not None]
+    try:
+        repos = _load_repo_list(args.repo_list) if args.repo_list else [args.repo]
+        reports = [assess_downstream_repo(repo, min_tier=args.min_tier) for repo in repos if repo is not None]
+    except (OSError, ValueError) as exc:
+        print(str(exc), file=sys.stderr)
+        return 1
 
     payload: Any = reports[0] if len(reports) == 1 else reports
     if args.json:

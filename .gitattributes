@@ -5,6 +5,8 @@
 # Keep the copied verifier and its source digest stable across checkouts.
 tools/adoption.py text eol=lf
 tools/ci/check_adoption_tier.py text eol=lf
+tools/ci/check_downstream_onboarding.py text eol=lf
+tests/fixtures/adoption_git_roundtrip.py text eol=lf
 
 # Keep measured evidence byte-identical to its recorded hash inventory.
 docs/evidence/long-horizon-drift-20260911/PROTOCOL.md -text whitespace=cr-at-eol
