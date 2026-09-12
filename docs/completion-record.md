@@ -1,5 +1,15 @@
 # Completion Record
 
+## 2026-09-13 CI連携テストのskip解消
+
+公開固定版のmemx/taskstate/HATE/QEGをCIへ組み込み、必須skipを失敗にしてJUnitを保存する。
+LinuxのPython 3.11/3.12は各1324件、Windows adoptionは237件が成功し、3構成ともskip 0。
+POSIX権限はLinuxで実行し、Windowsの対象外を明示した。過去のmanual-bb Gateは保持する。
+
+- [Task 20260913-01](tasks/task-ci-no-skips-20260913.md)
+- [Acceptance AC-20260913-01](acceptance/AC-20260913-01.md)
+- [Changelog](../CHANGELOG.md#unreleased)
+
 ## 2026-09-12 フル準拠の一括コピー
 
 固定コミットの全追跡ファイルを導入先へ設置するCLIと、コピー先だけで使える検査入口を追加。

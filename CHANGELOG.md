@@ -42,6 +42,10 @@ next_review_due: 2026-08-11
 
 ### Fixed
 
+- Linuxの必須pytestにmemx/taskstate/HATE/QEGの公開固定版を準備し、環境不足によるskipを失敗にする。
+  WindowsのPOSIX対象外を明示し、3構成のJUnitを保存する。
+  [CI設定](docs/ci-config.md) / [受入](docs/acceptance/AC-20260913-01.md)。
+
 - capsuleの拡張子、空のrepo-list、`.yaml`のCI、引用符とコメントを持つ版番号の誤判定を修正した。
 - コピー前のパス成分の衝突検査、読み取り専用の`--check-git-modes`、CLI構文エラーのJSON出力を追加した。
   [Task 20260912-03](docs/tasks/task-adoption-edge-cases-20260912.md) /
