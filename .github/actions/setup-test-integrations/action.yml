@@ -27,7 +27,7 @@ runs:
         ref: cf59570a7759ee9c771090a0da502e0b5cb18fae
         path: .ci-deps/quality-evidence-graph
         persist-credentials: false
-    - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+    - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
       with:
         node-version: "22.22.0"
     - name: Export explicit integration paths
