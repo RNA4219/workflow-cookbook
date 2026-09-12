@@ -1,7 +1,7 @@
 {
   "id": "docs/adoption-guide.md",
   "role": "operations",
-  "summary": "一括コピーCLI、既存保全、固定版、単独検査、段階別導入の使い方を案内する。",
+  "summary": "コピー、単独検査、Gitでの共有、Tierの内容検査、版不明時の失敗の使い方を案内する。",
   "public_api": [
     "python -m tools.adoption",
     "wfc-copy"
@@ -11,6 +11,7 @@
     "README.md"
   ],
   "deps_out": [
+    "docs/contracts/adoption-validation.md",
     "docs/contracts/full-workflow-copy.md",
     "tools/adoption.py"
   ],
@@ -20,13 +21,13 @@
   "tests": [
     "tests/test_adoption.py"
   ],
-  "source_sha256": "23c0c0487969914b33eb2eadde341f9bbe496c00431cd211da0f1dd61d26bfcf",
+  "source_sha256": "887030cf988d45a2bd5f26e7e2dabfc239fc8f8dc54f64797c7e6163d676f5ed",
   "generated_at": "00072",
   "review": {
-    "reviewed_at": "2026-09-11T20:51:46.852096+00:00",
+    "reviewed_at": "2026-09-12T04:29:19.472641+00:00",
     "reviewed_by": "Codex",
-    "source_sha256": "23c0c0487969914b33eb2eadde341f9bbe496c00431cd211da0f1dd61d26bfcf",
-    "summary_sha256": "db719f25b3a68d97fcbe5732ad812797af9755e4a5ac746cb7b889c5922a1734",
-    "scope": "並行編集を上書きしない追記方式と失敗時の保全契約を確認"
+    "source_sha256": "887030cf988d45a2bd5f26e7e2dabfc239fc8f8dc54f64797c7e6163d676f5ed",
+    "summary_sha256": "c19f917d0024b52078f083152d020e4cdef474e2cc7f191f26695c683d51b0af",
+    "scope": "Git往復・Tier内容・版unknownの実装、契約、回帰証跡の対応を確認"
   }
 }

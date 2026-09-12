@@ -391,3 +391,11 @@ Verdict: go
 
 Documentation follow-up: [docs-review-audit-20260711.md](reports/docs-review-audit-20260711.md) records
 the resolved mypy and recurring-review debt.
+
+## 2026-09-12 導入検査の誤判定修正
+
+- task_id: 20260912-02
+- [docs/tasks/task-adoption-validation-20260912.md](tasks/task-adoption-validation-20260912.md) /
+  [Acceptance](acceptance/AC-20260912-02.md) /
+  [仕様](contracts/adoption-validation.md)
+- Git往復、Tierの内容検査、テンプレート版unknownの扱いを修正した。

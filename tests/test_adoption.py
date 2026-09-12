@@ -410,3 +410,94 @@ def test_new_agents_is_not_group_or_world_accessible_without_umask(target: Path)
         os.umask(previous)
     assert agents.stat().st_mode & 0o077 == 0
     assert agents.read_bytes() == adoption.BLOCK
+
+
+@pytest.mark.parametrize("autocrlf", ["true", "false", "input"])
+@pytest.mark.parametrize("attributes", ["", "* text=auto\n*.md text eol=lf\n", "* text=auto\n*.md text eol=crlf\n"])
+def test_copy_survives_git_commit_clone_and_offline_check(source: Path, target: Path, tmp_path: Path, autocrlf: str, attributes: str) -> None:
+    git(target, "init")
+    git(target, "config", "user.email", "fixture@example.invalid")
+    git(target, "config", "user.name", "Fixture")
+    git(target, "config", "core.autocrlf", autocrlf)
+    git(target, "config", "core.safecrlf", "false")
+    if attributes:
+        (target / ".gitattributes").write_bytes(attributes.encode())
+    (target / "AGENTS.md").write_bytes(b"# Existing instructions\r\n")
+    adoption.copy_workflow(target, source)
+    before = adoption.verify(target)
+    git(target, "add", "-f", ".")
+    git(target, "commit", "-m", "adopt")
+    clone = tmp_path / "cloned"
+    git(tmp_path, "clone", "-c", f"core.autocrlf={autocrlf}", "--no-local", str(target), str(clone))
+    assert adoption.verify(clone) == before
+    assert adoption.copy_workflow(clone, source)["status"] == "unchanged"
+    assert (clone / "AGENTS.md").read_text(encoding="utf-8").startswith("# Existing instructions\n")
+    assert (clone / "workflow-cookbook/upstream/日本語.bin").read_bytes() == bytes(range(256))
+    result = subprocess.run(
+        [sys.executable, "-X", "utf8", "-I", "-S", "-B", str(clone / "workflow-cookbook/verify.py"), "--repo", str(clone), "--check"],
+        capture_output=True, text=True, encoding="utf-8", check=False,
+    )
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert json.loads(result.stdout)["status"] == "verified"
+    (clone / "workflow-cookbook/upstream/README.md").write_bytes(b"Edited content\r\n")
+    with pytest.raises(ValueError, match="改変"):
+        adoption.verify(clone)
+
+
+@pytest.mark.parametrize("original,changed,accepted", [
+    (b"one\ntwo\n", b"one\r\ntwo\r\n", True),
+    (b"one\r\ntwo\r\n", b"one\ntwo\n", True),
+    (b"one\ntwo\n", b"one\r\ntwo\n", False),
+    (b"one\ntwo\n", b"one\ntwo", False),
+    (b"one\ntwo\n", b"one\nchanged\n", False),
+    (b"\x00one\ntwo\n", b"\x00one\r\ntwo\r\n", False),
+    (b"\x01one\ntwo\n", b"\x01one\r\ntwo\r\n", False),
+    (b"\xffone\ntwo\n", b"\xffone\r\ntwo\r\n", False),
+    (b"one\rtwo\n", b"one\rtwo\r\n", False),
+    (b"one\r\ntwo\n", b"one\r\ntwo\r\n", False),
+    (b"no newline", b"no newline\n", False),
+])
+def test_checkout_hashes_allow_only_complete_text_forms(original: bytes, changed: bytes, accepted: bool) -> None:
+    details = adoption._file_info(original, "100644")
+    assert details["sha256"] == hashlib.sha256(original).hexdigest()
+    assert adoption._matches(original, details, 2)
+    assert adoption._matches(changed, details, 2) is accepted
+    assert not adoption._matches(changed, details, 1)
+
+
+@pytest.mark.parametrize("hashes", [None, "bad", ["bad"], [1], ["a" * 64, "b" * 64]])
+def test_invalid_checkout_hashes_are_rejected(hashes: object) -> None:
+    with pytest.raises(ValueError, match="SHA-256"):
+        adoption._matches(b"content", {"sha256": "a" * 64, "checkout_sha256": hashes}, 2)
+
+
+def test_v1_manifest_remains_readable_and_byte_strict(source: Path, target: Path) -> None:
+    adoption.copy_workflow(target, source)
+    root = target / adoption.DIRECTORY
+    manifest = adoption.verify(target)
+    manifest["format_version"] = 1
+    contract = adoption.adoption_text(manifest["source_commit"], 1)
+    (root / "ADOPTION.md").write_bytes(contract)
+    manifest["files"]["ADOPTION.md"]["sha256"] = hashlib.sha256(contract).hexdigest()
+    for details in manifest["files"].values():
+        details.pop("checkout_sha256")
+    (root / "manifest.json").write_text(json.dumps(manifest), encoding="utf-8")
+    assert adoption.verify(target)["format_version"] == 1
+    (root / "ADOPTION.md").write_bytes(contract.replace(b"\n", b"\r\n"))
+    with pytest.raises(ValueError, match="改変"):
+        adoption.verify(target)
+
+
+def test_mixed_agents_block_and_altered_checkout_hash_fail(source: Path, target: Path) -> None:
+    adoption.copy_workflow(target, source)
+    agents = target / "AGENTS.md"
+    agents.write_bytes(adoption.BLOCK.replace(b"\n", b"\r\n", 1))
+    with pytest.raises(ValueError, match="管理ブロック"):
+        adoption.verify(target)
+    agents.write_bytes(adoption.BLOCK)
+    manifest_path = target / adoption.DIRECTORY / "manifest.json"
+    manifest = adoption.verify(target)
+    manifest["files"]["upstream/README.md"]["checkout_sha256"] = ["a" * 64]
+    manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+    with pytest.raises(ValueError, match="hash"):
+        adoption.copy_workflow(target, source)

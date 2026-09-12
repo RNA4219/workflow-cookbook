@@ -1,0 +1,26 @@
+{
+  "id": "tools/ci/check_adoption_tier.py",
+  "role": "validation",
+  "summary": "必須文書の型と内容を確認し、テンプレート版をcurrent・drifted・unknownに区別する。",
+  "public_api": [],
+  "deps_in": [
+    "docs/contracts/adoption-validation.md"
+  ],
+  "deps_out": [],
+  "risks": [
+    "文書構造の判定を運用合格やモデル性能の証拠として扱わない"
+  ],
+  "tests": [
+    "tests/test_adoption.py",
+    "tests/test_check_adoption_tier.py"
+  ],
+  "generated_at": "00072",
+  "source_sha256": "aa14bf1f57835ddde5539f432d286017e8b55faebda65f4aa02a8e3697ac0449",
+  "review": {
+    "reviewed_at": "2026-09-12T04:29:19.472641+00:00",
+    "reviewed_by": "Codex",
+    "source_sha256": "aa14bf1f57835ddde5539f432d286017e8b55faebda65f4aa02a8e3697ac0449",
+    "summary_sha256": "2afd3acbb34d0436dd472349f4b0a1dd3642e967b4870dcf288936142210684d",
+    "scope": "Git往復・Tier内容・版unknownの実装、契約、回帰証跡の対応を確認"
+  }
+}

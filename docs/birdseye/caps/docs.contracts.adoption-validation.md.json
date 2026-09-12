@@ -1,0 +1,33 @@
+{
+  "id": "docs/contracts/adoption-validation.md",
+  "role": "contract",
+  "summary": "コピーのGit改行形式、Tierの内容、テンプレート版unknownの判定と受入を定義する。",
+  "public_api": [],
+  "deps_in": [
+    "docs/acceptance/AC-20260912-02.md",
+    "docs/adoption-guide.md",
+    "docs/adoption-tiers.md",
+    "docs/contracts/full-workflow-copy.md"
+  ],
+  "deps_out": [
+    "docs/tasks/task-adoption-validation-20260912.md",
+    "tools/adoption.py",
+    "tools/ci/check_adoption_tier.py"
+  ],
+  "risks": [
+    "文書構造の判定を運用合格やモデル性能の証拠として扱わない"
+  ],
+  "tests": [
+    "tests/test_adoption.py",
+    "tests/test_check_adoption_tier.py"
+  ],
+  "generated_at": "00072",
+  "source_sha256": "0223372ccc4f207552505ae276f81f407e70441153f338628073ae0b9a758845",
+  "review": {
+    "reviewed_at": "2026-09-12T04:29:19.472641+00:00",
+    "reviewed_by": "Codex",
+    "source_sha256": "0223372ccc4f207552505ae276f81f407e70441153f338628073ae0b9a758845",
+    "summary_sha256": "cd309113dd9f103426e580d6a26e66cc028750d9c6a8d6d573db737f8489b536",
+    "scope": "Git往復・Tier内容・版unknownの実装、契約、回帰証跡の対応を確認"
+  }
+}

@@ -1,14 +1,15 @@
 {
   "id": "tools/adoption.py",
   "role": "runtime",
-  "summary": "Gitの固定treeを読み、既存指示へ追記して全原文と単独検査CLIを設置する。並行編集を上書きせず、公開後の例外では現物を保持して要対応を返す。",
+  "summary": "固定treeをコピーし、manifest v2のLF/CRLF形式を照合する。既存AGENTSへ追記し、旧v1の検査と並行編集の保全を維持する。",
   "public_api": [
     "wfc-copy",
     "python -m tools.adoption"
   ],
   "deps_in": [
     "docs/acceptance/AC-20260912-01.md",
-    "docs/adoption-guide.md"
+    "docs/adoption-guide.md",
+    "docs/contracts/adoption-validation.md"
   ],
   "deps_out": [
     "docs/contracts/full-workflow-copy.md"
@@ -19,13 +20,13 @@
   "tests": [
     "tests/test_adoption.py"
   ],
-  "source_sha256": "e1ed919e3e6b64bd43f6acf51699409ccb947ae78c7ae892432e3c90c55d5c1b",
+  "source_sha256": "e2eeb3da62ea6cc663d425537416b6f6f868ad66ea2acb9ba785199e9bac9013",
   "generated_at": "00072",
   "review": {
-    "reviewed_at": "2026-09-11T21:01:55.570073+00:00",
+    "reviewed_at": "2026-09-12T04:29:19.472641+00:00",
     "reviewed_by": "Codex",
-    "source_sha256": "e1ed919e3e6b64bd43f6acf51699409ccb947ae78c7ae892432e3c90c55d5c1b",
-    "summary_sha256": "e45200bec6355bafc4fa69ed925aaba814eecf5e0dfa3156d828a70b2b195215",
-    "scope": "並行編集を上書きしない追記方式と失敗時の保全契約を確認"
+    "source_sha256": "e2eeb3da62ea6cc663d425537416b6f6f868ad66ea2acb9ba785199e9bac9013",
+    "summary_sha256": "fe4a1d1a3fb147ff5ab3aa1003c9ca4f93ca9670c8f310ccc0d8bf99b8101f8b",
+    "scope": "Git往復・Tier内容・版unknownの実装、契約、回帰証跡の対応を確認"
   }
 }

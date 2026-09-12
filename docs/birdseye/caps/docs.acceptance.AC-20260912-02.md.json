@@ -1,0 +1,28 @@
+{
+  "id": "docs/acceptance/AC-20260912-02.md",
+  "role": "acceptance",
+  "summary": "3件の再現と修正後のfixture、577ファイル、配布wheelの受入証跡を記録する。",
+  "public_api": [],
+  "deps_in": [
+    "docs/tasks/task-adoption-validation-20260912.md"
+  ],
+  "deps_out": [
+    "docs/contracts/adoption-validation.md"
+  ],
+  "risks": [
+    "文書構造の判定を運用合格やモデル性能の証拠として扱わない"
+  ],
+  "tests": [
+    "tests/test_adoption.py",
+    "tests/test_check_adoption_tier.py"
+  ],
+  "generated_at": "00072",
+  "source_sha256": "9f96712954466b516cac9271530875cca3de7f96f2e1cdac8678a7d4621abe92",
+  "review": {
+    "reviewed_at": "2026-09-12T04:31:47.978872+00:00",
+    "reviewed_by": "Codex",
+    "source_sha256": "9f96712954466b516cac9271530875cca3de7f96f2e1cdac8678a7d4621abe92",
+    "summary_sha256": "be986c0bdff859e76616a5ab1464d653040ec44dcd0b267db37695a89ea50321",
+    "scope": "Git往復・Tier内容・版unknownの実装、契約、回帰証跡の対応を確認"
+  }
+}

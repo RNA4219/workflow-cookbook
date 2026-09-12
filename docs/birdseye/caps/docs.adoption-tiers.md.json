@@ -1,0 +1,26 @@
+{
+  "id": "docs/adoption-tiers.md",
+  "role": "contract",
+  "summary": "導入段階に必要な文書構造と、不適合理由・実運用未検証の読み方を定義する。",
+  "public_api": [],
+  "deps_in": [],
+  "deps_out": [
+    "docs/contracts/adoption-validation.md"
+  ],
+  "risks": [
+    "文書構造の判定を運用合格やモデル性能の証拠として扱わない"
+  ],
+  "tests": [
+    "tests/test_adoption.py",
+    "tests/test_check_adoption_tier.py"
+  ],
+  "generated_at": "00072",
+  "source_sha256": "d6e560f41c515eed29e043c116fcf271d9f55db6cd0ce0344153c4de22e90a97",
+  "review": {
+    "reviewed_at": "2026-09-12T04:29:19.472641+00:00",
+    "reviewed_by": "Codex",
+    "source_sha256": "d6e560f41c515eed29e043c116fcf271d9f55db6cd0ce0344153c4de22e90a97",
+    "summary_sha256": "be872d7275e6a66fac9a73098ec05eb4f373b9617ca7586cd7c93ca3c0cd1a07",
+    "scope": "Git往復・Tier内容・版unknownの実装、契約、回帰証跡の対応を確認"
+  }
+}

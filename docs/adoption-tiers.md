@@ -144,6 +144,13 @@ workflow-cookbook を派生 repo に導入する際の段階基準。
 ## Tier Assessment
 
 `tools/ci/check_adoption_tier.py` で現在の tier を自動判定できる。
+必須パスの種類、Markdownの空白以外の内容、Birdseye JSONの構造、記録ディレクトリの内容を
+検査する。空・種類違い・破損・読み取り不能は合格しない。
+JSONの各パスに `valid` と `reason`、次段階の不適合に `invalid_for_next_tier` を返す。
+
+Tierは文書構造の段階で、実運用の合格判定は `not_evaluated` とする。
+記録未作成の初期導入は不足項目を返し、コピーした上流の記録を導入先の実績として数えない。
+版検査の `unknown` も成功としない。詳細は[検査契約](contracts/adoption-validation.md)を参照する。
 
 ```bash
 # Single repo assessment

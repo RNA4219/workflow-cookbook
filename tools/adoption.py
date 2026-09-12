@@ -52,6 +52,37 @@ def _digest(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest()
 
 
+def _checkout_forms(data: bytes) -> tuple[bytes, ...]:
+    """UTF-8の統一改行だけ、Git checkoutが作るもう一方の完全な形式を返す。"""
+    try:
+        data.decode("utf-8")
+    except UnicodeDecodeError:
+        return (data,)
+    if any(value < 32 and value not in (9, 10, 13) for value in data) or b"\n" not in data:
+        return (data,)
+    if b"\r" not in data:
+        return (data, data.replace(b"\n", b"\r\n"))
+    stripped = data.replace(b"\r\n", b"")
+    if b"\r" not in stripped and b"\n" not in stripped:
+        return (data, data.replace(b"\r\n", b"\n"))
+    return (data,)
+
+
+def _file_info(data: bytes, mode: str) -> dict[str, Any]:
+    return {"sha256": _digest(data), "mode": mode,
+            "checkout_sha256": [_digest(form) for form in _checkout_forms(data)[1:]]}
+
+
+def _matches(data: bytes, details: dict[str, Any], version: int) -> bool:
+    digest = details.get("sha256")
+    alternates = details.get("checkout_sha256", []) if version == 2 else []
+    if (not isinstance(digest, str) or not re.fullmatch(r"[0-9a-f]{64}", digest)
+            or not isinstance(alternates, list) or len(alternates) > 1
+            or any(not isinstance(value, str) or not re.fullmatch(r"[0-9a-f]{64}", value) for value in alternates)):
+        raise ValueError("manifestのSHA-256情報が不正です。")
+    return _digest(data) in [digest, *alternates]
+
+
 def _path(name: str) -> str:
     parts = name.split("/")
     if any(
@@ -129,8 +160,8 @@ def snapshot(source: Path, ref: str) -> Snapshot:
                     {name: mode for name, (mode, _) in entries.items()})
 
 
-def adoption_text(commit: str) -> bytes:
-    return f"""# Workflow Cookbookの適用契約
+def adoption_text(commit: str, version: int = 2) -> bytes:
+    text = f"""# Workflow Cookbookの適用契約
 
 コピー元コミット: {commit}
 
@@ -189,6 +220,17 @@ upstreamの.git履歴は収録していない。Git履歴を必要とする操�
 verify.pyは導入時のCLIコードをそのまま同梱し、manifestにhashを記録する。
 コピー成功は運用準拠・テスト合格の認定ではない。運用状態はnot_evaluatedのままとする。
 """.encode("utf-8")
+    if version == 2:
+        text += """
+## Gitで共有した後の検査
+
+manifest v2は元のSHA-256に加え、統一改行のUTF-8テキストのLF/CRLF版を記録する。
+commit/clone後もその完全一致で検査する。本文変更、部分的な改行変更、バイナリ変更は検出する。
+AGENTSの管理ブロックもLF版かCRLF版の完全一致で検査し、既存部分やGit設定は変更しない。
+filterや文字コード変換、混在改行の変換を同一内容とは認定しない。
+旧v1コピーは従来のバイト一致で検査し、自動移行はしない。
+""".encode("utf-8")
+    return text
 
 
 def _inventory(root: Path) -> dict[str, bytes]:
@@ -217,8 +259,9 @@ def verify(repo: Path) -> dict[str, Any]:
     root = repo / DIRECTORY
     files = _inventory(root)
     manifest = json.loads(files.pop("manifest.json"))
-    if not isinstance(manifest, dict) or manifest.get("format_version") != 1:
+    if not isinstance(manifest, dict) or type(manifest.get("format_version")) is not int or manifest["format_version"] not in (1, 2):
         raise ValueError("非対応のmanifestです。")
+    version = manifest["format_version"]
     for field in ("source_commit", "source_tree"):
         if not isinstance(manifest.get(field), str) or not re.fullmatch(r"[0-9a-f]{40}|[0-9a-f]{64}", manifest[field]):
             raise ValueError(f"不正な{field}です。")
@@ -231,14 +274,16 @@ def verify(repo: Path) -> dict[str, Any]:
         _path(name)
         if not isinstance(details, dict) or details.get("mode") not in ("100644", "100755"):
             raise ValueError(f"不正なファイル情報: {name}")
-        if details.get("sha256") != _digest(files[name]):
+        if not _matches(files[name], details, version):
             raise ValueError(f"コピーしたファイルが改変されています: {name}")
         if os.name != "nt" and bool((root / name).stat().st_mode & 0o111) != (details["mode"] == "100755"):
             raise ValueError(f"実行属性が変化しています: {name}")
-    if files["ADOPTION.md"] != adoption_text(manifest["source_commit"]):
+    contract = adoption_text(manifest["source_commit"], version)
+    if files["ADOPTION.md"] not in (_checkout_forms(contract) if version == 2 else (contract,)):
         raise ValueError("導入契約が一致しません。")
     agents = _regular(repo / "AGENTS.md")
-    if agents.count(START) != 1 or agents.count(END) != 1 or agents.count(BLOCK) != 1:
+    blocks = _checkout_forms(BLOCK) if version == 2 else (BLOCK,)
+    if agents.count(START) != 1 or agents.count(END) != 1 or sum(agents.count(block) for block in blocks) != 1:
         raise ValueError("AGENTS.mdの管理ブロックが欠落・改変・重複しています。")
     return manifest
 
@@ -293,6 +338,11 @@ def copy_workflow(repo: Path, source: Path, ref: str = "HEAD", *, dry_run: bool 
             name: _digest(content) for name, content in expected.items()
         }:
             raise ValueError("コピー元の固定コミットまたは導入ツールと内容が一致しません。")
+        if manifest["format_version"] == 2 and any(
+            info.get("checkout_sha256") != _file_info(expected[name], info["mode"])["checkout_sha256"]
+            for name, info in manifest["files"].items()
+        ):
+            raise ValueError("Git checkout用のhashがコピー元と一致しません。")
         return _report("unchanged", manifest)
     agents_path = repo / "AGENTS.md"
     original = _regular(agents_path) if agents_path.exists() or agents_path.is_symlink() else None
@@ -304,8 +354,8 @@ def copy_workflow(repo: Path, source: Path, ref: str = "HEAD", *, dry_run: bool 
     payload["ADOPTION.md"] = adoption_text(snap.commit)
     payload["verify.py"] = Path(__file__).read_bytes()
     manifest = {
-        "format_version": 1, "source_commit": snap.commit, "source_tree": snap.tree,
-        "files": {name: {"sha256": _digest(content), "mode": (snap.modes[name.removeprefix("upstream/")] if name.startswith("upstream/") else "100644")}
+        "format_version": 2, "source_commit": snap.commit, "source_tree": snap.tree,
+        "files": {name: _file_info(content, snap.modes[name.removeprefix("upstream/")] if name.startswith("upstream/") else "100644")
                   for name, content in payload.items()},
     }
     if dry_run:

@@ -36,6 +36,7 @@ wheel版は`wfc-copy --source /path/to/workflow-cookbook --repo /path/to/target`
 - `workflow-cookbook/upstream/`: 全追跡ファイル。相対参照と実行ファイルの属性を保持する。
 - `workflow-cookbook/ADOPTION.md`: 導入先への適用方法、原文入口、残る設定・検証の説明。
 - `workflow-cookbook/manifest.json`: format version、commit/tree、全ファイルのSHA-256とmode。
+  v2は統一改行のUTF-8テキストについてLF/CRLF版のhashも記録する。
 - `workflow-cookbook/verify.py`: 導入時のCLIコード。コピー元なしで単独検査でき、hashも記録する。
 - `AGENTS.md`: 既存のバイト列を残し、管理対象の参照ブロックを末尾へ追加する。
 
@@ -57,6 +58,10 @@ exit 1は不正入力、衝突、破損、I/O失敗。全出力で運用準拠�
 - ファイルの欠落、改変、追加、不正manifest、不完全な管理ブロックは失敗とし、黙って修復しない。
 - 別版への切替は既存コピーと衝突として返す。自動更新で独自差分を消す機能は今回に含めない。
 - ハッシュはローカルコピーの整合性を検査するもので、署名による配布元認証ではない。
+
+Gitへコミットしてcloneした後は、v2に記録したLF/CRLFの完全な形式を照合する。
+本文変更、部分的な改行変更、バイナリ変更は検出する。旧v1は従来どおりバイト一致で検査する。
+詳細は[追加の検査契約](adoption-validation.md)を参照する。
 
 ## 導入先の指示
 
