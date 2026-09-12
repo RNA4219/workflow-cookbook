@@ -17,12 +17,12 @@
     "tests/test_check_adoption_tier.py"
   ],
   "generated_at": "00072",
-  "source_sha256": "9f96712954466b516cac9271530875cca3de7f96f2e1cdac8678a7d4621abe92",
+  "source_sha256": "94826fa8271098233b8e6573e2003cbc430107084d68a9313d8f0e8b4eb587a0",
   "review": {
-    "reviewed_at": "2026-09-12T04:31:47.978872+00:00",
+    "reviewed_at": "2026-09-12T04:51:26.207243+00:00",
     "reviewed_by": "Codex",
-    "source_sha256": "9f96712954466b516cac9271530875cca3de7f96f2e1cdac8678a7d4621abe92",
+    "source_sha256": "94826fa8271098233b8e6573e2003cbc430107084d68a9313d8f0e8b4eb587a0",
     "summary_sha256": "be986c0bdff859e76616a5ab1464d653040ec44dcd0b267db37695a89ea50321",
-    "scope": "Git往復・Tier内容・版unknownの実装、契約、回帰証跡の対応を確認"
+    "scope": "v2のhashレコード必須化と完全な改行形式との対応、欠損時の単独検査を確認"
   }
 }

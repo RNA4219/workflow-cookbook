@@ -20,13 +20,13 @@
   "tests": [
     "tests/test_adoption.py"
   ],
-  "source_sha256": "e2eeb3da62ea6cc663d425537416b6f6f868ad66ea2acb9ba785199e9bac9013",
+  "source_sha256": "db4fd456bec263ef8bedee785c5426b57f160c747303e81898a45a27b7438237",
   "generated_at": "00072",
   "review": {
-    "reviewed_at": "2026-09-12T04:29:19.472641+00:00",
+    "reviewed_at": "2026-09-12T04:51:26.192878+00:00",
     "reviewed_by": "Codex",
-    "source_sha256": "e2eeb3da62ea6cc663d425537416b6f6f868ad66ea2acb9ba785199e9bac9013",
+    "source_sha256": "db4fd456bec263ef8bedee785c5426b57f160c747303e81898a45a27b7438237",
     "summary_sha256": "fe4a1d1a3fb147ff5ab3aa1003c9ca4f93ca9670c8f310ccc0d8bf99b8101f8b",
-    "scope": "Git往復・Tier内容・版unknownの実装、契約、回帰証跡の対応を確認"
+    "scope": "v2のhashレコード必須化と完全な改行形式との対応、欠損時の単独検査を確認"
   }
 }

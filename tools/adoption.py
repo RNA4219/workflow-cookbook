@@ -75,12 +75,17 @@ def _file_info(data: bytes, mode: str) -> dict[str, Any]:
 
 def _matches(data: bytes, details: dict[str, Any], version: int) -> bool:
     digest = details.get("sha256")
-    alternates = details.get("checkout_sha256", []) if version == 2 else []
+    alternates = details.get("checkout_sha256") if version == 2 else []
     if (not isinstance(digest, str) or not re.fullmatch(r"[0-9a-f]{64}", digest)
             or not isinstance(alternates, list) or len(alternates) > 1
             or any(not isinstance(value, str) or not re.fullmatch(r"[0-9a-f]{64}", value) for value in alternates)):
         raise ValueError("manifestのSHA-256情報が不正です。")
-    return _digest(data) in [digest, *alternates]
+    recorded = {digest, *alternates}
+    if _digest(data) not in recorded:
+        return False
+    if version == 2 and recorded != {_digest(form) for form in _checkout_forms(data)}:
+        raise ValueError("Git checkout用のhashが完全な改行形式と一致しません。")
+    return True
 
 
 def _path(name: str) -> str:

@@ -308,6 +308,7 @@ def test_manifest_cannot_redefine_adoption_contract(source: Path, target: Path) 
     (root / "ADOPTION.md").write_bytes(b"changed policy")
     manifest = json.loads((root / "manifest.json").read_text())
     manifest["files"]["ADOPTION.md"]["sha256"] = hashlib.sha256(b"changed policy").hexdigest()
+    manifest["files"]["ADOPTION.md"]["checkout_sha256"] = []
     (root / "manifest.json").write_text(json.dumps(manifest), encoding="utf-8")
     with pytest.raises(ValueError, match="導入契約"):
         adoption.verify(target)
@@ -501,3 +502,28 @@ def test_mixed_agents_block_and_altered_checkout_hash_fail(source: Path, target:
     manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
     with pytest.raises(ValueError, match="hash"):
         adoption.copy_workflow(target, source)
+
+
+
+@pytest.mark.parametrize("change", ["missing", "empty", "wrong", "same_as_original", "binary_extra"])
+def test_offline_check_rejects_incomplete_checkout_inventory(source: Path, target: Path, change: str) -> None:
+    adoption.copy_workflow(target, source)
+    path = target / adoption.DIRECTORY / "manifest.json"
+    manifest = adoption.verify(target)
+    name = "upstream/日本語.bin" if change == "binary_extra" else "upstream/README.md"
+    details = manifest["files"][name]
+    if change == "missing":
+        details.pop("checkout_sha256")
+    elif change == "empty":
+        details["checkout_sha256"] = []
+    elif change == "same_as_original":
+        details["checkout_sha256"] = [details["sha256"]]
+    else:
+        details["checkout_sha256"] = ["a" * 64]
+    path.write_text(json.dumps(manifest), encoding="utf-8")
+    result = subprocess.run(
+        [sys.executable, "-X", "utf8", "-I", "-S", "-B", str(target / "workflow-cookbook/verify.py"), "--repo", str(target), "--check"],
+        capture_output=True, text=True, encoding="utf-8", check=False,
+    )
+    assert result.returncode == 1, result.stdout
+    assert json.loads(result.stdout)["status"] == "error"
