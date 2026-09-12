@@ -1,0 +1,28 @@
+{
+  "id": "docs/acceptance/AC-20260912-02.md",
+  "role": "acceptance",
+  "summary": "3件の再現と修正後のfixture、577ファイル、配布wheelの受入証跡を記録する。",
+  "public_api": [],
+  "deps_in": [
+    "docs/tasks/task-adoption-validation-20260912.md"
+  ],
+  "deps_out": [
+    "docs/contracts/adoption-validation.md"
+  ],
+  "risks": [
+    "文書構造の判定を運用合格やモデル性能の証拠として扱わない"
+  ],
+  "tests": [
+    "tests/test_adoption.py",
+    "tests/test_check_adoption_tier.py"
+  ],
+  "generated_at": "00072",
+  "source_sha256": "94826fa8271098233b8e6573e2003cbc430107084d68a9313d8f0e8b4eb587a0",
+  "review": {
+    "reviewed_at": "2026-09-12T04:51:26.207243+00:00",
+    "reviewed_by": "Codex",
+    "source_sha256": "94826fa8271098233b8e6573e2003cbc430107084d68a9313d8f0e8b4eb587a0",
+    "summary_sha256": "be986c0bdff859e76616a5ab1464d653040ec44dcd0b267db37695a89ea50321",
+    "scope": "v2のhashレコード必須化と完全な改行形式との対応、欠損時の単独検査を確認"
+  }
+}

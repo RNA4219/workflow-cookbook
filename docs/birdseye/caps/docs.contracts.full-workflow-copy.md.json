@@ -1,7 +1,7 @@
 {
   "id": "docs/contracts/full-workflow-copy.md",
   "role": "contract",
-  "summary": "固定コミットの全追跡ファイルとAGENTS入口を一括導入する契約。コピーの整合性と導入先の運用準拠を区別する。",
+  "summary": "固定版の全追跡ファイルを保全して導入する。v2のGit改行形式の照合と旧v1のバイト一致、運用未検証の境界を定義する。",
   "public_api": [
     "copy_workflow",
     "verify"
@@ -13,6 +13,7 @@
   ],
   "deps_out": [
     "docs/acceptance/AC-20260912-01.md",
+    "docs/contracts/adoption-validation.md",
     "docs/tasks/task-full-workflow-copy-20260912.md"
   ],
   "risks": [
@@ -21,13 +22,13 @@
   "tests": [
     "tests/test_adoption.py"
   ],
-  "source_sha256": "e284dc38799a323419fd6a312160cb79e00259039fac4d971f5a7ef2fb597a8d",
+  "source_sha256": "f163a09feb498e615b230ee38fd9fdb73c7b5c68292553e4c11409d639685cba",
   "generated_at": "00072",
   "review": {
-    "reviewed_at": "2026-09-11T21:01:55.577774+00:00",
+    "reviewed_at": "2026-09-12T04:29:19.472641+00:00",
     "reviewed_by": "Codex",
-    "source_sha256": "e284dc38799a323419fd6a312160cb79e00259039fac4d971f5a7ef2fb597a8d",
-    "summary_sha256": "654e8e836b40c97407237f37f14de6120a7e2dd6221fc5600e03058370ba8690",
-    "scope": "並行編集を上書きしない追記方式と失敗時の保全契約を確認"
+    "source_sha256": "f163a09feb498e615b230ee38fd9fdb73c7b5c68292553e4c11409d639685cba",
+    "summary_sha256": "d9583ad0ba97bd1a27be89d8aa6c5448eaf9a5becdda7a452674a79cb74d8402",
+    "scope": "Git往復・Tier内容・版unknownの実装、契約、回帰証跡の対応を確認"
   }
 }

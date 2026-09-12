@@ -40,6 +40,13 @@ next_review_due: 2026-08-11
 
 ## Unreleased
 
+### Fixed
+
+- コピーmanifest v2でGit checkout後のLF/CRLFを照合し、本文・バイナリの変更を検出する。
+- 導入Tierで空文書・パスの型違い・破損JSONを合格させない。
+- テンプレート版が不明な場合は `unknown` とし、明示的なドリフト検査を失敗させる。
+- [検査仕様](docs/contracts/adoption-validation.md)とWindows向け回帰CIを追加した。
+
 - `wfc-copy` / `python -m tools.adoption`で、固定コミットの全追跡ファイルと
   導入先AGENTSの参照入口を一括コピーできる。
   既存ファイル保全、再実行、dry-run、hashによる整合性検査を提供する。

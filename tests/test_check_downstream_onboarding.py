@@ -24,7 +24,10 @@ def test_downstream_onboarding_ready_repo(tmp_path: Path) -> None:
         "docs/birdseye/hot.json",
         "docs/birdseye/caps/README.md.json",
     ):
-        _write(tmp_path / rel_path, "{}")
+        _write(tmp_path / rel_path, "# Downstream documentation")
+    _write(tmp_path / "docs/birdseye/index.json", '{"nodes": {"README.md": {"role": "overview"}}}')
+    _write(tmp_path / "docs/birdseye/hot.json", '{"nodes": [{"id": "README.md"}]}')
+    _write(tmp_path / "docs/birdseye/caps/README.md.json", '{"id": "README.md", "summary": "Entry point"}')
     _write(
         tmp_path / ".github" / "workflows" / "workflow-cookbook.yml",
         "generate_acceptance_index\ncheck_branch_protection\ncheck_ci_gate_matrix\ncheck_security_posture",
@@ -34,6 +37,8 @@ def test_downstream_onboarding_ready_repo(tmp_path: Path) -> None:
 
     assert report["status"] == "ready"
     assert report["missing_ci_signals"] == []
+    _write(tmp_path / "docs/birdseye/index.json", "{}")
+    assert assess_downstream_repo(tmp_path, min_tier=3)["status"] == "needs_work"
 
 
 def test_downstream_onboarding_reports_missing_ci(tmp_path: Path) -> None:

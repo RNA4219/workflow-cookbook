@@ -56,6 +56,11 @@ AGENTSへの接続は追記で行い、並行編集を全体置換で失わな�
 現物とmanifestを確認して管理ブロックを整理するか、別領域で再導入してください。
 stdoutはJSON、exit 0は成功、1は要対応です。
 
+新規コピーはmanifest v2を使用し、GitがUTF-8テキスト全体をLF/CRLFへ変換した場合も
+記録済みのhashと照合できます。本文やバイナリの変更、部分的な改行変更は検出します。
+既存Git設定やAGENTSを正規化して書き換えません。v1コピーは従来のバイト一致で検査します。
+[追加の検査契約](contracts/adoption-validation.md)を参照してください。
+
 この機能の「フル」は固定版の収録範囲です。通常のTier判定は導入先自身の文書構造を調べる別の検査です。
 コピーした上流のTask/Acceptance/Birdseyeを、導入先の実績やコード索引として数えないでください。
 導入先の仕様、Task/Acceptance、CI、HATE/QEG等の接続と実際の受入試験は、対象作業で整えます。
@@ -104,7 +109,10 @@ template set:
 python tools/ci/check_adoption_tier.py --repo /path/to/repo --check-drift --json
 ```
 
-`--check --check-drift` returns non-zero when a tracked template version differs.
+`--check --check-drift` は版違いに加え、版不明・テンプレート不在・比較対象ゼロでも失敗します。
+JSONの `drift_status` は `current / drifted / unknown / not_checked` です。
+導入先にまだない文書はTier判定の不足項目で扱い、既存文書の比較に必要な情報がない場合は
+`unknown` とします。
 
 ## 4. Batch Assessment
 

@@ -23,12 +23,12 @@
     "手動: 新リリース記載後にREADME/policy.yamlとの整合を確認"
   ],
   "generated_at": "00070",
-  "source_sha256": "4fb7b25a67bebd890a7739581b7856d2069a88058505af2b61faede720ed72a9",
+  "source_sha256": "63468e2a7f8c66e618fe5302fa75a37f58735ac4149542e512a4071c77ecdedb",
   "review": {
-    "reviewed_at": "2026-09-11T20:38:15.918255+00:00",
+    "reviewed_at": "2026-09-12T04:31:47.968504+00:00",
     "reviewed_by": "Codex",
-    "source_sha256": "4fb7b25a67bebd890a7739581b7856d2069a88058505af2b61faede720ed72a9",
+    "source_sha256": "63468e2a7f8c66e618fe5302fa75a37f58735ac4149542e512a4071c77ecdedb",
     "summary_sha256": "5267821fd61bb6f9b03c058d5963844c9bf059dbac3d4f6ce8888143f717b26a",
-    "scope": "一括コピーの入口と履歴を必要時に参照する方針の確認"
+    "scope": "Git往復・Tier内容・版unknownの実装、契約、回帰証跡の対応を確認"
   }
 }

@@ -1,0 +1,28 @@
+{
+  "id": "docs/tasks/task-adoption-validation-20260912.md",
+  "role": "task",
+  "summary": "Git往復・Tier・版不明の3件の修正範囲と受入先を記録する。",
+  "public_api": [],
+  "deps_in": [
+    "docs/contracts/adoption-validation.md"
+  ],
+  "deps_out": [
+    "docs/acceptance/AC-20260912-02.md"
+  ],
+  "risks": [
+    "文書構造の判定を運用合格やモデル性能の証拠として扱わない"
+  ],
+  "tests": [
+    "tests/test_adoption.py",
+    "tests/test_check_adoption_tier.py"
+  ],
+  "generated_at": "00072",
+  "source_sha256": "a9e7d58f74b0f36c6a500a3b14fd59ccdd913cb77500321173075083765748dc",
+  "review": {
+    "reviewed_at": "2026-09-12T04:29:19.472641+00:00",
+    "reviewed_by": "Codex",
+    "source_sha256": "a9e7d58f74b0f36c6a500a3b14fd59ccdd913cb77500321173075083765748dc",
+    "summary_sha256": "3a9b964d0fed1530a0a55b2a10eab318cd900395f98457c90c431e91b73ee278",
+    "scope": "Git往復・Tier内容・版unknownの実装、契約、回帰証跡の対応を確認"
+  }
+}

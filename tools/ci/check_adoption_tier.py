@@ -52,6 +52,39 @@ TEMPLATE_TARGETS: dict[str, str] = {
     "GUARDRAILS.md.template": "GUARDRAILS.md",
     "EVALUATION.md.template": "EVALUATION.md",
 }
+DIRECTORY_CONTENT = {"docs/acceptance": "*.md", "docs/tasks": "*.md", "docs/birdseye/caps": "*.json"}
+
+
+def _content_error(path: Path, role: str) -> str | None:
+    if path.is_symlink() or not path.is_file():
+        return "not_regular_file"
+    try:
+        content = path.read_text(encoding="utf-8-sig")
+        if not content.strip():
+            return "empty"
+        if path.suffix != ".json":
+            return None
+        value = json.loads(content)
+        if not isinstance(value, dict):
+            return "invalid_json_structure"
+        if role == "docs/birdseye/index.json":
+            nodes = value.get("nodes")
+            valid = isinstance(nodes, dict) and bool(nodes) and all(
+                isinstance(node, dict) and bool(node) for node in nodes.values()
+            )
+        elif role == "docs/birdseye/hot.json":
+            nodes = value.get("nodes")
+            valid = isinstance(nodes, list) and bool(nodes) and all(
+                isinstance(node, dict) and isinstance(node.get("id"), str) and bool(node["id"].strip())
+                for node in nodes
+            )
+        else:
+            valid = all(isinstance(value.get(key), str) and bool(value[key].strip()) for key in ("id", "summary"))
+        return None if valid else "invalid_json_structure"
+    except (OSError, UnicodeError):
+        return "unreadable"
+    except ValueError:
+        return "invalid_json"
 
 
 def _parse_front_matter(content: str) -> dict[str, str]:
@@ -70,17 +103,44 @@ def _parse_front_matter(content: str) -> dict[str, str]:
         rendered = value.strip()
         if len(rendered) >= 2 and rendered[0] in {"'", '"'} and rendered[-1] == rendered[0]:
             rendered = rendered[1:-1]
+        else:
+            rendered = rendered.partition(" #")[0].strip()
+            if rendered.startswith("#") or rendered.lower() in ("null", "~"):
+                rendered = ""
         values[key.strip()] = rendered
     return values
 
 
 def _path_status(repo: Path, rel_path: str) -> dict[str, Any]:
     target = repo / rel_path
-    exists = target.exists()
+    expected_kind = "dir" if rel_path in DIRECTORY_CONTENT else "file"
+    error: str | None
+    try:
+        exists = target.exists()
+        kind = "dir" if target.is_dir() else "file" if target.is_file() else "other"
+        if not exists:
+            error = "missing"
+        elif target.is_symlink() or kind != expected_kind:
+            error = "wrong_kind"
+        elif expected_kind == "file":
+            error = _content_error(target, rel_path)
+        else:
+            members = sorted(target.glob(DIRECTORY_CONTENT[rel_path]))
+            error = "empty" if not members else None
+            for member in members:
+                member_error = _content_error(member, rel_path)
+                if member_error:
+                    error = f"{member.name}: {member_error}"
+                    break
+    except OSError:
+        exists, kind, error = False, "unknown", "unreadable"
     return {
         "path": rel_path,
         "exists": exists,
-        "kind": "dir" if target.is_dir() else "file",
+        "kind": kind,
+        "expected_kind": expected_kind,
+        "valid": error is None,
+        "reason": error,
     }
 
 
@@ -93,36 +153,46 @@ def _cumulative_required_paths(tier: int) -> list[str]:
     return paths
 
 
-def _highest_complete_tier(repo: Path) -> int:
+def _highest_complete_tier(repo: Path, statuses: Mapping[str, dict[str, Any]] | None = None) -> int:
+    if statuses is None:
+        statuses = {path: _path_status(repo, path) for path in _cumulative_required_paths(3)}
     current_tier = -1
     for definition in TIERS:
         required = _cumulative_required_paths(definition.tier)
-        if all((repo / rel_path).exists() for rel_path in required):
+        if all(statuses[rel_path]["valid"] for rel_path in required):
             current_tier = definition.tier
     return current_tier
 
 
 def _template_drift(repo: Path, template_root: Path) -> list[dict[str, Any]]:
     checks: list[dict[str, Any]] = []
-    if not template_root.exists():
-        return checks
     for template_name, target_name in TEMPLATE_TARGETS.items():
         template_path = template_root / template_name
         target_path = repo / target_name
-        if not template_path.exists() or not target_path.exists():
+        if not target_path.exists() and not target_path.is_symlink():
             continue
-        template_fm = _parse_front_matter(template_path.read_text(encoding="utf-8"))
-        target_fm = _parse_front_matter(target_path.read_text(encoding="utf-8"))
-        template_version = template_fm.get("template_version")
-        target_version = target_fm.get("template_version")
-        drifted = bool(template_version and target_version and template_version != target_version)
+        template_version = target_version = None
+        reason = None
+        try:
+            if not template_path.is_file() or not target_path.is_file():
+                reason = "missing_or_invalid_file"
+            else:
+                template_version = _parse_front_matter(template_path.read_text(encoding="utf-8-sig")).get("template_version")
+                target_version = _parse_front_matter(target_path.read_text(encoding="utf-8-sig")).get("template_version")
+                if not template_version or not target_version:
+                    reason = "missing_version"
+        except (OSError, UnicodeError):
+            reason = "unreadable"
+        status = "unknown" if reason else "current" if template_version == target_version else "drifted"
         checks.append(
             {
                 "path": target_name,
                 "template": template_name,
                 "template_version": template_version,
                 "document_template_version": target_version,
-                "drifted": drifted,
+                "drifted": status == "drifted",
+                "status": status,
+                "reason": reason,
             }
         )
     return checks
@@ -130,23 +200,30 @@ def _template_drift(repo: Path, template_root: Path) -> list[dict[str, Any]]:
 
 def assess_repo(repo: Path, *, check_drift: bool = False, template_root: Path = DEFAULT_TEMPLATE_ROOT) -> dict[str, Any]:
     target = repo.expanduser().resolve()
-    current_tier = _highest_complete_tier(target)
+    path_statuses = {path: _path_status(target, path) for path in _cumulative_required_paths(3)}
+    current_tier = _highest_complete_tier(target, path_statuses)
     tier_name = TIERS[current_tier].name if current_tier >= 0 else "Unclassified"
-    purpose = TIERS[current_tier].purpose if current_tier >= 0 else "README.md is missing"
+    purpose = TIERS[current_tier].purpose if current_tier >= 0 else "README.md is missing or invalid"
     next_tier = current_tier + 1 if current_tier + 1 < len(TIERS) else None
     required_by_tier: dict[str, list[dict[str, Any]]] = {}
     for definition in TIERS:
-        required_by_tier[str(definition.tier)] = [_path_status(target, rel_path) for rel_path in definition.required_paths]
+        required_by_tier[str(definition.tier)] = [path_statuses[rel_path] for rel_path in definition.required_paths]
 
     missing_for_next: list[str] = []
     if next_tier is not None:
         missing_for_next = [
             rel_path
             for rel_path in _cumulative_required_paths(next_tier)
-            if not (target / rel_path).exists()
+            if not path_statuses[rel_path]["exists"]
         ]
 
     drift_checks = _template_drift(target, template_root) if check_drift else []
+    drifted = any(check["drifted"] for check in drift_checks)
+    drift_status = "not_checked"
+    if check_drift:
+        drift_status = "drifted" if drifted else "unknown" if not drift_checks or any(
+            check["status"] == "unknown" for check in drift_checks
+        ) else "current"
     return {
         "repo": str(target),
         "current_tier": current_tier,
@@ -154,16 +231,20 @@ def assess_repo(repo: Path, *, check_drift: bool = False, template_root: Path = 
         "purpose": purpose,
         "next_tier": next_tier,
         "missing_for_next_tier": missing_for_next,
+        "invalid_for_next_tier": [path_statuses[path] for path in _cumulative_required_paths(next_tier)
+                                  if path_statuses[path]["exists"] and not path_statuses[path]["valid"]] if next_tier is not None else [],
+        "operational_compliance": "not_evaluated",
         "required_by_tier": required_by_tier,
         "drift_checks": drift_checks,
-        "drifted": any(check["drifted"] for check in drift_checks),
+        "drifted": drifted,
+        "drift_status": drift_status,
     }
 
 
 def _load_repo_list(path: Path) -> list[Path]:
     payload = json.loads(path.read_text(encoding="utf-8"))
-    if not isinstance(payload, list):
-        raise ValueError("repo-list JSON must be an array")
+    if not isinstance(payload, list) or not payload:
+        raise ValueError("repo-list JSON must be a non-empty array")
     repos: list[Path] = []
     for index, item in enumerate(payload):
         if isinstance(item, str):
@@ -183,17 +264,21 @@ def _render_text(result: dict[str, Any]) -> str:
     ]
     for tier, statuses in result["required_by_tier"].items():
         rendered = ", ".join(
-            f"{'OK' if item['exists'] else 'MISSING'} {item['path']}" for item in statuses
+            f"{'OK' if item['valid'] else item['reason']} {item['path']}" for item in statuses
         )
         lines.append(f"Tier {tier}: {rendered}")
     if result["missing_for_next_tier"]:
         lines.extend(["", "Recommendation:"])
         for path in result["missing_for_next_tier"]:
             lines.append(f"- Add {path}")
+    for item in result["invalid_for_next_tier"]:
+        lines.append(f"- Repair {item['path']}: {item['reason']}")
+    lines.append(f"Operational compliance: {result['operational_compliance']}")
+    lines.append(f"Template drift: {result['drift_status']}")
     if result["drift_checks"]:
         lines.extend(["", "Template drift:"])
         for check in result["drift_checks"]:
-            state = "DRIFT" if check["drifted"] else "OK"
+            state = check["status"].upper()
             lines.append(
                 f"- {state} {check['path']} "
                 f"(doc={check['document_template_version'] or 'n/a'}, template={check['template_version'] or 'n/a'})"
@@ -217,7 +302,7 @@ def main(argv: Sequence[str] | None = None) -> int:
 
     try:
         repos = _load_repo_list(args.repo_list) if args.repo_list else [args.repo]
-    except ValueError as exc:
+    except (OSError, ValueError) as exc:
         print(str(exc), file=sys.stderr)
         return 1
 
@@ -238,7 +323,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         if args.min_tier is not None:
             failed = any(int(result["current_tier"]) < args.min_tier for result in results)
         if args.check_drift:
-            failed = failed or any(bool(result["drifted"]) for result in results)
+            failed = failed or any(result["drift_status"] != "current" for result in results)
     return 1 if failed else 0
 
 

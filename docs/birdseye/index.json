@@ -200,6 +200,31 @@
       "role": "acceptance",
       "caps": "docs/birdseye/caps/docs.acceptance.AC-20260912-01.md.json",
       "mtime": "00040"
+    },
+    "docs/contracts/adoption-validation.md": {
+      "role": "contract",
+      "caps": "docs/birdseye/caps/docs.contracts.adoption-validation.md.json",
+      "mtime": "00041"
+    },
+    "docs/tasks/task-adoption-validation-20260912.md": {
+      "role": "task",
+      "caps": "docs/birdseye/caps/docs.tasks.task-adoption-validation-20260912.md.json",
+      "mtime": "00042"
+    },
+    "docs/acceptance/AC-20260912-02.md": {
+      "role": "acceptance",
+      "caps": "docs/birdseye/caps/docs.acceptance.AC-20260912-02.md.json",
+      "mtime": "00043"
+    },
+    "tools/ci/check_adoption_tier.py": {
+      "role": "validation",
+      "caps": "docs/birdseye/caps/tools.ci.check_adoption_tier.py.json",
+      "mtime": "00044"
+    },
+    "docs/adoption-tiers.md": {
+      "role": "contract",
+      "caps": "docs/birdseye/caps/docs.adoption-tiers.md.json",
+      "mtime": "00045"
     }
   },
   "edges": [
@@ -690,6 +715,38 @@
     [
       "tools/adoption.py",
       "docs/contracts/full-workflow-copy.md"
+    ],
+    [
+      "docs/contracts/full-workflow-copy.md",
+      "docs/contracts/adoption-validation.md"
+    ],
+    [
+      "docs/adoption-guide.md",
+      "docs/contracts/adoption-validation.md"
+    ],
+    [
+      "docs/adoption-tiers.md",
+      "docs/contracts/adoption-validation.md"
+    ],
+    [
+      "docs/contracts/adoption-validation.md",
+      "tools/adoption.py"
+    ],
+    [
+      "docs/contracts/adoption-validation.md",
+      "tools/ci/check_adoption_tier.py"
+    ],
+    [
+      "docs/contracts/adoption-validation.md",
+      "docs/tasks/task-adoption-validation-20260912.md"
+    ],
+    [
+      "docs/tasks/task-adoption-validation-20260912.md",
+      "docs/acceptance/AC-20260912-02.md"
+    ],
+    [
+      "docs/acceptance/AC-20260912-02.md",
+      "docs/contracts/adoption-validation.md"
     ]
   ]
 }
