@@ -2,7 +2,7 @@
 task_id: 20260913-02
 intent_id: INT-PACKAGE-VERSION-1.3.0
 owner: workflow-cookbook
-status: active
+status: done
 ---
 
 # パッケージ版を1.3.0へ更新する
