@@ -110,6 +110,7 @@ def validate_version_consistency(
     readme_path: Path,
     changelog_path: Path,
     releases_dir: Path,
+    git_tag_versions: set[str] | None = None,
 ) -> ValidationResult:
     """Validate version consistency across all sources."""
     result = ValidationResult()
@@ -117,8 +118,13 @@ def validate_version_consistency(
     pyproject_version = load_pyproject_version(pyproject_path)
     readme_version = load_readme_badge_version(readme_path)
     changelog_versions = load_changelog_versions(changelog_path)
-    tag_versions = load_git_tag_versions(repo_root)
+    tag_versions = (
+        load_git_tag_versions(repo_root)
+        if git_tag_versions is None
+        else git_tag_versions
+    )
     release_doc_versions = load_release_doc_versions(releases_dir)
+    changelog_set = set(changelog_versions)
 
     # Check pyproject.toml exists
     if not pyproject_version:
@@ -143,21 +149,43 @@ def validate_version_consistency(
         result.warnings.append("No git tags found; cannot determine expected version")
         latest_tag = None
 
-    # Cross-validate sources
+    # Cross-validate sources. A package version greater than the latest tag is a
+    # valid release candidate only when every versioned source already agrees.
+    pending_version: str | None = None
     if pyproject_version and latest_tag:
-        if pyproject_version != latest_tag:
+        pyproject_key = tuple(int(x) for x in pyproject_version.split("."))
+        latest_tag_key = tuple(int(x) for x in latest_tag.split("."))
+        if pyproject_key > latest_tag_key:
+            pending_version = pyproject_version
+            pending_errors = len(result.errors)
+            if readme_version != pending_version:
+                result.errors.append(
+                    f"README badge version {readme_version or 'missing'} != pending package version {pending_version}"
+                )
+            if pending_version not in changelog_set:
+                result.errors.append(
+                    f"CHANGELOG.md missing pending package version {pending_version}"
+                )
+            if pending_version not in release_doc_versions:
+                result.errors.append(
+                    f"docs/releases/v{pending_version}.md missing for pending package version"
+                )
+            if len(result.errors) == pending_errors:
+                result.warnings.append(
+                    f"Package version {pending_version} is prepared; git tag v{pending_version} is pending"
+                )
+        elif pyproject_key < latest_tag_key:
             result.errors.append(
                 f"pyproject.toml version {pyproject_version} != git tag latest {latest_tag}"
             )
 
-    if readme_version and latest_tag:
+    if readme_version and latest_tag and pending_version is None:
         if readme_version != latest_tag:
             result.warnings.append(
                 f"README badge version {readme_version} != git tag latest {latest_tag}"
             )
 
     # Check changelog contains all tagged versions
-    changelog_set = set(changelog_versions)
     for version in tag_versions:
         if version not in changelog_set:
             result.errors.append(
@@ -173,14 +201,14 @@ def validate_version_consistency(
 
     # Check release docs not backed by git tags
     for version in release_doc_versions:
-        if version not in tag_versions:
+        if version not in tag_versions and version != pending_version:
             result.errors.append(
                 f"docs/releases/v{version}.md exists but no git tag v{version}"
             )
 
     # Check CHANGELOG entries not backed by git tags (excluding Unreleased)
     for version in changelog_set:
-        if version not in tag_versions:
+        if version not in tag_versions and version != pending_version:
             result.warnings.append(
                 f"CHANGELOG.md has version {version} but no git tag v{version}"
             )

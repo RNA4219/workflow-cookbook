@@ -36,13 +36,13 @@
   ],
   "risks": [],
   "tests": [],
-  "generated_at": "00072",
-  "source_sha256": "e0d3cb3483ba8d89dc7ada6a762890167465afe7c8de163be6e1e08e50c6c5e7",
+  "generated_at": "00074",
+  "source_sha256": "ce3993c172c361520f9e91c9fcf51807a2e87d01eed427e5ff22e9174890a8bb",
   "review": {
-    "reviewed_at": "2026-09-11T20:38:15.944173+00:00",
+    "reviewed_at": "2026-09-12T18:45:15.774218+00:00",
     "reviewed_by": "Codex",
-    "source_sha256": "e0d3cb3483ba8d89dc7ada6a762890167465afe7c8de163be6e1e08e50c6c5e7",
+    "source_sha256": "ce3993c172c361520f9e91c9fcf51807a2e87d01eed427e5ff22e9174890a8bb",
     "summary_sha256": "e0f63b176c48d91d51facc13e1b9df086cb79a5ebe33f4552ab808e493bc1511",
-    "scope": "本変更の本文・依存先・実装検証結果との照合"
+    "scope": "1.3.0版表示、導入入口、依存先と適用条件を原文に照合"
   }
 }

@@ -12,6 +12,7 @@ next_review_due: 2026-08-10
 
 | Version | Date | Summary | File |
 | --- | --- | --- | --- |
+| v1.3.0 | 2026-09-13 | Workflow modernization, full adoption, and long-running continuity | [v1.3.0.md](v1.3.0.md) |
 | v1.2.0 | 2026-04-10 | Improvement Backlog completion | [v1.2.0.md](v1.2.0.md) |
 | v1.1.3 | 2026-04-11 | Product readiness polish | [v1.1.3.md](v1.1.3.md) |
 | v1.1.2 | 2026-04-09 | Security Gate improvements | [v1.1.2.md](v1.1.2.md) |
@@ -34,6 +35,7 @@ next_review_due: 2026-08-10
 
 | Version | Acceptance IDs | Status |
 | --- | --- | --- |
+| v1.3.0 | AC-20260910-01〜02, AC-20260911-01〜04, AC-20260912-01〜03, AC-20260913-01〜02 | release candidate |
 | v1.2.0 | AC-20260410-01, AC-20260410-02 | verified |
 | v1.1.3 | AC-20260411-01〜08 | unreleased |
 
