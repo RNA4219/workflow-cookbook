@@ -2,7 +2,7 @@
 task_id: 20260913-01
 intent_id: INT-CI-INTEGRATION-NO-SKIPS
 owner: workflow-cookbook
-status: in_progress
+status: done
 ---
 
 # CIの依存準備不足によるskipを解消する
