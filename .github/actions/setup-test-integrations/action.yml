@@ -1,0 +1,61 @@
+name: Prepare pinned integration runtimes
+description: memx, taskstate, HATE, QEGの公開commitからLinux必須テストを準備する
+runs:
+  using: composite
+  steps:
+    - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+      with:
+        repository: RNA4219/memx-resolver
+        ref: f91848160bf55819cfce5cf4c53ffc8e9353a55a
+        path: .ci-deps/memx-resolver
+        persist-credentials: false
+    - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+      with:
+        repository: RNA4219/agent-taskstate
+        ref: 4cd99287befba3c573425ebdfbeefc23e10f9633
+        path: .ci-deps/agent-taskstate
+        persist-credentials: false
+    - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+      with:
+        repository: RNA4219/harness-auto-test-evidence
+        ref: 22dc83b99059b4c0ebe25dfc891f4f5faaa13fe1
+        path: .ci-deps/harness-auto-test-evidence
+        persist-credentials: false
+    - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+      with:
+        repository: RNA4219/quality-evidence-graph
+        ref: cf59570a7759ee9c771090a0da502e0b5cb18fae
+        path: .ci-deps/quality-evidence-graph
+        persist-credentials: false
+    - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+      with:
+        node-version: "22.22.0"
+    - name: Export explicit integration paths
+      shell: bash
+      run: |
+        echo "WFC_MEMX_ROOT=$GITHUB_WORKSPACE/.ci-deps/memx-resolver" >> "$GITHUB_ENV"
+        echo "WFC_TASKSTATE_ROOT=$GITHUB_WORKSPACE/.ci-deps/agent-taskstate" >> "$GITHUB_ENV"
+        echo "WFC_HATE_ROOT=$GITHUB_WORKSPACE/.ci-deps/harness-auto-test-evidence" >> "$GITHUB_ENV"
+        echo "WFC_QEG_ROOT=$GITHUB_WORKSPACE/.ci-deps/quality-evidence-graph" >> "$GITHUB_ENV"
+        echo "WFC_HATE_PYTHON=$GITHUB_WORKSPACE/.ci-deps/harness-auto-test-evidence/.venv/bin/python" >> "$GITHUB_ENV"
+        echo "WFC_NODE=$(command -v node)" >> "$GITHUB_ENV"
+    - name: Install locked HATE runtime
+      shell: bash
+      run: uv sync --locked --no-dev --project "$WFC_HATE_ROOT"
+    - name: Build locked QEG runtime
+      shell: bash
+      working-directory: .ci-deps/quality-evidence-graph
+      run: |
+        npm ci --ignore-scripts
+        npm run build
+    - name: Require integration sources and runtimes
+      shell: bash
+      run: |
+        test -f "$WFC_MEMX_ROOT/memx_resolver_workflow_plugin/plugin.py"
+        test -f "$WFC_TASKSTATE_ROOT/src/agent_taskstate/cli/__main__.py"
+        test -f "$WFC_QEG_ROOT/dist/cli.js"
+        "$WFC_HATE_PYTHON" -c 'import hate, jsonschema'
+        "$WFC_NODE" --version
+        for repo in "$WFC_MEMX_ROOT" "$WFC_TASKSTATE_ROOT" "$WFC_HATE_ROOT" "$WFC_QEG_ROOT"; do
+          git -C "$repo" rev-parse HEAD
+        done

@@ -2,8 +2,8 @@
 intent_id: DOC-LEGACY
 owner: docs-core
 status: active
-last_reviewed_at: 2026-04-09
-next_review_due: 2026-05-09
+last_reviewed_at: 2026-09-13
+next_review_due: 2026-12-12
 ---
 
 # CI 設定ガイド
@@ -29,6 +29,43 @@ next_review_due: 2026-05-09
 | `security-ci` | `.github/workflows/security.yml` | `Allowlist Guard`, `Semgrep`, `Bandit`, `Gitleaks`, `Dependency Audit & SBOM` | `security-ci` は論理名。branch protection では `security.yml` の複数 job を concrete checks として扱う。 |
 | `docs-gate` | `.github/workflows/markdown.yml` | job `docs-gate` | RG-002〜RG-005 の docs governance checker を集約。内部 steps は front matter, acceptance, birdseye, runbook slimming (RG-003), completion trace (RG-004), agent-tools-hub boundary (RG-005)。 |
 | `metrics-gate` | `.github/workflows/markdown.yml` | job `metrics-gate` | RG-001 metrics thresholds gate。独立 job として status 可視化。 |
+
+## 必須テストの実行環境とskip
+
+`test.yml`のLinux `unit`（Python 3.11）と`python-312`（Python 3.12）は全pytestを実行する。
+memxのcache/trace、taskstateの継続性とcheckpoint、HATE/QEGの実CLI接続も両方で必須とする。
+`.github/actions/setup-test-integrations/action.yml`に4依存repoの公開commit SHAとNode版を固定し、
+HATEは`uv sync --locked --no-dev`、QEGは`npm ci --ignore-scripts`とbuildで準備する。
+依存repoに未コミット変更が必要な構成はCIの根拠にしない。
+
+| Job | 適用対象 | 証跡artifact |
+| --- | --- | --- |
+| `unit` | 全pytest、連携4件、POSIX権限 | `coverage-xml`内のcoverage.xmlとtest-results/unit.xml |
+| `python-312` | 全pytest、連携4件、POSIX権限 | `junit-python-312` |
+| `windows-adoption` | adoption/Tier/onboardingのうち`not posix` | `junit-windows-adoption` |
+
+WindowsのPOSIX権限1件はOS適用範囲外として収集後にdeselectする。
+同じテストをLinuxの全体suiteで必須実行するため、テスト自体は削除しない。
+それ以外の準備不足・実行中・収集中のskipは`--fail-on-skip`で終了コードを非0にする。
+既存の失敗・中断・収集エラーを成功へ変更しない。JUnitのskipped記録もそのまま残す。
+JUnitは`if: always()`で保存し、`-rs`で理由をログへ出す。
+
+ローカルでは引き続き依存先を任意にできる。CI相当の実行では以下の絶対パスを設定する。
+
+- `WFC_MEMX_ROOT`: memx-resolverのroot（未設定なら隣接repo）
+- `WFC_TASKSTATE_ROOT`: agent-taskstateのroot（未設定なら隣接repo）
+- `WFC_HATE_ROOT` / `WFC_HATE_PYTHON`: HATEのrootと専用Python
+- `WFC_QEG_ROOT` / `WFC_NODE`: QEGのrootとNode実行ファイル
+
+```sh
+uv sync --locked --extra dev
+uv run --locked pytest -q -rs --fail-on-skip --junitxml=test-results/local.xml
+```
+
+Windowsで全体を確認するときだけ`-m "not posix"`を追加する。
+依存版更新時は公開SHA、lockfile、build成功、両Linux suiteの連携結果を一緒に確認する。
+前回のskip証跡とmanual-bb Gateは保持し、新しいCI結果で別途判定する。
+[受入条件と結果](acceptance/AC-20260913-01.md)を参照。
 
 ## Docs Gate 内部 checker 対応
 

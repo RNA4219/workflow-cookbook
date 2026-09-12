@@ -1,4 +1,5 @@
 import json
+import os
 import subprocess
 import sys
 from copy import deepcopy
@@ -473,7 +474,7 @@ def test_command_line_status_and_error(setup, tmp_path, monkeypatch, capsys):
 
 
 def test_real_taskstate_cli_reopen_and_cas(tmp_path):
-    sibling_src = Path(__file__).resolve().parents[2] / "agent-taskstate" / "src"
+    sibling_src = Path(os.environ.get("WFC_TASKSTATE_ROOT", str(Path(__file__).resolve().parents[2] / "agent-taskstate"))) / "src"
     if not (sibling_src / "agent_taskstate").is_dir():
         pytest.skip("optional sibling agent-taskstate integration")
     client = TaskstateCLI(

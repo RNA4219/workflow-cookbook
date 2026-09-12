@@ -457,6 +457,7 @@ def test_append_refuses_changed_prefix_and_identity(target: Path, monkeypatch: p
     assert agents.read_bytes() == b"Changed"
 
 
+@pytest.mark.posix
 @pytest.mark.skipif(os.name == "nt", reason="POSIX permission bits are checked on Linux CI")
 def test_new_agents_is_not_group_or_world_accessible_without_umask(target: Path) -> None:
     agents = target / "AGENTS.md"

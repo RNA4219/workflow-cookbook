@@ -62,11 +62,12 @@ jobs:
           python-version: "3.11"
       - name: Install uv
         run: python -m pip install "uv==${UV_VERSION}"
+      - uses: ./.github/actions/setup-test-integrations
       - name: Sync locked development environment
         run: uv sync --locked --extra dev
       - name: Pytest with coverage
         run: >-
-          uv run --locked pytest -q
+          uv run --locked pytest -q -rs --fail-on-skip --junitxml=test-results/unit.xml
           --cov=tools
           --cov=security_headers
           --cov-report=term-missing
@@ -76,7 +77,9 @@ jobs:
         if: always()
         with:
           name: coverage-xml
-          path: coverage.xml
+          path: |
+            coverage.xml
+            test-results/unit.xml
           if-no-files-found: error
 
   python-312:
@@ -91,10 +94,17 @@ jobs:
           python-version: "3.12"
       - name: Install uv
         run: python -m pip install "uv==${UV_VERSION}"
+      - uses: ./.github/actions/setup-test-integrations
       - name: Sync locked development environment
         run: uv sync --locked --extra dev
       - name: Pytest
-        run: uv run --locked pytest -q
+        run: uv run --locked pytest -q -rs --fail-on-skip --junitxml=test-results/python-312.xml
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: always()
+        with:
+          name: junit-python-312
+          path: test-results/python-312.xml
+          if-no-files-found: error
 
   windows-adoption:
     name: Windows adoption regression
@@ -112,7 +122,16 @@ jobs:
       - name: Sync locked development environment
         run: uv sync --locked --extra dev
       - name: Copy, Git checkout, tier, and drift regressions
-        run: uv run --locked python -B -m pytest tests/test_adoption.py tests/test_check_adoption_tier.py tests/test_check_downstream_onboarding.py -q
+        run: >-
+          uv run --locked python -B -m pytest
+          tests/test_adoption.py tests/test_check_adoption_tier.py tests/test_check_downstream_onboarding.py
+          -m "not posix" -q -rs --fail-on-skip --junitxml=test-results/windows-adoption.xml
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: always()
+        with:
+          name: junit-windows-adoption
+          path: test-results/windows-adoption.xml
+          if-no-files-found: error
 
       - name: Create Windows Git roundtrip bundle
         run: python -B tests/fixtures/adoption_git_roundtrip.py create --output "${{ runner.temp }}/adoption-roundtrip-windows"

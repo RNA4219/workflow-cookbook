@@ -4,33 +4,37 @@
     "docs/tasks/task-adoption-edge-cases-20260912.md"
   ],
   "deps_out": [
+    ".github/actions/setup-test-integrations/action.yml",
+    "docs/ci-config.md",
+    "tests/conftest.py",
     "tests/fixtures/adoption_git_roundtrip.py",
+    "tests/test_ci_no_skips.py",
     "tools/adoption.py",
     "tools/ci/check_adoption_tier.py",
     "tools/ci/check_downstream_onboarding.py"
   ],
   "role": "ci",
-  "summary": "Ruff・mypy・coverage付きunit・Python 3.12互換・wheel smokeのCI。Windowsの導入回帰で作るGit bundleをartifact経由でLinuxへ渡し、依存なしの単独検査と実行属性の保持を検証する。",
+  "summary": "Ruff・mypy・coverage付きunit・Python 3.12互換・wheel smokeのCI。Linuxでは公開SHA固定のmemx/taskstate/HATE/QEGを構築し全テストを必須実行する。skipは失敗にしてJUnitを保存し、WindowsはPOSIX対象外を明示する。WindowsのGit bundleをLinuxへ渡して単独検査と属性保持も検証する。",
   "public_api": [
     "test workflow",
     "Windows adoption regression",
     "Windows to Linux adoption roundtrip"
   ],
   "risks": [
-    "OS間jobはWindows生成jobの成功に依存する。CI成功をモデル性能や運用準拠と混同しない"
+    "依存repo取得・lockfile同期・QEG buildの失敗は必須suiteを停止する。WindowsのPOSIX対象外はLinuxで検証する。CI成功をモデル性能や運用準拠と混同しない"
   ],
   "tests": [
     "pytest",
     "tools/ci/smoke_wheel.py",
     "tests/fixtures/adoption_git_roundtrip.py"
   ],
-  "source_sha256": "187fcf8898817300cb0de16f1c2490d94ca9cceea88324c780d8b1b89a97728f",
+  "source_sha256": "a1e657bf57ae5c58e138aa16139e45f8c13d4fd5be3a1b9aa4b47a2c6ca8cc5e",
   "generated_at": "00073",
   "review": {
-    "reviewed_at": "2026-09-12T06:07:11.844303+00:00",
+    "reviewed_at": "2026-09-12T16:25:21.669355+00:00",
     "reviewed_by": "Codex",
-    "source_sha256": "187fcf8898817300cb0de16f1c2490d94ca9cceea88324c780d8b1b89a97728f",
-    "summary_sha256": "2edbeae86bdd893aac4feec37fc9a4f2877ea6f560e73229fec72a76c6e055d2",
-    "scope": "Windows bundle生成とartifact受渡し、Linux needs関係、依存不要検査と既存CIの保持を確認"
+    "source_sha256": "a1e657bf57ae5c58e138aa16139e45f8c13d4fd5be3a1b9aa4b47a2c6ca8cc5e",
+    "summary_sha256": "d1c8b729e663d6cbae139b80d67c75c199491eed20cd97208ebd722998bcf35e",
+    "scope": "公開固定版のsetup、両Linux全体suite、WindowsのOS適用範囲、skip失敗とJUnit保存、既存roundtripを確認"
   }
 }

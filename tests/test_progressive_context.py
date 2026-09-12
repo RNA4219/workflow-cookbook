@@ -1,5 +1,6 @@
 import hashlib
 import json
+import os
 import sys
 
 import pytest
@@ -32,7 +33,7 @@ def test_real_memx_cache_invalidation_and_run_trace(tmp_path, isolated_memx_impo
     from tools.workflow_plugins.run_report import build_run_report
     from tools.workflow_plugins.runtime import RunContext
 
-    sibling = Path(__file__).resolve().parents[2] / "memx-resolver"
+    sibling = Path(os.environ.get("WFC_MEMX_ROOT", str(Path(__file__).resolve().parents[2] / "memx-resolver")))
     if not (sibling / "memx_resolver_workflow_plugin").is_dir():
         pytest.skip("optional sibling memx integration")
     tasks = tmp_path / "docs/tasks"

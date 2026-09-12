@@ -1,4 +1,5 @@
 import json
+import os
 import sys
 from copy import deepcopy
 from pathlib import Path
@@ -244,7 +245,7 @@ def test_cli_reports_ready_budget_failure_and_invalid_input(setup, monkeypatch, 
 
 
 def test_real_taskstate_cli_reopen_keeps_goal_decisions_questions_and_required_source(tmp_path):
-    sibling_src = Path(__file__).resolve().parents[2] / "agent-taskstate" / "src"
+    sibling_src = Path(os.environ.get("WFC_TASKSTATE_ROOT", str(Path(__file__).resolve().parents[2] / "agent-taskstate"))) / "src"
     if not (sibling_src / "agent_taskstate").is_dir():
         pytest.skip("optional sibling agent-taskstate integration")
     client = TaskstateCLI(
