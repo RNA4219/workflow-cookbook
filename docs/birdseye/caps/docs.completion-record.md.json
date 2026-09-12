@@ -1,0 +1,29 @@
+{
+  "id": "docs/completion-record.md",
+  "deps_in": [],
+  "deps_out": [
+    "CHANGELOG.md",
+    "docs/acceptance/AC-20260912-03.md",
+    "docs/tasks/task-adoption-edge-cases-20260912.md"
+  ],
+  "role": "history",
+  "summary": "完了事項の日付・短い判定とTask/Acceptance/CHANGELOGへの正本リンクを集約する索引。詳細な検収証跡や現在の運用判断を複製せず、導入診断の境界条件修正を既存の完了記録へ追加する。",
+  "public_api": [],
+  "risks": [
+    "過去の試験・測定結果は当該Taskの範囲に限定し、新規タスクの実績として流用しない"
+  ],
+  "tests": [
+    "tools/ci/check_completion_trace.py",
+    "tools/ci/check_task_completion_propagation.py",
+    "tools/ci/check_task_acceptance_bidirectional.py"
+  ],
+  "source_sha256": "5825ff6b3c5dbea8097f63516cd27ec94fad08c8daecc5da3e24231e851e7a42",
+  "generated_at": "00073",
+  "review": {
+    "reviewed_at": "2026-09-12T06:07:11.844303+00:00",
+    "reviewed_by": "Codex",
+    "source_sha256": "5825ff6b3c5dbea8097f63516cd27ec94fad08c8daecc5da3e24231e851e7a42",
+    "summary_sha256": "b43a45454749e2c9567e542ff7c9d9989809968ba5eceb33717c02d5237bf94d",
+    "scope": "既存索引の役割を保持した新Task20260912-03の記録とTask/Acceptance/契約への参照を確認"
+  }
+}

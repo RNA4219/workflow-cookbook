@@ -1,33 +1,44 @@
 {
   "id": "docs/contracts/adoption-validation.md",
   "role": "contract",
-  "summary": "コピーのGit改行形式、Tierの内容、テンプレート版unknownの判定と受入を定義する。",
-  "public_api": [],
+  "summary": "Git改行形式とmode、Tierの内容、版current/drifted/unknownを区別する。拡張子の大小文字によらずcapsule構造を検査し、空・不正なrepo-listを拒否する。.yamlと引用符外コメントの扱い、OS間の受入条件を定義する。",
+  "public_api": [
+    "--check-git-modes",
+    "--check-drift --check"
+  ],
   "deps_in": [
+    "CHANGELOG.md",
     "docs/acceptance/AC-20260912-02.md",
+    "docs/acceptance/AC-20260912-03.md",
     "docs/adoption-guide.md",
     "docs/adoption-tiers.md",
-    "docs/contracts/full-workflow-copy.md"
+    "docs/contracts/full-workflow-copy.md",
+    "docs/tasks/task-adoption-edge-cases-20260912.md"
   ],
   "deps_out": [
+    "docs/tasks/task-adoption-edge-cases-20260912.md",
     "docs/tasks/task-adoption-validation-20260912.md",
     "tools/adoption.py",
-    "tools/ci/check_adoption_tier.py"
+    "tools/ci/check_adoption_tier.py",
+    "tools/ci/check_downstream_onboarding.py"
   ],
   "risks": [
-    "文書構造の判定を運用合格やモデル性能の証拠として扱わない"
+    "未対応のYAML版表記はunknownとし、構造やCIの記載を実運用の成功と扱わない",
+    "Git indexのmode照合は読み取り専用で、ステージ本文の検証は範囲外"
   ],
   "tests": [
     "tests/test_adoption.py",
-    "tests/test_check_adoption_tier.py"
+    "tests/test_check_adoption_tier.py",
+    "tests/test_check_downstream_onboarding.py",
+    "tests/fixtures/adoption_git_roundtrip.py"
   ],
-  "generated_at": "00072",
-  "source_sha256": "a7bcb7f40aac699d4479a4d6d3acab53ffd62da4e1f6c3f2fb066a7a41a65e8f",
+  "generated_at": "00073",
+  "source_sha256": "81fd98b38b7c39ea9b2fe9f2c2ab9d4fb5585db7b55213ab98674e8f41a9756d",
   "review": {
-    "reviewed_at": "2026-09-12T04:51:26.201382+00:00",
+    "reviewed_at": "2026-09-12T06:07:11.844303+00:00",
     "reviewed_by": "Codex",
-    "source_sha256": "a7bcb7f40aac699d4479a4d6d3acab53ffd62da4e1f6c3f2fb066a7a41a65e8f",
-    "summary_sha256": "cd309113dd9f103426e580d6a26e66cc028750d9c6a8d6d573db737f8489b536",
-    "scope": "v2のhashレコード必須化と完全な改行形式との対応、欠損時の単独検査を確認"
+    "source_sha256": "81fd98b38b7c39ea9b2fe9f2c2ab9d4fb5585db7b55213ab98674e8f41a9756d",
+    "summary_sha256": "b74b10cb8fc7e87ac1882e91e959a046b41e312e53b30315ef55c50373534e84",
+    "scope": "A1〜A7の役割検査・入力・scalar・OS差と受入条件を確認"
   }
 }

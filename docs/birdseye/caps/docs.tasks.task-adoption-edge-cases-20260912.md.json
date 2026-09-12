@@ -1,0 +1,36 @@
+{
+  "id": "docs/tasks/task-adoption-edge-cases-20260912.md",
+  "deps_in": [
+    "CHANGELOG.md",
+    "docs/acceptance/AC-20260912-03.md",
+    "docs/completion-record.md",
+    "docs/contracts/adoption-validation.md"
+  ],
+  "deps_out": [
+    ".github/workflows/test.yml",
+    "docs/acceptance/AC-20260912-03.md",
+    "docs/contracts/adoption-validation.md",
+    "docs/contracts/full-workflow-copy.md"
+  ],
+  "role": "task",
+  "summary": "追加診断のA1〜A7を扱うTask 20260912-03。capsule・repo-list・workflow拡張子・版表記・パス衝突・Git実行属性・CLIエラーの回帰を契約と受入へ接続する。",
+  "public_api": [],
+  "risks": [
+    "更新機能・外部doctor・ブランチ保護変更は対象外。checker機能試験を比較評価へ読み替えない"
+  ],
+  "tests": [
+    "tests/test_adoption.py",
+    "tests/test_check_adoption_tier.py",
+    "tests/test_check_downstream_onboarding.py",
+    "tests/fixtures/adoption_git_roundtrip.py"
+  ],
+  "source_sha256": "0c27a1b36cdb67793a55b1c52abd43f4ec81b674c5588fb398607ddd1b85c5ea",
+  "generated_at": "00073",
+  "review": {
+    "reviewed_at": "2026-09-12T06:07:11.844303+00:00",
+    "reviewed_by": "Codex",
+    "source_sha256": "0c27a1b36cdb67793a55b1c52abd43f4ec81b674c5588fb398607ddd1b85c5ea",
+    "summary_sha256": "c61ef40689ee14a25b9ce8317a1aafa589ebd4e0bbbe4ccc5a5ffaa953806918",
+    "scope": "確定したdone状態、A1〜A7の範囲・保全条件・非評価実験の境界とAcceptanceを確認"
+  }
+}

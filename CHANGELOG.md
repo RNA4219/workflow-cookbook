@@ -42,6 +42,11 @@ next_review_due: 2026-08-11
 
 ### Fixed
 
+- capsuleの拡張子、空のrepo-list、`.yaml`のCI、引用符とコメントを持つ版番号の誤判定を修正した。
+- コピー前のパス成分の衝突検査、読み取り専用の`--check-git-modes`、CLI構文エラーのJSON出力を追加した。
+  [Task 20260912-03](docs/tasks/task-adoption-edge-cases-20260912.md) /
+  [受入](docs/acceptance/AC-20260912-03.md)。
+
 - コピーmanifest v2でGit checkout後のLF/CRLFを照合し、本文・バイナリの変更を検出する。
 - 導入Tierで空文書・パスの型違い・破損JSONを合格させない。
 - テンプレート版が不明な場合は `unknown` とし、明示的なドリフト検査を失敗させる。

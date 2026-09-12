@@ -399,3 +399,11 @@ the resolved mypy and recurring-review debt.
   [Acceptance](acceptance/AC-20260912-02.md) /
   [仕様](contracts/adoption-validation.md)
 - Git往復、Tierの内容検査、テンプレート版unknownの扱いを修正した。
+
+## 2026-09-12 導入診断の境界条件修正
+
+- task_id: 20260912-03
+- [docs/tasks/task-adoption-edge-cases-20260912.md](tasks/task-adoption-edge-cases-20260912.md) /
+  [Acceptance](acceptance/AC-20260912-03.md) /
+  [仕様](contracts/adoption-validation.md)
+- 追加調査の7項目を修正し、誤判定・CLI・WindowsからLinuxへのGit共有を検証した。

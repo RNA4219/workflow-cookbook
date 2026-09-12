@@ -114,6 +114,43 @@ jobs:
       - name: Copy, Git checkout, tier, and drift regressions
         run: uv run --locked python -B -m pytest tests/test_adoption.py tests/test_check_adoption_tier.py tests/test_check_downstream_onboarding.py -q
 
+      - name: Create Windows Git roundtrip bundle
+        run: python -B tests/fixtures/adoption_git_roundtrip.py create --output "${{ runner.temp }}/adoption-roundtrip-windows"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: always()
+        with:
+          name: adoption-roundtrip-windows
+          path: |
+            ${{ runner.temp }}/adoption-roundtrip-windows/adoption.bundle
+            ${{ runner.temp }}/adoption-roundtrip-windows/results.json
+          if-no-files-found: error
+
+  linux-adoption-roundtrip:
+    name: Windows to Linux adoption roundtrip
+    needs: [windows-adoption]
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: "3.11"
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: adoption-roundtrip-windows
+          path: ${{ runner.temp }}/adoption-roundtrip-input
+      - name: Verify Windows bundle on Linux without installed dependencies
+        run: >-
+          python -I -S -B tests/fixtures/adoption_git_roundtrip.py verify
+          --bundle "${{ runner.temp }}/adoption-roundtrip-input/adoption.bundle"
+          --output "${{ runner.temp }}/adoption-roundtrip-linux"
+          --require-posix
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: always()
+        with:
+          name: adoption-roundtrip-linux
+          path: ${{ runner.temp }}/adoption-roundtrip-linux/results.json
+          if-no-files-found: error
+
   build:
     needs: [lint, typecheck, unit]
     runs-on: ubuntu-24.04

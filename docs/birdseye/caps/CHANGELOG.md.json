@@ -2,11 +2,15 @@
   "id": "CHANGELOG.md",
   "role": "history",
   "public_api": [],
-  "summary": "配布版とUnreleasedの変更・制約をTask/Acceptanceへ追跡する履歴。0082は比較・取得・観測・再開を追加し、実運用性能は未測定。 0083はHATE正規化からQEGの実テスト受入への接続。 0084は目的・制約・決定の保持と必読全文を優先するtaskstate接続。 0085は全行の厳密な整数計算と原文位置の証跡。",
+  "summary": "配布版とUnreleasedの変更をTask/Acceptanceへ追跡する履歴。比較・取得・観測・文脈継続・HATE/QEG接続に加え、一括コピーと導入診断の境界条件、Git共有時の属性検査の変更を記録する。",
   "deps_out": [
     "EVALUATION.md",
     "README.md",
     "docs/acceptance/AC-20260910-02.md",
+    "docs/acceptance/AC-20260912-03.md",
+    "docs/contracts/adoption-validation.md",
+    "docs/contracts/full-workflow-copy.md",
+    "docs/tasks/task-adoption-edge-cases-20260912.md",
     "docs/tasks/task-workflow-evolution-20260910.md",
     "docs/workflow-evolution.md",
     "governance/policy.yaml"
@@ -16,19 +20,23 @@
     "HUB.codex.md",
     "README.md",
     "TASK.codex.md",
-    "docs/IN-20250115-001.md"
+    "docs/IN-20250115-001.md",
+    "docs/completion-record.md"
   ],
-  "risks": [],
+  "risks": [
+    "過去の検収数値や機能試験を、現在の運用準拠・モデル性能の証明へ流用しない"
+  ],
   "tests": [
-    "手動: 新リリース記載後にREADME/policy.yamlとの整合を確認"
+    "tools/ci/check_completion_trace.py",
+    "tools/ci/check_task_acceptance_bidirectional.py"
   ],
-  "generated_at": "00070",
-  "source_sha256": "63468e2a7f8c66e618fe5302fa75a37f58735ac4149542e512a4071c77ecdedb",
+  "generated_at": "00073",
+  "source_sha256": "051e4d6fb428e51df13f7f784fb985809392cadf9ac91b8d2a874d67cf91cc3c",
   "review": {
-    "reviewed_at": "2026-09-12T04:31:47.968504+00:00",
+    "reviewed_at": "2026-09-12T06:07:11.844303+00:00",
     "reviewed_by": "Codex",
-    "source_sha256": "63468e2a7f8c66e618fe5302fa75a37f58735ac4149542e512a4071c77ecdedb",
-    "summary_sha256": "5267821fd61bb6f9b03c058d5963844c9bf059dbac3d4f6ce8888143f717b26a",
-    "scope": "Git往復・Tier内容・版unknownの実装、契約、回帰証跡の対応を確認"
+    "source_sha256": "051e4d6fb428e51df13f7f784fb985809392cadf9ac91b8d2a874d67cf91cc3c",
+    "summary_sha256": "df73471e4b24447887338376609ab2cb489dcca5b3a3713f4491fa0c6d5bbf77",
+    "scope": "Unreleasedの7項目修正とTask/Acceptance参照、既存履歴の範囲を確認"
   }
 }

@@ -14,7 +14,7 @@ import subprocess
 import tempfile
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any
+from typing import Any, NoReturn
 
 DIRECTORY = "workflow-cookbook"
 START = b"<!-- workflow-cookbook:full:v1 -->"
@@ -132,7 +132,7 @@ def snapshot(source: Path, ref: str) -> Snapshot:
     commit = _git(source, "rev-parse", "--verify", "--end-of-options", f"{ref}^{{commit}}").decode().strip()
     tree = _git(source, "rev-parse", f"{commit}^{{tree}}").decode().strip()
     entries: dict[str, tuple[str, str]] = {}
-    folded: set[str] = set()
+    paths: dict[str, tuple[str, str]] = {}
     for entry in _git(source, "ls-tree", "-rz", "--full-tree", commit).split(b"\0"):
         if not entry:
             continue
@@ -141,9 +141,14 @@ def snapshot(source: Path, ref: str) -> Snapshot:
         name = _path(raw_name.decode("utf-8"))
         if mode not in ("100644", "100755") or kind != "blob":
             raise ValueError(f"link/submodule等はコピーできません: {name}")
-        if name.casefold() in folded:
-            raise ValueError(f"大文字小文字で衝突するパス: {name}")
-        folded.add(name.casefold())
+        parts = name.split("/")
+        for index in range(1, len(parts) + 1):
+            component = "/".join(parts[:index])
+            kind = "file" if index == len(parts) else "directory"
+            previous = paths.get(component.casefold())
+            if previous is not None and (previous != (component, kind) or kind == "file"):
+                raise ValueError(f"大文字小文字またはファイル種別で衝突するパス: {name}")
+            paths[component.casefold()] = (component, kind)
         entries[name] = (mode, oid)
     if not set(CORE) <= entries.keys():
         raise ValueError("Workflow Cookbookの必須ファイルがないコミットです。")
@@ -253,9 +258,12 @@ def _inventory(root: Path) -> dict[str, bytes]:
 
 
 def _report(status: str, manifest: dict[str, Any]) -> dict[str, Any]:
+    executable_paths = sorted(name for name, details in manifest["files"].items() if details["mode"] == "100755")
     return {
         "status": status, "source_commit": manifest["source_commit"], "source_tree": manifest["source_tree"],
         "upstream_files": sum(name.startswith("upstream/") for name in manifest["files"]),
+        "executable_paths": executable_paths,
+        "git_modes": "not_checked",
         "operational_compliance": "not_evaluated",
     }
 
@@ -291,6 +299,42 @@ def verify(repo: Path) -> dict[str, Any]:
     if agents.count(START) != 1 or agents.count(END) != 1 or sum(agents.count(block) for block in blocks) != 1:
         raise ValueError("AGENTS.mdの管理ブロックが欠落・改変・重複しています。")
     return manifest
+
+
+def check_git_modes(repo: Path) -> dict[str, Any]:
+    """作業コピーを検査し、共有されるGit indexのmodeを変更せず照合する。"""
+    manifest = verify(repo)
+    expected = {name: details["mode"] for name, details in manifest["files"].items()}
+    expected["manifest.json"] = "100644"
+    indexed: dict[str, list[tuple[str, str]]] = {}
+    for entry in _git(repo, "ls-files", "--stage", "-z", "--", DIRECTORY).split(b"\0"):
+        if not entry:
+            continue
+        header, raw_name = entry.split(b"\t", 1)
+        mode, _, stage = header.decode("ascii").split()
+        name = raw_name.decode("utf-8").removeprefix(f"{DIRECTORY}/")
+        indexed.setdefault(name, []).append((stage, mode))
+    issues = []
+    for name, mode in expected.items():
+        entries = indexed.get(name, [])
+        reason = ""
+        if not entries:
+            reason = "untracked"
+        elif len(entries) != 1 or entries[0][0] != "0":
+            reason = "unmerged"
+        elif entries[0][1] != mode:
+            reason = "mode_mismatch"
+        if reason:
+            issues.append({"path": name, "expected_mode": mode, "reason": reason,
+                           "index_entries": [{"stage": stage, "mode": value} for stage, value in entries]})
+    for name in sorted(indexed.keys() - expected.keys()):
+        issues.append({"path": name, "reason": "unexpected"})
+    report = _report("error" if issues else "verified", manifest)
+    report.update({"git_modes": "invalid" if issues else "verified", "mode_issues": issues,
+                   "checked_mode_files": len(expected)})
+    if issues:
+        report["error"] = "Git indexの登録またはmodeがコピーmanifestと一致しません。"
+    return report
 
 
 def _target(repo: Path) -> Path:
@@ -391,17 +435,25 @@ def copy_workflow(repo: Path, source: Path, ref: str = "HEAD", *, dry_run: bool 
     return _report("copied", manifest)
 
 
+class _JsonArgumentParser(argparse.ArgumentParser):
+    def error(self, message: str) -> NoReturn:
+        raise ValueError(message)
+
+
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(description=__doc__)
+    parser = _JsonArgumentParser(description=__doc__)
     parser.add_argument("--repo", type=Path, required=True, help="既存の導入先ディレクトリ")
     parser.add_argument("--source", type=Path, default=Path.cwd(), help="コピー元checkout（既定: cwd）")
     parser.add_argument("--ref", default="HEAD", help="固定するGit revision（既定: HEAD）")
     group = parser.add_mutually_exclusive_group()
     group.add_argument("--dry-run", action="store_true", help="書き込まず導入計画を表示")
     group.add_argument("--check", action="store_true", help="コピー元への接続なしで整合性検査")
-    args = parser.parse_args(argv)
+    group.add_argument("--check-git-modes", action="store_true", help="共有前にGit indexの登録とmodeを読み取り検査")
     try:
-        if args.check:
+        args = parser.parse_args(argv)
+        if args.check_git_modes:
+            result = check_git_modes(_target(args.repo))
+        elif args.check:
             result = _report("verified", verify(_target(args.repo)))
         else:
             result = copy_workflow(args.repo, args.source, args.ref, dry_run=args.dry_run)
@@ -409,7 +461,7 @@ def main(argv: list[str] | None = None) -> int:
         print(json.dumps({"status": "error", "error": str(exc), "operational_compliance": "not_evaluated"}, ensure_ascii=False))
         return 1
     print(json.dumps(result, ensure_ascii=False, indent=2))
-    return 0
+    return 1 if result["status"] == "error" else 0
 
 
 if __name__ == "__main__":

@@ -1,32 +1,39 @@
 {
   "id": "tools/adoption.py",
   "role": "runtime",
-  "summary": "固定treeをコピーし、manifest v2のLF/CRLF形式を照合する。既存AGENTSへ追記し、旧v1の検査と並行編集の保全を維持する。",
+  "summary": "固定Git treeの一括コピーとv1/v2単独検査。パスの全成分の大小文字・種別衝突を準備前に拒否し、構文エラーをJSON/exit 1で返す。明示されたGit mode検査は全manifestファイルとmanifest.jsonのstage 0を読み取り照合する。",
   "public_api": [
     "wfc-copy",
-    "python -m tools.adoption"
+    "python -m tools.adoption",
+    "copy_workflow",
+    "verify",
+    "check_git_modes"
   ],
   "deps_in": [
+    ".github/workflows/test.yml",
     "docs/acceptance/AC-20260912-01.md",
     "docs/adoption-guide.md",
-    "docs/contracts/adoption-validation.md"
+    "docs/contracts/adoption-validation.md",
+    "tests/fixtures/adoption_git_roundtrip.py"
   ],
   "deps_out": [
     "docs/contracts/full-workflow-copy.md"
   ],
   "risks": [
-    "コピー成功を運用準拠・テスト合格の認定と取り違えない"
+    "既存AGENTSとv1/v2 ADOPTION本文を保持し、Git index・設定を自動変更しない",
+    "git_modesは登録・modeの診断であり、ステージした本文や運用準拠の証明ではない"
   ],
   "tests": [
-    "tests/test_adoption.py"
+    "tests/test_adoption.py",
+    "tests/fixtures/adoption_git_roundtrip.py"
   ],
-  "source_sha256": "db4fd456bec263ef8bedee785c5426b57f160c747303e81898a45a27b7438237",
-  "generated_at": "00072",
+  "source_sha256": "0b8eeee4250a95f2a0cb77337accd893bee177b11fcdc4e44d0127513930168b",
+  "generated_at": "00073",
   "review": {
-    "reviewed_at": "2026-09-12T04:51:26.192878+00:00",
+    "reviewed_at": "2026-09-12T06:07:11.844303+00:00",
     "reviewed_by": "Codex",
-    "source_sha256": "db4fd456bec263ef8bedee785c5426b57f160c747303e81898a45a27b7438237",
-    "summary_sha256": "fe4a1d1a3fb147ff5ab3aa1003c9ca4f93ca9670c8f310ccc0d8bf99b8101f8b",
-    "scope": "v2のhashレコード必須化と完全な改行形式との対応、欠損時の単独検査を確認"
+    "source_sha256": "0b8eeee4250a95f2a0cb77337accd893bee177b11fcdc4e44d0127513930168b",
+    "summary_sha256": "0fa0917dea422cd0a535287f6dc1a28b5272b3460e2d7f6a7afd85ea94d2a9d5",
+    "scope": "snapshotの全成分衝突、read-only stage/mode照合、JSON parserと正負回帰の対応を確認"
   }
 }

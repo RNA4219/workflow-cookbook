@@ -1,0 +1,36 @@
+{
+  "id": ".github/workflows/test.yml",
+  "deps_in": [
+    "docs/tasks/task-adoption-edge-cases-20260912.md"
+  ],
+  "deps_out": [
+    "tests/fixtures/adoption_git_roundtrip.py",
+    "tools/adoption.py",
+    "tools/ci/check_adoption_tier.py",
+    "tools/ci/check_downstream_onboarding.py"
+  ],
+  "role": "ci",
+  "summary": "Ruff・mypy・coverage付きunit・Python 3.12互換・wheel smokeのCI。Windowsの導入回帰で作るGit bundleをartifact経由でLinuxへ渡し、依存なしの単独検査と実行属性の保持を検証する。",
+  "public_api": [
+    "test workflow",
+    "Windows adoption regression",
+    "Windows to Linux adoption roundtrip"
+  ],
+  "risks": [
+    "OS間jobはWindows生成jobの成功に依存する。CI成功をモデル性能や運用準拠と混同しない"
+  ],
+  "tests": [
+    "pytest",
+    "tools/ci/smoke_wheel.py",
+    "tests/fixtures/adoption_git_roundtrip.py"
+  ],
+  "source_sha256": "187fcf8898817300cb0de16f1c2490d94ca9cceea88324c780d8b1b89a97728f",
+  "generated_at": "00073",
+  "review": {
+    "reviewed_at": "2026-09-12T06:07:11.844303+00:00",
+    "reviewed_by": "Codex",
+    "source_sha256": "187fcf8898817300cb0de16f1c2490d94ca9cceea88324c780d8b1b89a97728f",
+    "summary_sha256": "2edbeae86bdd893aac4feec37fc9a4f2877ea6f560e73229fec72a76c6e055d2",
+    "scope": "Windows bundle生成とartifact受渡し、Linux needs関係、依存不要検査と既存CIの保持を確認"
+  }
+}

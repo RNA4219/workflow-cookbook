@@ -1,0 +1,33 @@
+{
+  "id": "tests/fixtures/adoption_git_roundtrip.py",
+  "deps_in": [
+    ".github/workflows/test.yml",
+    "docs/acceptance/AC-20260912-03.md"
+  ],
+  "deps_out": [
+    "tools/adoption.py"
+  ],
+  "role": "test-fixture",
+  "summary": "新規fixture内でCOREと100755のrun.shをコピーし、Windowsの通常git addによる100644化を検出する。利用者による明示chmod後にbundleを生成し、clone先のGit不要verifierとPOSIX直接実行を確認する。",
+  "public_api": [
+    "create --output <new-directory>",
+    "verify --bundle <bundle> --output <new-directory> --require-posix"
+  ],
+  "risks": [
+    "既存出力先を拒否する。Git設定・index変更は独立fixture内だけで行う",
+    "Windowsでのclone確認ではPOSIX実行検査を済ませたと扱わない"
+  ],
+  "tests": [
+    ".github/workflows/test.yml:windows-adoption",
+    ".github/workflows/test.yml:linux-adoption-roundtrip"
+  ],
+  "source_sha256": "4c9e8ce04b468a4969f00ebea02777ddf1c7a39bb5ffeaaf09c57a5b017d004e",
+  "generated_at": "00073",
+  "review": {
+    "reviewed_at": "2026-09-12T06:07:11.844303+00:00",
+    "reviewed_by": "Codex",
+    "source_sha256": "4c9e8ce04b468a4969f00ebea02777ddf1c7a39bb5ffeaaf09c57a5b017d004e",
+    "summary_sha256": "4e79a9b9a50348849e85070fe1654f5444e03a8ca77b84d81a422e4752e8ee0f",
+    "scope": "実Gitによる100644検出→明示100755登録、index不変、bundle/clone/POSIX実行の正負手順を確認"
+  }
+}

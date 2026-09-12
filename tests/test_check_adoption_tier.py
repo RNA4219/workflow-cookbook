@@ -245,3 +245,124 @@ def test_read_failure_and_file_instead_of_directory(tmp_path: Path, monkeypatch:
     other = tmp_path / "other"
     _write(other / "docs/tasks", "not a directory")
     assert checker._path_status(other, "docs/tasks")["reason"] == "wrong_kind"
+
+
+@pytest.mark.parametrize("extension", ["json", "JSON", "JsOn"])
+@pytest.mark.parametrize("content,valid", [
+    ('{"id": "README.md", "summary": "Entry point"}', True),
+    ("# Not JSON", False),
+    ('{"id": "README.md"}', False),
+])
+def test_capsule_extensions_have_identical_content_checks(tmp_path: Path, extension: str, content: str, valid: bool) -> None:
+    _full_repo(tmp_path)
+    capsule = tmp_path / "docs/birdseye/caps/readme.json"
+    capsule.unlink()
+    _write(capsule.with_name(f"readme.{extension}"), content)
+    result = checker.assess_repo(tmp_path)
+    assert (result["current_tier"] == 3) is valid
+    status = next(item for item in result["required_by_tier"]["3"] if item["path"] == "docs/birdseye/caps")
+    assert status["valid"] is valid
+    if not valid:
+        assert "invalid_json" in status["reason"]
+
+
+def test_valid_capsule_does_not_hide_invalid_uppercase_member(tmp_path: Path) -> None:
+    _full_repo(tmp_path)
+    _write(tmp_path / "docs/birdseye/caps/broken.JSON", "# Not JSON")
+    assert checker.assess_repo(tmp_path)["current_tier"] == 2
+
+
+@pytest.mark.parametrize("directory", ["docs/tasks", "docs/acceptance"])
+@pytest.mark.parametrize("extension", ["MD", "Md"])
+def test_markdown_record_extensions_are_os_independent(tmp_path: Path, directory: str, extension: str) -> None:
+    _full_repo(tmp_path)
+    for member in (tmp_path / directory).iterdir():
+        member.unlink()
+    _write(tmp_path / directory / f"record.{extension}", "# A valid record\n")
+    assert checker.assess_repo(tmp_path)["current_tier"] == 3
+
+
+@pytest.mark.parametrize("raw,expected", [
+    ('"1.0.0" # adopted version', "1.0.0"),
+    ("'1.0.0' # adopted version", "1.0.0"),
+    ('"1.0.0"\t# adopted version', "1.0.0"),
+    ("1.0.0\t# adopted version", "1.0.0"),
+    ('"1.0#release" # comment', "1.0#release"),
+    ("'1.0 # release' # comment", "1.0 # release"),
+    ("'1.0''release' # comment", "1.0'release"),
+    ('"1.0\\\"release" # comment', '1.0"release'),
+])
+def test_quoted_versions_preserve_value_and_ignore_only_external_comments(tmp_path: Path, raw: str, expected: str) -> None:
+    repo, templates = tmp_path / "repo", tmp_path / "templates"
+    _write(repo / "HUB.codex.md", _front_matter(raw))
+    _write(templates / "HUB.codex.md.template", _front_matter(json.dumps(expected)))
+    result = checker.assess_repo(repo, check_drift=True, template_root=templates)
+    assert result["drift_status"] == "current"
+    assert result["drift_checks"][0]["document_template_version"] == expected
+
+
+@pytest.mark.parametrize("raw", [
+    '"1.0.0', "'1.0.0", '"1.0.0" trailing', "'1.0.0' trailing", '["1.0.0"]',
+    '{version: "1.0.0"}', "|", ">", "&version 1.0.0", "*version",
+])
+def test_malformed_or_non_scalar_version_is_unknown(tmp_path: Path, raw: str) -> None:
+    repo, templates = tmp_path / "repo", tmp_path / "templates"
+    _write(repo / "HUB.codex.md", _front_matter(raw))
+    _write(templates / "HUB.codex.md.template", _front_matter(raw))
+    result = checker.assess_repo(repo, check_drift=True, template_root=templates)
+    assert result["drift_status"] == "unknown"
+
+
+@pytest.mark.parametrize("payload", [[""], [" \t"], [{"repo": ""}], [{"repo": "\n"}], [None], [{"path": "."}], [".", None]])
+def test_repo_list_rejects_every_invalid_entry(tmp_path: Path, payload: object) -> None:
+    path = tmp_path / "repos.json"
+    _write(path, json.dumps(payload))
+    result = _run_cli("--repo-list", str(path), "--check", "--json")
+    assert result.returncode == 1
+    assert result.stdout == ""
+    assert "repo-list item" in result.stderr
+    assert "Traceback" not in result.stderr
+
+
+
+def test_json_role_requires_json_even_with_unexpected_suffix(tmp_path: Path) -> None:
+    path = tmp_path / "capsule.data"
+    _write(path, "# Not JSON\n")
+    assert checker._content_error(path, "docs/birdseye/caps") == "invalid_json"
+
+
+@pytest.mark.parametrize("front_matter", [
+    '---broken\ntemplate_version: 1.0.0\n---\n',
+    '---\ntemplate_version: 1.0.0\n',
+    '---\ntemplate_version: 1.0.0\ntemplate_version: 1.0.0\n---\n',
+    '---\nmetadata:\n  template_version: 1.0.0\n---\n',
+])
+def test_unavailable_top_level_version_is_unknown(tmp_path: Path, front_matter: str) -> None:
+    repo, templates = tmp_path / "repo", tmp_path / "templates"
+    _write(repo / "HUB.codex.md", front_matter)
+    _write(templates / "HUB.codex.md.template", front_matter)
+    assert checker.assess_repo(repo, check_drift=True, template_root=templates)["drift_status"] == "unknown"
+
+
+def test_quoted_version_cli_remains_standalone(tmp_path: Path) -> None:
+    repo, templates = tmp_path / "repo", tmp_path / "templates"
+    _write(repo / "HUB.codex.md", _front_matter('"1.0.0" # adopted version'))
+    _write(templates / "HUB.codex.md.template", _front_matter("1.0.0"))
+    result = subprocess.run(
+        [sys.executable, "-I", "-S", str(ROOT / "tools/ci/check_adoption_tier.py"),
+         "--repo", str(repo), "--template-root", str(templates), "--check-drift", "--check", "--json"],
+        cwd=tmp_path, capture_output=True, text=True, check=False,
+    )
+    assert result.returncode == 0, result.stderr
+    assert json.loads(result.stdout)["drift_status"] == "current"
+
+
+
+@pytest.mark.parametrize("raw", ['""', "''", '"   "', "'   '", '"\\t"', "'\t'"])
+def test_quoted_blank_versions_remain_unknown(tmp_path: Path, raw: str) -> None:
+    repo, templates = tmp_path / "repo", tmp_path / "templates"
+    _write(repo / "HUB.codex.md", _front_matter(raw))
+    _write(templates / "HUB.codex.md.template", _front_matter(raw))
+    result = checker.assess_repo(repo, check_drift=True, template_root=templates)
+    assert result["drift_status"] == "unknown"
+    assert result["drifted"] is False

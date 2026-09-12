@@ -1,0 +1,33 @@
+{
+  "id": "tools/ci/check_downstream_onboarding.py",
+  "deps_in": [
+    ".github/workflows/test.yml",
+    "docs/adoption-guide.md",
+    "docs/contracts/adoption-validation.md"
+  ],
+  "deps_out": [
+    "tools/ci/check_adoption_tier.py"
+  ],
+  "role": "validation",
+  "summary": "Tier判定とworkflow内の4種類の文字列signalから下流の導入準備を診断する。.yml/.yamlと大小文字の違いを同じ条件で読み、共通repo-list検証で空・不正要素の省略による誤成功を防ぐ。",
+  "public_api": [
+    "assess_downstream_repo",
+    "python -m tools.ci.check_downstream_onboarding"
+  ],
+  "risks": [
+    "readyは文書構造と文字列signalの存在であり、GitHub CI実行結果や運用準拠の保証ではない"
+  ],
+  "tests": [
+    "tests/test_check_downstream_onboarding.py",
+    "tests/test_check_adoption_tier.py"
+  ],
+  "source_sha256": "db445aa8db5ac69fc4b0b711582d488d8264ecad3474d8e53141211094d87378",
+  "generated_at": "00073",
+  "review": {
+    "reviewed_at": "2026-09-12T06:07:11.844303+00:00",
+    "reviewed_by": "Codex",
+    "source_sha256": "db445aa8db5ac69fc4b0b711582d488d8264ecad3474d8e53141211094d87378",
+    "summary_sha256": "5a57d833a2aa0983edf057092eb9ce1bce2b32e75874f058613e1482626ddc37",
+    "scope": "共通repo-list検証、yml/yaml列挙、CI文字列signalとreadyの意味を回帰と照合"
+  }
+}

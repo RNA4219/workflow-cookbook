@@ -52,7 +52,8 @@ TEMPLATE_TARGETS: dict[str, str] = {
     "GUARDRAILS.md.template": "GUARDRAILS.md",
     "EVALUATION.md.template": "EVALUATION.md",
 }
-DIRECTORY_CONTENT = {"docs/acceptance": "*.md", "docs/tasks": "*.md", "docs/birdseye/caps": "*.json"}
+DIRECTORY_CONTENT = {"docs/acceptance": ".md", "docs/tasks": ".md", "docs/birdseye/caps": ".json"}
+JSON_ROLES = {"docs/birdseye/index.json", "docs/birdseye/hot.json", "docs/birdseye/caps"}
 
 
 def _content_error(path: Path, role: str) -> str | None:
@@ -62,7 +63,7 @@ def _content_error(path: Path, role: str) -> str | None:
         content = path.read_text(encoding="utf-8-sig")
         if not content.strip():
             return "empty"
-        if path.suffix != ".json":
+        if role not in JSON_ROLES:
             return None
         value = json.loads(content)
         if not isinstance(value, dict):
@@ -87,27 +88,51 @@ def _content_error(path: Path, role: str) -> str | None:
         return "invalid_json"
 
 
+def _parse_scalar(value: str) -> str:
+    """Read one-line version scalars without treating quoted hashes as comments.
+
+    Unsupported YAML forms are unknown, never compared as literal versions.
+    Double-quoted values use JSON-compatible escaping; single quotes use YAML's
+    doubled quote escaping. This checker remains usable without dependencies.
+    """
+    rendered = value.strip()
+    if not rendered:
+        return ""
+    if rendered[0] in {"'", '"'}:
+        match = re.fullmatch(r'''("(?:[^"\\]|\\.)*"|'(?:[^']|'')*')(?:[ \t]+#.*)?''', rendered)
+        if not match:
+            return ""
+        quoted = match[1]
+        if quoted[0] == "'":
+            single_quoted = quoted[1:-1].replace("''", "'")
+            return single_quoted if single_quoted.strip() else ""
+        try:
+            decoded = json.loads(quoted)
+        except ValueError:
+            return ""
+        return decoded if isinstance(decoded, str) and decoded.strip() else ""
+    rendered = re.split(r"\s+#", rendered, maxsplit=1)[0].strip()
+    if rendered.startswith(tuple("#[]{}&*!|>%@`")) or rendered.lower() in ("null", "~") or re.search(r":\s", rendered):
+        return ""
+    return rendered
+
+
 def _parse_front_matter(content: str) -> dict[str, str]:
-    if not content.startswith("---"):
+    lines = content.splitlines()
+    if not lines or lines[0].strip() != "---":
         return {}
-    match = re.search(r"\n---\s*(?:\n|$)", content[3:])
-    if not match:
+    end = next((index for index, line in enumerate(lines[1:], 1) if line.strip() == "---"), None)
+    if end is None:
         return {}
-    payload = content[3 : match.start() + 3]
     values: dict[str, str] = {}
-    for raw_line in payload.splitlines():
-        line = raw_line.strip()
-        if not line or line.startswith("#") or ":" not in line:
+    for line in lines[1:end]:
+        if not line or line[0].isspace() or line.startswith("#") or ":" not in line:
             continue
         key, _, value = line.partition(":")
-        rendered = value.strip()
-        if len(rendered) >= 2 and rendered[0] in {"'", '"'} and rendered[-1] == rendered[0]:
-            rendered = rendered[1:-1]
-        else:
-            rendered = rendered.partition(" #")[0].strip()
-            if rendered.startswith("#") or rendered.lower() in ("null", "~"):
-                rendered = ""
-        values[key.strip()] = rendered
+        key = key.strip()
+        if not re.fullmatch(r"[\w-]+", key):
+            continue
+        values[key] = "" if key in values else _parse_scalar(value)
     return values
 
 
@@ -125,7 +150,10 @@ def _path_status(repo: Path, rel_path: str) -> dict[str, Any]:
         elif expected_kind == "file":
             error = _content_error(target, rel_path)
         else:
-            members = sorted(target.glob(DIRECTORY_CONTENT[rel_path]))
+            members = sorted(
+                (member for member in target.iterdir() if member.suffix.casefold() == DIRECTORY_CONTENT[rel_path]),
+                key=lambda member: member.name,
+            )
             error = "empty" if not members else None
             for member in members:
                 member_error = _content_error(member, rel_path)
@@ -242,17 +270,15 @@ def assess_repo(repo: Path, *, check_drift: bool = False, template_root: Path = 
 
 
 def _load_repo_list(path: Path) -> list[Path]:
-    payload = json.loads(path.read_text(encoding="utf-8"))
+    payload = json.loads(path.read_text(encoding="utf-8-sig"))
     if not isinstance(payload, list) or not payload:
         raise ValueError("repo-list JSON must be a non-empty array")
     repos: list[Path] = []
     for index, item in enumerate(payload):
-        if isinstance(item, str):
-            repos.append(Path(item))
-        elif isinstance(item, Mapping) and isinstance(item.get("repo"), str):
-            repos.append(Path(str(item["repo"])))
-        else:
-            raise ValueError(f"repo-list item {index} must be a string or an object with repo")
+        value = item.get("repo") if isinstance(item, Mapping) else item
+        if not isinstance(value, str) or not value.strip() or "\0" in value:
+            raise ValueError(f"repo-list item {index} must be a non-empty path string or an object with repo")
+        repos.append(Path(value))
     return repos
 
 

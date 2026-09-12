@@ -1,5 +1,5 @@
 {
-  "generated_at": "00072",
+  "generated_at": "00073",
   "nodes": {
     "README.md": {
       "role": "overview",
@@ -225,6 +225,36 @@
       "role": "contract",
       "caps": "docs/birdseye/caps/docs.adoption-tiers.md.json",
       "mtime": "00045"
+    },
+    "tools/ci/check_downstream_onboarding.py": {
+      "role": "validation",
+      "caps": "docs/birdseye/caps/tools.ci.check_downstream_onboarding.py.json",
+      "mtime": "00046"
+    },
+    "docs/tasks/task-adoption-edge-cases-20260912.md": {
+      "role": "task",
+      "caps": "docs/birdseye/caps/docs.tasks.task-adoption-edge-cases-20260912.md.json",
+      "mtime": "00047"
+    },
+    "docs/acceptance/AC-20260912-03.md": {
+      "role": "acceptance",
+      "caps": "docs/birdseye/caps/docs.acceptance.AC-20260912-03.md.json",
+      "mtime": "00048"
+    },
+    ".github/workflows/test.yml": {
+      "role": "ci",
+      "caps": "docs/birdseye/caps/.github.workflows.test.yml.json",
+      "mtime": "00049"
+    },
+    "tests/fixtures/adoption_git_roundtrip.py": {
+      "role": "test-fixture",
+      "caps": "docs/birdseye/caps/tests.fixtures.adoption_git_roundtrip.py.json",
+      "mtime": "00050"
+    },
+    "docs/completion-record.md": {
+      "role": "history",
+      "caps": "docs/birdseye/caps/docs.completion-record.md.json",
+      "mtime": "00051"
     }
   },
   "edges": [
@@ -747,6 +777,106 @@
     [
       "docs/acceptance/AC-20260912-02.md",
       "docs/contracts/adoption-validation.md"
+    ],
+    [
+      "CHANGELOG.md",
+      "docs/tasks/task-adoption-edge-cases-20260912.md"
+    ],
+    [
+      "CHANGELOG.md",
+      "docs/acceptance/AC-20260912-03.md"
+    ],
+    [
+      "CHANGELOG.md",
+      "docs/contracts/full-workflow-copy.md"
+    ],
+    [
+      "CHANGELOG.md",
+      "docs/contracts/adoption-validation.md"
+    ],
+    [
+      "docs/adoption-guide.md",
+      "tools/ci/check_adoption_tier.py"
+    ],
+    [
+      "docs/adoption-guide.md",
+      "tools/ci/check_downstream_onboarding.py"
+    ],
+    [
+      "docs/contracts/adoption-validation.md",
+      "tools/ci/check_downstream_onboarding.py"
+    ],
+    [
+      "docs/contracts/adoption-validation.md",
+      "docs/tasks/task-adoption-edge-cases-20260912.md"
+    ],
+    [
+      "tools/ci/check_downstream_onboarding.py",
+      "tools/ci/check_adoption_tier.py"
+    ],
+    [
+      "docs/tasks/task-adoption-edge-cases-20260912.md",
+      "docs/contracts/adoption-validation.md"
+    ],
+    [
+      "docs/tasks/task-adoption-edge-cases-20260912.md",
+      "docs/contracts/full-workflow-copy.md"
+    ],
+    [
+      "docs/tasks/task-adoption-edge-cases-20260912.md",
+      "docs/acceptance/AC-20260912-03.md"
+    ],
+    [
+      "docs/tasks/task-adoption-edge-cases-20260912.md",
+      ".github/workflows/test.yml"
+    ],
+    [
+      "docs/acceptance/AC-20260912-03.md",
+      "docs/tasks/task-adoption-edge-cases-20260912.md"
+    ],
+    [
+      "docs/acceptance/AC-20260912-03.md",
+      "docs/contracts/adoption-validation.md"
+    ],
+    [
+      "docs/acceptance/AC-20260912-03.md",
+      "docs/contracts/full-workflow-copy.md"
+    ],
+    [
+      "docs/acceptance/AC-20260912-03.md",
+      "tests/fixtures/adoption_git_roundtrip.py"
+    ],
+    [
+      ".github/workflows/test.yml",
+      "tools/adoption.py"
+    ],
+    [
+      ".github/workflows/test.yml",
+      "tools/ci/check_adoption_tier.py"
+    ],
+    [
+      ".github/workflows/test.yml",
+      "tools/ci/check_downstream_onboarding.py"
+    ],
+    [
+      ".github/workflows/test.yml",
+      "tests/fixtures/adoption_git_roundtrip.py"
+    ],
+    [
+      "tests/fixtures/adoption_git_roundtrip.py",
+      "tools/adoption.py"
+    ],
+    [
+      "docs/completion-record.md",
+      "docs/tasks/task-adoption-edge-cases-20260912.md"
+    ],
+    [
+      "docs/completion-record.md",
+      "docs/acceptance/AC-20260912-03.md"
+    ],
+    [
+      "docs/completion-record.md",
+      "CHANGELOG.md"
     ]
   ]
 }
