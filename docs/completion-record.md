@@ -1,5 +1,20 @@
 # Completion Record
 
+## 2026-09-13 パッケージ版1.3.0の準備
+
+package metadataと配布文書を1.3.0へ揃え、tag待ちrelease candidateをversion consistencyで検査可能にした。
+PR CIはLinux Python 3.11/3.12で各1329 passed / 0 skipped、Windows adoptionで237 passed /
+0 skipped、行coverage 84.60%。wheelとsource archiveをbuildし、6公開CLIと一括コピーを隔離wheelで確認した。
+技術判定はgo。公開tag、GitHub Release、registry配布はrelease承認と実計測evidence待ち。
+
+- [Task 20260913-02](tasks/task-package-version-1.3.0-20260913.md)
+- [Acceptance AC-20260913-02](acceptance/AC-20260913-02.md)
+- [Release note 1.3.0](releases/v1.3.0.md)
+- [Changelog 1.3.0](../CHANGELOG.md#130---2026-09-13)
+- [PR #510](https://github.com/RNA4219/workflow-cookbook/pull/510)
+
+task_id: 20260913-02
+
 ## 2026-09-13 CI連携テストのskip解消
 
 公開固定版のmemx/taskstate/HATE/QEGをCIへ組み込み、必須skipを失敗にしてJUnitを保存する。

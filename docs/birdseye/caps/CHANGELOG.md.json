@@ -2,14 +2,12 @@
   "id": "CHANGELOG.md",
   "role": "history",
   "public_api": [],
-  "summary": "配布版とUnreleasedの変更をTask/Acceptanceへ追跡する履歴。文脈継続とHATE/QEG接続、一括コピーと導入診断に加え、固定依存版を使うCI・必須skip失敗・OS別JUnit保存の変更を記録する。",
+  "summary": "v1.3.0と過去の配布版、Unreleasedの変更をTask/Acceptanceへ追跡する履歴。文脈継続、HATE/QEG接続、一括コピー、導入診断、固定依存版CIと必須skip失敗を記録する。",
   "deps_out": [
     "EVALUATION.md",
     "README.md",
     "docs/acceptance/AC-20260910-02.md",
     "docs/acceptance/AC-20260912-03.md",
-    "docs/acceptance/AC-20260913-01.md",
-    "docs/ci-config.md",
     "docs/contracts/adoption-validation.md",
     "docs/contracts/full-workflow-copy.md",
     "docs/tasks/task-adoption-edge-cases-20260912.md",
@@ -32,13 +30,13 @@
     "tools/ci/check_completion_trace.py",
     "tools/ci/check_task_acceptance_bidirectional.py"
   ],
-  "generated_at": "00073",
-  "source_sha256": "cca1464f0b857233e6e0f9abf216e5bb0f81d5c6a35d2c2a91b4cc33baab3846",
+  "generated_at": "00074",
+  "source_sha256": "f38d772bdfbe60a867c8deaac0cc7151ea4de1a6b071df6b14e2b27b0f109247",
   "review": {
-    "reviewed_at": "2026-09-12T16:25:21.669355+00:00",
+    "reviewed_at": "2026-09-12T18:45:15.774218+00:00",
     "reviewed_by": "Codex",
-    "source_sha256": "cca1464f0b857233e6e0f9abf216e5bb0f81d5c6a35d2c2a91b4cc33baab3846",
-    "summary_sha256": "d2454c0cecda0000e7725f8f7fbaa2afa47bc38cfe4dd641416171aedddbd058",
-    "scope": "UnreleasedのCI連携・skip制御・OS適用範囲と受入参照、既存履歴の保持を確認"
+    "source_sha256": "f38d772bdfbe60a867c8deaac0cc7151ea4de1a6b071df6b14e2b27b0f109247",
+    "summary_sha256": "dcaa9362714e45b6d014fa601a671304b16ef7d43d8c1eaed654ac2729d0a267",
+    "scope": "v1.3.0への履歴移動、過去版保持、Task/Acceptance参照と性能測定の限界を原文に照合"
   }
 }

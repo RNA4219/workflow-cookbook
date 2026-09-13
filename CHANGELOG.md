@@ -8,37 +8,9 @@ next_review_due: 2026-08-11
 
 # Changelog
 
-## 1.2.0 - 2026-05-03
-
-### Added
-
-- Version consistency checker (INT-IMPROVEMENT-006 step 1):
-  - `tools/ci/check_version_consistency.py`: 11 tests
-  - RG-007 added to docs/ci-config.md
-- Stable CLI entrypoints (INT-IMPROVEMENT-006 step 2):
-  - `pyproject.toml`: `[project.scripts]` (wfc-governance-gate, wfc-collect-metrics, wfc-codemap-update, wfc-context-pack)
-  - 6 smoke tests
-- Docs gate escalation policy (INT-IMPROVEMENT-006 step 3):
-  - `governance/policy.yaml`: `ci.checker_stages` (RG-002: enforce, RG-003-007: warn)
-  - Escalation Policy section in docs/ci-config.md
-  - 4 new tests
-- Plugin capability catalog (INT-IMPROVEMENT-006 step 4):
-  - `schemas/plugin-capability-catalog.schema.json`
-  - `examples/plugin-capability-catalog.sample.json`: 5 capabilities
-  - 7 tests
-
-### Changed
-
-- Tech debt resolution: split large modules
-  - `tools/perf/collect_metrics/types.py` (572 lines) → rules.py, helpers.py, extractor.py
-  - `tools/ci/check_governance_gate.py` (503 lines) → governance_gate/ package
-  - docstrings added to evidence_bridge.py, allowlist_guard.py
-- pyproject.toml version fixed (0.1.0 → 1.1.3)
-- Birdseye freshness threshold: 365 days → 90 days
-- Self-improvement loop: nudge checker, propagation checker, sample configs
-- docs/releases/v1.2.0.md removed (no git tag) → CHANGELOG section removed
-
 ## Unreleased
+
+## 1.3.0 - 2026-09-13
 
 ### Fixed
 
@@ -232,6 +204,36 @@ next_review_due: 2026-08-11
 - `docs/tasks/task-release-evidence-operational-drill-20260417.md`: 例外理由追記
 - `docs/tasks/task-supply-chain-reproducibility-followup-20260417.md`: 例外理由追記
 - `HUB.codex.md`: Evidence 手順参照追加
+
+## 1.2.0 - 2026-05-03
+
+### Added
+
+- Version consistency checker (INT-IMPROVEMENT-006 step 1):
+  - `tools/ci/check_version_consistency.py`: 11 tests
+  - RG-007 added to docs/ci-config.md
+- Stable CLI entrypoints (INT-IMPROVEMENT-006 step 2):
+  - `pyproject.toml`: `[project.scripts]` (wfc-governance-gate, wfc-collect-metrics, wfc-codemap-update, wfc-context-pack)
+  - 6 smoke tests
+- Docs gate escalation policy (INT-IMPROVEMENT-006 step 3):
+  - `governance/policy.yaml`: `ci.checker_stages` (RG-002: enforce, RG-003-007: warn)
+  - Escalation Policy section in docs/ci-config.md
+  - 4 new tests
+- Plugin capability catalog (INT-IMPROVEMENT-006 step 4):
+  - `schemas/plugin-capability-catalog.schema.json`
+  - `examples/plugin-capability-catalog.sample.json`: 5 capabilities
+  - 7 tests
+
+### Changed
+
+- Tech debt resolution: split large modules
+  - `tools/perf/collect_metrics/types.py` (572 lines) → rules.py, helpers.py, extractor.py
+  - `tools/ci/check_governance_gate.py` (503 lines) → governance_gate/ package
+  - docstrings added to evidence_bridge.py, allowlist_guard.py
+- pyproject.toml version fixed (0.1.0 → 1.1.3)
+- Birdseye freshness threshold: 365 days → 90 days
+- Self-improvement loop: nudge checker, propagation checker, sample configs
+- docs/releases/v1.2.0.md removed (no git tag) → CHANGELOG section removed
 
 ## 1.1.3 - 2026-04-11
 

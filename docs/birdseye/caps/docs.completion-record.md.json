@@ -4,12 +4,10 @@
   "deps_out": [
     "CHANGELOG.md",
     "docs/acceptance/AC-20260912-03.md",
-    "docs/acceptance/AC-20260913-01.md",
-    "docs/tasks/task-adoption-edge-cases-20260912.md",
-    "docs/tasks/task-ci-no-skips-20260913.md"
+    "docs/tasks/task-adoption-edge-cases-20260912.md"
   ],
   "role": "history",
-  "summary": "完了事項の日付・短い判定とTask/Acceptance/CHANGELOGへの正本リンクを集約する索引。導入診断の境界条件修正に加え、公開固定依存版とskip禁止によるCI3構成の検収を記録し、過去のGateは保持する。",
+  "summary": "完了事項の日付・短い判定とTask/Acceptance/Releaseへの正本リンクを集約する索引。パッケージ版1.3.0の技術検収、CI skip 0、配布物smoke、公開保留の境界を記録し、過去の完了証跡を保持する。",
   "public_api": [],
   "risks": [
     "過去の試験・測定結果は当該Taskの範囲に限定し、新規タスクの実績として流用しない"
@@ -19,13 +17,13 @@
     "tools/ci/check_task_completion_propagation.py",
     "tools/ci/check_task_acceptance_bidirectional.py"
   ],
-  "source_sha256": "abe758275c86f3c10e4190c65cc50c406ad3a57336fb5def06889e2dbd5be773",
-  "generated_at": "00073",
+  "source_sha256": "a421733f6c31cd3c7625734f21a70e8f099f590b4e48eb11a021a72a158f7ea6",
+  "generated_at": "00077",
   "review": {
-    "reviewed_at": "2026-09-12T16:31:54.526444+00:00",
+    "reviewed_at": "2026-09-13T00:00:00+09:00",
     "reviewed_by": "Codex",
-    "source_sha256": "abe758275c86f3c10e4190c65cc50c406ad3a57336fb5def06889e2dbd5be773",
-    "summary_sha256": "2300338f08a4fcd5f5bb2a67ed6665ce00f0105290bdba2c3e9028a7f5ba6e5e",
-    "scope": "CI検収の追加段落、3構成の実結果、Task/Acceptance参照と過去記録の保持を確認"
+    "source_sha256": "a421733f6c31cd3c7625734f21a70e8f099f590b4e48eb11a021a72a158f7ea6",
+    "summary_sha256": "85d5fe4481b777ee4ec0b0fc1f3b5352ea95ad7a6a1009761449da5ea3ebe157",
+    "scope": "1.3.0の完了段落、明示task_id、CI実測、Task/Acceptance/Release/CHANGELOG参照、公開保留の境界を原文と照合"
   }
 }
