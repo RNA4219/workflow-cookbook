@@ -73,7 +73,7 @@ jobs:
           --cov-report=term-missing
           --cov-report=xml
           --cov-fail-under=80
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         if: always()
         with:
           name: coverage-xml
@@ -99,7 +99,7 @@ jobs:
         run: uv sync --locked --extra dev
       - name: Pytest
         run: uv run --locked pytest -q -rs --fail-on-skip --junitxml=test-results/python-312.xml
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         if: always()
         with:
           name: junit-python-312
@@ -126,7 +126,7 @@ jobs:
           uv run --locked python -B -m pytest
           tests/test_adoption.py tests/test_check_adoption_tier.py tests/test_check_downstream_onboarding.py
           -m "not posix" -q -rs --fail-on-skip --junitxml=test-results/windows-adoption.xml
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         if: always()
         with:
           name: junit-windows-adoption
@@ -135,7 +135,7 @@ jobs:
 
       - name: Create Windows Git roundtrip bundle
         run: python -B tests/fixtures/adoption_git_roundtrip.py create --output "${{ runner.temp }}/adoption-roundtrip-windows"
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         if: always()
         with:
           name: adoption-roundtrip-windows
@@ -163,7 +163,7 @@ jobs:
           --bundle "${{ runner.temp }}/adoption-roundtrip-input/adoption.bundle"
           --output "${{ runner.temp }}/adoption-roundtrip-linux"
           --require-posix
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         if: always()
         with:
           name: adoption-roundtrip-linux
@@ -186,7 +186,7 @@ jobs:
         run: uv build
       - name: Smoke-test non-editable wheel CLIs
         run: python tools/ci/smoke_wheel.py dist/*.whl
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: python-distributions
           path: dist/*
